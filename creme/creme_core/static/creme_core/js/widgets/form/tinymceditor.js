@@ -48,33 +48,58 @@ function availablePlugins() {
 };
 
 function buildTinyMCEBaseURLs(url) {
-    var base;
+    var host, baseURI;
 
-    if (!url.match(/^(http|https):\/\//)) {
-        base = '${protocol}//${host}/'.template(_.urlAsDict(window.location.href));
-        url = base + url;
+    if (url.match(/^(http|https):\/\//)) {
+        host = '${protocol}//${host}/'.template(_.urlAsDict(url));
+        baseURI = new tinymce.util.URI(url, {
+            base_uri: new tinymce.utils.URI(host)
+        });
+    } else if (url.match(/^file:\/\//)) {
+        baseURI = new tinymce.util.URI(url);
     } else {
-        base = '${protocol}//${host}/'.template(_.urlAsDict(url));
+        host = '${protocol}//${host}/'.template(_.urlAsDict(window.location.href));
+        baseURI = new tinymce.util.URI(url, {
+            base_uri: new tinymce.util.URI(host)
+        });
     }
 
     return {
         document_base_url: url,
         base_url: url,
-        base_uri: new tinymce.util.URI(tinymce.documentBaseURL, {
-            base_uri: base
-        })
+        plugin_base_urls: url,
+        base_uri: baseURI
     };
 };
 
 function setupTinyMCE(options) {
     return new Promise(function(resolve, reject) {
         try {
+            tinymce._setBaseUrl = function(baseUrl) {
+                this.baseURL = options.base_url;
+                this.baseURI = options.base_uri;
+            };
+
             tinymce.init(Object.assign({
                 plugins: BUNDLE_PLUGINS
             }, options || {}, {
                 license_key: 'gpl',
-                suffix: '.min',  // only gets minified scripts '.min.js'
+                suffix: options.suffix || '.min',  // only gets minified scripts '.min.js'
                 skin: 'oxide'
+                /*
+                theme_url: 'themes/${theme}/theme${suffix}.js'.template({
+                    theme: options.theme || 'silver',
+                    suffix: options.suffix || '.min'
+                }),
+                model_url: 'models/${model}/model${suffix}.js'.template({
+                    model: options.model || 'dom',
+                    suffix: options.suffix || '.min'
+                }),
+                icons_url: 'icons/${icons}/icons${suffix}.js'.template({
+                    icons: options.icons || 'default',
+                    suffix: options.suffix || '.min'
+                })
+                */
                 // content_css: false,
                 // content_style: `${contentUiSkinCss}\n${contentCss}`,
             })).then(resolve);
@@ -153,18 +178,44 @@ var EDITOR_DEFAULT_TEMPLATES = [
 */
 
 function parseWidth(value, element) {
-    return value === 'fit-input' ? element.width() : value;
+    if (!Object.isEmpty(value)) {
+        return value === 'fit-input' ? element.width() + 'px' : value;
+    }
+}
+
+function parseWidthAsNumber(value, element) {
+    if (!Object.isEmpty(value)) {
+        var width = (value === 'fit-input' ? element.width() : parseInt(value));
+        return isNaN(width) ? undefined : width;
+    }
 }
 
 function parseHeight(value, element) {
-    switch (value) {
-        case 'fit-input':
-            return element.height() + 'px';
-        case 'fit-rows':
-            var rows = parseInt(element.attr('rows')) || 0;
-            return rows ? rows + 'em' : element.height() + 'px';
-        default:
-            return value;
+    if (!Object.isEmpty(value)) {
+        switch (value) {
+            case 'fit-input':
+                return element.height() + 'px';
+            case 'fit-rows':
+                var rows = parseInt(element.attr('rows')) || 0;
+                return rows > 0 ? rows + 'em' : element.height() + 'px';
+            default:
+                return value;
+        }
+    }
+}
+
+function parseHeightAsNumber(value, element) {
+    if (!Object.isEmpty(value)) {
+        switch (value) {
+            case 'fit-input':
+                return element.height();
+            case 'fit-rows':
+                var rows = parseInt(element.attr('rows')) || 0;
+                var fontSize = Math.ceil(parseFloat(window.getComputedStyle(element.get(0)).fontSize));
+                return rows ? rows * fontSize : element.height();
+            default:
+                return parseInt(value);
+        }
     }
 }
 
@@ -175,13 +226,17 @@ creme.TinyMCEditor = creme.component.Component.sub({
             uploadField: element.data('uploadField') || 'file',
             csrftoken: null,
             toolbar: element.data('toolbar') || 'full',
-            disabledToolbarMode: element.data('disabledToolbar') || false,
             placeholder: element.data('placeholder') || element.attr('placeholder') || gettext('Type here...'),
-            maxWidth: element.data('editorWidth'),
-            minHeight: element.data('editorHeight'),
+            width: element.data('editorWidth'),
+            minWidth: element.data('editorMinWidth'),
+            maxWidth: element.data('editorMaxWidth'),
+            height: element.data('editorHeight'),
+            minHeight: element.data('editorMinHeight'),
+            maxHeight: element.data('editorMaxHeight'),
             isDisabled: element.prop('disabled'),
             isReadOnly: element.prop('readonly'),
-            baseURL: element.data('baseUrl') || 'tiny_mce/8.3.2/'
+            baseURL: element.data('baseUrl') || 'tiny_mce/8.3.2/',
+            allowCrossOrigin: false
         }, options || {});
 
         Assert.not(element.is('.creme-tinymce-hidden'), 'TinyMCE instance is already active');
@@ -199,13 +254,16 @@ creme.TinyMCEditor = creme.component.Component.sub({
             }
         }.bind(this);
 
+        this._element = element;
         this._editorSetup = setupTinyMCE(Object.assign({
             target: element.get(0)
-        }, editorOptions)).then(function(editor) {
-            self._editor = editor;
+        }, editorOptions)).then(function(editors) {
+            var editor = self._editor = editors[0];
             element.addClass('creme-tinymce-hidden');
             element.data('tiny-editor', editor);
             element.on('html5-pre-validate', self._onPreValidate);
+            element.prop('disabled', options.isDisabled);
+            element.prop('readonly', options.isReadOnly);
         });
     },
 
@@ -219,49 +277,51 @@ creme.TinyMCEditor = creme.component.Component.sub({
         }
 
         this._element.prop('disabled', state);
-        this._toggleEditorDisabled(this.isDisabled());
+        this._toggleEditorDisabled(state);
         return this;
     },
 
     isReadOnly: function(state) {
         if (state === undefined) {
-            return this._element.prop('readonly');
+            return this._editor.mode.isReadOnly();
         }
 
         this._element.prop('readonly', state);
-        this._toggleEditorReadOnly(this.isDisabled());
+        this._toggleEditorReadOnly(state);
         return this;
     },
 
     _toggleEditorReadOnly: function(state) {
         if (!Object.isNone(this._editor)) {
-            var prev = this._editor.options.get('readonly');
+            var prev = this._editor.mode.isReadOnly();
             if (prev !== state) {
-                this._editor.options.get('readonly', state);
+                this._editor.mode.set(state ? 'readonly' : 'design');
             }
         }
     },
 
     _toggleEditorDisabled: function(state) {
         if (!Object.isNone(this._editor)) {
-            var prev = this._editor.options.get('disabled');
+            var prev = this.isDisabled();
             if (prev !== state) {
-                this._editor.options.get('disabled', state);
+                this._editor.ui.setEnabled(!state);
             }
         }
     },
 
     _editorToolbarItems: function(options) {
         var items;
+        var toolbar = options.toolbar || 'full';
 
-        if (Array.isArray(options.toolbar)) {
+        if (Array.isArray(toolbar)) {
             items = {
-                toolbar: options.toolbar.slice(),
+                menubar: false,
+                toolbar: toolbar.slice(),
                 insert_quickbars: []
             };
         } else {
-            items = EDITOR_TOOLBARS[options.toolbar || 'full'] || {};
-            Assert.that(items.toolbar.length > 0, 'TinyMCEditor toolbar "${toolbar}" does not exist', options);
+            items = EDITOR_TOOLBARS[toolbar];
+            Assert.that(items !== undefined, 'TinyMCEditor toolbar "${toolbar}" does not exist', options);
         }
 
         return items;
@@ -288,11 +348,19 @@ creme.TinyMCEditor = creme.component.Component.sub({
         var toolbarItems = this._editorToolbarItems(options);
         var plugins = availablePlugins();
         var editorOptions = {
-            readonly: options.isReadonly,
+            readonly: options.isReadOnly,
             disabled: options.isDisabled,
             placeholder: options.placeholder,
             icons: 'creme'
         };
+
+        if (_.isFunction(options.allowCrossOrigin)) {
+            editorOptions.crossOrigin = options.allowCrossOrigin;
+        } else if (_.isString(options.allowCrossOrigin)) {
+            editorOptions.crossOrigin = function() {
+                return options.allowCrossOrigin;
+            };
+        }
 
         if (options.baseURL) {
             Object.assign(editorOptions, buildTinyMCEBaseURLs(options.baseURL));
@@ -305,9 +373,13 @@ creme.TinyMCEditor = creme.component.Component.sub({
             plugins = _.without(plugins, 'image');
         }
 
-        if (!Object.isEmpty(options.maxWidth)) {
-            editorOptions.max_width = parseWidth(options.maxWidth, element);
-        }
+        editorOptions.width = parseWidth(options.width, element);
+        editorOptions.max_width = parseWidthAsNumber(options.maxWidth, element);
+        editorOptions.min_width = parseWidthAsNumber(options.minWidth, element);
+
+        editorOptions.height = parseHeight(options.height, element);
+        editorOptions.max_height = parseHeightAsNumber(options.maxHeight, element);
+        editorOptions.min_height = parseHeightAsNumber(options.minHeight, element);
 
         editorOptions = $.extend(editorOptions, {
             plugins: plugins,
@@ -315,8 +387,7 @@ creme.TinyMCEditor = creme.component.Component.sub({
             toolbar: (toolbarItems.toolbar || []).join(' '),
             menubar: (toolbarItems.menubar || []).join(' '),
             toolbar_groups: toolbarItems.toolbar_groups || {},
-            toolbar_mode: 'floating',
-            max_height: parseHeight(options.maxHeight)
+            toolbar_mode: 'floating'
         });
 
         return editorOptions;
@@ -335,6 +406,7 @@ creme.TinyMCEditor = creme.component.Component.sub({
 
         Assert.not(Object.isNone(editor), 'TinyMCE instance does not exist');
         editor.insertContent(html);
+        editor.save();
 
         return this;
     },
@@ -343,6 +415,7 @@ creme.TinyMCEditor = creme.component.Component.sub({
         if (!Object.isNone(this._editor)) {
             this._editor.remove();
             this._editor = null;
+            this._editorSetup = null;
             this._element.data('tiny-editor', null);
             this._element.off('html5-pre-validate', this._onPreValidate);
         }

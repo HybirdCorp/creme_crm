@@ -82,6 +82,14 @@ module.exports = function(config) {
         sourcePath + '/tests/**/qunit*mixin.js'
     ];
 
+    // TODO : use env variable for these paths
+    var served = [{
+        pattern: 'creme/media/tiny_mce/8.3.2/**/*.js',
+        served: true,
+        included: true,
+        nocache: true
+    }]
+
     var allfiles = [sourcePath + '/tests/**/!(qunit)*.js'];
     var defaultBrowsers = ['FirefoxHeadless']
     var globals = {
@@ -124,7 +132,8 @@ module.exports = function(config) {
         concurrency: 1,
         frameworks: ['qunit'],
         files: commonfiles.concat(qunitfiles)
-                          .concat(targets),
+                          .concat(targets)
+                          .concat(served),
         browsers: browsers,
 
         customLaunchers: {
