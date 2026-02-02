@@ -2,7 +2,6 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 from io import BytesIO
-from json import dumps as json_dump
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -15,10 +14,12 @@ from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
-from creme.billing.bricks import BillingExportersBrick
-from creme.billing.exporters import BillingExportEngineManager, ExporterFlavour
-from creme.billing.exporters.latex import LatexExportEngine, LatexExporter
-from creme.billing.exporters.xls import XLSExportEngine, XLSExporter
+from creme.billing.actions import (
+    BulkExportInvoiceAction,
+    BulkExportQuoteAction,
+)
+from creme.billing.exporters.latex import LatexExportEngine
+from creme.billing.exporters.xls import XLSExportEngine
 from creme.billing.models import (
     ExporterConfigItem,
     Line,
@@ -37,26 +38,23 @@ from creme.products import get_product_model, get_service_model
 from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-from ..actions import BulkExportInvoiceAction, BulkExportQuoteAction
-from ..forms.export import ExporterLocalisationField
-from .base import (
+from ..base import (
     Address,
-    CreditNote,
     Invoice,
     Organisation,
     ProductLine,
     Quote,
-    SalesOrder,
     ServiceLine,
-    TemplateBase,
     _BillingTestCase,
     skipIfCustomInvoice,
     skipIfCustomProductLine,
     skipIfCustomQuote,
     skipIfCustomServiceLine,
 )
-from .exporters.no_content_disposition import NoContentDispositionExportEngine
-from .fake_exporters import OnlyInvoiceExportEngine
+from ..fake_exporters.no_content_disposition import (
+    NoContentDispositionExportEngine,
+)
+from ..fake_exporters.only_invoice import OnlyInvoiceExportEngine
 
 latex_not_installed = which('lualatex') is None or which('latexmk') is None
 
@@ -66,10 +64,7 @@ except ImportError:
     weasyprint_not_installed = True
 else:
     weasyprint_not_installed = False
-    from creme.billing.exporters.weasyprint import (
-        WeasyprintExportEngine,
-        WeasyprintExporter,
-    )
+    from creme.billing.exporters.weasyprint import WeasyprintExportEngine
 
 try:
     import xhtml2pdf  # NOQA
@@ -77,735 +72,17 @@ except ImportError:
     xhtml2pdf_not_installed = True
 else:
     xhtml2pdf_not_installed = False
-    from creme.billing.exporters.xhtml2pdf import (
-        Xhtml2pdfExportEngine,
-        Xhtml2pdfExporter,
-    )
+    from creme.billing.exporters.xhtml2pdf import Xhtml2pdfExportEngine
 
 
-class ExporterLocalisationFieldTestCase(_BillingTestCase):
-    def test_clean__empty__required(self):
-        field = ExporterLocalisationField(required=True)
-        msg = _('This field is required.')
-        code = 'required'
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
-
-    def test_clean__empty__not_required(self):
-        field = ExporterLocalisationField(required=False)
-
-        with self.assertNoException():
-            value = field.clean(None)
-
-        self.assertIsNone(None, value)
-
-    def test_clean__ok(self):
-        manager = BillingExportEngineManager([
-            'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine'
-        ])
-        field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
-
-        self.assertTupleEqual(
-            ('FR', 'fr_FR'),
-            field.clean(json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': 'fr_FR'},
-            })),
-        )
-        self.assertTupleEqual(
-            ('FR', 'en_EN'),
-            field.clean(json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': 'en_EN'},
-            })),
-        )
-
-    def test_clean__ok_agnostic(self):
-        manager = BillingExportEngineManager([
-            'creme.billing.exporters.xls.XLSExportEngine',
-            'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
-        ])
-        field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
-
-        self.assertTupleEqual(
-            ('FR', 'fr_FR'),
-            field.clean(json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': 'fr_FR'},
-            })),
-        )
-        self.assertTupleEqual(
-            ('AGNOSTIC', ''),
-            field.clean(json_dump({
-                'country': {
-                    'country_code': 'AGNOSTIC',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': ''},
-            })),
-        )
-
-    def test_clean__invalid_data_type_main(self):
-        field = ExporterLocalisationField(required=False)
-        code = 'invalidtype'
-        msg = _('Invalid type')
-        self.assertFormfieldError(
-            field=field, messages=msg, codes=code, value='"this is a string"',
-        )
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value='[]')
-
-    def test_clean__invalid_format(self):
-        field = ExporterLocalisationField(required=False)
-        code = 'invalidformat'
-        msg = _('Invalid format')
-        self.assertFormfieldError(
-            field=field, codes=code, messages=msg,
-            value='{"country": "notadict"}',
-        )
-        self.assertFormfieldError(
-            field=field, codes=code, messages=msg,
-            value=json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': 'not a dict',
-            }),
-        )
-
-    def test_clean__invalid_key_required(self):
-        field = ExporterLocalisationField()
-        country_msg = 'The country is required.'
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({
-                # 'country': {
-                #     'country_code': 'FR',
-                #     'languages': ['fr_FR', 'en_EN'],
-                # },
-                'language': {'language_code': 'en_EN'},
-            }),
-            codes='countryrequired', messages=country_msg,
-        )
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({
-                'country': {
-                    'country_code': '',  # <==
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': 'en_EN'},
-            }),
-            codes='countryrequired', messages=country_msg,
-        )
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                # 'language': {'language_code': 'en_EN'},
-            }),
-            codes='languagerequired',
-            messages='The language is required.',
-        )
-
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({
-                'country': {
-                    # 'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {'language_code': 'en_EN'},
-            }),
-            codes='countryrequired', messages=country_msg,
-        )
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {
-                    # 'language_code': 'en_EN',
-                },
-            }),
-            codes='invalidformat',  # TODO: 'languagerequired'
-            messages=_('Invalid format'),
-        )
-
-    def test_clean__empty_country_not_required(self):
-        field = ExporterLocalisationField(required=False)
-        self.assertIsNone(
-            field.clean(
-                json_dump({
-                    'country': {
-                        'country_code': '',
-                        'languages': [],
-                    },
-                    # 'language': {'language_code': 'en_EN'},
-                }),
-            )
-        )
-
-    def test_clean__error(self):
-        manager = BillingExportEngineManager([
-            'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
-        ])
-        self.assertFormfieldError(
-            field=ExporterLocalisationField(engine_manager=manager, model=Invoice),
-            value=json_dump({
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR', 'en_EN'],
-                },
-                'language': {
-                    'language_code': 'it_IT',
-                },
-            }),
-            messages='The couple country/language is invalid',
-            codes='invalidlocalisation',
-        )
-
-    def test_initial__latex(self):
-        manager = BillingExportEngineManager([
-            'creme.billing.exporters.latex.LatexExportEngine',
-        ])
-        field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
-
-        self.assertJSONEqual(
-            raw=field.from_python(('FR', 'fr_FR')),
-            expected_data={
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['fr_FR'],
-                },
-                'language': {
-                    'language_code': 'fr_FR',
-                },
-            },
-        )
-
-    def test_initial__custom(self):
-        manager = BillingExportEngineManager([
-            'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
-        ])
-        field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
-
-        self.assertJSONEqual(
-            raw=field.from_python(('FR', 'fr_FR')),
-            expected_data={
-                'country': {
-                    'country_code': 'FR',
-                    'languages': ['en_EN', 'fr_FR'],
-                },
-                'language': {
-                    'language_code': 'fr_FR',
-                },
-            },
-        )
-
-
-# TODO: split
+# TODO: split more?
 @skipIfCustomOrganisation
 class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
-    @staticmethod
-    def _build_conf_url(ctype):
-        return reverse('billing__edit_exporter_config', args=(ctype.id,))
-
     @staticmethod
     def _build_export_url(entity):
         return reverse('billing__export', args=(entity.id,))
 
-    def test_flavour(self):
-        flavour1 = ExporterFlavour('FR', 'fr_FR', 'basic')
-        self.assertEqual('FR',    flavour1.country)
-        self.assertEqual('fr_FR', flavour1.language)
-        self.assertEqual('basic', flavour1.theme)
-        self.assertEqual('FR/fr_FR/basic', flavour1.as_id())
-
-        flavour2 = ExporterFlavour.from_id('FR/fr_FR/basic')
-        self.assertIsInstance(flavour2, ExporterFlavour)
-        self.assertEqual('FR',    flavour2.country)
-        self.assertEqual('fr_FR', flavour2.language)
-        self.assertEqual('basic', flavour2.theme)
-        self.assertEqual(flavour1, flavour2)
-
-        self.assertNotEqual(
-            flavour1,
-            ExporterFlavour('IT', flavour1.language, flavour1.theme)
-        )
-        self.assertNotEqual(
-            flavour1,
-            ExporterFlavour(flavour1.country, 'fr_BE', flavour1.theme)
-        )
-        self.assertNotEqual(
-            flavour1,
-            ExporterFlavour(flavour1.country, flavour1.language, 'cappuccino')
-        )
-
-        flavour3 = ExporterFlavour.from_id('BE/fr_BE')
-        self.assertEqual('BE',    flavour3.country)
-        self.assertEqual('fr_BE', flavour3.language)
-        self.assertEqual('',      flavour3.theme)
-
-        flavour4 = ExporterFlavour.from_id('IT/it_IT/theme/with/odd/name')
-        self.assertEqual('IT',    flavour4.country)
-        self.assertEqual('it_IT', flavour4.language)
-        self.assertEqual('theme/with/odd/name', flavour4.theme)
-
-    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
-    @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
-    def test_exporter_latex(self):
-        engine1 = LatexExportEngine(Quote)
-        flavour_args = ('FR', 'fr_FR', 'clear')
-
-        flavours = [*engine1.flavours]
-        self.assertIn(
-            ExporterFlavour(*flavour_args),
-            flavours,
-        )
-
-        exporter = engine1.exporter(
-            flavour=ExporterFlavour(*flavour_args),
-        )
-        self.assertIsInstance(exporter, LatexExporter)
-        self.assertEqual(
-            '.pdf - LateX - Thème clair (France)',
-            exporter.verbose_name,
-        )
-        self.assertIs(engine1, exporter.engine)
-        self.assertEqual(
-            ExporterFlavour(*flavour_args),
-            exporter.flavour,
-        )
-        self.assertEqual('billing-latex|FR/fr_FR/clear', exporter.id)
-        self.assertEqual(
-            'billing/export/latex/FR/fr_FR/clear/quote.tex',
-            exporter.template_path,
-        )
-        self.assertListEqual(
-            ['billing/sample_latex.png'],
-            [*exporter.screenshots],
-        )
-
-        # ---
-        engine2 = LatexExportEngine(Organisation)
-        self.assertFalse([*engine2.flavours])
-
-    @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_exporter_xls(self):
-        engine = XLSExportEngine(Quote)
-        self.assertListEqual(
-            [ExporterFlavour(country='AGNOSTIC')], [*engine.flavours],
-        )
-
-        exporter = engine.exporter(flavour=ExporterFlavour(country='AGNOSTIC'))
-        self.assertIsInstance(exporter, XLSExporter)
-        self.assertEqual(_('.xls (data for template)'), exporter.verbose_name)
-        self.assertIs(engine, exporter.engine)
-        self.assertEqual(
-            ExporterFlavour(country='AGNOSTIC'),
-            exporter.flavour,
-        )
-        self.assertFalse([*exporter.screenshots])
-
-    @skipIf(weasyprint_not_installed, '"weasyprint" is not installed.')
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
-    ])
-    def test_exporter_weasyprint(self):
-        engine1 = WeasyprintExportEngine(Invoice)
-        flavour_args = ('FR', 'fr_FR', 'mint')
-
-        flavours = [*engine1.flavours]
-        self.assertIn(
-            ExporterFlavour(*flavour_args),
-            flavours,
-        )
-
-        exporter = engine1.exporter(
-            flavour=ExporterFlavour(*flavour_args),
-        )
-        self.assertIsInstance(exporter, WeasyprintExporter)
-        self.assertEqual(
-            '.pdf - WeasyPrint - Thème Menthe (France)',
-            exporter.verbose_name,
-        )
-        self.assertIs(engine1, exporter.engine)
-        self.assertEqual(
-            ExporterFlavour(*flavour_args),
-            exporter.flavour,
-        )
-        self.assertEqual('billing-weasyprint|FR/fr_FR/mint', exporter.id)
-        self.assertEqual(
-            'billing/export/weasyprint/FR/fr_FR/mint/invoice.html',
-            exporter.html_template_path,
-        )
-        self.assertListEqual(
-            ['billing/sample_weasyprint.png'],
-            [*exporter.screenshots],
-        )
-
-        # ---
-        engine2 = LatexExportEngine(Organisation)
-        self.assertFalse([*engine2.flavours])
-
-    @skipIf(xhtml2pdf_not_installed, '"xhtml2pdf" is not installed.')
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine']
-    )
-    def test_exporter_xhtml2pdf(self):
-        engine1 = Xhtml2pdfExportEngine(Invoice)
-        flavour_args = ('FR', 'fr_FR', 'cappuccino')
-
-        flavours = [*engine1.flavours]
-        self.assertIn(
-            ExporterFlavour(*flavour_args),
-            flavours,
-        )
-
-        exporter = engine1.exporter(
-            flavour=ExporterFlavour(*flavour_args),
-        )
-        self.assertIsInstance(exporter, Xhtml2pdfExporter)
-        self.assertEqual(
-            '.pdf - Xhtml2pdf - Thème Cappuccino (France)',
-            exporter.verbose_name,
-        )
-        self.assertIs(engine1, exporter.engine)
-        self.assertEqual(
-            ExporterFlavour(*flavour_args),
-            exporter.flavour,
-        )
-        self.assertEqual('billing-xhtml2pdf|FR/fr_FR/cappuccino', exporter.id)
-        self.assertEqual(
-            'billing/export/xhtml2pdf/FR/fr_FR/cappuccino/invoice.html',
-            exporter.template_path,
-        )
-        self.assertListEqual(
-            ['billing/sample_xhtml2pdf.png'],
-            [*exporter.screenshots],
-        )
-
-        # ---
-        engine2 = Xhtml2pdfExportEngine(Organisation)
-        self.assertFalse([*engine2.flavours])
-
-    def test_exporter_manager__empty(self):
-        manager = BillingExportEngineManager([])
-        self.assertFalse([*manager.engine_classes])
-
-        self.assertIsNone(manager.engine(engine_id='billing-latex', model=Invoice))
-        self.assertIsNone(manager.engine(engine_id='billing-xls', model=Invoice))
-
-        self.assertIsNone(manager.exporter(
-            engine_id='billing-latex',
-            flavour_id='donotcare',
-            model=Invoice,
-        ))
-
-    def test_exporter_manager__class(self):
-        "Pass class directly."
-        manager = BillingExportEngineManager([
-            'creme.billing.exporters.latex.LatexExportEngine',
-            'creme.billing.exporters.xls.XLSExportEngine',
-            'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
-        ])
-        self.assertCountEqual(
-            [LatexExportEngine, XLSExportEngine, OnlyInvoiceExportEngine],
-            [*manager.engine_classes]
-        )
-
-        # Engine ---
-        engine1 = manager.engine(engine_id='billing-latex', model=Invoice)
-        self.assertIsInstance(engine1, LatexExportEngine)
-        self.assertEqual(Invoice, engine1.model)
-
-        engine2 = manager.engine(engine_id=XLSExportEngine.id, model=Quote)
-        self.assertIsInstance(engine2, XLSExportEngine)
-        self.assertEqual(Quote, engine2.model)
-
-        # Exporter ---
-        exporter1 = manager.exporter(
-            engine_id=LatexExportEngine.id,
-            flavour_id='FR/fr_FR/clear',
-            model=Invoice,
-        )
-        self.assertIsInstance(exporter1, LatexExporter)
-        self.assertEqual(
-            'billing/export/latex/FR/fr_FR/clear/invoice.tex',
-            exporter1.template_path,
-        )
-
-        self.assertIsNone(
-            manager.exporter(
-                engine_id=LatexExportEngine.id,
-                flavour_id='wonderland/fr_FR/clear',
-                model=Invoice,
-            )
-        )
-
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.latex.LatexExportEngine',
-        'creme.billing.exporters.xls.XLSExportEngine',
-    ])
-    def test_exporter_manager__settings(self):
-        "Default argument => use settings."
-        manager = BillingExportEngineManager()
-
-        engine1 = manager.engine(engine_id=LatexExportEngine.id, model=Invoice)
-        self.assertIsInstance(engine1, LatexExportEngine)
-        self.assertEqual(Invoice, engine1.model)
-
-        engine2 = manager.engine(engine_id='billing-xls', model=Quote)
-        self.assertIsInstance(engine2, XLSExportEngine)
-        self.assertEqual(Quote, engine2.model)
-
-    def test_exporter_manager__invalid_class(self):
-        engine = BillingExportEngineManager([
-            'creme.billing.exporters.latex.LatexExportEngine',
-            'creme.billing.tests.fake_exporters.NotExporter',
-        ])
-
-        with self.assertRaises(BillingExportEngineManager.InvalidEngineClass):
-            [*engine.engine_classes]  # NOQA
-
-    def test_configuration_populate(self):
-        get_ct = ContentType.objects.get_for_model
-        self.get_object_or_fail(
-            ExporterConfigItem,
-            content_type=get_ct(Invoice),
-            # engine_id='',
-        )
-        self.get_object_or_fail(
-            ExporterConfigItem,
-            content_type=get_ct(Quote),
-            # engine_id='',
-        )
-        self.get_object_or_fail(
-            ExporterConfigItem,
-            content_type=get_ct(SalesOrder),
-            # engine_id='',
-        )
-        self.get_object_or_fail(
-            ExporterConfigItem,
-            content_type=get_ct(CreditNote),
-            # engine_id='',
-        )
-        self.get_object_or_fail(
-            ExporterConfigItem,
-            content_type=get_ct(TemplateBase),
-            # engine_id='',
-        )
-
-    def test_configuration_portal(self):
-        self.login_as_root()
-
-        response = self.assertGET200(
-            reverse('creme_config__app_portal', args=('billing',))
-        )
-        self.get_brick_node(
-            self.get_html_tree(response.content), brick=BillingExportersBrick,
-        )
-
-        # TODO: complete
-
-    @skipIf(xhtml2pdf_not_installed, 'The lib "xhtml2pdf" is not installed.')
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
-        'creme.billing.exporters.xls.XLSExportEngine',
-    ])
-    def test_configuration_edition(self):
-        self.login_as_standard(admin_4_apps=['billing'])
-
-        ct = ContentType.objects.get_for_model(Invoice)
-        ExporterConfigItem.objects.filter(
-            content_type=ct,
-        ).update(
-            engine_id='',
-            flavour_id='',
-        )
-
-        url = self._build_conf_url(ct)
-        response1 = self.assertGET200(url)
-
-        with self.assertNoException():
-            localisation_f = response1.context['form'].fields['localisation']
-
-        self.assertIsNone(localisation_f.initial)
-        # TODO: improve
-
-        step_key = 'exporter_config_edition_wizard-current_step'
-        response2 = self.client.post(
-            url,
-            data={
-                step_key: '0',
-                '0-localisation': json_dump({
-                    'country': {
-                        'country_code': 'FR',
-                        'languages': ['en_EN', 'fr_FR'],
-                    },
-                    'language': {'language_code': 'fr_FR'},
-                }),
-            },
-        )
-        self.assertNoFormError(response2)
-
-        with self.assertNoException():
-            exporter_f = response2.context['form'].fields['exporter']
-
-        exporter_id = 'billing-xhtml2pdf|FR/fr_FR/cappuccino'
-        self.assertInChoices(
-            value=exporter_id,
-            label='.pdf - Xhtml2pdf - Thème Cappuccino (France)',
-            choices=[(str(k), v) for k, v in exporter_f.choices],
-        )
-        self.assertIsNone(exporter_f.initial)
-
-        response3 = self.client.post(
-            url,
-            data={
-                step_key: '1',
-                '1-exporter': exporter_id,
-            },
-        )
-        self.assertNoFormError(response3)
-
-        config_item = self.get_object_or_fail(ExporterConfigItem, content_type=ct)
-        self.assertEqual(Xhtml2pdfExportEngine.id, config_item.engine_id)
-        self.assertEqual('FR/fr_FR/cappuccino', config_item.flavour_id)
-
-    @skipIf(xhtml2pdf_not_installed, 'The lib "xhtml2pdf" is not installed.')
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
-    ])
-    def test_configuration_edition__initial_values(self):
-        self.login_as_standard(admin_4_apps=['billing'])
-
-        ct = ContentType.objects.get_for_model(Invoice)
-        ExporterConfigItem.objects.filter(
-            content_type=ct,
-        ).update(
-            engine_id=Xhtml2pdfExportEngine.id,
-            flavour_id='FR/fr_FR/cappuccino',
-        )
-
-        url = self._build_conf_url(ct)
-        response1 = self.assertGET200(url)
-
-        with self.assertNoException():
-            localisation_f = response1.context['form'].fields['localisation']
-
-        self.assertTupleEqual(('FR', 'fr_FR'), localisation_f.initial)
-
-        # ---
-        response2 = self.client.post(
-            url,
-            data={
-                'exporter_config_edition_wizard-current_step': '0',
-                '0-localisation': json_dump({
-                    'country': {
-                        'country_code': 'FR',
-                        # 'languages': ['fr_FR'],  # useless
-                    },
-                    'language': {'language_code': 'fr_FR'},
-                }),
-            },
-        )
-        self.assertNoFormError(response2)
-
-        with self.assertNoException():
-            exporter_f = response2.context['form'].fields['exporter']
-
-        self.assertEqual('billing-xhtml2pdf|FR/fr_FR/cappuccino', exporter_f.initial)
-
-    @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_configuration_edition__invalid_initial__flavour(self):
-        "Invalid initial value (flavour)."
-        self.login_as_root()
-
-        ct = ContentType.objects.get_for_model(Invoice)
-        ExporterConfigItem.objects.filter(
-            content_type=ct,
-        ).update(
-            engine_id=Xhtml2pdfExportEngine.id,
-            flavour_id='BROKEN/foo_FOO/invalid',
-        )
-
-        response = self.assertGET200(self._build_conf_url(ct))
-
-        with self.assertNoException():
-            localisation_f = response.context['form'].fields['localisation']
-
-        self.assertIsNone(localisation_f.initial)
-
-    @skipIf(xhtml2pdf_not_installed, 'The lib "xhtml2pdf" is not installed.')
-    @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
-    ])
-    def test_configuration_edition__invalid_initial__engine(self):
-        "Invalid initial value (engine)."
-        self.login_as_root()
-
-        ct = ContentType.objects.get_for_model(Invoice)
-        ExporterConfigItem.objects.filter(
-            content_type=ct,
-        ).update(
-            engine_id='billing-invalid',
-            flavour_id='BROKEN/foo_FOO/invalid',
-        )
-
-        url = self._build_conf_url(ct)
-        response1 = self.assertGET200(url)
-
-        with self.assertNoException():
-            localisation_f = response1.context['form'].fields['localisation']
-
-        self.assertIsNone(localisation_f.initial)
-
-        # ---
-        response2 = self.client.post(
-            url,
-            data={
-                'exporter_config_edition_wizard-current_step': '0',
-                '0-localisation': json_dump({
-                    'country': {
-                        'country_code': 'FR',
-                        'languages': ['fr_FR'],
-                    },
-                    'language': {'language_code': 'fr_FR'},
-                }),
-            },
-        )
-        self.assertNoFormError(response2)
-
-        with self.assertNoException():
-            exporter_f = response2.context['form'].fields['exporter']
-
-        self.assertIsNone(exporter_f.initial)
-
-    @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_configuration_edition__not_allowed(self):
-        "Not admin credentials."
-        self.login_as_standard()  # Not admin_4_apps=['billing']
-
-        ct = ContentType.objects.get_for_model(Invoice)
-        self.assertGET403(reverse('billing__edit_exporter_config', args=(ct.id,)))
-
-    def test_export_error__bad_ctype(self):
+    def test_error__bad_ctype(self):
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Laputa')
         self.assertGET404(self._build_export_url(orga))
@@ -813,7 +90,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         # TODO: test with a billing model but not managed
 
     @skipIfCustomQuote
-    def test_export_error__empty_configuration(self):
+    def test_error__empty_configuration(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -837,7 +114,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomQuote
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_export_error__invalid_configuration(self):
+    def test_error__invalid_configuration(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -858,9 +135,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomQuote
     @override_settings(BILLING_EXPORTERS=[
-        'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
+        'creme.billing.tests.fake_exporters.only_invoice.OnlyInvoiceExportEngine',
     ])
-    def test_export_error__incompatible_ctype(self):
+    def test_error__incompatible_ctype(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -886,7 +163,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
-    def test_export_invoice_latex(self):
+    def test_invoice_latex(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
@@ -932,7 +209,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
     ])
-    def test_export_invoice_weasyprint(self):
+    def test_invoice_weasyprint(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
@@ -978,7 +255,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
-    def test_export_invoice_xhtml2pdf(self):
+    def test_invoice_xhtml2pdf(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
@@ -1012,7 +289,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_export_invoice_xls01(self):
+    def test_invoice_xls01(self):
         user = self.login_as_root_and_get()
         payment_type = SettlementTerms.objects.create(name='23 days')
         order_number = 'PI31416'
@@ -1258,7 +535,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_export_invoice_xls02(self):
+    def test_invoice_xls02(self):
         "Number, no issuing_date, no settlement terms, no payment info, global discount..."
         user = self.login_as_root_and_get()
 
@@ -1329,7 +606,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
-    def test_export_quote_latex(self):
+    def test_quote_latex(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -1357,7 +634,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_export_quote_xls(self):
+    def test_quote_xls(self):
         user = self.login_as_root_and_get()
 
         quote, source, target = self.create_quote_n_orgas(
@@ -1455,7 +732,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
     ])
-    def test_export_quote_weasyprint(self):
+    def test_quote_weasyprint(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -1486,7 +763,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
-    def test_export_quote_xhtml2pdf(self):
+    def test_quote_xhtml2pdf(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -1509,7 +786,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('application/pdf', response['Content-Type'])
 
     @skipIfCustomInvoice
-    def test_export_credentials(self):
+    def test_credentials(self):
         "Billing entity credentials."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -1532,7 +809,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
-    def test_export_latex_credentials__emitter(self):
+    def test_latex_credentials__emitter(self):
         "Source credentials."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -1558,7 +835,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
-    def test_export_latex_credentials__receiver(self):
+    def test_latex_credentials__receiver(self):
         "Target credentials."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -1712,7 +989,7 @@ class BulkExportTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @override_settings(
         BILLING_EXPORTERS=[
-            'creme.billing.tests.exporters.no_content_disposition.NoContentDispositionExportEngine'
+            'creme.billing.tests.fake_exporters.no_content_disposition.NoContentDispositionExportEngine',  # NOQA
         ],
         BILLING_BULK_EXPORT_LIMIT=50,
     )

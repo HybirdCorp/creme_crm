@@ -1,15 +1,18 @@
 from datetime import date
 from decimal import Decimal
-# from uuid import uuid4
 from functools import partial
 
-from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.gui.view_tag import ViewTag
+from creme.billing import bricks as billing_bricks
+from creme.billing.constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    REL_SUB_CREDIT_NOTE_APPLIED,
+)
+from creme.billing.models import CreditNoteStatus
 from creme.creme_core.models import (
-    BrickDetailviewLocation,
     Currency,
     FakeOrganisation,
     FieldsConfig,
@@ -17,45 +20,24 @@ from creme.creme_core.models import (
     Vat,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.persons.tests.base import (
-    skipIfCustomAddress,
-    skipIfCustomOrganisation,
-)
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-from .. import bricks as billing_bricks
-from ..constants import (
-    REL_SUB_BILL_ISSUED,
-    REL_SUB_BILL_RECEIVED,
-    REL_SUB_CREDIT_NOTE_APPLIED,
-    UUID_CNOTE_STATUS_DRAFT,
-)
-from ..models import CreditNoteStatus, Line
-# from .base import TemplateBase
-from .base import (
-    Address,
+from ..base import (
     CreditNote,
     Invoice,
     Organisation,
     ProductLine,
-    ServiceLine,
     _BillingTestCase,
     skipIfCustomCreditNote,
     skipIfCustomInvoice,
     skipIfCustomProductLine,
-    skipIfCustomServiceLine,
 )
 
 
-@skipIfCustomOrganisation
-@skipIfCustomCreditNote
-class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
+class _BaseCreditNoteViewsTestCase(_BillingTestCase):
     @staticmethod
     def _build_edit_comment_url(credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
-
-    @staticmethod
-    def _build_delete_related_url(credit_note, invoice):
-        return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
 
     def assertInvoiceTotalToPay(self, invoice, total):
         invoice = self.refresh(invoice)
@@ -63,52 +45,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
-    def test_status(self):
-        statuses = [*CreditNoteStatus.objects.all()]
-        self.assertEqual(4, len(statuses))
 
-        default_status = self.get_alone_element(
-            [status for status in statuses if status.is_default]
-        )
-        self.assertUUIDEqual(UUID_CNOTE_STATUS_DRAFT, default_status.uuid)
-
-        # New default status => previous default status is updated
-        new_status1 = CreditNoteStatus.objects.create(name='OK', is_default=True)
-        self.assertTrue(self.refresh(new_status1).is_default)
-        self.assertEqual(5, CreditNoteStatus.objects.count())
-        self.assertFalse(
-            CreditNoteStatus.objects.exclude(id=new_status1.id).filter(is_default=True)
-        )
-
-        # No default status is found => new one is default one
-        CreditNoteStatus.objects.update(is_default=False)
-        new_status2 = CreditNoteStatus.objects.create(name='KO', is_default=False)
-        self.assertTrue(self.refresh(new_status2).is_default)
-
-    def test_status_render(self):
-        user = self.get_root_user()
-        status = CreditNoteStatus.objects.create(name='OK', color='00FF00')
-        order = CreditNote(user=user, name='OK Note', status=status)
-
-        with self.assertNoException():
-            render = Template(
-                r'{% load creme_core_tags %}'
-                r'{% print_field object=order field="status" tag=tag %}'
-            ).render(Context({
-                'user': user,
-                'order': order,
-                'tag': ViewTag.HTML_DETAIL,
-            }))
-
-        self.assertHTMLEqual(
-            f'<div class="ui-creme-colored_status">'
-            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
-            f' <span>{status.name}</span>'
-            f'</div>',
-            render,
-        )
-
-    def test_detailview(self):
+@skipIfCustomOrganisation
+@skipIfCustomCreditNote
+class CreditNoteMiscViewsTestCase(BrickTestCaseMixin, _BaseCreditNoteViewsTestCase):
+    def test_detail_view(self):
         user = self.login_as_root_and_get()
 
         invoice, emitter, receiver = self.create_invoice_n_orgas(
@@ -144,9 +85,37 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInstanceLink(hat_brick_node2, entity=invoice)
 
+    def test_list_view(self):
+        user = self.login_as_root_and_get()
+
+        invoice, emitter, receiver = self.create_invoice_n_orgas(
+            user=user, name='Invoice0001', discount=0,
+        )
+        credit_note1 = self.create_credit_note(
+            user=user, name='Credit Note 001', source=emitter, target=receiver,
+        )
+        credit_note2 = self.create_credit_note(
+            user=user, name='Credit Note 002', source=emitter, target=receiver,
+        )
+
+        response = self.assertGET200(reverse('billing__list_cnotes'))
+
+        with self.assertNoException():
+            cnotes_page = response.context['page_obj']
+
+        self.assertEqual(2, cnotes_page.paginator.count)
+        self.assertCountEqual(
+            [credit_note1, credit_note2],
+            cnotes_page.paginator.object_list,
+        )
+
+
+@skipIfCustomOrganisation
+@skipIfCustomCreditNote
+class CreditNoteCreationTestCase(BrickTestCaseMixin, _BaseCreditNoteViewsTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_creation__smaller_total(self):
+    def test_smaller_total(self):
         "Credit note total < billing document total where the credit note is applied."
         user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_cnote'))
@@ -206,7 +175,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_creation__greater_total(self):
+    def test_greater_total(self):
         "Credit note total > document billing total where the credit note is applied."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -236,7 +205,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_creation__negative_total(self):
+    def test_negative_total(self):
         "Credit note in a negative Invoice -> a bigger negative Invoice."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -260,125 +229,13 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         expected_total = Decimal('-101')
         self.assertEqual(expected_total, invoice.total_no_vat)
 
+
+@skipIfCustomOrganisation
+@skipIfCustomCreditNote
+class CreditNotesLinkingTestCase(_BaseCreditNoteViewsTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_unlink_from_invoice(self):
-        user = self.login_as_root_and_get()
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
-        self.assertListEqual([], invoice.get_credit_notes())
-
-        create_line = partial(ProductLine.objects.create, user=user)
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
-
-        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('60'),
-        )
-
-        r = Relation.objects.create(
-            object_entity=invoice, subject_entity=credit_note,
-            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
-        )
-        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
-        self.assertEqual([credit_note], self.refresh(invoice).get_credit_notes())
-
-        r.delete()
-        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
-        self.assertEqual([], self.refresh(invoice).get_credit_notes())
-
-    @skipIfCustomInvoice
-    @skipIfCustomProductLine
-    def test_trash_linked_to_invoice(self):
-        user = self.login_as_root_and_get()
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
-
-        create_line = partial(ProductLine.objects.create, user=user)
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
-
-        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('60'),
-        )
-
-        Relation.objects.create(
-            object_entity=invoice, subject_entity=credit_note,
-            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
-        )
-        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
-
-        credit_note.trash()
-        self.assertTrue(self.refresh(credit_note).is_deleted)
-        self.assertListEqual([], self.refresh(invoice).get_credit_notes())
-        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
-
-        self.assertTrue(getattr(credit_note.trash, 'alters_data', False))
-
-        credit_note.restore()
-        self.assertFalse(self.refresh(credit_note).is_deleted)
-        self.assertListEqual([credit_note], self.refresh(invoice).get_credit_notes())
-        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
-
-        self.assertTrue(getattr(credit_note.restore, 'alters_data', False))
-
-    def test_delete(self):
-        user = self.login_as_root_and_get()
-        credit_note, source, target = self.create_credit_note_n_orgas(user=user, name='Nerv')
-
-        kwargs = {
-            'user': user, 'related_document': credit_note,
-            'unit_price': Decimal('1000.00'), 'quantity': 2,
-            'discount': Decimal('10.00'),
-            'discount_unit': Line.Discount.PERCENT,
-            'vat_value': Vat.objects.default(),
-        }
-        product_line = ProductLine.objects.create(
-            on_the_fly_item='Flyyy product', **kwargs
-        )
-        service_line = ServiceLine.objects.create(
-            on_the_fly_item='Flyyy service', **kwargs
-        )
-
-        url = credit_note.get_delete_absolute_url()
-        self.assertPOST200(url, follow=True)
-
-        with self.assertNoException():
-            credit_note = self.refresh(credit_note)
-
-        self.assertIs(credit_note.is_deleted, True)
-
-        self.assertPOST200(url, follow=True)
-        self.assertDoesNotExist(credit_note)
-        self.assertDoesNotExist(product_line)
-        self.assertDoesNotExist(service_line)
-        self.assertStillExists(source)
-        self.assertStillExists(target)
-
-    def test_delete_status(self):
-        user = self.login_as_root_and_get()
-
-        new_status = CreditNoteStatus.objects.first()
-        status2del = CreditNoteStatus.objects.create(name='OK')
-
-        credit_note = self.create_credit_note_n_orgas(
-            user=user, name='Credit Note 001', status=status2del,
-        )[0]
-
-        self.assertDeleteStatusOK(
-            status2del=status2del,
-            short_name='credit_note_status',
-            new_status=new_status,
-            doc=credit_note,
-        )
-
-    @skipIfCustomInvoice
-    @skipIfCustomProductLine
-    def test_link(self):
+    def test_main(self):
         "Attach credit note to existing invoice."
         user = self.login_as_root_and_get()
         create_line = partial(
@@ -437,14 +294,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # Check invoice view (bug in block_credit_note.html)
         self.assertGET200(invoice.get_absolute_url())
 
-    def test_link__no_invoice(self):
+    def test_no_invoice(self):
         "Cannot attach credit note to invalid invoice."
         self.login_as_root()
         self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_link__not_same_currency(self):
+    def test_not_same_currency(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login_as_root_and_get()
         create_line = partial(
@@ -497,7 +354,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_link__already_linked(self):
+    def test_already_linked(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -560,7 +417,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_link__already_not_same_target(self):
+    def test_already_not_same_target(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -605,7 +462,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
     @skipIfCustomInvoice
-    def test_link__regular_user(self):
+    def test_regular_user(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
@@ -616,7 +473,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET200(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
     @skipIfCustomInvoice
-    def test_link__credentials(self):
+    def test_credentials(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
@@ -628,12 +485,16 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
     @skipIfCustomInvoice
-    def test_link__bad_related_type(self):
+    def test_bad_related_type(self):
         "No related to a compatible billing entity."
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Foo')
         self.assertGET404(reverse('billing__link_to_cnotes', args=(orga.id,)))
 
+
+@skipIfCustomOrganisation
+@skipIfCustomCreditNote
+class CreditNoteEditionViewsTestCase(_BaseCreditNoteViewsTestCase):
     def test_edition(self):
         user = self.login_as_root_and_get()
 
@@ -683,144 +544,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertHaveRelation(subject=cnote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=cnote, type=REL_SUB_BILL_RECEIVED, object=target)
-
-    @skipIfCustomInvoice
-    @skipIfCustomProductLine
-    def test_delete_related(self):
-        user = self.login_as_root_and_get()
-        create_line = partial(
-            ProductLine.objects.create,
-            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
-        )
-
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
-        invoice_target = invoice.target
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note(
-            user=user, name='Credit Note 001',
-            source=credit_note_source, target=invoice_target,
-        )
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
-        )
-
-        Relation.objects.create(
-            object_entity=invoice, subject_entity=credit_note,
-            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
-        )
-
-        self.assertEqual(
-            1,
-            Relation.objects.filter(
-                object_entity=invoice, subject_entity=credit_note,
-            ).count(),
-        )
-        self.assertInvoiceTotalToPay(invoice, 50)
-
-        url = self._build_delete_related_url(credit_note, invoice)
-        self.assertGET405(url)
-
-        response = self.assertPOST200(url, follow=True)
-        self.assertRedirects(response, invoice.get_absolute_url())
-
-        self.assertFalse(
-            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
-        )
-        self.assertInvoiceTotalToPay(invoice, 100)
-
-    @skipIfCustomInvoice
-    @skipIfCustomProductLine
-    def test_delete_related__does_not_exist(self):
-        user = self.login_as_root_and_get()
-        create_line = partial(
-            ProductLine.objects.create,
-            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
-        )
-
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
-        invoice_target = invoice.target
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note(
-            user=user, name='Credit Note 001',
-            source=credit_note_source, target=invoice_target,
-        )
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
-        )
-
-        self.assertFalse(
-            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
-        )
-        self.assertInvoiceTotalToPay(invoice, 100)
-
-        self.assertPOST404(self._build_delete_related_url(credit_note, invoice), follow=True)
-
-        self.assertFalse(
-            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
-        )
-        self.assertInvoiceTotalToPay(invoice, 100)
-
-    @skipIfCustomInvoice
-    @skipIfCustomProductLine
-    def test_delete_related__forbidden(self):
-        user = self.login_as_root_and_get()
-        create_line = partial(
-            ProductLine.objects.create,
-            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
-        )
-
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
-        invoice_target = invoice.target
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note(
-            user=user, name='Credit Note 001',
-            source=credit_note_source, target=invoice_target,
-        )
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
-        )
-
-        Relation.objects.create(
-            object_entity=invoice, subject_entity=credit_note,
-            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
-        )
-
-        self.assertEqual(
-            1,
-            Relation.objects.filter(
-                object_entity=invoice, subject_entity=credit_note,
-            ).count(),
-        )
-        self.assertInvoiceTotalToPay(invoice, 50)
-
-        self.client.logout()
-
-        other = self.create_user(role=self.create_role(), password=self.USER_PASSWORD)
-        self.client.login(username=other.username, password=self.USER_PASSWORD)
-
-        self.assertPOST403(
-            self._build_delete_related_url(credit_note, invoice), follow=True,
-        )
-
-        self.assertEqual(
-            1,
-            Relation.objects.filter(
-                object_entity=invoice, subject_entity=credit_note,
-            ).count(),
-        )
-        self.assertInvoiceTotalToPay(invoice, 50)
 
     def test_edit_comment(self):
         user = self.login_as_root_and_get()
@@ -878,217 +601,147 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         self.assertGET403(self._build_edit_comment_url(credit_note))
 
-    @skipIfCustomAddress
-    @skipIfCustomServiceLine
-    def test_clone__not_managed_emitter(self):
-        "Organisation not managed."
+
+@skipIfCustomOrganisation
+@skipIfCustomCreditNote
+@skipIfCustomInvoice
+@skipIfCustomProductLine
+class CreditNoteDeletionTestCase(_BaseCreditNoteViewsTestCase):
+    @staticmethod
+    def _build_delete_related_url(credit_note, invoice):
+        return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
+
+    def test_delete_related(self):
         user = self.login_as_root_and_get()
-        source, target = self.create_orgas(user=user)
-
-        target.billing_address = Address.objects.create(
-            name='Billing address 01',
-            address='BA1 - Address', city='BA1 - City', zipcode='4242',
-            owner=target,
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
         )
-        target.save()
 
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
+        invoice_target = invoice.target
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
+        )
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            user=user, name='Quote001', source=source, target=target,
-            status=CreditNoteStatus.objects.filter(is_default=False)[0],
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
+        )
+        create_line(
+            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
         )
 
-        sl = ServiceLine.objects.create(
-            related_item=self.create_service(user=user), user=user,
-            related_document=credit_note,
+        Relation.objects.create(
+            object_entity=invoice, subject_entity=credit_note,
+            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
         )
 
-        address_count = Address.objects.count()
+        self.assertEqual(
+            1,
+            Relation.objects.filter(
+                object_entity=invoice, subject_entity=credit_note,
+            ).count(),
+        )
+        self.assertInvoiceTotalToPay(invoice, 50)
 
-        origin_b_addr = credit_note.billing_address
-        origin_b_addr.zipcode += ' (edited)'
-        origin_b_addr.save()
+        url = self._build_delete_related_url(credit_note, invoice)
+        self.assertGET405(url)
 
-        cloned = self.clone(credit_note)
-        self.assertIsInstance(cloned, CreditNote)
-        self.assertNotEqual(credit_note.pk, cloned.pk)
-        self.assertEqual(credit_note.name,   cloned.name)
-        self.assertEqual(credit_note.status, cloned.status)
-        self.assertEqual('',                 cloned.number)
+        response = self.assertPOST200(url, follow=True)
+        self.assertRedirects(response, invoice.get_absolute_url())
 
-        self.assertEqual(source, cloned.source)
-        self.assertEqual(target, cloned.target)
+        self.assertFalse(
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
+        )
+        self.assertInvoiceTotalToPay(invoice, 100)
 
-        # Lines are cloned
-        cloned_line = self.get_alone_element(cloned.iter_all_lines())
-        self.assertIsInstance(cloned_line, ServiceLine)
-        self.assertNotEqual(sl.pk, cloned_line.pk)
-        self.assertEqual(sl.related_item, cloned_line.related_item)
-        self.assertEqual(sl.quantity,     cloned_line.quantity)
-        self.assertEqual(sl.unit_price,   cloned_line.unit_price)
-
-        # Addresses are cloned
-        self.assertEqual(address_count + 2, Address.objects.count())
-
-        billing_address = cloned.billing_address
-        self.assertIsInstance(billing_address, Address)
-        self.assertEqual(cloned,                billing_address.owner)
-        self.assertEqual(origin_b_addr.name,    billing_address.name)
-        self.assertEqual(origin_b_addr.city,    billing_address.city)
-        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
-
-    def test_clone__managed_emitter(self):
-        "Organisation is managed."
+    def test_delete_related__does_not_exist(self):
         user = self.login_as_root_and_get()
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
-        source, target = self.create_orgas(user=user)
-        self._set_managed(source)
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
+        invoice_target = invoice.target
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
+        )
 
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            user=user, name='My Order', source=source, target=target,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
         )
-        self.assertEqual('', credit_note.number)
+        create_line(
+            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
+        )
 
-        cloned = self.clone(credit_note)
-        self.assertEqual('', cloned.number)
+        self.assertFalse(
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
+        )
+        self.assertInvoiceTotalToPay(invoice, 100)
 
-    # @skipIfCustomAddress
-    # @skipIfCustomServiceLine
-    # def test_clone__method01(self):  # DEPRECATED
-    #     "Organisation not managed => number is set to '0'."
-    #     user = self.login_as_root_and_get()
-    #     source, target = self.create_orgas(user=user)
-    #
-    #     target.billing_address = Address.objects.create(
-    #         name='Billing address 01',
-    #         address='BA1 - Address', city='BA1 - City',
-    #         owner=target,
-    #     )
-    #     target.save()
-    #
-    #     credit_note = self.create_credit_note(
-    #         user=user, name='Quote001', source=source, target=target,
-    #         status=CreditNoteStatus.objects.filter(is_default=False)[0],
-    #     )
-    #
-    #     sl = ServiceLine.objects.create(
-    #         related_item=self.create_service(user=user), user=user,
-    #         related_document=credit_note,
-    #     )
-    #
-    #     address_count = Address.objects.count()
-    #
-    #     origin_b_addr = credit_note.billing_address
-    #     origin_b_addr.zipcode += ' (edited)'
-    #     origin_b_addr.save()
-    #
-    #     cloned = self.refresh(credit_note.clone())
-    #     self.assertIsInstance(cloned, CreditNote)
-    #     self.assertNotEqual(credit_note.pk, cloned.pk)
-    #     self.assertEqual(credit_note.name,   cloned.name)
-    #     self.assertEqual(credit_note.status, cloned.status)
-    #     self.assertEqual('',                 cloned.number)
-    #
-    #     self.assertEqual(source, cloned.source)
-    #     self.assertEqual(target, cloned.target)
-    #
-    #     # Lines are cloned
-    #     cloned_line = self.get_alone_element(cloned.iter_all_lines())
-    #     self.assertIsInstance(cloned_line, ServiceLine)
-    #     self.assertNotEqual(sl.pk, cloned_line.pk)
-    #     self.assertEqual(sl.related_item, cloned_line.related_item)
-    #     self.assertEqual(sl.quantity,     cloned_line.quantity)
-    #     self.assertEqual(sl.unit_price,   cloned_line.unit_price)
-    #
-    #     # Addresses are cloned
-    #     self.assertEqual(address_count + 2, Address.objects.count())
-    #
-    #     billing_address = cloned.billing_address
-    #     self.assertIsInstance(billing_address, Address)
-    #     self.assertEqual(cloned,                billing_address.owner)
-    #     self.assertEqual(origin_b_addr.name,    billing_address.name)
-    #     self.assertEqual(origin_b_addr.city,    billing_address.city)
-    #     self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
-    #
-    # def test_clone__method02(self):  # DEPRECATED
-    #     "Organisation is managed."
-    #     user = self.login_as_root_and_get()
-    #
-    #     source, target = self.create_orgas(user=user)
-    #     self._set_managed(source)
-    #
-    #     credit_note = self.create_credit_note(
-    #         user=user, name='My Order', source=source, target=target,
-    #     )
-    #     self.assertEqual('', credit_note.number)
-    #
-    #     cloned = credit_note.clone()
-    #     self.assertEqual('', cloned.number)
+        self.assertPOST404(self._build_delete_related_url(credit_note, invoice), follow=True)
 
-    def test_brick(self):
+        self.assertFalse(
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
+        )
+        self.assertInvoiceTotalToPay(invoice, 100)
+
+    def test_delete_related__forbidden(self):
         user = self.login_as_root_and_get()
-        BrickDetailviewLocation.objects.create_if_needed(
-            brick=billing_bricks.ReceivedCreditNotesBrick, order=600,
-            zone=BrickDetailviewLocation.RIGHT, model=Organisation,
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
         )
 
-        source, target = self.create_orgas(user=user)
-
-        response1 = self.assertGET200(target.get_absolute_url())
-        brick_node1 = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            brick=billing_bricks.ReceivedCreditNotesBrick,
-        )
-        self.assertEqual(_('Received credit notes'), self.get_brick_title(brick_node1))
-
-        # ---
-        credit_note = CreditNote.objects.create(
-            user=user, name='My Quote',
-            status=CreditNoteStatus.objects.all()[0],
-            source=source, target=target,
-            expiration_date=date(year=2023, month=6, day=1),
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
+        invoice_target = invoice.target
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
         )
 
-        response2 = self.assertGET200(target.get_absolute_url())
-        brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            brick=billing_bricks.ReceivedCreditNotesBrick,
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
+        credit_note = self.create_credit_note(
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
         )
-        self.assertBrickTitleEqual(
-            brick_node2,
-            count=1,
-            title='{count} Received credit note',
-            plural_title='{count} Received credit notes',
+        create_line(
+            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
         )
-        self.assertListEqual(
-            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT'), _('Action')],
-            self.get_brick_table_column_titles(brick_node2),
-        )
-        rows = self.get_brick_table_rows(brick_node2)
-        table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(5, len(table_cells))
-        self.assertInstanceLink(table_cells[0], entity=credit_note)
 
-    # def test_build(self):  # DEPRECATED
-    #     user = self.get_root_user()
-    #     status1 = CreditNoteStatus.objects.exclude(is_default=True).first()
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     tpl = TemplateBase.objects.create(
-    #         user=user,
-    #         ct=CreditNote,
-    #         status_uuid=status1.uuid,
-    #         source=create_orga(name='Source'),
-    #         target=create_orga(name='Target'),
-    #     )
-    #
-    #     credit_note1 = CreditNote().build(tpl)
-    #     self.assertIsNotNone(credit_note1.pk)
-    #     self.assertEqual(user,    credit_note1.user)
-    #     self.assertEqual(status1, credit_note1.status)
-    #
-    #     # ---
-    #     tpl.status_uuid = uuid4()
-    #     status2 = CreditNote().build(tpl).status
-    #     self.assertIsInstance(status2, CreditNoteStatus)
-    #     self.assertTrue(status2.is_default)
+        Relation.objects.create(
+            object_entity=invoice, subject_entity=credit_note,
+            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+        )
 
-    # TODO: complete (other views)
+        self.assertEqual(
+            1,
+            Relation.objects.filter(
+                object_entity=invoice, subject_entity=credit_note,
+            ).count(),
+        )
+        self.assertInvoiceTotalToPay(invoice, 50)
+
+        self.client.logout()
+
+        other = self.create_user(role=self.create_role(), password=self.USER_PASSWORD)
+        self.client.login(username=other.username, password=self.USER_PASSWORD)
+
+        self.assertPOST403(
+            self._build_delete_related_url(credit_note, invoice), follow=True,
+        )
+
+        self.assertEqual(
+            1,
+            Relation.objects.filter(
+                object_entity=invoice, subject_entity=credit_note,
+            ).count(),
+        )
+        self.assertInvoiceTotalToPay(invoice, 50)
+
+
+# TODO: complete (other views)

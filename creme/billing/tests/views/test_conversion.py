@@ -6,6 +6,19 @@ from django.db.models.query_utils import Q
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+from creme.billing.constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    REL_SUB_INVOICE_FROM_QUOTE,
+)
+from creme.billing.models import (
+    AdditionalInformation,
+    InvoiceStatus,
+    PaymentInformation,
+    PaymentTerms,
+    QuoteStatus,
+    SalesOrderStatus,
+)
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -19,22 +32,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from .. import converters
-from ..constants import (
-    REL_SUB_BILL_ISSUED,
-    REL_SUB_BILL_RECEIVED,
-    REL_SUB_INVOICE_FROM_QUOTE,
-)
-from ..core.conversion import ConverterRegistry
-from ..models import (
-    AdditionalInformation,
-    InvoiceStatus,
-    PaymentInformation,
-    PaymentTerms,
-    QuoteStatus,
-    SalesOrderStatus,
-)
-from .base import (
+from ..base import (
     Address,
     Invoice,
     Organisation,
@@ -52,60 +50,7 @@ from .base import (
 
 
 @skipIfCustomOrganisation
-class ConversionTestCase(_BillingTestCase):
-    def test_registry(self):
-        user = self.login_as_root_and_get()
-        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
-
-        registry = ConverterRegistry()
-        self.assertIsNone(
-            registry.get_converter_class(source_model=Quote, target_model=Invoice),
-        )
-        self.assertIsNone(
-            registry.get_converter(user=user, source=quote, target_model=Invoice),
-        )
-        self.assertFalse([*registry.models])
-
-        registry.register(
-            source_model=Quote,
-            target_model=Invoice,
-            converter_class=converters.QuoteToInvoiceConverter,
-        )
-        self.assertIs(
-            registry.get_converter_class(source_model=Quote, target_model=Invoice),
-            converters.QuoteToInvoiceConverter,
-        )
-        self.assertIsNone(
-            registry.get_converter_class(source_model=Invoice, target_model=Quote),
-        )
-        self.assertListEqual([(Quote, Invoice)], [*registry.models])
-
-        converter = registry.get_converter(user=user, source=quote, target_model=Invoice)
-        self.assertIsInstance(converter, converters.QuoteToInvoiceConverter)
-        self.assertEqual(user,    converter.user)
-        self.assertEqual(quote,   converter.source)
-        self.assertEqual(Invoice, converter.target_model)
-
-        # Duplicate ---
-        with self.assertRaises(ConverterRegistry.RegistrationError):
-            registry.register(
-                source_model=Quote,
-                target_model=Invoice,
-                converter_class=converters.QuoteToSalesOrderConverter,
-            )
-
-        # Unregister ---
-        registry.unregister(source_model=Quote, target_model=Invoice)
-        self.assertIsNone(
-            registry.get_converter_class(source_model=Quote, target_model=Invoice),
-        )
-
-        with self.assertRaises(ConverterRegistry.UnRegistrationError):
-            registry.unregister(source_model=Quote, target_model=Invoice)
-
-    # TODO: test Converter.check_permissions()
-    # TODO: test Converter.perform()
-
+class ConversionViewTestCase(_BillingTestCase):
     @skipIfCustomAddress
     @skipIfCustomQuote
     @skipIfCustomInvoice
