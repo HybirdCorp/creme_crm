@@ -89,6 +89,9 @@ class GenericModelBrick(QuerysetBrick):
         self.app_name = app_name
         self.model_config = model_config
 
+    def _build_queryset(self, model):
+        return model.objects.all()
+
     def detailview_display(self, context):
         model_config = self.model_config
         model = model_config.model
@@ -113,7 +116,8 @@ class GenericModelBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            model.objects.all(),
+            # model.objects.all(),
+            self._build_queryset(model),
             model=model,
 
             app_name=self.app_name,

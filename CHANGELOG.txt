@@ -30,6 +30,8 @@
             - The CustomFields can now get:
                 - a description, which is used as help text in forms.
                 - a default value, which is used as initial value in creation forms.
+        * Activities :
+            - The configuration of sub-types has been improved; they are now grouped per type.
         * Documents :
             - You can now download several Documents at once, as a .zip archive.
         * Billing :
@@ -271,8 +273,10 @@
             * Activities :
                 - The content of the class attribute 'populate.Populator.BUTTONS' has changed
                   (it now contains 'ButtonMenuItem' instances).
-                - In the following Brick classes, "is_home" is not injected in the template's context anymore:
-                  FutureActivitiesBrick, PastActivitiesBrick, MyActivitiesCalendarBrick
+                - In 'bricks' :
+                    - The class 'ActivityTypeBrick' has been renamed "ActivityTypesBrick".
+                    - In the following Brick classes, "is_home" is not injected in the template's context anymore:
+                      FutureActivitiesBrick, PastActivitiesBrick, MyActivitiesCalendarBrick
             * Billing :
                - The class 'actions.ExportAction' has been renamed '_ExportAction'.
                - These methods of 'populate.Populator' have been removed :

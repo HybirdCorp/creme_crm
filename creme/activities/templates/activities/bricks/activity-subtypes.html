@@ -1,0 +1,26 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activities-subtypes-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Sub-type of activity') plural=_('{count} Sub-types of activity') count=total_count %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type of activity') status='primary' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for atype in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{atype}}</td>
+        <td {% brick_table_data_status action %}>
+            <a class="related-activity-subtypes" href="{% url 'activities__type_portal' atype.id %}">
+                {% blocktranslate count count=atype.subtypes_count %}Configure the {{count}} sub-type{% plural %}Configure the {{count}} sub-types{% endblocktranslate %}
+            </a>
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}

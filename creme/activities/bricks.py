@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from itertools import chain
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models import Count
 from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -47,10 +48,32 @@ Organisation = persons.get_organisation_model()
 Activity = get_activity_model()
 
 
-class ActivityTypeBrick(GenericModelBrick):
-    id = GenericModelBrick.generate_id('activities', 'type_config')
+# class ActivityTypeBrick(GenericModelBrick):
+#     id = GenericModelBrick.generate_id('activities', 'type_config')
+#     template_name = 'activities/bricks/activity-types.html'
+#     dependencies = (ActivityType,)
+class ActivityTypesBrick(GenericModelBrick):
+    id = GenericModelBrick.generate_id('activities', 'types_config')
     template_name = 'activities/bricks/activity-types.html'
     dependencies = (ActivityType,)
+
+    def _build_queryset(self, model):
+        return super()._build_queryset(model).annotate(subtypes_count=Count('activitysubtype'))
+
+
+class ActivitySubTypesBrick(GenericModelBrick):
+    id = GenericModelBrick.generate_id('activities', 'subtypes_config')
+    dependencies = (ActivitySubType, ActivityType)
+    template_name = 'activities/bricks/activity-subtypes.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            ActivityType.objects
+                        .order_by('name', 'id')
+                        .annotate(subtypes_count=Count('activitysubtype')),
+            total_count=ActivitySubType.objects.count(),
+        ))
 
 
 class ActivityBarHatBrick(SimpleBrick):
