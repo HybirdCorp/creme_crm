@@ -2,26 +2,30 @@
 {% load i18n creme_widgets creme_bricks creme_config_tags %}
 {% load url from creme_core_tags %}
 
-{% block brick_extra_class %}{{block.super}} activities-activity_type-brick{% endblock %}
+{% block brick_extra_class %}{{block.super}} brick-reorderable activities-activity_type-brick{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} Sub-type of activity in this type') plural=_('{count} Sub-types of activity in this type') empty=_('Sub-types of activity in this type') %}
 {% endblock %}
-
 
 {% block brick_header_actions %}
     {% brick_header_action id='add' url='activities__create_subtype'|url:activity_type.id label=objects_ctype.model_class.creation_label %}
 {% endblock %}
 
 {% block brick_table_columns %}
+    {% brick_table_column title='' class='configmodel-column-order' %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
 {% block brick_table_body %}
-    <tbody>
+{% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
+    <tbody class="brick-reorderable-items ui-sortable">
       {% for sub_type in page.object_list %}
-        <tr>
+        <tr data-reorderable-item-order="{{forloop.counter}}" data-reorderable-item-url="{% url 'activities__reorder_sub_type' sub_type.id %}">
+            <td data-reorderable-handle-column class="ui-sortable-handle brick-configmodel-order" title="{% translate 'Drag and drop to re-order this sub-type' %}">
+                {{reorder_icon.render}}
+            </td>
             <td>{{sub_type.name}}</td>
             <td {% brick_table_data_status action %}>
                 {% config_model_edition_url model_config=model_config instance=sub_type user=user as edit_url %}

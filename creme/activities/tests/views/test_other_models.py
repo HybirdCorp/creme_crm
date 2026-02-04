@@ -93,10 +93,41 @@ class ActivitySubTypeConfigViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(f' id="brick-{NarrowedSubTypesBrick.id}"', brick_data[1])
         self.assertIn(f' data-brick-id="{NarrowedSubTypesBrick.id}"', brick_data[1])
 
+    def test_reorder_sub_types(self):
+        self.login_as_standard(admin_4_apps=('activities',))
+
+        create_type = ActivityType.objects.create
+        atype1 = create_type(name='Type #1', order=1000)
+        atype2 = create_type(name='Type #2', order=1001)
+
+        create_sub_type = ActivitySubType.objects.create
+        subtype11 = create_sub_type(type=atype1, name='Sub-type #1', order=1)
+        subtype12 = create_sub_type(type=atype1, name='Sub-type #2', order=2)
+        subtype13 = create_sub_type(type=atype1, name='Sub-type #3', order=3)
+        subtype21 = create_sub_type(type=atype2, name='Sub-type #4', order=1)
+        subtype22 = create_sub_type(type=atype2, name='Sub-type #5', order=2)
+
+        url = reverse('activities__reorder_sub_type', args=(subtype11.id,))
+        data = {'target': 3}
+        self.assertGET405(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertEqual(3, self.refresh(subtype11).order)
+        self.assertEqual(1, self.refresh(subtype12).order)
+        self.assertEqual(2, self.refresh(subtype13).order)
+        self.assertEqual(1, self.refresh(subtype21).order)
+        self.assertEqual(2, self.refresh(subtype22).order)
+
     def test_forbidden(self):
         self.login_as_standard(allowed_apps=('activities',))  # admin_4_apps=('activities',)
 
-        atype = self.get_object_or_fail(ActivityType, uuid=UUID_TYPE_PHONECALL)
-        self.assertGET403(reverse('activities__type_portal', args=(atype.id,)))
-        self.assertGET403(reverse('activities__create_subtype', args=(atype.id,)))
-        self.assertGET403(reverse('activities__reload_type_brick', args=(atype.id,)))
+        atype_id = ActivityType.objects.first().id
+        self.assertGET403(reverse('activities__type_portal', args=(atype_id,)))
+        self.assertGET403(reverse('activities__create_subtype', args=(atype_id,)))
+        self.assertGET403(reverse('activities__reload_type_brick', args=(atype_id,)))
+
+        subtype_id = ActivitySubType.objects.first().id
+        self.assertPOST403(
+            reverse('activities__reorder_sub_type', args=(subtype_id,)),
+            data={'target': 3},
+        )

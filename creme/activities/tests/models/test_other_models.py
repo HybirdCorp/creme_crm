@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -233,3 +235,20 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
             field='replace_activities__activity_type',
             errors=_('Deletion is not possible.'),
         )
+
+
+class ActivitySubTypeTestCase(_ActivitiesTestCase):
+    def test_order(self):
+        self.assertTrue(ActivitySubType.objects.exists())
+        atype = ActivityType.objects.create(name='Karate session')
+
+        create_subtype = partial(ActivitySubType.objects.create, type=atype)
+        sub_type1 = create_subtype(name='Kick session')
+        self.assertEqual(1, sub_type1.order)
+
+        sub_type2 = create_subtype(name='Punch session')
+        self.assertEqual(2, sub_type2.order)
+
+        # Given explicitly
+        sub_type3 = create_subtype(name='Jump session', order=5)
+        self.assertEqual(5, sub_type3.order)

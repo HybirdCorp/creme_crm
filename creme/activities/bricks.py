@@ -58,7 +58,10 @@ class ActivityTypesBrick(GenericModelBrick):
     dependencies = (ActivityType,)
 
     def _build_queryset(self, model):
-        return super()._build_queryset(model).annotate(subtypes_count=Count('activitysubtype'))
+        # NB: explicit ordering because of annotate() which removes natural order hum...
+        return super()._build_queryset(model).order_by(
+            'order', 'id',
+        ).annotate(subtypes_count=Count('activitysubtype'))
 
 
 class ActivitySubTypesBrick(GenericModelBrick):
@@ -70,7 +73,7 @@ class ActivitySubTypesBrick(GenericModelBrick):
         return self._render(self.get_template_context(
             context,
             ActivityType.objects
-                        .order_by('name', 'id')
+                        .order_by('order', 'id')
                         .annotate(subtypes_count=Count('activitysubtype')),
             total_count=ActivitySubType.objects.count(),
         ))

@@ -21,13 +21,13 @@
 
 {% block brick_table_columns %}
     {% if model_is_reorderable %}
-        {% brick_table_column title='' class='configmodel-column-order' %}
+     {% brick_table_column title='' class='configmodel-column-order' %}
     {% endif %}
 
     {% block config_fields_headers %}
-    {% for field in displayable_fields %}
-        {% brick_table_column title=field.verbose_name data_fieldname=field.name class='configmodel-column' %}
-    {% endfor %}
+     {% for field in displayable_fields %}
+      {% brick_table_column title=field.verbose_name data_fieldname=field.name class='configmodel-column' %}
+     {% endfor %}
     {% endblock %}
 
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
@@ -36,7 +36,7 @@
 {% block brick_table_body %}
 {% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     <tbody{% if model_is_reorderable %} class="brick-reorderable-items ui-sortable"{% endif %}>
-    {% for object in page.object_list %}
+     {% for object in page.object_list %}
         {% if model_is_reorderable %}
         <tr data-reorderable-item-order="{{forloop.counter}}" data-reorderable-item-url="{% url 'creme_config__reorder_instance' app_name model_config.model_name object.id %}">
             <td data-reorderable-handle-column class="ui-sortable-handle brick-configmodel-order" title="{% blocktranslate with type=objects_ctype %}Drag and drop to re-order this «{{type}}»{% endblocktranslate %}">
@@ -53,19 +53,19 @@
         {% endblock %}
 
             <td {% brick_table_data_status action %}>
-            {% block config_edition_action %}
+              {% block config_edition_action %}
                 {% config_model_edition_url model_config=model_config instance=object user=user as edit_url %}
                 {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
-            {% endblock %}
+              {% endblock %}
             </td>
             <td {% brick_table_data_status action %}>
-            {% block config_deletion_action %}
+              {% block config_deletion_action %}
                 {% config_model_deletion_url model_config=model_config instance=object user=user as delete_url %}{# TODO: disable if a job exists for this model #}
                 {% if delete_url %}{% brick_table_action id='edit' url=delete_url enabled=object|config_is_custom icon='delete' label=_('Delete') %}{% endif %}
-            {% endblock %}
+              {% endblock %}
             </td>
         </tr>
-    {% endfor %}
+     {% endfor %}
     </tbody>
 {% endblock %}
 

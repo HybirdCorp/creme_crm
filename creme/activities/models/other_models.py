@@ -19,6 +19,7 @@
 from datetime import timedelta
 
 from django.db import models
+from django.db.models import Max
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -29,6 +30,7 @@ from creme.creme_core.models import fields as core_fields
 # TODO: rename to ActivityKind ??
 class ActivityType(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
+    order = core_fields.BasicAutoField()
 
     # TODO: improve the values in save() (ex: <62 minutes> => <1 hour, 2 minutes>)?
     default_day_duration = models.IntegerField(
@@ -44,7 +46,8 @@ class ActivityType(MinionModel):
         app_label = 'activities'
         verbose_name = _('Type of activity')
         verbose_name_plural = _('Types of activity')
-        ordering = ('name',)
+        # ordering = ('name',)
+        ordering = ('order',)
 
     def __str__(self):
         return self.name
@@ -63,6 +66,12 @@ class ActivitySubType(MinionModel):
     type = models.ForeignKey(
         ActivityType, verbose_name=_('Type of activity'), on_delete=models.CASCADE,
     ).set_tags(viewable=False)
+    # NB:
+    #  - Not <default=1>, in order to distinguish an initialised value from a
+    #    non initialised one.
+    #  - Not <core_fields.BasicAutoField()> because ordering is made per
+    #    related ActivityType instance.
+    order = models.PositiveIntegerField(editable=False, default=None)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
     save_label = pgettext_lazy('activities-type', 'Save the sub-type')
@@ -71,7 +80,8 @@ class ActivitySubType(MinionModel):
         app_label = 'activities'
         verbose_name = _('Sub-type of activity')
         verbose_name_plural = _('Sub-types of activity')
-        ordering = ('name',)
+        # ordering = ('name',)
+        ordering = ('order',)
 
     def __str__(self):
         return self.name
@@ -82,6 +92,10 @@ class ActivitySubType(MinionModel):
                 f'The ActivitySubType id="{self.id}" is not custom, '
                 f'so the related ActivityType cannot be custom.'
             )
+
+        if self.order is None:
+            aggr = type(self).objects.filter(type=self.type_id).aggregate(Max('order'))
+            self.order = (aggr['order__max'] or 0) + 1
 
         super().save(*args, **kwargs)
 

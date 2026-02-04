@@ -31,7 +31,11 @@
                 - a description, which is used as help text in forms.
                 - a default value, which is used as initial value in creation forms.
         * Activities :
-            - The configuration of sub-types has been improved; they are now grouped per type.
+            - The configuration of sub-types has been improved:
+                - They are now grouped per type.
+                - They can now be ordered manually.
+                  Hint: the first sub-types of "Meeting" & "Phone call" are used
+                        as initial values in the related creation forms.
         * Documents :
             - You can now download several Documents at once, as a .zip archive.
         * Billing :
@@ -277,6 +281,7 @@
                     - The class 'ActivityTypeBrick' has been renamed "ActivityTypesBrick".
                     - In the following Brick classes, "is_home" is not injected in the template's context anymore:
                       FutureActivitiesBrick, PastActivitiesBrick, MyActivitiesCalendarBrick
+                - The class attribute 'views.activity.ActivityCreation.default_activity_subtypes' has been removed.
             * Billing :
                - The class 'actions.ExportAction' has been renamed '_ExportAction'.
                - These methods of 'populate.Populator' have been removed :
@@ -308,8 +313,10 @@
             * Creme_config :
                 - In 'forms.custom_field', these classes have been removed:
                   CustomFieldBaseForm, FirstCustomFieldCreationForm, CustomFieldCreationForm.
-                - In 'views.custom_field' these view-classes have been removed:
-                  FirstCTypeCustomFieldCreation, CustomFieldCreation.
+                - In 'views':
+                    - In 'custom_field' these view-classes have been removed:
+                      FirstCTypeCustomFieldCreation, CustomFieldCreation.
+                    - The method 'generics_views.ModelPortal.fix_orders()' has been removed.
 
 
 == Version 2.7 ==
