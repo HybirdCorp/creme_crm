@@ -28,6 +28,7 @@ from creme.creme_config.registry import config_registry
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.views.bricks import BricksReloading
 from creme.creme_core.views.generic import BricksView, CremeModelCreationPopup
+from creme.creme_core.views.generic.order import ReorderInstances
 
 
 class NarrowedSubTypesBrick(QuerysetBrick):
@@ -131,3 +132,16 @@ class NarrowedActivitySubTypeCreation(ActivityTypeRelatedMixin,
 
     def get_title_format_data(self):
         return {'type': self.get_activity_type()}
+
+
+class ActivitySubTypeReordering(ReorderInstances):
+    pk_url_kwarg = 'subtype_id'
+
+    def get_queryset(self):
+        self.request.user.has_perm_to_admin_or_die('activities')
+
+        sub_type = get_object_or_404(
+            ActivitySubType, pk=self.kwargs[self.pk_url_kwarg],
+        )
+
+        return ActivitySubType.objects.filter(type=sub_type.type_id)

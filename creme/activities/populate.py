@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -219,12 +219,12 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_TASK,
                 name=_('Task'),
                 default_day_duration=0, default_hour_duration='00:15:00',
-                is_custom=False,
+                is_custom=False, order=1,
             ),
             [
                 ActivitySubType(
                     uuid=UUID_SUBTYPE_TASK_TASK,
-                    name=_('Task'), is_custom=True,
+                    name=_('Task'), is_custom=True, order=1,
                 ),
             ]
         ], [
@@ -232,28 +232,32 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_MEETING,
                 name=_('Meeting'),
                 default_day_duration=0, default_hour_duration='00:15:00',
-                is_custom=False,
+                is_custom=False, order=2,
             ),
             [
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_MEETING_MEETING,
-                    name=_('Meeting'), is_custom=False,
+                    name=_('Meeting'), is_custom=False, order=1,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_MEETING_QUALIFICATION,
-                    name=pgettext('activities-meeting', 'Qualification'), is_custom=False,
+                    name=pgettext('activities-meeting', 'Qualification'),
+                    is_custom=False, order=2,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_MEETING_REVIVAL,
-                    name=pgettext('activities-meeting', 'Revival'), is_custom=False,
+                    name=pgettext('activities-meeting', 'Revival'),
+                    is_custom=False, order=3,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_MEETING_NETWORK,
-                    name=pgettext('activities-meeting', 'Network'), is_custom=False,
+                    name=pgettext('activities-meeting', 'Network'),
+                    is_custom=False, order=4,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_MEETING_OTHER,
-                    name=pgettext('activities-meeting', 'Other'), is_custom=False,
+                    name=pgettext('activities-meeting', 'Other'),
+                    is_custom=False, order=5,
                 ),
             ]
         ], [
@@ -261,24 +265,28 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_PHONECALL,
                 name=_('Phone call'),
                 default_day_duration=0, default_hour_duration='00:15:00',
-                is_custom=False,
+                is_custom=False, order=3,
             ),
             [
                 ActivitySubType(
-                    uuid=constants.UUID_SUBTYPE_PHONECALL_INCOMING,
-                    name=pgettext('activities-phonecall', 'Incoming'), is_custom=False,
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+                    name=pgettext('activities-phonecall', 'Outgoing'),
+                    is_custom=False, order=1,
                 ),
                 ActivitySubType(
-                    uuid=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-                    name=pgettext('activities-phonecall', 'Outgoing'), is_custom=False,
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_INCOMING,
+                    name=pgettext('activities-phonecall', 'Incoming'),
+                    is_custom=False, order=2,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
-                    name=pgettext('activities-phonecall', 'Conference'), is_custom=False,
+                    name=pgettext('activities-phonecall', 'Conference'),
+                    is_custom=False, order=3,
                 ),
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_PHONECALL_FAILED,
-                    name=pgettext('activities-phonecall', 'Outgoing - Failed'), is_custom=False,
+                    name=pgettext('activities-phonecall', 'Outgoing - Failed'),
+                    is_custom=False, order=4,
                 ),
             ]
         ], [
@@ -286,28 +294,34 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_GATHERING,
                 name=_('Gathering'),
                 default_day_duration=0, default_hour_duration='00:15:00',
-                is_custom=False,
+                is_custom=False, order=4,
             ),
             [
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_GATHERING_GATHERING, name=_('Gathering'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_GATHERING,
+                    name=_('Gathering'), is_custom=True, order=1,
                 ),
                 ActivitySubType(
                     uuid=UUID_SUBTYPE_GATHERING_TEAM,
-                    name=pgettext('activities-gathering', 'Team'), is_custom=True,
+                    name=pgettext('activities-gathering', 'Team'),
+                    is_custom=True, order=2,
                 ),
                 ActivitySubType(
                     uuid=UUID_SUBTYPE_GATHERING_INTERNAL,
-                    name=pgettext('activities-gathering', 'Internal'), is_custom=True,
+                    name=pgettext('activities-gathering', 'Internal'),
+                    is_custom=True, order=3,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_GATHERING_ON_THE_SITE, name=_('On the site'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_ON_THE_SITE,
+                    name=_('On the site'), is_custom=True, order=4,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_GATHERING_REMOTE, name=_('Remote'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_REMOTE,
+                    name=_('Remote'), is_custom=True, order=5,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_GATHERING_OUTSIDE, name=_('Outside'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_OUTSIDE,
+                    name=_('Outside'), is_custom=True, order=6,
                 ),
             ]
         ], [
@@ -315,14 +329,16 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_SHOW,
                 name=_('Show'),
                 default_day_duration=1, default_hour_duration='00:00:00',
-                is_custom=False,
+                is_custom=False, order=5,
             ),
             [
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_SHOW_EXHIBITOR, name=_('Exhibitor'), is_custom=True,
+                    uuid=UUID_SUBTYPE_SHOW_EXHIBITOR, name=_('Exhibitor'),
+                    is_custom=True, order=1,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_SHOW_VISITOR, name=_('Visitor'), is_custom=True,
+                    uuid=UUID_SUBTYPE_SHOW_VISITOR, name=_('Visitor'),
+                    is_custom=True, order=2,
                 ),
             ]
         ], [
@@ -330,22 +346,25 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_DEMO,
                 name=_('Demonstration'),
                 default_day_duration=0, default_hour_duration='01:00:00',
-                is_custom=False,
+                is_custom=False, order=6,
             ),
             [
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_DEMO_DEMO, name=_('Demonstration'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_DEMO, name=_('Demonstration'),
+                    is_custom=True, order=1,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_DEMO_ON_THE_SITE, name=_('On the site'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_ON_THE_SITE, name=_('On the site'),
+                    is_custom=True, order=2,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_DEMO_OUTSIDE, name=_('Outside'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_OUTSIDE, name=_('Outside'),
+                    is_custom=True, order=3,
                 ),
                 ActivitySubType(
                     uuid=UUID_SUBTYPE_DEMO_VIDEOCONF,
                     name=pgettext('activities-demonstration', 'Videoconference'),
-                    is_custom=True,
+                    is_custom=True, order=4,
                 ),
             ]
         ], [
@@ -353,18 +372,20 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_TYPE_UNAVAILABILITY,
                 name=_('Unavailability'),
                 default_day_duration=1, default_hour_duration='00:00:00',
-                is_custom=False,
+                is_custom=False, order=7,
             ),
             [
                 ActivitySubType(
                     uuid=constants.UUID_SUBTYPE_UNAVAILABILITY,
-                    name=_('Unavailability'), is_custom=False,
+                    name=_('Unavailability'), is_custom=False, order=1,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_UNAVAILABILITY_HOLIDAYS, name=_('Holidays'), is_custom=True,
+                    uuid=UUID_SUBTYPE_UNAVAILABILITY_HOLIDAYS,
+                    name=_('Holidays'), is_custom=True, order=2,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_UNAVAILABILITY_ILL, name=_('Ill'), is_custom=True,
+                    uuid=UUID_SUBTYPE_UNAVAILABILITY_ILL,
+                    name=_('Ill'), is_custom=True, order=3,
                 ),
             ]
         ],
