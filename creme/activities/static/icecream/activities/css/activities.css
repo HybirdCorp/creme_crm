@@ -526,6 +526,41 @@
     font-size: 1.5em;
 }
 
+.calendar-config-default,
+.calendar-config-superuser {
+    color: hsla(197, 42%, 20%, 1);
+    font-style: italic;
+}
+
+.brick-table.activities-subtypes-brick .brick-table-content [data-table-action-column] {
+  text-align: right;
+}
+.brick-table.activities-subtypes-brick .brick-table-content > tbody [data-table-action-column] {
+     width: fit-content;
+
+     text-align: right;
+     vertical-align: middle;
+}
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-key {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+
+    cursor: default;
+}
+.activities-unsuccessful-config-brick .item-unsuccessful-help {
+    color: grey;
+    font-style: italic;
+}
+.activities-unsuccessful-config-brick .item-unsuccessful-help a {
+    padding-left: 2px;
+}
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}
+
 /* Bricks - end */
 
 /* Activity popup */
@@ -549,31 +584,3 @@
 }
 
 /* Activity popup - end */
-
-.calendar-config-default,
-.calendar-config-superuser {
-    color: hsla(197, 42%, 20%, 1);
-    font-style: italic;
-}
-
-.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-key {
-    text-transform: uppercase;
-    font-weight: 600;
-    font-size: 11px;
-    color: #777;
-
-    cursor: default;
-}
-
-.activities-unsuccessful-config-brick .item-unsuccessful-help {
-    color: grey;
-    font-style: italic;
-}
-
-.activities-unsuccessful-config-brick .item-unsuccessful-help a {
-    padding-left: 2px;
-}
-
-.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-value {
-    text-align: left;
-}

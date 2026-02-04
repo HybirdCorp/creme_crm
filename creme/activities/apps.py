@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,8 @@ class ActivitiesConfig(CremeAppConfig):
         register_model(
             models.ActivityType, model_name='activity_type',
         ).brick_class(
-            bricks.ActivityTypeBrick
+            # bricks.ActivityTypeBrick
+            bricks.ActivityTypesBrick
         ).creation(
             form_class=type_forms.ActivityTypeForm,
         ).edition(
@@ -100,6 +101,8 @@ class ActivitiesConfig(CremeAppConfig):
         )
         register_model(
             models.ActivitySubType, model_name='activity_sub_type',
+        ).brick_class(
+            bricks.ActivitySubTypesBrick
         ).creation(
             form_class=type_forms.ActivitySubTypeForm,
         ).edition(

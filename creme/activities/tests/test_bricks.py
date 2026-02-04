@@ -26,6 +26,8 @@ from creme.persons.tests.base import (
 
 from ..bricks import (
     ActivityBarHatBrick,
+    ActivitySubTypesBrick,
+    ActivityTypesBrick,
     FutureActivitiesBrick,
     MyActivitiesCalendarBrick,
     ParticipantsBrick,
@@ -53,6 +55,26 @@ from .base import (
 
 @skipIfCustomActivity
 class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
+    def test_config_types(self):
+        self.login_as_root()
+        response = self.assertGET200(reverse(
+            'creme_config__model_portal', args=('activities', 'activity_type')
+        ))
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=ActivityTypesBrick,
+        )
+        # TODO: complete
+
+    def test_config_subtypes(self):
+        self.login_as_root()
+        response = self.assertGET200(reverse(
+            'creme_config__model_portal', args=('activities', 'activity_sub_type')
+        ))
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=ActivitySubTypesBrick,
+        )
+        # TODO: complete
+
     def test_bar__meeting(self):
         user = self.get_root_user()
 

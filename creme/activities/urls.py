@@ -3,7 +3,7 @@ from django.urls import include, re_path
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import activity_model_is_custom
-from .views import activity, bricks, buttons, calendar
+from .views import activity, bricks, buttons, calendar, other_models
 
 calendar_patterns = [
     re_path(
@@ -98,6 +98,23 @@ urlpatterns = [
     ),
 
     re_path(r'^calendar/', include(calendar_patterns)),
+
+    # Configuration
+    re_path(
+        r'^config/type/(?P<type_id>\d+)/portal[/]?$',
+        other_models.ActivityTypePortal.as_view(),
+        name='activities__type_portal',
+    ),
+    re_path(
+        r'^config/type/(?P<type_id>\d+)/reload[/]?$',
+        other_models.ActivityTypeBricksReloading.as_view(),
+        name='activities__reload_type_brick',
+    ),
+    re_path(
+        r'^config/type/(?P<type_id>\d+)/create_subtype[/]?$',
+        other_models.NarrowedActivitySubTypeCreation.as_view(),
+        name='activities__create_subtype',
+    ),
 
     re_path(
         r'^buttons/unsuccessful/settings/edit[/]?$',

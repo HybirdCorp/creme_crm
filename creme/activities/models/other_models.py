@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,6 +65,7 @@ class ActivitySubType(MinionModel):
     ).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
+    save_label = pgettext_lazy('activities-type', 'Save the sub-type')
 
     class Meta:
         app_label = 'activities'
