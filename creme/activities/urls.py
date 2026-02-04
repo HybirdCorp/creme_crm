@@ -115,6 +115,11 @@ urlpatterns = [
         other_models.NarrowedActivitySubTypeCreation.as_view(),
         name='activities__create_subtype',
     ),
+    re_path(
+        r'^(?P<subtype_id>[\w-]+)/reorder[/]?$',
+        other_models.ActivitySubTypeReordering.as_view(),
+        name='activities__reorder_sub_type',
+    ),
 
     re_path(
         r'^buttons/unsuccessful/settings/edit[/]?$',

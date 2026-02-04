@@ -1692,7 +1692,5 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data=data)
         self.assertListEqual(
             expected,
-            list(FakeSector.objects.order_by('order').values_list(
-                'order', 'title'
-            ))
+            [*FakeSector.objects.order_by('order').values_list('order', 'title')],
         )

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,8 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, PermissionDenied
-from django.db.models import IntegerField
+from django.core.exceptions import PermissionDenied  # FieldDoesNotExist
+# from django.db.models import IntegerField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -146,30 +146,33 @@ class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
 class ModelPortal(ModelConfMixin, generic.BricksView):
     template_name = 'creme_config/generics/model-portal.html'
 
-    def fix_orders(self):
-        model = self.get_model_conf().model
-        meta = model._meta
-
-        try:
-            order_field = meta.get_field('order')
-        except FieldDoesNotExist:
-            pass
-        else:
-            ordering = meta.ordering
-
-            if ordering and ordering[0] == 'order' and \
-               isinstance(order_field, IntegerField):
-                for order, instance in enumerate(
-                    model._default_manager.order_by('order', 'pk'),
-                    start=1,
-                ):
-                    if order != instance.order:
-                        logger.warning(
-                            'Fix an order problem in model %s (%s)',
-                            model, instance,
-                        )
-                        instance.order = order
-                        instance.save(force_update=True, update_fields=('order',))
+    # NB: this order fixing does NOT work with more complex use cases like
+    #     ActivitySubTypes which have naturally not consecutive orders.
+    #     Orders are fixed by the reordering view
+    # def fix_orders(self):
+    #     model = self.get_model_conf().model
+    #     meta = model._meta
+    #
+    #     try:
+    #         order_field = meta.get_field('order')
+    #     except FieldDoesNotExist:
+    #         pass
+    #     else:
+    #         ordering = meta.ordering
+    #
+    #         if ordering and ordering[0] == 'order' and \
+    #            isinstance(order_field, IntegerField):
+    #             for order, instance in enumerate(
+    #                 model._default_manager.order_by('order', 'pk'),
+    #                 start=1,
+    #             ):
+    #                 if order != instance.order:
+    #                     logger.warning(
+    #                         'Fix an order problem in model %s (%s)',
+    #                         model, instance,
+    #                     )
+    #                     instance.order = order
+    #                     instance.save(force_update=True, update_fields=('order',))
 
     def get_bricks(self):
         model_conf = self.get_model_conf()
@@ -189,7 +192,7 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.fix_orders()
+        # self.fix_orders()
 
         app_registry = self.get_app_registry()
         model_conf = self.get_model_conf()

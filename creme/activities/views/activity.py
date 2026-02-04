@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,11 +55,10 @@ class ActivityCreation(generic.EntityCreation):
         'phonecall': constants.UUID_TYPE_PHONECALL,
         'task':      constants.UUID_TYPE_TASK,
     }
-    # TODO: add a field <ActivitySubType.is_default> instead.
-    default_activity_subtypes = {
-        constants.UUID_TYPE_MEETING:   constants.UUID_SUBTYPE_MEETING_MEETING,
-        constants.UUID_TYPE_PHONECALL: constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-    }
+    # default_activity_subtypes = {
+    #     constants.UUID_TYPE_MEETING:   constants.UUID_SUBTYPE_MEETING_MEETING,
+    #     constants.UUID_TYPE_PHONECALL: constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+    # }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,12 +77,13 @@ class ActivityCreation(generic.EntityCreation):
 
         type_uuid = self.type_uuid
         if type_uuid:
-            subtype_uuid = self.default_activity_subtypes.get(type_uuid)
-            kwargs['sub_type'] = (
-                get_object_or_404(ActivitySubType, uuid=subtype_uuid)
-                if subtype_uuid else
-                ActivitySubType.objects.filter(type__uuid=type_uuid).first()
-            )
+            # subtype_uuid = self.default_activity_subtypes.get(type_uuid)
+            # kwargs['sub_type'] = (
+            #     get_object_or_404(ActivitySubType, uuid=subtype_uuid)
+            #     if subtype_uuid else
+            #     ActivitySubType.objects.filter(type__uuid=type_uuid).first()
+            # )
+            kwargs['sub_type'] = ActivitySubType.objects.filter(type__uuid=type_uuid).first()
 
         return kwargs
 

@@ -99,6 +99,7 @@ class ActivitiesConfig(CremeAppConfig):
         ).edition(
             form_class=type_forms.ActivityTypeForm,
         )
+        # TODO: disable the vanilla ordering view
         register_model(
             models.ActivitySubType, model_name='activity_sub_type',
         ).brick_class(
