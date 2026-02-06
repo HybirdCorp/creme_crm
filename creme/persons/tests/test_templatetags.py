@@ -9,14 +9,14 @@ from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Civility
 
-from .base import _BaseTestCase
+from .base import _PersonsTestCase
 
 Address = persons.get_address_model()
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
-class PersonsTagsTestCase(_BaseTestCase):
+class PersonsTagsTestCase(_PersonsTestCase):
     def test_persons_pretty_address__address_n_pobox(self):
         "<address> & <po_box> fields."
         address1 = Address(address='742 Evergreen Terrace')

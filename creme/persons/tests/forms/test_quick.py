@@ -13,14 +13,14 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from ..base import (
     Contact,
     Organisation,
-    _BaseTestCase,
+    _PersonsTestCase,
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
 
 @skipIfCustomContact
-class ContactQuickFormTestCase(_BaseTestCase):
+class ContactQuickFormTestCase(_PersonsTestCase):
     @staticmethod
     def _build_quickform_url():
         ct = ContentType.objects.get_for_model(Contact)
