@@ -5,6 +5,7 @@ from unittest.case import skipIf
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connection, models
+from django.db.models import ForeignKey
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
@@ -14,6 +15,7 @@ from creme.creme_core.core.enumerable import (
     EnumerableRegistry,
     Enumerator,
     QSEnumerator,
+    enumerable_registry,
     get_enum_search_fields,
 )
 from creme.creme_core.models import (
@@ -28,6 +30,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakeReport,
     FakeTodo,
+    HistoryLine,
     Language,
     Vat,
 )
@@ -540,6 +543,31 @@ class EnumerableTestCase(CremeTestCase):
                     ('unknown', 'Unknown'),
                 ])
             ],
+        )
+
+    def test_content_type_enumerator(self):
+        user = self.user
+        ctype_fk = HistoryLine._meta.get_field('entity_ctype')
+        self.assertIsInstance(ctype_fk, ForeignKey)
+        self.assertEqual(ContentType, ctype_fk.related_model)
+
+        e = enumerators.ContentTypeEnumerator(ctype_fk)
+
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            choices = e.choices(user)
+        self.assertListEqual(
+            [{'value': 0, 'label': _('Error (please contact your administrator)')}],
+            choices,
+        )
+        self.assertIn(
+            'use an EntityCTypeForeignKey if you reference only CremeEntities',
+            logs_manager.output[0],
+        )
+
+        # TODO: need a fake model with a ForeignKey(ContentType, ...)
+        self.assertEqual(
+            enumerators.ContentTypeEnumerator,
+            enumerable_registry._enums_4_models.get(ContentType)
         )
 
     def test_entity_enumerator(self):

@@ -1,3 +1,22 @@
+== Version 2.7.5 ==
+
+  Users side :
+  ------------
+    # The style for notification panel with lots of notifications has been improved.
+    # Apps :
+        * Recurrents :
+            - A crash when you tried to add a filter has been fixed.
+            - The Quick-search on the field 'ct' ("Type of the recurrent resource") has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The job which sends notification emails has been improved to remove line breaks in subject.
+          Line breaks were avoiding the mails to be sent.
+
+
 == Version 2.7.4 ==
 
   Users side :

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,6 +51,22 @@ class EntityEnumerator(enumerable.QSEnumerator):
             return model.objects.none()
 
         return EntityCredentials.filter(user=user, queryset=qs)
+
+
+class ContentTypeEnumerator(enumerable.Enumerator):
+    def choices(self, user, *, term=None, only=None, limit=None):
+        logger.critical(
+            'The field %s seems to be a basic FK to ContentType; use an '
+            'EntityCTypeForeignKey if you reference only CremeEntities, or '
+            'tag the field as not viewable.',
+            self.field
+        )
+
+        return [{'value': 0, 'label': _('Error (please contact your administrator)')}]
+
+    # TODO ??
+    # def to_python(self, user, values):
+    #     return [c for c in entity_ctypes() if c.id in values]
 
 
 class UserEnumerator(enumerable.QSEnumerator):
