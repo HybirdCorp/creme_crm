@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
+from creme.creme_core.models import fields as core_fields
 
 
 class AbstractRecurrentGenerator(CremeEntity):
@@ -31,9 +31,12 @@ class AbstractRecurrentGenerator(CremeEntity):
     last_generation = models.DateTimeField(
         _('Date of the last generation'), null=True, editable=False,
     )
-    periodicity = DatePeriodField(_('Periodicity of the generation'))
+    periodicity = core_fields.DatePeriodField(_('Periodicity of the generation'))
 
-    ct = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
+    # ct = core_fields.CTypeForeignKey(
+    ct = core_fields.EntityCTypeForeignKey(
+        verbose_name=_('Type of the recurrent resource'), editable=False,
+    )
     template = models.ForeignKey(
         CremeEntity,
         verbose_name=_('Related model'),

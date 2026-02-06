@@ -437,6 +437,8 @@ span.create-group-entry {
 
 .notification-box .notification-panel {
     position: absolute;
+    overflow: auto;
+    max-height: 80vh;
     width: 512px;
     top: 35px;
     left: -380px;

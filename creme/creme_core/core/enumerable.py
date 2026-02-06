@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -118,7 +118,8 @@ def get_enum_search_fields(field):
 
 class EmptyEnumerator(Enumerator):
     """Class which can enumerate nothing. Used as a placeholder if the enumerator
-    cannot be found in the registry"""
+    cannot be found in the registry.
+    """
     def choices(self, *args, **kwargs):
         # To keep compatibility with previous versions, calling an EmptyEnumerator will
         # not raise but just create a log and a broken select.
@@ -157,8 +158,9 @@ class QSEnumerator(Enumerator):
 
         if not search_fields:
             raise ValueError(
-                f'This field has no search fields : the model {field.model} of {field} do not'
-                'have _search_fields attribute or visible CharField'
+                f'This field has no search fields; the model {field.remote_field.model} '
+                f'referenced by the field <{field}> do not have "_search_fields" '
+                f'attribute or visible CharField'
             )
 
         self.search_fields = search_fields
