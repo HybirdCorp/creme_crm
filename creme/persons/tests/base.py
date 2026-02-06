@@ -28,7 +28,7 @@ def skipIfCustomOrganisation(test_func):
     return skipIf(skip_organisation_tests, 'Custom Organisation model in use')(test_func)
 
 
-class _BaseTestCase(DocumentsTestCaseMixin, CremeTestCase):
+class _PersonsTestCase(DocumentsTestCaseMixin, CremeTestCase):
     def login_as_persons_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(allowed_apps=['persons', *allowed_apps], **kwargs)
 

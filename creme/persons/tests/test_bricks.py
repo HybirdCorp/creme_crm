@@ -24,7 +24,7 @@ from .base import (
     Address,
     Contact,
     Organisation,
-    _BaseTestCase,
+    _PersonsTestCase,
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
@@ -60,9 +60,10 @@ else:
         return skipIf(True, 'The app "commercial" is not installed')(test_func)
 
 
+# TODO: split?
 @skipIfCustomOrganisation
 @skipIfCustomContact
-class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
+class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
     def _get_address_brick_node(self, entity, brick_cls):
         response = self.assertGET200(entity.get_absolute_url())
         return self.get_brick_node(
@@ -178,6 +179,14 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     def _get_meeting_subtype(self):
         return self.get_object_or_fail(
             ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
+        )
+
+    def test_managed_organisations(self):
+        self.login_as_root()
+        response = self.assertGET200(reverse('creme_config__portal'))
+        self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.ManagedOrganisationsBrick,
         )
 
     def test_contact_hat_card_brick(self):

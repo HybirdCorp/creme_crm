@@ -1,27 +1,20 @@
-# from functools import partial
+from functools import partial
+
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.menu import CremeEntry
+from creme.creme_core.gui.field_printers import field_printer_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import EntityFilter, HeaderFilter, UserRole
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-from .. import bricks, constants  # workflow
-from ..deletors import ContactDeletor, OrganisationDeletor
-from ..menu import UserContactEntry
+from .. import constants  # workflow
+from ..constants import UUID_FIRST_CONTACT
 from ..models import Sector
-from .base import (
-    Contact,
-    Organisation,
-    _BaseTestCase,
-    skipIfCustomContact,
-    skipIfCustomOrganisation,
-)
+from .base import Contact, Organisation, _PersonsTestCase
 
 
-class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
+class PersonsAppTestCase(_PersonsTestCase):
     def test_core_populate(self):
         role = self.get_object_or_fail(UserRole, name=_('Regular user'))
         self.assertIn('persons', role.allowed_apps)
@@ -77,12 +70,87 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             efilter.filter(Organisation.objects.all())
         )
 
-    def test_config_portal(self):
-        self.login_as_root()
-        response = self.assertGET200(reverse('creme_config__portal'))
-        self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=bricks.ManagedOrganisationsBrick,
+    def test_populated_orga_uuid(self):
+        first_orga = Organisation.objects.order_by('id').first()
+        self.assertIsNotNone(first_orga)
+        self.assertTrue(first_orga.is_managed)
+        self.assertUUIDEqual(constants.UUID_FIRST_ORGA, first_orga.uuid)
+
+    def test_populated_contact_uuid(self):
+        first_contact = Contact.objects.order_by('id').first()
+        self.assertIsNotNone(first_contact)
+
+        user = first_contact.is_user
+        self.assertIsNotNone(user)
+
+        self.assertUUIDEqual(UUID_FIRST_CONTACT, first_contact.uuid)
+
+    def test_fk_user_printer(self):
+        user = self.create_user()
+
+        deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
+        kirika = user.linked_contact
+
+        render_field = partial(field_printer_registry.get_field_value, instance=deunan)
+        self.assertEqual(
+            f'<a href="{kirika.get_absolute_url()}">Kirika Y.</a>',
+            render_field(field_name='user', user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertEqual(
+            f'<a href="{kirika.get_absolute_url()}" target="_blank">Kirika Y.</a>',
+            render_field(field_name='user', user=user, tag=ViewTag.HTML_FORM),
+        )
+        self.assertEqual(
+            '<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
+            render_field(field_name='is_user', user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
+        self.assertEqual(
+            str(user),
+            render_field(field_name='user', user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+
+    def test_fk_user_printer__team(self):
+        user = self.create_user()
+
+        eswat = self.create_team('eswat')
+        deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
+
+        self.assertEqual(
+            str(eswat),
+            field_printer_registry.get_field_value(
+                instance=deunan, field_name='user', user=user, tag=ViewTag.HTML_DETAIL,
+            ),
+        )
+
+    def test_fk_user_printer__not_viewable(self):
+        "Cannot see the contact => fallback to user + no <a>."
+        user = self.login_as_persons_user()
+        other_user = self.get_root_user()
+        self.add_credentials(user.role, own=['VIEW'])
+
+        viewable_contact = user.linked_contact
+        self.assertEqual(user, viewable_contact.user)
+
+        forbidden_contact = other_user.linked_contact
+        self.assertEqual(other_user, forbidden_contact.user)
+
+        render_field = partial(
+            field_printer_registry.get_field_value,
+            user=user, field_name='user', tag=ViewTag.HTML_DETAIL,
+        )
+        self.assertHTMLEqual(
+            f'<a href="{viewable_contact.get_absolute_url()}">'
+            f'Kirika Y.'
+            f'</a>',
+            render_field(instance=viewable_contact),
+        )
+        self.assertEqual(
+            _('{first_name} {last_name}.').format(
+                first_name=other_user.first_name,
+                last_name=other_user.last_name[0],
+            ),
+            render_field(instance=forbidden_contact),
         )
 
     # def test_transform_target_into_prospect(self):  # DEPRECATED
@@ -113,101 +181,3 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
     #     # Do not create duplicate
     #     workflow.transform_target_into_customer(source, target, user)
     #     self.assertHaveRelation(subject=target, type=type_id, object=source)
-
-    def test_user_contact_menu_entry(self):
-        user = self.login_as_persons_user()
-        url = user.linked_contact.get_absolute_url()
-        self.assertEqual(url, user.get_absolute_url())
-
-        self.add_credentials(user.role, all=['VIEW'])
-
-        entry = UserContactEntry()
-        self.assertEqual('persons-user_contact', entry.id)
-        self.assertEqual(_("*User's contact*"), entry.label)
-        self.assertHTMLEqual(
-            f'<a href="{url}">{user}</a>',
-            entry.render({
-                # 'request': self.build_request(user=user),
-                'user': user,
-            }),
-        )
-
-        # ---
-        creme_children = [*CremeEntry().children]
-
-        for child in creme_children:
-            if isinstance(child, UserContactEntry):
-                break
-        else:
-            self.fail(f'No user entry found in {creme_children}.')
-
-    def test_user_contact_menu_entry__forbidden(self):
-        user = self.login_as_standard()
-
-        self.assertHTMLEqual(
-            f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
-            UserContactEntry().render({
-                # 'request': self.build_request(user=user),
-                'user': user,
-            }),
-        )
-
-    def test_user_contact_menu_entry__is_staff(self):
-        user = self.login_as_super(is_staff=True)
-        self.assertFalse(user.get_absolute_url())
-
-        self.assertHTMLEqual(
-            f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
-            UserContactEntry().render({
-                'user': user,
-            }),
-        )
-
-    @skipIfCustomContact
-    def test_contact_deletor(self):
-        user = self.get_root_user()
-        contact1 = Contact.objects.create(user=user, first_name='John', last_name='Doe')
-        deletor = ContactDeletor()
-        with self.assertNoException():
-            deletor.check_permissions(user=user, entity=contact1)
-
-        # ---
-        other_user = self.create_user()
-        with self.assertRaises(ConflictError) as cm:
-            deletor.check_permissions(user=user, entity=other_user.linked_contact)
-
-        self.assertEqual(
-            _('A user is associated with this contact.'),
-            str(cm.exception),
-        )
-
-    @skipIfCustomOrganisation
-    def test_organisation_deletor(self):
-        user = self.get_root_user()
-        orga = Organisation.objects.create(user=user, name='Acme')
-        deletor = OrganisationDeletor()
-
-        with self.assertNoException():
-            deletor.check_permissions(user=user, entity=orga)
-
-    @skipIfCustomOrganisation
-    def test_organisation_deletor__one_managed(self):
-        deletor = OrganisationDeletor()
-        managed = Organisation.objects.get(is_managed=True)
-
-        with self.assertRaises(ConflictError) as cm:
-            deletor.check_permissions(user=self.get_root_user(), entity=managed)
-
-        self.assertEqual(
-            _('The last managed organisation cannot be deleted.'),
-            str(cm.exception),
-        )
-
-    @skipIfCustomOrganisation
-    def test_organisation_deletor__several_managed(self):
-        user = self.get_root_user()
-        orga = Organisation.objects.create(user=user, name='Acme', is_managed=True)
-        deletor = OrganisationDeletor()
-
-        with self.assertNoException():
-            deletor.check_permissions(user=user, entity=orga)
