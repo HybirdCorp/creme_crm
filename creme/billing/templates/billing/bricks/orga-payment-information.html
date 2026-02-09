@@ -15,11 +15,12 @@
 {% block brick_list_content %}
 {% with edit_perm=user|has_perm_to_change:object %}
 {% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
-    {% for payment_info in page.object_list %}
+  {% for payment_info in page.object_list %}
     <div class="brick-list-item billing-item">
         <div class="billing-group billing-summary-group{% if payment_info.is_default %} billing-is-default{% endif %}">
             <div class="billing-group-key">
                 {{payment_info.name}}
+                {% if payment_info.archived %}<span class="billing-payment-archived" title="{% blocktranslate with date=payment_info.archived|date:'DATETIME_FORMAT' %}Archived on {{date}}{% endblocktranslate %}">{% translate '[Archived]' %}</span>{% endif %}
             </div>
             <div class="billing-group-value">
                 {% blocktranslate with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktranslate %}
@@ -61,7 +62,7 @@
             <div class="billing-group-value">{{payment_info.bic|default:'—'}}</div>
         </div>
     </div>
-    {% endfor %}
+  {% endfor %}
 {% endwith %}
 {% endblock %}
 
