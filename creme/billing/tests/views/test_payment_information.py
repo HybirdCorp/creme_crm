@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.billing.models import PaymentInformation
@@ -21,7 +22,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         return reverse('billing__create_related_payment_info', args=(invoice.id,))
 
     @staticmethod
-    def _build_setdefault_url(pi, invoice):
+    def _build_set_default_url(pi, invoice):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_creation__default_values(self):
@@ -49,6 +50,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
 
         pi = self.get_alone_element(PaymentInformation.objects.all())
         self.assertIs(True, pi.is_default)
+        self.assertIsNone(pi.archived)
         self.assertEqual(organisation, pi.organisation)
         self.assertEqual('', pi.bank_code)
         self.assertEqual('', pi.counter_code)
@@ -67,8 +69,14 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         )
 
         url = self._build_add_url(organisation)
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+        self.assertIn('name', fields)
+        self.assertNotIn('archived', fields)
+
+        # ---
         bank_code = 'BANK'
         counter_code = 'COUNTER'
         account_number = 'ACCOUNT'
@@ -76,7 +84,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         domiciliation = 'DOM'
         iban = 'IBAN'
         bic = 'BIC'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'user':       user.pk,
@@ -91,8 +99,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
                 'iban':                  iban,
                 'bic':                   bic,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         self.assertEqual(2, PaymentInformation.objects.count())
 
@@ -161,24 +168,32 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
         self.assertGET403(self._build_add_related_url(invoice))
 
-    def test_edition(self):
+    def test_edition__is_default(self):
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
         pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
+        self.assertTrue(pi.is_default)
 
         url = pi.get_edit_absolute_url()
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Payment information for «{entity}»').format(entity=organisation),
-            response.context.get('title')
+            response1.context.get('title'),
         )
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+        self.assertIn('name',    fields)
+        self.assertIn('rib_key', fields)
+        self.assertNotIn('is_default', fields)
+        self.assertNotIn('is_archived', fields)
 
         # POST ---
         rib_key = '00'
         name = f'RIB of {organisation}'
-        bic = 'pen ?'
+        bic = 'pen?'
         self.assertNoFormError(self.client.post(
             url,
             data={
@@ -191,6 +206,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
 
         pi = self.refresh(pi)
         self.assertIs(True, pi.is_default)
+        self.assertIsNone(pi.archived)
         self.assertEqual(name,    pi.name)
         self.assertEqual(rib_key, pi.rib_key)
         self.assertEqual(bic,     pi.bic)
@@ -238,8 +254,43 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         self.assertEqual(rib_key, pi_12.rib_key)
         self.assertEqual(bic,     pi_12.bic)
 
-        pi_12.delete()
-        self.assertIs(True, self.refresh(pi_11).is_default)
+    def test_edition__archived(self):
+        user = self.login_as_root_and_get()
+        orga = Organisation.objects.create(user=user, name='Nintendo')
+
+        create_pi = PaymentInformation.objects.create
+        pi1 = create_pi(organisation=orga, name='RIB 1', is_default=True)
+        create_pi(organisation=orga, name='RIB 2', is_default=True)
+        self.assertFalse(self.refresh(pi1).is_default)
+
+        url = pi1.get_edit_absolute_url()
+        self.assertGET200(url)
+
+        # ---
+        data = {'user': user.pk, 'name': 'RIB #1'}
+
+        err_response = self.assertPOST200(
+            url, data={**data, 'is_default': True, 'is_archived': True},
+        )
+        self.assertFormError(
+            err_response.context['form'],
+            field='is_archived',
+            errors=_('You cannot archive the default account'),
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={**data, 'is_archived': True},
+        ))
+        pi1 = self.refresh(pi1)
+        self.assertFalse(pi1.is_default)
+        self.assertDatetimesAlmostEqual(now(), pi1.archived)
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={**data, 'is_archived': False},
+        ))
+        self.assertIsNone(self.refresh(pi1).archived)
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice(self):
@@ -247,7 +298,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
         pinfo = PaymentInformation.objects.create(organisation=source, name='RIB sony')
-        url = self._build_setdefault_url(pinfo, invoice)
+        url = self._build_set_default_url(pinfo, invoice)
         self.assertGET405(url)
         self.assertPOST200(url)
         self.assertEqual(pinfo, self.refresh(invoice).payment_info)
@@ -267,7 +318,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
         def assertPostStatus(code, pi):
             self.assertEqual(
                 code,
-                self.client.post(self._build_setdefault_url(pi, invoice)).status_code
+                self.client.post(self._build_set_default_url(pi, invoice)).status_code
             )
 
         assertPostStatus(409, pi_target)
@@ -283,7 +334,7 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
 
         source.trash()
 
-        self.assertPOST403(self._build_setdefault_url(pinfo, invoice))
+        self.assertPOST403(self._build_set_default_url(pinfo, invoice))
         self.assertNotEqual(pinfo, self.refresh(invoice).payment_info)
 
     @skipIfCustomInvoice
@@ -299,7 +350,22 @@ class PaymentInformationViewsTestCase(_BillingTestCase):
             descriptions=[('payment_info', {FieldsConfig.HIDDEN: True})],
         )
 
-        self.assertPOST409(self._build_setdefault_url(pi_sony, invoice))
+        self.assertPOST409(self._build_set_default_url(pi_sony, invoice))
+
+    @skipIfCustomInvoice
+    def test_set_default_in_invoice__archived(self):
+        user = self.login_as_root_and_get()
+
+        invoice, source = self.create_invoice_n_orgas(user=user, name='Playstations')[:2]
+
+        create_pinfo = partial(PaymentInformation.objects.create, organisation=source)
+        create_pinfo(name='RIB sony #1')
+        pi2 = create_pinfo(name='RIB sony #2', archived=now())
+
+        response = self.client.post(self._build_set_default_url(pi2, invoice))
+        self.assertContains(
+            response=response, status_code=409, text=_('This account is archived'),
+        )
 
     # TODO?
     # def test_inneredit(self):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,11 @@ from django.conf import settings
 from django.db import models
 from django.db.transaction import atomic
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import get_per_request_cache
 from creme.creme_core.models import base
 from creme.creme_core.models import fields as core_fields
@@ -204,13 +206,14 @@ class PaymentInformation(base.CremeModel):
     iban = models.CharField(_('IBAN'), max_length=100, blank=True)
     bic = models.CharField(_('BIC'), max_length=100, blank=True)
 
-    is_default = models.BooleanField(_('Is default?'), default=False)
     organisation = models.ForeignKey(
         settings.PERSONS_ORGANISATION_MODEL,
         verbose_name=pgettext_lazy('billing', 'Target organisation'),
         related_name='PaymentInformationOrganisation_set',
         on_delete=models.CASCADE,
     )
+    is_default = models.BooleanField(_('Is default?'), default=False)
+    archived = models.DateTimeField(_('Archiving date'), null=True, editable=False)
 
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
@@ -246,11 +249,22 @@ class PaymentInformation(base.CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         if self.is_default:
-            first_pi = PaymentInformation.objects.filter(
+            other_pi = PaymentInformation.objects.filter(
                 organisation=self.organisation,
-            ).exclude(id=self.id).first()
+            ).exclude(id=self.id)
 
-            if first_pi:
+            if other_pi:
+                active_pi = [pi for pi in other_pi if pi.archived is None]
+                if not active_pi:
+                    raise SpecificProtectedError(
+                        msg=gettext(
+                            'You cannot delete this account because all other '
+                            'accounts are archived'
+                        ),
+                        protected_objects=[self],
+                    )
+
+                first_pi = active_pi[0]
                 first_pi.is_default = True
                 first_pi.save()
 

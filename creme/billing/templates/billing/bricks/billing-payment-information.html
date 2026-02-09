@@ -20,12 +20,17 @@
   {% for payment_info in page.object_list %}
     <div class="brick-list-item billing-item">
         <div class="billing-group billing-summary-group{% if payment_info == object.payment_info %} billing-is-default{% endif %}">
-            <div class="billing-group-key">{{payment_info.name}}</div>
+            <div class="billing-group-key">
+                {{payment_info.name}}
+                {% if payment_info.archived %}<span class="billing-payment-archived">{% translate '[Archived]' %}</span>{% endif %}
+            </div>
             <div class="billing-group-value">{% blocktranslate with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktranslate %}</div>
             <div class="billing-action">
               {% if payment_info == object.payment_info %}
                   {% translate 'Selected account for this document' %}
-              {% else %}{% url 'billing__set_default_payment_info' payment_info.id object.id as set_default_url %}
+              {% elif payment_info.archived %}
+                  {% brick_action id='update' url='' label=_('Select this account') class='billing-select-account' icon='edit' display='both' enabled=False help_text=_('This account cannot be selected because it is archived') %}
+                {% else %}{% url 'billing__set_default_payment_info' payment_info.id object.id as set_default_url %}
                   {% brick_action id='update' url=set_default_url label=_('Select this account') class='billing-select-account' icon='edit' display='both' %}
               {% endif %}
             </div>

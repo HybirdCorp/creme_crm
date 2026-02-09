@@ -129,9 +129,19 @@ ul.bline-error-list > li {
     color: #444;
 }
 
+.billing-item .billing-payment-archived {
+  padding-left: 3px;
+
+  color: gray;
+  font-size: 11px;
+}
+
 .billing-item:hover .billing-select-account {
-    opacity: 1;
     visibility: visible;
+}
+
+.billing-item:hover .billing-select-account:not(.is-disabled) {
+    opacity: 1;
 }
 
 .billing-item .brick-action .brick-action-icon {
