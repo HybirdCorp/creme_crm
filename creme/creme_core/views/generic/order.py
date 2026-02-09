@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 
 from collections.abc import Sequence
 
-from django.core.exceptions import ImproperlyConfigured
+# from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model, QuerySet
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
@@ -83,7 +83,8 @@ class ReorderInstances(View):
             if self.model is not None:
                 return self.model._default_manager.all()
 
-            raise ImproperlyConfigured(
+            # raise ImproperlyConfigured(
+            raise ValueError(
                 '{cls} is missing a QuerySet. Define {cls}.model, '
                 '{cls}.queryset, or override {cls}.get_queryset().'.format(
                     cls=self.__class__.__name__,
