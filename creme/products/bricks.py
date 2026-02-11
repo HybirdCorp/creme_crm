@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2025  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,14 +16,44 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Count
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import products
+from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.gui.bricks import SimpleBrick
+from creme.products.models import Category, SubCategory
 
 Product = products.get_product_model()
 Service = products.get_service_model()
+
+
+class CategoriesBrick(GenericModelBrick):
+    id = GenericModelBrick.generate_id('products', 'categories_config')
+    template_name = 'products/bricks/categories.html'
+    dependencies = (Category,)
+
+    def _build_queryset(self, model):
+        # NB: explicit ordering because of annotate() which removes natural order hum...
+        return super()._build_queryset(model).order_by(
+            'name', 'id',
+        ).annotate(subcategories_count=Count('subcategory'))
+
+
+class SubCategoriesBrick(GenericModelBrick):
+    id = GenericModelBrick.generate_id('products', 'subcategories_config')
+    dependencies = (SubCategory, Category)
+    template_name = 'products/bricks/subcategories.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            Category.objects
+                    .order_by('name', 'id')
+                    .annotate(subcategories_count=Count('subcategory')),
+            total_count=SubCategory.objects.count(),
+        ))
 
 
 class ImagesBrick(SimpleBrick):

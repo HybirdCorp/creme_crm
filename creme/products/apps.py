@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,15 +50,19 @@ class ProductsConfig(CremeAppConfig):
         register(self.Service).add_overriders(CategoryOverrider)
 
     def register_creme_config(self, config_registry):
-        from . import models
+        from . import bricks, models
         from .forms import category
 
         register_model = config_registry.register_model
         register_model(
-            models.Category,    'category',
+            models.Category, 'category',
+        ).brick_class(
+            bricks.CategoriesBrick
         )
         register_model(
             models.SubCategory, 'subcategory',
+        ).brick_class(
+            bricks.SubCategoriesBrick
         ).creation(
             form_class=category.SubCategoryForm,
         ).edition(

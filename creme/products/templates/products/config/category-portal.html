@@ -1,0 +1,17 @@
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_bricks creme_perms %}
+
+{% block page_title %}{% translate 'Configuration' %} > {% blocktranslate %}Sub-categories of «{{category}}»{% endblocktranslate %} - {% endblock %}
+
+{% block title %}
+    {% if user|has_perm_to_access:'creme_config' %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}
+    <a href="{% url 'creme_config__app_portal' 'products' %}">{{app_verbose_name}} > </a>
+    <a href="{% url 'creme_config__model_portal' 'products' 'subcategory' %}">{% translate 'Sub-categories' context 'products' %} > </a>
+    {% blocktranslate %}Sub-categories of «{{category}}»{% endblocktranslate %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}

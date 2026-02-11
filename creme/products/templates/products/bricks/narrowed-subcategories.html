@@ -1,0 +1,42 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_widgets creme_bricks creme_config_tags %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} products-category-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Sub-category in this category') plural=_('{count} Sub-categories in this category') empty=_('Sub-categories in this category') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='products__create_subcategory'|url:category.id label=objects_ctype.model_class.creation_label %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='description' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_body %}
+    <tbody>
+      {% for sub_category in page.object_list %}
+        <tr>
+            <td {% brick_table_data_status primary %}>{{sub_category.name}}</td>
+            <td>{{sub_category.description|default:'—'}}</td>
+            <td {% brick_table_data_status action %}>
+                {% config_model_edition_url model_config=model_config instance=sub_category user=user as edit_url %}
+                {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
+            </td>
+            <td {% brick_table_data_status action %}>
+                {% config_model_deletion_url model_config=model_config instance=sub_category user=user as delete_url %}{# TODO: disable if a job exists for this model #}
+                {% if delete_url %}{% brick_table_action id='edit' url=delete_url enabled=sub_category|config_is_custom icon='delete' label=_('Delete') %}{% endif %}
+            </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No sub-category for the moment' context 'products' %}
+{% endblock %}
