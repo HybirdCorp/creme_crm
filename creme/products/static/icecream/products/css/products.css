@@ -25,10 +25,20 @@
 }
 /* Brick 'images' - end */
 
-/* Mass import form */
+/* Brick 'sub-categories' */
+.brick-table.products-subcategories-brick .brick-table-content [data-table-action-column] {
+    text-align: right;
+}
 
+.brick-table.products-subcategories-brick .brick-table-content > tbody [data-table-action-column] {
+    width: fit-content;
+    text-align: right;
+    vertical-align: middle;
+}
+/* Brick 'sub-categories' - end */
+
+/* Mass import form */
 .products-category_extractor-creation {
     margin-bottom: 10px;
 }
-
 /* Mass import form - end */

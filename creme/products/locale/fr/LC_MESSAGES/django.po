@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'PRODUCTS' APP
-# Copyright (C) 2025 Hybird
+# Copyright (C) 2026 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 2.7\n"
+"Project-Id-Version: Creme Products 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-29 13:33+0200\n"
+"POT-Creation-Date: 2026-02-12 10:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -75,15 +75,15 @@ msgstr "Nom de la catégorie"
 msgid "Description"
 msgstr "Description"
 
-msgctxt "products-category"
+msgctxt "products"
 msgid "Create a category"
 msgstr "Créer une catégorie"
 
-msgctxt "products-category"
+msgctxt "products"
 msgid "Category"
 msgstr "Catégorie"
 
-msgctxt "products-category"
+msgctxt "products"
 msgid "Categories"
 msgstr "Catégories"
 
@@ -93,15 +93,19 @@ msgstr "Nom de la sous-catégorie"
 msgid "Parent category"
 msgstr "Catégorie parente"
 
-msgctxt "products-sub_category"
+msgctxt "products"
 msgid "Create a sub-category"
 msgstr "Créer une sous-catégorie"
 
-msgctxt "products-sub_category"
+msgctxt "products"
+msgid "Save the sub-category"
+msgstr "Enregistrer la sous-catégorie"
+
+msgctxt "products"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-msgctxt "products-sub_category"
+msgctxt "products"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
@@ -161,6 +165,12 @@ msgstr "Service"
 
 msgid "Services"
 msgstr "Services"
+
+msgid "Product view"
+msgstr "Vue de Produit"
+
+msgid "Service view"
+msgstr "Vue de Service"
 
 msgid "Product image"
 msgstr "Image de produit"
@@ -270,11 +280,14 @@ msgstr "Unisexe"
 msgid "Kids"
 msgstr "Enfants"
 
-msgid "Product view"
-msgstr "Vue de Produit"
+msgid "Sub-categories"
+msgstr "Sous-catégories"
 
-msgid "Service view"
-msgstr "Vue de Service"
+#, python-format
+msgid "Configure the %(count)s sub-category"
+msgid_plural "Configure the %(count)s sub-categories"
+msgstr[0] "Configurer %(count)s sous-catégorie"
+msgstr[1] "Configurer les %(count)s sous-catégories"
 
 #, python-brace-format
 msgid "{count} Image"
@@ -293,14 +306,53 @@ msgstr "Enlever cette image"
 msgid "No image for the moment"
 msgstr "Pas d'image pour le moment"
 
+#, python-brace-format
+msgid "{count} Sub-category in this category"
+msgstr "{count} Sous-catégorie dans cette catégorie"
+
+#, python-brace-format
+msgid "{count} Sub-categories in this category"
+msgstr "{count} Sous-catégories dans cette catégorie"
+
+msgid "Sub-categories in this category"
+msgstr "Sous-catégories dans cette catégorie"
+
+msgid "Actions"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgctxt "products"
+msgid "No sub-category for the moment"
+msgstr "Pas de sous-catégorie pour le moment"
+
+#, python-brace-format
+msgid "{count} Sub-category of product/service"
+msgstr "{count} Sous-catégorie de produit/service"
+
+#, python-brace-format
+msgid "{count} Sub-categories of product/service"
+msgstr "{count} Sous-catégories de produit/service"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+#, python-format
+msgid "Sub-categories of «%(category)s»"
+msgstr "Sous-catégories de «%(category)s»"
+
 msgid "Create the Categories/Sub-Categories which are not found?"
 msgstr "Créer les Catégories/Sous-Catégories qui ne sont pas trouvées ?"
 
-msgctxt "products-category"
+msgctxt "products"
 msgid "Default category"
 msgstr "Catégorie par défaut"
 
-msgctxt "products-sub_category"
+msgctxt "products"
 msgid "Default sub-category"
 msgstr "Sous-catégorie par défaut"
 
@@ -310,6 +362,11 @@ msgstr "Nouvelles images pour «{entity}»"
 
 msgid "Link the images"
 msgstr "Lier les images"
+
+#, python-brace-format
+msgctxt "products"
+msgid "New sub-category for «{category}»"
+msgstr "Nouvelle sous-catégorie pour «{category}»"
 
 #~ msgid "This category doesn't exist."
 #~ msgstr "Cette catégorie n'existe pas."

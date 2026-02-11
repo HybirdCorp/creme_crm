@@ -38,6 +38,8 @@
                         as initial values in the related creation forms.
         * Documents :
             - You can now download several Documents at once, as a .zip archive.
+        * Products :
+            - The configuration of sub-categories has been improved (they are now grouped per category).
         * Billing :
             - Invoices, Quotes & Sales Order got a "card" hat-block, which is used by default by new installations.
             - You can now export several Invoices or Quotes at once, as a .zip archive.

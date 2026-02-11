@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.products.bricks import ImagesBrick
+from creme.products import bricks as prod_bricks
 from creme.products.models import SubCategory
 
 from .base import (
@@ -17,6 +17,28 @@ from .base import (
     skipIfCustomProduct,
     skipIfCustomService,
 )
+
+
+class ProductsBricksTestCase(BrickTestCaseMixin, _ProductsTestCase):
+    def test_config_types(self):
+        self.login_as_root()
+        response = self.assertGET200(reverse(
+            'creme_config__model_portal', args=('products', 'category')
+        ))
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=prod_bricks.CategoriesBrick,
+        )
+        # TODO: complete
+
+    def test_config_subtypes(self):
+        self.login_as_root()
+        response = self.assertGET200(reverse(
+            'creme_config__model_portal', args=('products', 'subcategory')
+        ))
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=prod_bricks.SubCategoriesBrick,
+        )
+        # TODO: complete
 
 
 class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
@@ -33,7 +55,7 @@ class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
         response = self.assertGET200(product.get_absolute_url())
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=ImagesBrick,
+            self.get_html_tree(response.content), brick=prod_bricks.ImagesBrick,
         )
         self.assertEqual(_('Images'), self.get_brick_title(brick_node))
 
@@ -69,11 +91,11 @@ class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
         product.images.set([img_1, img_2])
 
-        ImagesBrick.page_size = max(4, settings.BLOCK_SIZE)  # TODO: revert?
+        prod_bricks.ImagesBrick.page_size = max(4, settings.BLOCK_SIZE)  # TODO: revert?
 
         response = self.assertGET200(product.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=ImagesBrick,
+            self.get_html_tree(response.content), brick=prod_bricks.ImagesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -99,7 +121,7 @@ class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
         response = self.assertGET200(service.get_absolute_url())
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=ImagesBrick,
+            self.get_html_tree(response.content), brick=prod_bricks.ImagesBrick,
         )
         self.assertEqual(_('Images'), self.get_brick_title(brick_node))
 

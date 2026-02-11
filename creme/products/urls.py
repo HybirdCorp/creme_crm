@@ -3,7 +3,7 @@ from django.urls import re_path
 from creme import products
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from .views import product, service
+from .views import other_models, product, service
 
 urlpatterns = [
     re_path(
@@ -20,6 +20,23 @@ urlpatterns = [
         r'^images/remove/(?P<entity_id>\d+)[/]?$',
         product.ImageRemoving.as_view(),
         name='products__remove_image',
+    ),
+
+    # Configuration
+    re_path(
+        r'^config/category/(?P<category_id>\d+)/portal[/]?$',
+        other_models.CategoryPortal.as_view(),
+        name='products__category_portal',
+    ),
+    re_path(
+        r'^config/category/(?P<category_id>\d+)/reload[/]?$',
+        other_models.CategoryBricksReloading.as_view(),
+        name='products__reload_category_brick',
+    ),
+    re_path(
+        r'^config/category/(?P<category_id>\d+)/create_subcategory[/]?$',
+        other_models.NarrowedSubCategoryCreation.as_view(),
+        name='products__create_subcategory',
     ),
 
     *swap_manager.add_group(

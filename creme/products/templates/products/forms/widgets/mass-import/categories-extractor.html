@@ -8,18 +8,18 @@
 {% endif %}
 <ul class="multi-select products-category_extractor-values">
     <li>
-        <label for="{{id}}_cat_colselect">{% translate 'Category' context 'products-category' %}:
+        <label for="{{id}}_cat_colselect">{% translate 'Category' context 'products' %}:
             {% with widget=widget.category_colselect %}{% include widget.template_name %}{% endwith %}
         </label>
-        <label for="{{id}}_cat_defval">{% translate 'Default category' context 'products-category' %}:
+        <label for="{{id}}_cat_defval">{% translate 'Default category' context 'products' %}:
             {% with widget=widget.category_defvalselect %}{% include widget.template_name %}{% endwith %}
         </label>
     </li>
     <li>
-        <label for="{{id}}_subcat_colselect">{% translate 'Sub-category' context 'products-sub_category' %}:
+        <label for="{{id}}_subcat_colselect">{% translate 'Sub-category' context 'products' %}:
             {% with widget=widget.subcategory_colselect %}{% include widget.template_name %}{% endwith %}
         </label>
-        <label for="{{id}}_subcat_defval">{% translate 'Default sub-category' context 'products-sub_category' %}:
+        <label for="{{id}}_subcat_defval">{% translate 'Default sub-category' context 'products' %}:
             {% with widget=widget.subcategory_defvalselect %}{% include widget.template_name %}{% endwith %}
         </label>
     </li>

@@ -19,10 +19,11 @@ class SubCategoryFormTestCase(CremeTestCase):
 
         context = response1.context
         self.assertEqual(
-            pgettext('products-sub_category', 'Create a sub-category'),
+            pgettext('products', 'Create a sub-category'),
             context.get('title'),
         )
-        self.assertEqual(_('Save'), context.get('submit_label'))
+        # self.assertEqual(_('Save'), context.get('submit_label'))
+        self.assertEqual(_('Save the sub-category'), context.get('submit_label'))
 
         # ---
         response2 = self.client.post(

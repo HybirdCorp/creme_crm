@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,12 +27,12 @@ class Category(MinionModel):
     name = models.CharField(_('Name of the category'), max_length=100)
     description = models.CharField(_('Description'), max_length=100, blank=True)
 
-    creation_label = pgettext_lazy('products-category', 'Create a category')
+    creation_label = pgettext_lazy('products', 'Create a category')
 
     class Meta:
         app_label = 'products'
-        verbose_name = pgettext_lazy('products-category', 'Category')
-        verbose_name_plural = pgettext_lazy('products-category', 'Categories')
+        verbose_name = pgettext_lazy('products', 'Category')
+        verbose_name_plural = pgettext_lazy('products', 'Categories')
         ordering = ('name',)
 
     def __str__(self):
@@ -47,12 +47,13 @@ class SubCategory(MinionModel):
         verbose_name=_('Parent category'), on_delete=models.CASCADE,
     ).set_tags(viewable=False)
 
-    creation_label = pgettext_lazy('products-sub_category', 'Create a sub-category')
+    creation_label = pgettext_lazy('products', 'Create a sub-category')
+    save_label = pgettext_lazy('products', 'Save the sub-category')
 
     class Meta:
         app_label = 'products'
-        verbose_name = pgettext_lazy('products-sub_category', 'Sub-category')
-        verbose_name_plural = pgettext_lazy('products-sub_category', 'Sub-categories')
+        verbose_name = pgettext_lazy('products', 'Sub-category')
+        verbose_name_plural = pgettext_lazy('products', 'Sub-categories')
         ordering = ('name',)
 
     def __str__(self):

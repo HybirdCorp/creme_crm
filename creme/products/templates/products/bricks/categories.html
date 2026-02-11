@@ -1,0 +1,16 @@
+{% extends 'creme_config/bricks/configurable-model.html' %}
+{% load i18n creme_bricks %}
+
+{% block config_fields_headers %}
+    {{block.super}}
+    {% brick_table_column title=_('Sub-categories') class='configmodel-column' %}
+{% endblock %}
+
+{% block config_fields_contents %}
+    {{block.super}}
+    <td>
+        <a href="{% url 'products__category_portal' object.id %}">
+            {% blocktranslate count count=object.subcategories_count %}Configure the {{count}} sub-category{% plural %}Configure the {{count}} sub-categories{% endblocktranslate %}
+        </a>
+    </td>
+{% endblock %}
