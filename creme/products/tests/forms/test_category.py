@@ -3,11 +3,10 @@ from django.utils.translation import pgettext
 
 from creme.creme_config.registry import config_registry
 from creme.creme_core.tests.base import CremeTestCase
+from creme.products.models import Category, SubCategory
 
-from ..models import Category, SubCategory
 
-
-class CreateCategoryTestCase(CremeTestCase):
+class SubCategoryFormTestCase(CremeTestCase):
     def test_create_subcategory_from_widget(self):
         user = self.login_as_root_and_get()
 
