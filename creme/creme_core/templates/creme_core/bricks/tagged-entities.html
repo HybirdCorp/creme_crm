@@ -19,6 +19,8 @@
   {% if ctype %}
     {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
     {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=object.id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
+  {% else %}
+    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=object.id __ct_id=excluded_ctype_ids __exclude_ctypes='on' label=_('Remove these properties') %}
   {% endif %}
 {% endblock %}
 

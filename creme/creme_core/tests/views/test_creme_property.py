@@ -16,6 +16,8 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     EntityFilter,
+    FakeActivity,
+    FakeActivityType,
     FakeContact,
     FakeOrganisation,
     RelationType,
@@ -804,7 +806,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(prop1)
         self.assertStillExists(prop2)
 
-    def test_delete_from_content_type(self):
+    # def test_delete_from_content_type(self):
+    def test_delete_properties__narrowed_types(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
@@ -821,6 +824,9 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         contact4 = create_contact(last_name='Deleted',  is_deleted=True)
 
         orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+        activity = FakeActivity.objects.create(
+            title='Mission #123', user=user, type=FakeActivityType.objects.all()[0],
+        )
 
         create_prop = partial(CremeProperty.objects.create, type=ptype1)
         prop11 = create_prop(creme_entity=contact1)
@@ -828,15 +834,30 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         prop2 = create_prop(creme_entity=contact2)
         prop3 = create_prop(creme_entity=contact3)
         prop4 = create_prop(creme_entity=contact4)
+        prop_act = create_prop(creme_entity=activity)
         prop_orga = create_prop(creme_entity=orga)
 
+        url = reverse('creme_core__remove_properties')
+        data = {'ptype_id': ptype1.id}
+
+        # ---
+        self.assertContains(
+            self.client.post(
+                url, follow=True, data={**data, 'ct_id': ['not_int']},
+            ),
+            status_code=404, text='ContentType ID must be an integer.',
+        )
+
+        # ---
         response = self.assertPOST200(
-            reverse('creme_core__remove_properties'), follow=True,
-            data={'ptype_id': ptype1.id, 'ct_id': contact1.entity_type_id},
+            url, follow=True,
+            # data={**data, 'ct_id': contact1.entity_type_id},
+            data={**data, 'ct_id': [contact1.entity_type_id, activity.entity_type_id]},
         )
         self.assertRedirects(response, ptype1.get_absolute_url())
         self.assertDoesNotExist(prop11)
         self.assertDoesNotExist(prop2)
+        self.assertDoesNotExist(prop_act)
         self.assertStillExists(prop12)
         self.assertStillExists(prop3)
         self.assertStillExists(prop4)
@@ -847,6 +868,69 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         hline = hlines[3]
         self.assertEqual(history.TYPE_PROP_DEL, hline.type)
         self.assertListEqual([ptype1.id], hline.modifications)
+
+    def test_delete_properties__excluded_types(self):
+        user = self.login_as_root_and_get()
+        ptype = CremePropertyType.objects.create(text='Is cool')
+        contact = FakeContact.objects.create(
+            user=user, last_name='Vrataski', first_name='Rita',
+        )
+        orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+        activity = FakeActivity.objects.create(
+            title='Mission #123', user=user, type=FakeActivityType.objects.all()[0],
+        )
+
+        create_prop = partial(CremeProperty.objects.create, type=ptype)
+        prop_contact = create_prop(creme_entity=contact)
+        prop_act = create_prop(creme_entity=activity)
+        prop_orga = create_prop(creme_entity=orga)
+
+        self.assertPOST200(
+            reverse('creme_core__remove_properties'),
+            follow=True,
+            data={
+                'ptype_id': ptype.id,
+                'ct_id': [contact.entity_type_id, orga.entity_type_id],
+                'exclude_ctypes': 'on',
+            },
+        )
+        self.assertDoesNotExist(prop_act)
+        self.assertStillExists(prop_orga)
+        self.assertStillExists(prop_contact)
+
+    def test_delete_properties__all_types(self):
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is cool')
+        contact = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+        orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+
+        create_prop = partial(CremeProperty.objects.create, type=ptype)
+        prop1 = create_prop(creme_entity=contact)
+        prop2 = create_prop(creme_entity=orga)
+
+        url = reverse('creme_core__remove_properties')
+        data = {'ptype_id': ptype.id}
+
+        # ---
+        self.assertContains(
+            self.client.post(
+                url, follow=True, data={**data, 'exclude_ctypes': 'on'},
+            ),
+            status_code=404,
+            text=(
+                'The argument "exclude_ctypes" cannot be used with an empty list of '
+                'ContentType IDs.'
+            ),
+            html=True,
+        )
+
+        # ---
+        self.assertPOST200(
+            url, follow=True, data=data,  # 'ct_id': [...],
+        )
+        self.assertDoesNotExist(prop1)
+        self.assertDoesNotExist(prop2)
 
     def test_add_properties_bulk(self):
         user = self.login_as_root_and_get()

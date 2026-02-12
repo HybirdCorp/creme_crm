@@ -265,8 +265,10 @@ property_patterns = [
         name='creme_core__remove_property',
     ),
     re_path(
-        r'^delete_from_entity_type[/]?$',
-        creme_property.CTypePropertiesDeletion.as_view(),
+        # r'^delete_from_entity_type[/]?$',
+        r'^delete/multi[/]?$',
+        # creme_property.CTypePropertiesDeletion.as_view(),
+        creme_property.PropertiesDeletion.as_view(),
         name='creme_core__remove_properties',
     ),
 
