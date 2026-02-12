@@ -4,6 +4,8 @@
   ------------
     # A detail-view for RelationType has been created; an interesting feature is
       the display of all entities linked by the concerned type, mixing all entity types.
+      The detail-view for CremePropertyType has been improved: you can now delete
+      properties related to entity types which do no respect the type constraints.
     # The management of recent entities has been rework. They are now stored in their own table
       (their were stored in the user's session) & so their are shared between the different
       sessions of a user. The setting value 'MAX_LAST_ITEMS' has been removed;
@@ -157,6 +159,11 @@
                     - _pre_save_clone()
                     - _post_clone()
                     - _post_save_clone()
+            - The view-class 'creme_core.views.creme_property.CTypePropertiesDeletion'
+              has been modified to manage several ContentTypes :
+                - Its name is now 'PropertiesDeletion'.
+                - The method 'get_ctype_id()' has been removed.
+                - The related URL has changed (but the URL name did not changed).
             - In 'creme_core.setting_keys', 'block_opening_key' & 'block_showempty_key' have been removed.
             - The function 'creme_core.utils.translation.get_model_verbose_name()' has been removed.
             - In 'creme_core.templatetags' :

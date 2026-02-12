@@ -159,47 +159,121 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
         return self.get_property_type().get_absolute_url()
 
 
-class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
-                              generic.CremeDeletion):
+# class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
+#                               generic.CremeDeletion):
+class PropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
+                         generic.CremeDeletion):
     ptype_id_arg: str = 'ptype_id'
     ctype_id_arg: str = 'ct_id'
+    exclude_ctypes_arg: str = 'exclude_ctypes'
 
-    def get_ctype_id(self) -> int:
-        return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg, cast=int)
+    # def get_ctype_id(self) -> int:
+    #     return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg, cast=int)
+    # TODO: factorise (RelationsDeletion)
+    def get_ctype_ids(self):
+        ctype_ids = []
+
+        for raw_ct_id in self.request.POST.getlist(self.ctype_id_arg):
+            try:
+                ct_id = int(raw_ct_id)
+            except ValueError:
+                raise Http404('ContentType ID must be an integer.')
+
+            ctype_ids.append((ct_id))
+
+        return ctype_ids
+
+    def get_ctypes(self, ptype, exclude: bool):
+        get_ct = ContentType.objects.get_for_id
+        ctypes = [get_ct(ct_id) for ct_id in self.get_ctype_ids()]
+
+        if not ctypes:
+            if exclude:
+                raise Http404(
+                    f'The argument "{self.exclude_ctypes_arg}" cannot be '
+                    f'used with an empty list of ContentType IDs.'
+                )
+
+            ctypes = [
+                get_ct(ct_id)
+                for ct_id in CremeProperty.objects
+                                          .filter(type_id=ptype)
+                                          .values_list('creme_entity__entity_type', flat=True)
+                                          .distinct()
+            ]
+        elif exclude:
+            ctypes = [
+                get_ct(ct_id)
+                for ct_id in CremeProperty.objects
+                                          .filter(type_id=ptype)
+                                          .exclude(creme_entity__entity_type__in=ctypes)
+                                          .values_list('creme_entity__entity_type', flat=True)
+                                          .distinct()
+            ]
+
+        return ctypes
+
+    def get_exclude_ctypes(self) -> bool:
+        return get_from_POST_or_404(
+            self.request.POST,
+            key=self.exclude_ctypes_arg, cast=bool, default=False,
+        )
 
     def get_ptype_id(self) -> int:
         return get_from_POST_or_404(self.request.POST, key=self.ptype_id_arg, cast=int)
+
+    def get_ptype(self) -> CremePropertyType:
+        return get_object_or_404(CremePropertyType, id=self.get_ptype_id())
 
     def get_success_url(self):
         return reverse('creme_core__ptype', args=(self.get_ptype_id(),))
 
     def perform_deletion(self, request):
-        ctype = self.get_ctype()
-        ptype_id = self.get_ptype_id()
-
+        # ctype = self.get_ctype()
+        # ptype_id = self.get_ptype_id()
         # key = 'cremeentity_ptr_id'
-        # NB: CremeUser.has_perm_to_change() returns False for deleted entities,
-        #     but EntityCredentials.filter(perm=EntityCredentials.CHANGE, ...)
-        #     does not exclude them => is this a problem??
-        qs = EntityCredentials.filter(
-            user=self.request.user,
-            queryset=ctype.model_class()
-                          .objects  # .order_by(key)
-                          .filter(properties__type=ptype_id, is_deleted=False),
-            perm=EntityCredentials.CHANGE,
-        )
-        for page in FlowPaginator(
-            # queryset=qs,
-            # key=key,
-            queryset=qs.order_by('cremeentity_ptr_id'),
-            per_page=256,
-            count=qs.count(),
-        ).pages():
-            with atomic():
-                CremeProperty.objects.filter(
-                    type_id=ptype_id,
-                    creme_entity_id__in=[e.id for e in page.object_list],
-                ).delete()
+        # qs = EntityCredentials.filter(
+        #     user=self.request.user,
+        #     queryset=ctype.model_class()
+        #                   .objects
+        #                   .order_by(key)
+        #                   .filter(properties__type=ptype_id, is_deleted=False),
+        #     perm=EntityCredentials.CHANGE,
+        # )
+        # for page in FlowPaginator(
+        #     queryset=qs,
+        #     key=key,
+        #     per_page=256,
+        #     count=qs.count(),
+        # ).pages():
+        #     with atomic():
+        #         CremeProperty.objects.filter(
+        #             type_id=ptype_id,
+        #             creme_entity_id__in=[e.id for e in page.object_list],
+        #         ).delete()
+        ptype = self.get_ptype()
+
+        for ctype in self.get_ctypes(ptype=ptype, exclude=self.get_exclude_ctypes()):
+            # NB: CremeUser.has_perm_to_change() returns False for deleted entities,
+            #     but EntityCredentials.filter(perm=EntityCredentials.CHANGE, ...)
+            #     does not exclude them => is this a problem??
+            qs = EntityCredentials.filter(
+                user=self.request.user,
+                queryset=ctype.model_class()
+                              .objects
+                              .filter(properties__type=ptype, is_deleted=False),
+                perm=EntityCredentials.CHANGE,
+            )
+            for page in FlowPaginator(
+                queryset=qs.order_by('cremeentity_ptr_id'),
+                per_page=256,
+                count=qs.count(),
+            ).pages():
+                with atomic():
+                    CremeProperty.objects.filter(
+                        type=ptype,
+                        creme_entity_id__in=[e.id for e in page.object_list],
+                    ).delete()
 
 
 class PropertyTypeDeletion(generic.CremeModelDeletion):
@@ -393,11 +467,14 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
         self.excluded_ctypes = excluded_ctypes
 
     def detailview_display(self, context):
+        excluded_ctypes = self.excluded_ctypes
         btc = self.get_template_context(
             context,
             CremeEntity.objects.filter(properties__type=context['object'])
-                               .exclude(entity_type__in=self.excluded_ctypes),
+                               .exclude(entity_type__in=excluded_ctypes),
             ctype=None,
+            # TODO: templatetag to extract 'id'?
+            excluded_ctype_ids=[ct.id for ct in excluded_ctypes],
         )
 
         CremeEntity.populate_real_entities(btc['page'].object_list)
