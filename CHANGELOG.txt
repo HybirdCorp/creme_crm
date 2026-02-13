@@ -175,7 +175,11 @@
                         - {% ctype_counted_instances_label %}
                     - The filter "|ctype_can_be_mass_imported" has been removed.
                     - The filter "|ctype_verbose_name" must take a "count" argument.
-            - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' has been removed.
+            - In 'creme_core.tests.base._CremeTestCase' :
+                - The method 'assertRelationCount()' has been removed.
+                - In the methods 'login_as_super()' & 'login_as_standard()', the default value
+                  for "password" is now an empty string (because password management is heavy &
+                  you generally just want to be logged to check permissions).
             - In Javascript :
                 - The method 'Array.copy()' has been removed.
                 - In 'creme.ajax' :

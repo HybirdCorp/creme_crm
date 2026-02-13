@@ -1205,13 +1205,16 @@ class UserEditionTestCase(BaseUserTestCase):
 
 class PasswordChangeTestCase(BaseUserTestCase):
     @staticmethod
-    def _build_pw_change_url(user_id, password=False):
+    def _build_pw_change_url(user_id):
         return reverse('creme_config__change_user_password', args=(user_id,))
 
     @skipIfNotCremeUser
     def test_change_password(self):
         # self.login_as_root()
-        self.login_with_user_perm()
+        # self.login_with_user_perm()
+        self.login_as_standard(
+            special_permissions=[user_config_perm], password=self.USER_PASSWORD,
+        )
 
         other_user = User.objects.create(username='deunan')
         url = self._build_pw_change_url(other_user.id)
