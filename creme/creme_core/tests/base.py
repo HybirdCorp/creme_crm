@@ -31,7 +31,8 @@ from django.utils.translation import gettext as _
 
 from ..auth import EntityCredentials
 from ..auth.special import SpecialPermission
-from ..constants import ROOT_PASSWORD, ROOT_USERNAME
+# from ..constants import ROOT_PASSWORD, ROOT_USERNAME
+from ..constants import ROOT_USERNAME
 from ..core.setting_key import SettingKey
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
@@ -74,7 +75,6 @@ class OverrideSettingValueContext(ContextDecorator):
         self.value = value
 
     def __enter__(self):
-        # self._previous = SettingValue.objects.get_4_key(self.key).value
         self._previous = SettingValue.objects.get_4_key(self.key, default=None).value
         SettingValue.objects.set_4_key(self.key, self.value)
 
@@ -281,22 +281,30 @@ class _CremeTestCase:
 
     def login_as_root(self) -> None:
         # Should exist (see 'creme_core.populate.py')
-        self.client.login(username=ROOT_USERNAME, password=ROOT_PASSWORD)
+        # self.client.login(username=ROOT_USERNAME, password=ROOT_PASSWORD)
+        user = self.get_root_user()
+        self.client._login(user)
+        # TODO: return user & remove login_as_root_and_get()
 
     def login_as_root_and_get(self) -> CremeUser:
-        self.login_as_root()
-        return self.get_root_user()
+        # self.login_as_root()
+        # return self.get_root_user()
+        user = self.get_root_user()
+        self.client._login(user)
+        return user
 
     def login_as_super(self,
                        is_staff=False,
                        index: int = 0,
                        # password: str = 'test',
-                       password: str = USER_PASSWORD,
+                       # password: str = USER_PASSWORD,
+                       password: str = '',
                        ) -> CremeUser:
         user = self.create_user(index=index, is_staff=is_staff, password=password)
 
-        logged = self.client.login(username=user.username, password=password)
-        self.assertTrue(logged, 'Not logged in')
+        # logged = self.client.login(username=user.username, password=password)
+        # self.assertTrue(logged, 'Not logged in')
+        self.client._login(user)
 
         return user
 
@@ -309,7 +317,8 @@ class _CremeTestCase:
                           special_permissions: Iterable[SpecialPermission] = (),
                           index: int = 0,
                           # password: str = 'test',
-                          password: str = USER_PASSWORD,
+                          # password: str = USER_PASSWORD,
+                          password: str = '',
                           ) -> CremeUser:
         role = self.create_role(
             name='Basic',
@@ -322,8 +331,9 @@ class _CremeTestCase:
         )
         user = self.create_user(index=index, role=role, password=password, roles=[role])
 
-        logged = self.client.login(username=user.username, password=password)
-        self.assertTrue(logged, 'Not logged in')
+        # logged = self.client.login(username=user.username, password=password)
+        # self.assertTrue(logged, 'Not logged in')
+        self.client._login(user)
 
         return user
 
