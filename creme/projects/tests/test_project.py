@@ -415,7 +415,7 @@ class ProjectTestCase(views_base.BrickTestCaseMixin,
         def get_task(title):
             task = cloned_tasks.get(title)
             if task is None:
-                self.fail(f'Task "{title}" has not been found')
+                self.fail(f'Task "{title}" has not been found')  # pragma: no cover
 
             return task
 

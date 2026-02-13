@@ -2654,7 +2654,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         try:
             naru.delete()
         except Exception as e:
-            self.fail(f'Problem with entity deletion: {e}')
+            self.fail(f'Problem with entity deletion: {e}')  # pragma: no cover
 
         jsondict['entity'] = None
         jsondict['ctype'] = 0

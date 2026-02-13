@@ -36,7 +36,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
             if len(finfo) == 1 and finfo[0].name == field_name:
                 return
 
-        self.fail(f'{field_name} not found in cells.')
+        self.fail(f'{field_name} not found in cells.')  # pragma: no cover
 
     def test_regular_fk01(self):
         constraint = CHCCRegularFK(model=FakeOrganisation)
@@ -190,7 +190,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
         for cell in constraint.cells():
             finfo = cell.field_info
             if len(finfo) == 1 and finfo[0].name == hidden_fname:
-                self.fail(f'{hidden_fname} found in cells (should be hidden).')
+                self.fail(f'{hidden_fname} found in cells (should be hidden).')  # pragma: no cover
 
         # ---
         self.assertFalse(
@@ -269,12 +269,12 @@ class ChartHandConstraintsTestCase(CremeTestCase):
                 if cell.relation_type == rtype:
                     return
 
-            self.fail(f'{rtype} not found in cells.')
+            self.fail(f'{rtype} not found in cells.')  # pragma: no cover
 
         def dont_find_cell(rtype, cells):
             for cell in cells:
                 if cell.relation_type == rtype:
-                    self.fail(f'{rtype} should not be found in cells.')
+                    self.fail(f'{rtype} should not be found in cells.')  # pragma: no cover
 
         creation_cells = [*constraint.cells()]
         self.assertGreaterEqual(len(creation_cells), 2)

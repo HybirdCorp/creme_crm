@@ -350,7 +350,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
                     break
             else:
-                self.fail(f'The conversion button with title="{label}" has not been found.')
+                self.fail(
+                    f'The conversion button with title="{label}" has not been found.'
+                )  # pragma: no cover
 
     def _convert(self, status_code, src, dest_type, is_ajax=False):
         http_header = {}

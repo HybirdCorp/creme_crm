@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2025  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ def _db_grouping_format() -> str:
     if vendor == 'postgresql':
         return "((%s::date - %s::date) / %s)"
 
-    raise RuntimeError(f'Unsupported vendor: {vendor}')
+    raise RuntimeError(f'Unsupported vendor: {vendor}')  # pragma: no cover
 
 
 def _generate_date_format(*, year=False, month=False, day=False):

@@ -39,18 +39,18 @@ class BrickTestCaseMixin:
 
         brick_node = tree.find(f".//div[@id='brick-{brick_id}']")
         if brick_node is None:
-            self.fail(f'The brick node id="brick-{brick_id}" is not found.')
+            self.fail(f'The brick node id="brick-{brick_id}" is not found.')  # pragma: no cover
 
         classes = brick_node.attrib.get('class')
         if classes is None:
             self.fail(
                 f'The brick node id="brick-{brick_id}" is invalid (no "class" attribute).'
-            )
+            )  # pragma: no cover
 
         if 'brick' not in classes.split():
             self.fail(
                 f'The brick node id="brick-{brick_id}" is invalid (no "brick" class).'
-            )
+            )  # pragma: no cover
 
         return brick_node
 
@@ -58,7 +58,7 @@ class BrickTestCaseMixin:
         if tree.find(f".//div[@id='brick-{brick_id}']") is not None:
             self.fail(
                 f'The brick node id="brick-{brick_id}" has been unexpectedly found.'
-            )
+            )  # pragma: no cover
 
     def assertInstanceLink(self, brick_node, entity, check_text=True):
         link_node = self.get_html_node_or_fail(
@@ -103,7 +103,7 @@ class BrickTestCaseMixin:
                         for a in buttons_node.findall('.//a')
                     ),
                 )
-            )
+            )  # pragma: no cover
 
         button_label = button_node.attrib.get('title')  # TODO: get the inner-span instead ?
         if label != button_label:
@@ -111,12 +111,14 @@ class BrickTestCaseMixin:
                 f'The button has been found but with a different label:\n'
                 f'Expected: {label}\n'
                 f'Found: {button_label}'
-            )
+            )  # pragma: no cover
 
     def assertBrickHeaderHasNoButton(self, buttons_node, url):
         button_node = buttons_node.find(f'.//a[@href="{url}"]')
         if button_node is not None:
-            self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
+            self.fail(
+                f'The <a> markup with href="{url}" has been unexpectedly found.'
+            )  # pragma: no cover
 
     def assertBrickHasAction(self, brick_node, url, action_type='edit'):
         action_node = brick_node.find(f'.//a[@href="{url}"]')
@@ -130,7 +132,7 @@ class BrickTestCaseMixin:
                         for a in brick_node.findall('.//a')
                     ),
                 )
-            )
+            )  # pragma: no cover
 
         css_class = action_node.attrib.get('class')
         self.assertIsNotNone(css_class, 'No attribute "class" found.')
@@ -141,7 +143,9 @@ class BrickTestCaseMixin:
         for action_node in brick_node.findall(f'.//a[@href="{url}"]'):
             css_class = action_node.attrib.get('class')
             if css_class and 'brick-action' in css_class:
-                self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
+                self.fail(
+                    f'The <a> markup with href="{url}" has been unexpectedly found.'
+                )  # pragma: no cover
 
     def assertBrickTitleEqual(self, brick_node, count, title, plural_title):
         self.assertEqual(
@@ -174,7 +178,7 @@ class ButtonTestCaseMixin:
             if 'buttons-list' in classes and 'global-buttons' in classes:
                 return div_node
 
-        self.fail('The global buttons node has not been found.')
+        self.fail('The global buttons node has not been found.')  # pragma: no cover
 
     def get_instance_buttons_node(self, tree):
         for div_node in tree.findall('.//div'):
@@ -186,7 +190,7 @@ class ButtonTestCaseMixin:
             if 'buttons-list' in classes and 'instance-buttons' in classes:
                 return div_node
 
-        self.fail('The instance buttons node has not been found.')
+        self.fail('The instance buttons node has not been found.')  # pragma: no cover
 
     @staticmethod
     def iter_button_nodes(buttons_node, *, tags=('a', 'span'), data_action=None, href=None):
@@ -225,7 +229,7 @@ class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):
         for r in results:
             if r.messages:
-                self.fail(f'Import error: {r.messages}')
+                self.fail(f'Import error: {r.messages}')  # pragma: no cover
 
     @staticmethod
     def _build_file(content, extension=None):

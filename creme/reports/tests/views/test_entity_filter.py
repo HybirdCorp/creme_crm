@@ -101,7 +101,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
                 fake_contact_node = div
                 break
         else:
-            self.fail('<div> for FakeContact not found')
+            self.fail('<div> for FakeContact not found')  # pragma: no cover
 
         efilters_ids = [
             efilter_id

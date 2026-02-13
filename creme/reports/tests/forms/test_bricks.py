@@ -115,7 +115,7 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         empty_group_name = _('Fields')
         for choice in choices:
             if choice[0] == empty_group_name:
-                self.fail(f'Group "{empty_group_name}" unexpectedly found.')
+                self.fail(f'Group "{empty_group_name}" unexpectedly found.')  # pragma: no cover
 
     def test_clean__ok(self):
         chart = self._build_chart()

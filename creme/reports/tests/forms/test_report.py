@@ -42,7 +42,7 @@ class ReportHandsFieldTestCase(CremeTestCase):
             if sub_widget.type_id == cell_class_type_id:
                 return sub_widget
 
-        self.fail(f'Sub-widget not found: {cell_class_type_id}')
+        self.fail(f'Sub-widget not found: {cell_class_type_id}')  # pragma: no cover
 
     # TODO: factorise with EntityCellsFieldTestCase
     def assertCellInChoices(self, cell_key, label, choices):
@@ -51,19 +51,19 @@ class ReportHandsFieldTestCase(CremeTestCase):
                 if choice_cell.key != cell_key:
                     self.fail(
                         'The cell has been found, but choice Id does not match the cell key.'
-                    )
+                    )  # pragma: no cover
 
                 cell_str = str(choice_cell)
                 if label != cell_str:
                     self.fail(
                         f'The cell has been found, but with the label "{cell_str}".'
-                    )
+                    )  # pragma: no cover
 
                 return choice_cell
 
         self.fail(
             f'The choice for cell-key="{cell_key}" has not been found.'
-        )
+        )  # pragma: no cover
 
     def test_entity_cell__related(self):
         rname = 'fakereportsdocument'

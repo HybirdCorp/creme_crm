@@ -2275,7 +2275,7 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         self.assertEqual(200, y_data[get_user_index(user.id)][0])
         self.assertEqual(0,   y_data[get_user_index(other_user.id)][0])  # Not 300
 
-    def bench_big_fetch_using_count(self):
+    def bench_big_fetch_using_count(self):  # pragma: no cover
         """
         Little benchmark to see how the 'group by' report queries behave with
         bigger data-sets where there is a visible difference between the old
@@ -2316,7 +2316,7 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
             interval_day_count * entities_per_day,
         )
 
-    def bench_big_fetch_using_sum(self):
+    def bench_big_fetch_using_sum(self):  # pragma: no cover
         """
         Little benchmark to see how the 'group by' report queries behave with
         bigger data-sets where there is a visible difference between the old

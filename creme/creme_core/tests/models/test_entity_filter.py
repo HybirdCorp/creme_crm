@@ -1399,7 +1399,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
                 if 'DISTINCT' in query_info['sql']:
                     break
             else:
-                self.fail('No DISTINCT found')
+                self.fail('No DISTINCT found')  # pragma: no cover
 
         else:
             for query_info in context.captured_queries:

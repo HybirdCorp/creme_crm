@@ -1052,7 +1052,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
         except ValueError:
             pass
         else:
-            self.fail('??')
+            self.fail('??')  # pragma: no cover
 
         self.assertEqual(orga_count, FakeOrganisation.objects.count())
         self.assertFalse(CremeProperty.objects.filter(type=ptype))
@@ -1104,7 +1104,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
         except ValueError:
             pass
         else:
-            self.fail('??')
+            self.fail('??')  # pragma: no cover
 
         self.assertEqual(0, len(engine._queue))  # Meh
 

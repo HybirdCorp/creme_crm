@@ -32,7 +32,7 @@ class UserContactEntryTestCase(_PersonsTestCase):
             if isinstance(child, UserContactEntry):
                 break
         else:
-            self.fail(f'No user entry found in {creme_children}.')
+            self.fail(f'No user entry found in {creme_children}.')  # pragma: no cover
 
     def test_forbidden(self):
         user = self.login_as_standard()

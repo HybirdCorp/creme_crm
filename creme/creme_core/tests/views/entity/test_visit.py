@@ -31,13 +31,13 @@ class VisitTestCase(CremeTestCase):
         try:
             chain = response.redirect_chain
         except AttributeError:
-            self.fail('Not a redirection')
+            self.fail('Not a redirection')  # pragma: no cover
 
         if not chain:
-            self.fail('The redirection chain is empty')
+            self.fail('The redirection chain is empty')  # pragma: no cover
 
         if len(chain) != 1:
-            self.fail(f'The redirection chain is too long: {chain}')
+            self.fail(f'The redirection chain is too long: {chain}')  # pragma: no cover
 
         parsed_uri = urlparse(chain[0][0])
         self.assertEqual(entity.get_absolute_url(), parsed_uri.path)
@@ -67,7 +67,7 @@ class VisitTestCase(CremeTestCase):
         try:
             deserialized_data = json.loads(param[0])
         except json.JSONDecodeError:
-            self.fail('GET parameter "visitor" is not valid JSON.')
+            self.fail('GET parameter "visitor" is not valid JSON.')  # pragma: no cover
 
         self.assertDictEqual(visitor_data, deserialized_data)
 

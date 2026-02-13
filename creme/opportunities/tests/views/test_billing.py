@@ -559,7 +559,7 @@ class ObjectToLinkSelectionTestCase(OpportunitiesBaseTestCase):
         try:
             entities = context['page_obj']
         except KeyError:
-            self.fail(response.content)
+            self.fail(response.content)  # pragma: no cover
 
         quotes = entities.object_list
         self.assertEqual(3, len(quotes))
@@ -632,7 +632,7 @@ class ObjectToLinkSelectionTestCase(OpportunitiesBaseTestCase):
         try:
             entities = context['page_obj']
         except KeyError:
-            self.fail(response1.content)
+            self.fail(response1.content)  # pragma: no cover
 
         self.assertCountEqual([quote1, quote4], entities.object_list)
 
@@ -703,7 +703,7 @@ class ObjectToLinkSelectionTestCase(OpportunitiesBaseTestCase):
         try:
             entities = context['page_obj']
         except KeyError:
-            self.fail(response.content)
+            self.fail(response.content)  # pragma: no cover
 
         self.assertCountEqual([quote1, quote3], entities.object_list)
 

@@ -240,7 +240,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.fail('No "{}" in locations ({})'.format(
             brick_id,
             [location.brick_id for location in locations],
-        ))
+        ))  # pragma: no cover
 
     def test_portal(self):
         self.login_as_root()

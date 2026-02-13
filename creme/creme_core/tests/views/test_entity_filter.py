@@ -2400,7 +2400,7 @@ class UserChoicesTestCase(CremeTestCase):
                 if user_id == choice['value']:
                     return i, choice['label']
 
-            self.fail(f'User "{u}" not found in {choices1}')
+            self.fail(f'User "{u}" not found in {choices1}')  # pragma: no cover
 
         user_index, user_label = find_user(user)
         self.assertEqual(user_label, str(user))

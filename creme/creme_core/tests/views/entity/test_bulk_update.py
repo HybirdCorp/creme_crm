@@ -878,7 +878,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                 self.assertInChoices(value=url, label=cf_int.name, choices=group_choices)
                 break
         else:
-            self.fail(f'Group "{cf_gname}" not found')
+            self.fail(f'Group "{cf_gname}" not found')  # pragma: no cover
 
         # POST ---
         response2 = self.client.post(

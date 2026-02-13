@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,9 +30,9 @@ class WorldSettingsManager(CremeEntityManager):
         instance = self.first()
         if instance is None:
             raise RuntimeError(
-                'No instance of WorldSettings has been found ; '
+                'No instance of WorldSettings has been found; '
                 'have you run the command "creme_populate"?'
-            )
+            )  # pragma: no cover
 
         return instance
 

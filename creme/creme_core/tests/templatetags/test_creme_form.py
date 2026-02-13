@@ -30,10 +30,10 @@ class CremeFormTagsTestCase(CremeTestCase):
 
         for e1, e2 in zip_longest(expected, gathered):
             if e1 is None:
-                self.fail(f'The result is too long, {e2} not expected.')
+                self.fail(f'The result is too long, {e2} not expected.')  # pragma: no cover
 
             if e2 is None:
-                self.fail(f'The result is too short, {e1} not found.')
+                self.fail(f'The result is too short, {e1} not found.')  # pragma: no cover
 
             self.assertIsTuple(e2, length=2)
             self.assertEqual(e1[0], e2[0])
@@ -47,7 +47,7 @@ class CremeFormTagsTestCase(CremeTestCase):
                 self.assertListEqual(left_blocks,  build_gathered_ids(blocks[0]))
                 self.assertListEqual(right_blocks, build_gathered_ids(blocks[1]))
             else:
-                self.fail(f'Bad type: {blocks}')
+                self.fail(f'Bad type: {blocks}')  # pragma: no cover
 
     def test_form_gather_blocks_for_layout(self):
         class TestForm(forms.Form):

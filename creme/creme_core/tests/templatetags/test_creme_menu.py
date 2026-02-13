@@ -75,7 +75,9 @@ class MenuTestCase(CremeTestCase):
             f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
         ):
             if container.text == label:
-                self.fail(f'A container named "{label}" has been unexpectedly found.')
+                self.fail(
+                    f'A container named "{label}" has been unexpectedly found.'
+                )  # pragma: no cover
 
     def _create_role_config(self, role, container_label, url):
         create_mitem = MenuConfigItem.objects.create

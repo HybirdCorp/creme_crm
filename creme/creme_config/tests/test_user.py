@@ -1926,7 +1926,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
                         option = line
                         break
                 else:
-                    self.fail('Option not found')
+                    self.fail('Option not found')  # pragma: no cover
 
                 self.assertEqual(1, option.count('<option '))
                 self.assertIn('selected', option)

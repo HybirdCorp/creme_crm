@@ -1425,11 +1425,11 @@ class _EnhancedModelMultipleChoiceFieldMixin:
                     self.fail(
                         f'Choice with pk="{pk}" found with '
                         f'label "{choice[1]}" != "{label}"'
-                    )
+                    )  # pragma: no cover
 
                 return id_obj
 
-        self.fail(f'Choice with pk="{pk}" not found')
+        self.fail(f'Choice with pk="{pk}" not found')  # pragma: no cover
 
 
 class EnhancedModelMultipleChoiceFieldTestCase(_EnhancedModelMultipleChoiceFieldMixin,
@@ -1443,11 +1443,11 @@ class EnhancedModelMultipleChoiceFieldTestCase(_EnhancedModelMultipleChoiceField
                     self.fail(
                         f'Choice with pk="{pk}" found with '
                         f'label "{choice[1]}" != "{label}"'
-                    )
+                    )  # pragma: no cover
 
                 return id_obj
 
-        self.fail(f'Choice with pk="{pk}" not found')
+        self.fail(f'Choice with pk="{pk}" not found')  # pragma: no cover
 
     def test_required(self):
         field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
