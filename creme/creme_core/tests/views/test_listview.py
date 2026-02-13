@@ -105,7 +105,7 @@ class ListViewTestCase(CremeTestCase):
                 'WHERE "creme_core_cremeentity"."is_deleted"'
             )
         else:
-            self.fail('This RDBMS is not managed by this test case.')
+            self.fail('This RDBMS is not managed by this test case.')  # pragma: no cover
 
         entities_q_re = re.compile(
             r'^SELECT COUNT\(\*\) AS (.)__count(.) FROM (.)creme_core_cremeentity(.)'
@@ -115,7 +115,7 @@ class ListViewTestCase(CremeTestCase):
         for sql in captured_sql:
             if entities_q_re.match(sql) is not None and sql != trash_sql:
                 if 'INNER JOIN' in sql:
-                    self.fail(f'slow COUNT query found: {sql}')
+                    self.fail(f'slow COUNT query found: {sql}')  # pragma: no cover
 
                 optimized_counts.append(sql)
 
@@ -123,7 +123,7 @@ class ListViewTestCase(CremeTestCase):
             self.fail('{} fast queries found (one was expected):\n{}'.format(
                 len(optimized_counts),
                 '\n'.join(f' - {sql}' for sql in optimized_counts),
-            ))
+            ))  # pragma: no cover
 
     def _assertNoDistinct(self, captured_sql):
         entities_q_re = re.compile(
@@ -164,7 +164,7 @@ class ListViewTestCase(CremeTestCase):
                 ).symmetric(
                     id='test-object_repaired', predicate='repairs',
                 ).get_or_create()[0]
-            case _:
+            case _:  # pragma: no cover
                 raise ValueError('Bad index')
 
     def _get_lv_node(self, response):
@@ -1112,9 +1112,9 @@ class ListViewTestCase(CremeTestCase):
         if not main_sql:
             self.fail(
                 'No main List-view query in:\n{}'.format('\n'.join(context.captured_sql))
-            )
+            )  # pragma: no cover
         elif len(main_sql) >= 2:
-            self.fail(f'There should be one SQL query: {main_sql}')
+            self.fail(f'There should be one SQL query: {main_sql}')  # pragma: no cover
 
         return main_sql[0]
 
@@ -3616,7 +3616,7 @@ class ListViewTestCase(CremeTestCase):
             ):
                 break
         else:
-            self.fail(f'No slow count message found in {logs_manager.output}')
+            self.fail(f'No slow count message found in {logs_manager.output}')  # pragma: no cover
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter__distinct(self):
@@ -3699,7 +3699,7 @@ class ListViewTestCase(CremeTestCase):
                 )
                 break
         else:
-            self.fail('No creation button found.')
+            self.fail('No creation button found.')  # pragma: no cover
 
         # ---
         import_url = reverse(
@@ -3711,7 +3711,7 @@ class ListViewTestCase(CremeTestCase):
                 self.assertEqual(_('Import'), button_info['label'])
                 break
         else:
-            self.fail('No mass-import button found.')
+            self.fail('No mass-import button found.')  # pragma: no cover
 
     def test_visitor_button(self):
         user = self.login_as_root_and_get()
@@ -3728,7 +3728,7 @@ class ListViewTestCase(CremeTestCase):
         lv_node1 = self._get_lv_node(response1)
         for button_info in self._get_lv_header_buttons(lv_node1):
             if button_info['label'] == label:
-                self.fail('Exploration button found in empty list.')
+                self.fail('Exploration button found in empty list.')  # pragma: no cover
 
         # ---
         visit_url = reverse(
@@ -3747,7 +3747,7 @@ class ListViewTestCase(CremeTestCase):
                     )
                     break
             else:
-                self.fail('No exploration button found.')
+                self.fail('No exploration button found.')  # pragma: no cover
 
         contact = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
         response2 = self.assertPOST200(lv_url, data=data)
@@ -3836,6 +3836,6 @@ class ListViewTestCase(CremeTestCase):
                 )
                 break
         else:
-            self.fail('No exploration button found.')
+            self.fail('No exploration button found.')  # pragma: no cover
 
     # TODO: test other buttons

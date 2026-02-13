@@ -1822,7 +1822,7 @@ class CustomFormsBrickTestCase(CremeTestCase):
                 if ct_wrapper.ctype == ct:
                     return ct_wrapper
 
-            self.fail(f'No descriptor found for {ct}')
+            self.fail(f'No descriptor found for {ct}')  # pragma: no cover
 
         activity_wrapper = get_ct_wrapper(FakeActivity)
         self.assertFalse(activity_wrapper.collapsed)

@@ -267,7 +267,7 @@ class BaseReportsTestCase(CremeTestCase):
         try:
             return report.fields.get(name=field_name)
         except Field.DoesNotExist as e:
-            self.fail(str(e))
+            self.fail(str(e))  # pragma: no cover
 
     def _create_persons(self, user):
         create = partial(FakeContact.objects.create, user=user)

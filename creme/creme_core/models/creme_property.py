@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -240,7 +240,7 @@ class CremePropertyManager(models.Manager):
                 try:
                     with atomic():
                         prop = self.create(**kwargs)
-                except IntegrityError:
+                except IntegrityError:  # pragma: no cover
                     logger.exception('Avoid a CremeProperty duplicate: %s ?!', kwargs)
                     continue
 
@@ -248,7 +248,7 @@ class CremePropertyManager(models.Manager):
         else:
             raise RuntimeError(
                 f'It seems the CremeProperty <{kwargs}> keeps being created & deleted.'
-            )
+            )  # pragma: no cover
 
         return prop
 

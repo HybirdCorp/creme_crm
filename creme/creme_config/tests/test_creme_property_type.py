@@ -45,7 +45,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
             if prop_type.text == text:
                 return prop_type
 
-        self.fail(f'No property <{text}>')
+        self.fail(f'No property <{text}>')  # pragma: no cover
 
     def test_creation(self):
         self.login_as_root()

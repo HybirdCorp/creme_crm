@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -154,7 +154,7 @@ class RelationTypeBuilder:
         if self._sym is not None:
             raise RuntimeError(
                 'RelationTypeProxy.symmetric() cannot be called several times'
-            )
+            )  # pragma: no cover
 
         self._sym = sym = type(self)()
         sym._sym = self
@@ -646,7 +646,7 @@ class RelationManager(models.Manager):
                 try:
                     # NB: Relation.save is already @atomic'd
                     relation = self.create(**kwargs, user_id=user_id)
-                except IntegrityError:
+                except IntegrityError:  # pragma: no cover
                     if i:
                         # Avoiding one concurrent creation is OK, 2+ is suspicious...
                         logger.exception(
@@ -659,7 +659,7 @@ class RelationManager(models.Manager):
         else:
             raise RuntimeError(
                 f'It seems the Relation <{kwargs}> keeps being created & deleted.'
-            )
+            )  # pragma: no cover
 
         return relation
 

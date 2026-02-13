@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,9 @@ from creme.creme_core.signals import pre_uninstall_flush
 
 
 @receiver(pre_uninstall_flush, dispatch_uid='reports-manage_uninstallation')
-def _uninstall_reports(sender, content_types, verbosity, stdout_write, style, **kwargs):
+def _uninstall_reports(
+    sender, content_types, verbosity, stdout_write, style, **kwargs
+):  # pragma: no cover
     from .models import Field
 
     if Field in sender.get_models():

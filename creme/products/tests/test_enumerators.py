@@ -23,7 +23,7 @@ class SubCategoryEnumeratorTestCase(_ProductsTestCase):
 
                 return index
 
-        self.fail(f'{sub_cat} not found in {choices}')
+        self.fail(f'{sub_cat} not found in {choices}')  # pragma: no cover
 
     def test_simple(self):
         self.login_as_root()

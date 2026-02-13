@@ -65,7 +65,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
                 r'DEBUG:creme.creme_core.templatetags.creme_query:{% query_entities_count %} : '
                 r'fast count is not possible'
             ):
-                self.fail(f'Slow count message found in {logs_manager.output}')
+                self.fail(f'Slow count message found in {logs_manager.output}')  # pragma: no cover
 
     def test_entities_count__fast_count_not_possible(self):
         "Regular user + fast count is not possible."
@@ -122,7 +122,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
             ):
                 break
         else:
-            self.fail(f'No slow count message found in {logs_manager.output}')
+            self.fail(f'No slow count message found in {logs_manager.output}')  # pragma: no cover
 
     def test_serialize(self):
         with self.assertNoException():

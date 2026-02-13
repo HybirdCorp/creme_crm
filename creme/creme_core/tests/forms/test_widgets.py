@@ -1081,7 +1081,9 @@ class EntitySelectorTestCase(CremeTestCase):
                 str(dom2).splitlines(),
             )))
 
-            self.fail(self._formatMessage(msg, self._truncateMessage(standard_msg, diff)))
+            self.fail(
+                self._formatMessage(msg, self._truncateMessage(standard_msg, diff))
+            )  # pragma: no cover
 
     def assertQFilter(self, dom, expected_qfilter):
         for attr_name, attr_value in dom.attributes:
@@ -1089,7 +1091,7 @@ class EntitySelectorTestCase(CremeTestCase):
                 qfilter_attr = attr_value
                 break
         else:
-            self.fail('No "qfilter" attribute found !')
+            self.fail('No "qfilter" attribute found!')  # pragma: no cover
 
         self.assertEqual(expected_qfilter, json_load(qfilter_attr))
 

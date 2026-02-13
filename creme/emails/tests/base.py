@@ -114,12 +114,12 @@ class _EmailsTestCase(CremeTestCase):
         if persons.contact_model_is_custom():
             self.fail(
                 'Cannot use _EmailsTestCase._create_emails() with custom Contact model.'
-            )
+            )  # pragma: no cover
 
         if persons.organisation_model_is_custom():
             self.fail(
                 'Cannot use _EmailsTestCase._create_emails() with custom Organisation model.'
-            )
+            )  # pragma: no cover
 
         create_c = partial(Contact.objects.create, user=user)
         contacts = [

@@ -333,7 +333,7 @@ class ExportingTestCase(TransferBaseTestCase):
                 self.assertEqual(efilter_info.get('filter_type'), EF_CREDENTIALS)
                 break
         else:
-            self.fail(f'EntityFilter with id="{efilter.id}" not found.')
+            self.fail(f'EntityFilter with id="{efilter.id}" not found.')  # pragma: no cover
 
     def test_relation_bricks(self):
         self.login_as_super(is_staff=True)

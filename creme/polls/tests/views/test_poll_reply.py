@@ -1169,7 +1169,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
             self.fail(
                 f'It seems that the form is already complete'
                 f' (<{e.__class__.__name__}> occurred: {e})'
-            )
+            )  # pragma: no cover
 
         self.assertEqual(
             f'{line_number or fline.order} - {fline.question}',

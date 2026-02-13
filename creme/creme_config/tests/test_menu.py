@@ -87,7 +87,7 @@ class MenuEntriesTestCase(CremeTestCase):
             if isinstance(child, TimezoneEntry):
                 break
         else:
-            self.fail(f'No TZ entry found in {creme_children}.')
+            self.fail(f'No TZ entry found in {creme_children}.')  # pragma: no cover
 
     def test_my_settings_entry(self):
         entry = MySettingsEntry()
@@ -103,7 +103,7 @@ class MenuEntriesTestCase(CremeTestCase):
             if isinstance(child, MySettingsEntry):
                 break
         else:
-            self.fail(f'No "my setting" entry found in {creme_children}.')
+            self.fail(f'No "my setting" entry found in {creme_children}.')  # pragma: no cover
 
     def test_portal_entry(self):
         entry = ConfigPortalEntry()
@@ -412,11 +412,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                             f'The entry with entry_id="{entry_id}" has been found, '
                             f'but attribute "{attr_name}" is {value!r} '
                             f'(expected {attr_value!r}).'
-                        )
+                        )  # pragma: no cover
 
                 return item
 
-        self.fail(f'Item not found with entry_id="{entry_id}"')
+        self.fail(f'Item not found with entry_id="{entry_id}"')  # pragma: no cover
 
     @staticmethod
     def _build_add_container_url(role=None, superuser=False):

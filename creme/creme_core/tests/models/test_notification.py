@@ -203,7 +203,7 @@ class NotificationChannelConfigItemManagerTestCase(CremeTestCase):
                 if item.channel == channel and item.user == user:
                     return item
 
-            self.fail(f'Item not found for channel={channel} & user={user}')
+            self.fail(f'Item not found for channel={channel} & user={user}')  # pragma: no cover
 
         item11 = find_item(user=user1, channel=chan1)
         self.assertEqual(item1, item11)

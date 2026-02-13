@@ -24,13 +24,13 @@ def __prepare_static_url():
         raise ImproperlyConfigured(
             f"settings.PRODUCTION_MEDIA_URL must be a string ; "
             f"it's currently a {type(static_url)}."
-        )
+        )  # pragma: no cover
 
     if not static_url.startswith('/') or not static_url.endswith('/'):
         raise ImproperlyConfigured(
             f'settings.PRODUCTION_MEDIA_URL must starts & end with "/" '
             f'(current value is "{static_url}").'
-        )
+        )  # pragma: no cover
 
     return static_url[1:]
 
@@ -73,7 +73,7 @@ for app_config in creme_app_configs():
 
     try:
         included = include(app_name + '.urls')
-    except ImportError as e:
+    except ImportError as e:  # pragma: no cover
         if e.args and 'urls' in e.args[0]:
             logger.warning(f'The app "{app_name}" has no "urls" module.')
         else:  # It seems an annoying ImportError make the existing 'urls' module to be imported.

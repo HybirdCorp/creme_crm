@@ -1008,7 +1008,7 @@ class MenuTestCase(CremeTestCase):
                 if isinstance(child, entry_cls):
                     return
 
-            self.fail(f'No child with class {entry_cls} found in {children}.')
+            self.fail(f'No child with class {entry_cls} found in {children}.')  # pragma: no cover
 
         assertInChildren(HomeEntry)
         assertInChildren(TrashEntry)

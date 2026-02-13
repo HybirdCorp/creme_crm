@@ -1186,7 +1186,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         for sql in queries_context.captured_sql:
             if 'assistants_alert' in sql:
-                self.fail('No query on Alert should be performed here.')
+                self.fail('No query on Alert should be performed here.')  # pragma: no cover
 
     def test_offset_signal__date(self):
         user = self.get_root_user()

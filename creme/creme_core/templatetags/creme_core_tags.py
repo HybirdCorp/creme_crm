@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,14 +74,14 @@ def app_verbose_name(app_label, default='?'):
     return app.verbose_name
 
 
-# TODO: deprecate? (seems not used)
+# TODO: deprecate? (not used)
 @register.filter
 def print_boolean(x):
     """Represent a boolean value as an HTML check-box with a label."""
     return bool_as_html(x)
 
 
-# NB: seems not used any more...
+# TODO: deprecate? (not used)
 @register.filter
 def to_timestamp(date):
     return str(int(date.timestamp()))
@@ -104,7 +104,6 @@ def get_by_index(sequence, index):
     return sequence[index]
 
 
-# NB: seems not used any more...
 @register.filter
 def get_value(dic, key, default=''):
     """Get a value from its key in a dictionary-like object.
@@ -133,7 +132,7 @@ def get_value(dic, key, default=''):
         return default
 
 
-# NB: seems not used any more...
+# TODO: deprecate? (not used)
 @register.filter
 def get_meta_value(obj, key, default=''):
     """Get the value of a Meta attribute for a 'django.db.models.Model' instance."""
@@ -291,6 +290,7 @@ def is_plural(x):
     return plural(x)
 
 
+# TODO: deprecate? (not used)
 @register.filter(name='format')
 def format_string(value, format_str):
     """Build a string from a format-string with one '%s' element.
@@ -487,7 +487,7 @@ class TemplatizeNode(TemplateNode):
 
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -509,6 +509,7 @@ class TemplatizeNode(TemplateNode):
 #
 ################################################################################
 
+# TODO: deprecate? (not used)
 @register.filter
 def allowed_str(instance, user):
     return instance.allowed_str(user) if hasattr(instance, 'allowed_str') else instance
@@ -642,7 +643,7 @@ def get_efilter_conditions(efilter, user):
     return [*efilter.get_verbose_conditions(user)]
 
 
-# TODO: deprecate ? (not used)
+# TODO: deprecate? (not used)
 @register.simple_tag
 def get_entity_summary(entity, user):
     return entity.get_entity_summary(user)

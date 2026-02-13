@@ -67,7 +67,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             ):
                 return div_node
 
-        self.fail(f'No brick found for prefix "{prefix}".')
+        self.fail(f'No brick found for prefix "{prefix}".')  # pragma: no cover
 
     def assertNoSearchBrick(self, tree, brick_id_prefix):
         prefix = f'brick-{brick_id_prefix}'
@@ -77,7 +77,9 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
                 'brick' in div_node.attrib.get('class', '')
                 and div_node.attrib.get('id', '').startswith(prefix)
             ):
-                self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
+                self.fail(
+                    f'A brick unexpectedly found for prefix "{brick_id_prefix}".'
+                )  # pragma: no cover
 
     def _build_contacts(self, user):
         sector = FakeSector.objects.create(title='Linux dev')

@@ -51,4 +51,4 @@ class TestUUIDs(unittest.TestCase):
                     message += f"  - {file}\n"
                 message += "\n"
 
-            self.fail(message)
+            self.fail(message)  # pragma: no cover

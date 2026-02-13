@@ -141,7 +141,7 @@ class UtilsTestCase(_ActivitiesTestCase):
                 busy=False,
             )
         except ValidationError as e:
-            self.fail(str(e))
+            self.fail(str(e))  # pragma: no cover
 
         # Collision with act01
         # Before

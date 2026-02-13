@@ -1850,7 +1850,7 @@ class SameTypeRelationsCreationTestCase(BaseRelationViewsTestCase):
         try:
             entities = response.context['page_obj']
         except KeyError:
-            self.fail(response.content)
+            self.fail(response.content)  # pragma: no cover
 
         self.assertCountEqual(
             [self.contact1, self.contact2, self.contact3],
@@ -2019,7 +2019,7 @@ class SameTypeRelationsCreationTestCase(BaseRelationViewsTestCase):
         try:
             entities = response.context['page_obj']
         except KeyError:
-            self.fail(response.content)
+            self.fail(response.content)  # pragma: no cover
 
         self.assertCountEqual(
             [self.contact1, self.contact2, self.contact3],

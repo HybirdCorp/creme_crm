@@ -47,7 +47,9 @@ class EntityCellsFieldTestCaseMixin:
 
             available.append(current_type_id)
 
-        self.fail(f'Sub-widget "{cell_class_type_id}" not found in {available}.')
+        self.fail(
+            f'Sub-widget "{cell_class_type_id}" not found in {available}.'
+        )  # pragma: no cover
 
     def assertCellInChoices(self, cell_key, choices):
         for choice_cell_key, choice_cell in choices:
@@ -55,21 +57,21 @@ class EntityCellsFieldTestCaseMixin:
                 if choice_cell.key != cell_key:
                     self.fail(
                         'The cell has been found, but choice Id does not match the cell key.'
-                    )
+                    )  # pragma: no cover
 
                 return
 
         self.fail(
             f'The choice for cell-key="{cell_key}" has not been found in '
             f'{[choice_cell_key for choice_cell_key, choice_cell in choices]}'
-        )
+        )  # pragma: no cover
 
     def assertCellNotInChoices(self, cell_key, choices):
         for choice_cell_key, choice_cell in choices:
             if cell_key == choice_cell_key:
                 self.fail(
                     f'The choice for cell-key="{cell_key}" has been unexpectedly found.'
-                )
+                )  # pragma: no cover
 
 
 class EntityCellRegularFieldsWidgetTestCase(CremeTestCase):
@@ -1066,7 +1068,9 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         def assertNoSubWidget(widget_class):
             for sub_widget in field.widget.sub_widgets:
                 if isinstance(sub_widget, widget_class):
-                    self.fail(f'Sub-widget unexpectedly found: {widget_class}.')
+                    self.fail(
+                        f'Sub-widget unexpectedly found: {widget_class}.'
+                    )  # pragma: no cover
 
         assertNoSubWidget(EntityCellCustomFieldsWidget)
         assertNoSubWidget(EntityCellFunctionFieldsWidget)

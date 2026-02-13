@@ -124,7 +124,7 @@ class MutexTestCase(CremeTransactionTestCase):
 
         with self.assertRaises(MutexLockedException):
             with MutexAutoLock('dummy_lock'):
-                self.fail('cannot be here with lock enabled')
+                self.fail('Cannot be here with lock enabled')  # pragma: no cover
 
         self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
 
@@ -136,7 +136,7 @@ class MutexTestCase(CremeTransactionTestCase):
                 self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
 
                 with MutexAutoLock('dummy_lock'):
-                    self.fail('cannot be here with lock enabled')
+                    self.fail('Cannot be here with lock enabled')  # pragma: no cover
 
                 self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
 
