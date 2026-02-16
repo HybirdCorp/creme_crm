@@ -28,12 +28,25 @@ from creme.creme_core.forms.widgets import (
     RelativeDatePeriodWidget,
     UnorderedMultipleChoiceWidget,
     WidgetAction,
+    YearInput,
 )
 from creme.creme_core.utils import date_period, date_range
 from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..base import CremeTestCase
 from ..fake_models import FakeContact
+
+
+class MiscWidgetsTestCase(CremeTestCase):
+    def test_YearInput(self):
+        self.assertHTMLEqual(
+            '<div class="creme-yearpicker">'
+            '<input type="number" name="year" value="2026"'
+            '       class="ui-creme-input ui-creme-widget widget-auto ui-creme-yearpicker"'
+            '       widget="ui-creme-yearpicker">'
+            '</div>',
+            YearInput().render(name='year', value='2026'),
+        )
 
 
 class CalendarWidgetTestCase(CremeTestCase):

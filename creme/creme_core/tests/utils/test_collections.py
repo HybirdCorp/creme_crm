@@ -142,6 +142,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertIs(False, bool(empty))
         self.assertEqual(0, len(empty))
         self.assertNotIn(Klass1, empty)
+        self.assertEqual('ClassKeyedMap({}, default=None)', repr(empty))
 
         keys_set = {Klass1, Klass2, Klass3}
         self.assertSetEqual(keys_set, {*ckm})
@@ -152,7 +153,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
             [(Klass1, 1), (Klass2, 2), (Klass3, None)], ckm.items(),
         )
 
-        self.assertStartsWith(repr(ckm), 'ClassKeyedMap(')
+        self.assertStartsWith(repr(ckm), 'ClassKeyedMap({')
 
     def test_setitem(self):
         "Other default value + __setitem__."

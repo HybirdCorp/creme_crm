@@ -406,14 +406,24 @@ class CremePropertyTestCase(CremeTestCase):
         with self.assertNoException():
             ptype = CremePropertyType.objects.create(text=text)
             entity = CremeEntity.objects.create(user=self.get_root_user())
-            CremeProperty.objects.create(type=ptype, creme_entity=entity)
+            prop1 = CremeProperty.objects.create(type=ptype, creme_entity=entity)
 
         self.assertEqual(text, ptype.text)
+        self.assertEqual(text, str(ptype))
+        self.assertEqual(f'CremePropertyType(text="{text}")', repr(ptype))
+
+        self.assertEqual(text, str(prop1))
+        self.assertEqual(
+            f'CremeProperty('
+            f'type=CremePropertyType(text="{text}"), '
+            f'creme_entity=CremeEntity(id={entity.id}))',
+            repr(prop1),
+        )
 
         # Uniqueness
-        prop02 = CremeProperty(type=ptype, creme_entity=entity)
+        prop2 = CremeProperty(type=ptype, creme_entity=entity)
         with self.assertRaises(ValidationError) as cm:
-            prop02.full_clean()
+            prop2.full_clean()
 
         self.assertDictEqual(
             {
@@ -428,7 +438,7 @@ class CremePropertyTestCase(CremeTestCase):
         )
 
         with self.assertRaises(IntegrityError):
-            prop02.save()
+            prop2.save()
 
     def test_manager__safe_create(self):
         text = 'is happy'

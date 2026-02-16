@@ -98,6 +98,7 @@ class WorkflowEventsTestCase(CremeTestCase):
         evt = EntityCreated(entity=entity1)
         self.assertIsInstance(evt, WorkflowEvent)
         self.assertEqual(entity1, evt.entity)
+        self.assertEqual(f'EntityCreated(entity=FakeOrganisation(id={entity1.id}))', repr(evt))
 
         # eq ---
         entity2 = create_orga(name='Acme2')
@@ -141,6 +142,13 @@ class WorkflowEventsTestCase(CremeTestCase):
         evt = PropertyAdded(creme_property=prop11)
         self.assertIsInstance(evt, WorkflowEvent)
         self.assertEqual(prop11, evt.creme_property)
+        self.assertEqual(
+            f'PropertyAdded(creme_property=CremeProperty('
+            f'type=CremePropertyType(text="Is cool"), '
+            f'creme_entity=FakeOrganisation(id={entity1.id})'
+            f'))',
+            repr(evt),
+        )
 
         # eq ---
         self.assertEqual(PropertyAdded(creme_property=prop11), evt)
@@ -169,6 +177,16 @@ class WorkflowEventsTestCase(CremeTestCase):
         evt = RelationAdded(relation=rel)
         self.assertIsInstance(evt, WorkflowEvent)
         self.assertEqual(rel, evt.relation)
+        self.maxDiff = None
+        self.assertEqual(
+            f'RelationAdded(relation=Relation('
+            f'user=CremeUser(username="root"), '
+            f'subject_entity=FakeContact(id={entity1.id}), '
+            f'type=RelationType(predicate="{rtype.predicate}"), '
+            f'object_entity=FakeOrganisation(id={entity2.id})'
+            f'))',
+            repr(evt),
+        )
 
         # eq ---
         self.assertEqual(RelationAdded(relation=rel), evt)

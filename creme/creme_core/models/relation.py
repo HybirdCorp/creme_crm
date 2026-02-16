@@ -811,6 +811,9 @@ class RelationType(CremeModel):
 
         return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
 
+    def __repr__(self):
+        return f'RelationType(predicate="{self.predicate}")'
+
     def get_absolute_url(self):
         return reverse('creme_core__rtype', args=(self.id,))
 
@@ -958,6 +961,16 @@ class Relation(CremeModel):
 
     def __str__(self):
         return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
+
+    def __repr__(self):
+        return (
+            f'Relation('
+            f'user={self.user!r}, '
+            f'subject_entity={self.subject_entity!r}, '
+            f'type={self.type!r}, '
+            f'object_entity={self.object_entity!r}'
+            f')'
+        )
 
     def _clean_subject_ctype(self):
         rtype = self.type

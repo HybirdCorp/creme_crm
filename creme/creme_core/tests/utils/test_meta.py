@@ -42,6 +42,7 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual('name', str(ofield1))
         self.assertEqual('name', ofield1.field_name)
         self.assertTrue(ofield1.order.asc)
+        self.assertEqual('OrderedField("name")', repr(ofield1))
 
         ofield2 = ofield1.reversed()
         self.assertIsInstance(ofield2, OrderedField)
@@ -76,6 +77,9 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeContact, fi1.model)
         self.assertEqual(1, len(fi1))
         self.assertIs(True, bool(fi1))
+        self.assertEqual(
+            'FieldInfo(model=FakeContact, field_name="first_name")', repr(fi1),
+        )
 
         with self.assertNoException():
             base_field = fi1[0]
@@ -136,6 +140,9 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeImage._meta.get_field('name'), fi1[1])
 
         self.assertEqual(f'{_("Photograph")} - {_("Name")}', fi1.verbose_name)
+        self.assertEqual(
+            'FieldInfo(model=FakeContact, field_name="image__name")', repr(fi1),
+        )
 
         self.assertEqual('image', fi1.attname(0))
         self.assertEqual('name',  fi1.attname(1))
@@ -752,6 +759,10 @@ class OrderTestCase(CremeTestCase):
     def test_str(self):
         self.assertEqual('ASC', str(Order()))
         self.assertEqual('DESC', str(Order(False)))
+
+    def test_repr(self):
+        self.assertEqual('Order(asc=True)', repr(Order()))
+        self.assertEqual('Order(asc=False)', repr(Order(False)))
 
     def test_prefix(self):
         self.assertEqual('', Order().prefix)

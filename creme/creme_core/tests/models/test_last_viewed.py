@@ -36,6 +36,13 @@ class LastViewedEntityTestCase(CremeTestCase):
         self.assertEqual(contact1,             lve1.entity.get_real_entity())
         self.assertEqual(contact1,             lve1.real_entity)
         self.assertDatetimesAlmostEqual(lve1.viewed, now_value)
+        self.assertEqual(
+            f'LastViewedEntity('
+            f'real_entity=FakeContact(id={contact1.id}), '
+            f'user=CremeUser(username="root")'
+            f')',
+            repr(lve1),
+        )
 
         lve2 = LastViewedEntity.objects.create(user=user, real_entity=contact2)
         self.assertEqual(user,     lve2.user)

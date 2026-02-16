@@ -359,6 +359,9 @@ class CremePropertyType(CremeModel):
     def __str__(self):
         return self.text
 
+    def __repr__(self):
+        return f'CremePropertyType(text="{self.text}")'
+
     def get_absolute_url(self):
         return reverse('creme_core__ptype', args=(self.id,))
 
@@ -449,7 +452,7 @@ class CremeProperty(CremeModel):
         return str(self.type)
 
     def __repr__(self):
-        return f'CremeProperty(type=<{self.type}>, creme_entity=<{self.creme_entity}>)'
+        return f'CremeProperty(type={self.type!r}, creme_entity={self.creme_entity!r})'
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity

@@ -66,10 +66,11 @@ class WorkflowMiddlewareTestCase(CremeTestCase):
             self.assertPOST200(reverse('creme_core__workflow_not_called', args=(orga.id,)))
 
         self.assertEqual('Engine not called', self.refresh(orga).description)
+        self.maxDiff = None
         self.assertEqual(
             f'Some workflow events have not been managed by the view '
             f'"/tests/organisation/workflow_badly_used/{orga.id}": '
-            f'[EntityEdited(entity=<FakeOrganisation: NERV>)].\n'
+            f'[EntityEdited(entity=FakeOrganisation(id={orga.id}))].\n'
             f'Hint: use <creme.creme_core.core.workflow.run_workflow_engine()> '
             f'or the view decorator <creme.creme_core.views.decorators.workflow_engine>',
             str(warn_manager.warning),

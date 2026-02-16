@@ -279,6 +279,10 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         self.assertEqual('',              cell.description)
         self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
+        self.assertEqual(
+            'EntityCell(model=FakeContact, type="regular_field", value="first_name")',
+            repr(cell),
+        )
 
         key = f'regular_field-{field_name}'
         self.assertEqual(key, cell.key)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,7 +140,7 @@ class PinnedEntity(models.Model):
     objects = PinnedEntityManager()
 
     def __repr__(self):
-        return f'PinnedEntity(real_entity="{self.real_entity}", user={self.user})'
+        return f'PinnedEntity(real_entity={self.real_entity!r}, user={self.user!r})'
 
     class Meta:
         app_label = 'creme_core'

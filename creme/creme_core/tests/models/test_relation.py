@@ -880,6 +880,12 @@ class RelationTypeManagerTestCase(CremeTestCase):
 
 
 class RelationTypeTestCase(CremeTestCase):
+    def test_repr(self):
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
+        self.assertEqual('RelationType(predicate="is loving")', repr(rtype))
+
     def test_delete(self):
         rtype = RelationType.objects.builder(
             id='test-subject_foobar', predicate='is loving',
@@ -1263,6 +1269,16 @@ class RelationTestCase(CremeTestCase):
         self.assertEqual(sym.type,           rtype.symmetric_type)
         self.assertEqual(sym.subject_entity, entity2)
         self.assertEqual(sym.object_entity,  entity1)
+
+        self.assertEqual(
+            f'Relation('
+            f'user=CremeUser(username="root"), '
+            f'subject_entity=CremeEntity(id={entity1.id}), '
+            f'type=RelationType(predicate="is loving"), '
+            f'object_entity=CremeEntity(id={entity2.id})'
+            f')',
+            repr(relation)
+        )
 
     def test_error(self):
         "BEWARE: don't do this ! Bad usage of Relations."

@@ -20,6 +20,7 @@ from creme.creme_core.models import (
     FakeInvoice,
     FakeInvoiceLine,
     FakeOrganisation,
+    FakeProduct,
     FakeSector,
     FakeTicket,
     HistoryLine,
@@ -35,7 +36,7 @@ from creme.creme_core.utils.translation import smart_model_verbose_name
 
 
 @override_settings(ENTITIES_DELETION_ALLOWED=True)
-class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
+class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
     EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
 
@@ -282,6 +283,16 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         self.assertEqual(cb_url, response.text)
+
+    def test_delete_entity__default_redirection__no_listview(self):
+        user = self.login_as_root_and_get()
+        self.assertHasNoAttr(FakeProduct, 'get_lv_absolute_url')
+
+        entity = FakeProduct.objects.create(user=user, name='Nerv')
+        self.assertRedirects(
+            self.client.post(self._build_delete_url(entity)),
+            reverse('creme_core__home'),
+        )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
     def test_delete_entity__disabled(self):
@@ -1125,12 +1136,15 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(job)
 
         # AJAX version
-        response2 = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
+        response2 = self.assertPOST200(
+            url, headers={'X-Requested-With': 'XMLHttpRequest'},
+        )
         self.assertEqual(redir_url, response2.text)
 
 
 @override_settings(ENTITIES_DELETION_ALLOWED=True)
-class EntityViewsTransactionTestCase(BrickTestCaseMixin, CremeTransactionTestCase):
+class EntityDeletionViewsTransactionTestCase(BrickTestCaseMixin,
+                                             CremeTransactionTestCase):
     DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
     EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
 

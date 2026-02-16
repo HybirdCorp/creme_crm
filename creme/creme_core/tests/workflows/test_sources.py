@@ -226,6 +226,10 @@ class FixedEntitySourceTestCase(CremeTestCase):
             },
             source.to_dict(),
         )
+        self.assertEqual(
+            f'FixedEntitySource(entity="{orga.uuid}", model=FakeOrganisation)',
+            repr(source),
+        )
 
         with self.assertNumQueries(1):
             self.assertEqual(orga, source.entity)
@@ -428,6 +432,12 @@ class EntityFKSourceTestCase(CremeTestCase):
             source.to_dict(),
         )
         self.assertEqual(img, source.extract({'whatever': 'donotcare'}))
+        self.assertEqual(
+            f'EntityFKSource('
+            f'entity_source=FixedEntitySource(entity="{orga.uuid}", model=FakeOrganisation), '
+            f'field_name="image")',
+            repr(source),
+        )
 
     def test_from_dict(self):
         field_name = 'parent'
@@ -674,6 +684,13 @@ class FirstRelatedEntitySourceTestCase(CremeTestCase):
         self.assertEqual(subject_source1,  source.sub_source)
         self.assertEqual(FakeOrganisation, source.object_model)
         self.assertEqual(FakeOrganisation, source.model)
+        self.assertEqual(
+            'FirstRelatedEntitySource('
+            'subject_source=CreatedEntitySource(model=FakeOrganisation), '
+            'rtype="creme_core-subject_has", '
+            'object_model=FakeOrganisation)',
+            repr(source),
+        )
 
         with self.assertNumQueries(1):
             self.assertEqual(rtype, source.relation_type)

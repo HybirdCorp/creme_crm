@@ -50,6 +50,7 @@ class EntityCreationTriggerTestCase(CremeTestCase):
 
         trigger = EntityCreationTrigger(model=FakeContact)
         self.assertEqual(FakeContact, trigger.model)
+        self.assertEqual('EntityCreationTrigger(model=FakeContact)', repr(trigger))
 
         model_key = 'creme_core.fakecontact'
         serialized = {'type': type_id, 'model': model_key}
@@ -181,6 +182,10 @@ class PropertyAddingTriggerTestCase(CremeTestCase):
             entity_model=FakeOrganisation, ptype=str(ptype.uuid),
         )
         self.assertEqual(FakeOrganisation, trigger.entity_model)
+        self.assertEqual(
+            f'PropertyAddingTrigger(entity_model=FakeOrganisation, ptype="{ptype.uuid}")',
+            repr(trigger)
+        )
 
         with self.assertNumQueries(1):
             self.assertEqual(ptype, trigger.property_type)
@@ -351,6 +356,11 @@ class RelationAddingTriggerTestCase(CremeTestCase):
         )
         self.assertEqual(FakeOrganisation, trigger.subject_model)
         self.assertEqual(FakeContact,      trigger.object_model)
+        self.assertEqual(
+            'RelationAddingTrigger(subject_model=FakeOrganisation,'
+            ' rtype="creme_core-subject_has", object_model=FakeContact)',
+            repr(trigger),
+        )
 
         with self.assertNumQueries(1):
             self.assertEqual(rtype, trigger.relation_type)

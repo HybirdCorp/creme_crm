@@ -122,6 +122,12 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo1.field_names)
         self.assertEqual(key,   sortinfo1.main_cell_key)
         self.assertEqual('ASC', str(sortinfo1.main_order))
+        self.assertEqual(
+            "QuerySortInfo(cell_key='regular_field-name', "
+            "order=Order(asc=True), "
+            "field_names=('name', 'cremeentity_ptr_id'))",
+            repr(sortinfo1),
+        )
 
         # Fast mode -------------------
         sortinfo2 = sorter.get(
