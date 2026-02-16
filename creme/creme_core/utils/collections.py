@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -186,10 +186,7 @@ class ClassKeyedMap(Generic[T]):
         return bool(self._data)
 
     def __repr__(self):
-        return 'ClassKeyedMap({}, default={})'.format(
-            repr([*self.items()]),
-            repr(self.default),
-        )
+        return f'ClassKeyedMap({self._data!r}, default={self._default!r})'
 
     @property
     def default(self) -> T | None:

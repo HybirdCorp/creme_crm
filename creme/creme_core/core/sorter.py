@@ -60,11 +60,11 @@ class QuerySortInfo:
 
     def __repr__(self):
         return (
-            f'<QuerySortInfo('
+            f'QuerySortInfo('
             f'cell_key={self.main_cell_key!r}, '
             f'order={self.main_order!r}, '
-            f'field_names={self.field_names}'
-            f')>'
+            f'field_names={self.field_names!r}'
+            f')'
         )
 
 

@@ -18,6 +18,7 @@
 
 import json
 import logging
+import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from urllib.parse import urlencode
@@ -1228,8 +1229,8 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
     # TODO: should the deletors registry manage the perm to restore too?
     def check_related_entity_permissions(self, entity, user):
-        if not entity.is_deleted:
-            raise ConflictError('Can not restore an entity which is not in the trash')
+        # if not entity.is_deleted:
+        #     raise ConflictError('Can not restore an entity which is not in the trash')
 
         user.has_perm_to_delete_or_die(entity)
 
@@ -1266,6 +1267,13 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
         try:
             deletor.perform(entity=entity, user=user)
         except SpecificProtectedError as e:
+            warnings.warn(
+                f'The deletor of the entity {entity} should raise a ConflictError '
+                f'in its method check_permissions() instead of raising a '
+                f'SpecificProtectedError in the methods delete/trash of the entity.',
+                DeprecationWarning,
+            )
+
             raise ConflictError(
                 gettext('This entity can not be deleted ({reason})').format(reason=e.args[0]),
             ) from e

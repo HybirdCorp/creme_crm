@@ -66,6 +66,13 @@ class PropertyAddingActionTestCase(CremeTestCase):
             action.render(user=user),
         )
 
+        self.assertEqual(
+            'PropertyAddingAction('
+            'entity_source=CreatedEntitySource(model=FakeOrganisation), '
+            'ptype=CremePropertyType(text="Is kawaiiii"))',
+            repr(action),
+        )
+
         # De-serialisation ---
         deserialized = PropertyAddingAction.from_dict(
             data=serialized, registry=workflow_registry,
@@ -278,6 +285,14 @@ class RelationAddingActionTestCase(CremeTestCase):
                 object=source2.render(user=user, mode=source2.RenderMode.HTML),
             ),
             action.render(user=user),
+        )
+
+        self.assertEqual(
+            'RelationAddingAction('
+            'subject_source=SubjectEntitySource(model=FakeContact), '
+            'rtype=RelationType(predicate="is bought by"), '
+            'object_source=ObjectEntitySource(model=FakeOrganisation))',
+            repr(action),
         )
 
         # De-serialisation ---

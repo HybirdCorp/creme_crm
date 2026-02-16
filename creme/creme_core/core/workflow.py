@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -157,7 +157,7 @@ class RelationAdded(WorkflowEvent):
         return isinstance(other, type(self)) and self._relation.id == other._relation.id
 
     def __repr__(self):
-        return f'RelationAdded(relation={self._relation})'
+        return f'RelationAdded(relation={self._relation!r})'
 
     @property
     def relation(self) -> Relation:

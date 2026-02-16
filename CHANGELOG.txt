@@ -81,6 +81,9 @@
             - In 'creme_core.utils.content_type', these functions are now deprecated :
                 - 'ctype_as_key()', use the new method 'Content.portable_key()' instead.
                 - 'ctype_from_key()', use the new method 'ContentType.objects.get_by_portable_key()' instead.
+            - In 'creme_core.views.entity.EntityDeletionMixin', if the deletion causes an exception
+              'SpecificProtectedError' to be raised, the display of the specific message is deprecated;
+              use te related deletor & its method 'check_permissions()' for that.
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' is deprecated; use 'creme_core.utils.round_decimal()' instead.

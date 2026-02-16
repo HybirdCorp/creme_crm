@@ -156,6 +156,7 @@ class UserRoleTestCase(BaseAuthTestCase):
 
         role.deactivated_on = now()
         self.assertEqual(_('{role} [deactivated]').format(role=name), str(role))
+        self.assertEqual('UserRole(name="Normal")', repr(role))
 
     def test_attributes(self):
         role = UserRole(name='Normal')
@@ -447,6 +448,7 @@ class CremeUserTestCase(BaseAuthTestCase):
 
         user.displayed_name = dname = 'Kirika-chan'
         self.assertEqual(dname, str(user))
+        self.assertEqual('CremeUser(username="kirika")', repr(user))
 
     def test_field_tags(self):
         get_field = CremeUser._meta.get_field

@@ -98,8 +98,10 @@ def ready():
         model=fake_models.FakeContact, deletor_class=FakeContactDeletor,
     ).register(
         model=fake_models.FakeOrganisation,
-    ).register(  # see EntityViewsTestCase.test_delete_entity_auxiliary_0
+    ).register(  # see test_delete_entity_auxiliary_0()
         model=fake_models.FakeInvoiceLine,
+    ).register(  # see test_delete_entity__default_redirection__no_listview()
+        model=fake_models.FakeProduct,
     )
     # Not FakeTicket!
 

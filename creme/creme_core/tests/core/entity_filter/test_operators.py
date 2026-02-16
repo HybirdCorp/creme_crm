@@ -13,9 +13,13 @@ from creme.creme_core.core.entity_filter import (
     operands,
     operators,
 )
-from creme.creme_core.models import FakeContact, FakeOrganisation, Language
+from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    FakeProduct,
+    Language,
+)
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeProduct
 
 
 class OperatorTestCase(CremeTestCase):

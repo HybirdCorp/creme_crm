@@ -46,6 +46,7 @@ class ExportersTestCase(_BillingTestCase):
         self.assertEqual('fr_FR', flavour1.language)
         self.assertEqual('basic', flavour1.theme)
         self.assertEqual('FR/fr_FR/basic', flavour1.as_id())
+        self.assertEqual('ExporterFlavour("FR", "fr_FR", "basic")', repr(flavour1))
 
         flavour2 = ExporterFlavour.from_id('FR/fr_FR/basic')
         self.assertIsInstance(flavour2, ExporterFlavour)

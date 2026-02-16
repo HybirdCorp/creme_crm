@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -165,6 +165,9 @@ class UserRole(models.Model):
         return self.name if self.deactivated_on is None else gettext(
             '{role} [deactivated]'
         ).format(role=self.name)
+
+    def __repr__(self):
+        return f'UserRole(name="{self.name}")'
 
     @property
     def admin_4_apps(self) -> set[str]:
@@ -1131,6 +1134,9 @@ class CremeUser(AbstractBaseUser):
 
     def __str__(self):
         return self.get_full_name()
+
+    def __repr__(self):
+        return f'CremeUser(username="{self.username}")'
 
     def clean(self):
         # TODO: split in sub methods?

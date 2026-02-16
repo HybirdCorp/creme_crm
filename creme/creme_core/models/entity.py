@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,6 +164,9 @@ class CremeEntity(CremeModel):
 
         return str(real_entity)
 
+    def __repr__(self):
+        return f'{type(self).__name__}(id={self.id})'
+
     def allowed_str(self, user) -> str:
         return (
             str(self) if user.has_perm_to_view(self) else
@@ -224,6 +227,12 @@ class CremeEntity(CremeModel):
         <creme_core.apps.CremeAppConfig.register_deletors()>).
         """
         return reverse('creme_core__delete_entity', args=(self.id,))
+
+    # You should probably implement this method in your entity class
+    # @staticmethod
+    # def get_lv_absolute_url():
+    #     "URL to the list-view of this type."
+    #     return reverse('my_app__list_my_models')
 
     def get_html_attrs(self, context) -> dict[str, str]:
         """Extra HTML attributes for this entity.

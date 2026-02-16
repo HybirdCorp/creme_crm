@@ -138,9 +138,11 @@ class FieldInfo:
         return iter(self.__fields)
 
     def __repr__(self):
-        return 'FieldInfo(model={}, field_name="{}")'.format(
-            self._model.__name__,
-            '__'.join(self.__attnames),
+        return (
+            f'FieldInfo('
+            f'model={self._model.__name__}, '
+            f'''field_name="{'__'.join(self.__attnames)}"'''
+            f')'
         )
 
     def attname(self, index):
@@ -408,7 +410,7 @@ class Order:
         return 'ASC' if self.asc else 'DESC'
 
     def __repr__(self):
-        return f'<Order(asc={self.asc})>'
+        return f'Order(asc={self.asc})'
 
     @property
     def desc(self) -> bool:
@@ -480,7 +482,7 @@ class OrderedField:
         self.order = Order(asc)
 
     def __repr__(self):
-        return f'OrderedField({self._raw})'
+        return f'OrderedField("{self._raw}")'
 
     def __str__(self):
         return self._raw
