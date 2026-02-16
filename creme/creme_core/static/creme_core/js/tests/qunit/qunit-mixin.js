@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2017-2025  Hybird
+    Copyright (C) 2017-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -135,6 +135,10 @@
             this.qunitDOMCleanup();
         },
 
+        qunitUserAgent: function() {
+            return $('#qunit-userAgent').text() || '';
+        },
+
         qunitDOMCleanup: function() {
             $('[id^=qunit-fixture-]').empty();
             $('#qunit-fixture').empty();
@@ -236,6 +240,39 @@
 
         withFrozenTime: function(date, block) {
             return new DateFaker(date).with(block.bind(this));
+        },
+
+        awaits: function(target, func) {
+            if (isNaN(target)) {
+                return this.awaitsPromise(target, func);
+            } else {
+                var done = this.assert.async();
+
+                setTimeout(function() {
+                    try {
+                        func.apply(this, arguments);
+                    } finally {
+                        done();
+                    }
+                }, target);
+            }
+        },
+
+        awaitsPromise: function(promise, func) {
+            var done = this.assert.async();
+
+            promise.then(function() {
+                try {
+                    func.apply(this, arguments);
+                } catch (e) {
+                    console.error(e);
+                    ok(false, 'Unexpected promise callback error');
+                }
+            }.bind(this)).catch(function(e) {
+                console.error(e);
+            }).finally(function() {
+                done();
+            });
         }
     };
 

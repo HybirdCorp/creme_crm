@@ -801,6 +801,7 @@ CREME_CORE_CSS = [
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
     'creme_core/css/select2/select2-4.0.13.css',
     'creme_core/css/select2/select2-creme.css',
+    'creme_core/css/tinymce/tmce8-creme.css',
 
     'creme_core/css/creme.css',
     'creme_core/css/creme-ui.css',
@@ -866,7 +867,9 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
-    'creme_core/js/lib/editor/tinymce.3.4.9.js',
+    # 'creme_core/js/lib/editor/tinymce.3.4.9.js',
+    # 'creme_core/js/lib/editor/tinymce.8.3.2.min.js',
+    'creme_core/js/lib/editor/tinymce.8.3.1.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.6.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/i18n/en.js',
@@ -947,6 +950,7 @@ CREME_CORE_JS = [
 
     'creme_core/js/widgets/form/select2.js',
     'creme_core/js/widgets/form/dropdown.js',
+    'creme_core/js/widgets/form/tinymceditor.js',
 
     'creme_core/js/widgets/frame.js',
     'creme_core/js/widgets/toggle.js',
@@ -1152,6 +1156,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/form/forms.js',
     'creme_core/js/tests/form/select2.js',
     'creme_core/js/tests/form/dropdown.js',
+    'creme_core/js/tests/form/tinymceditor.js',
 
     'creme_core/js/tests/list/list-pager.js',
     'creme_core/js/tests/list/listview-actions.js',
