@@ -2,6 +2,11 @@
 
   TODO: compile .po (creme_core)
 
+  Users side :
+  ------------
+    # The Job scheduler has been fixed: disabling then re-activating a Job was not possible.
+      You were obliged to restart the scheduler.
+
   Developers side :
   -----------------
 
