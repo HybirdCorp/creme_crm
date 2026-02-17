@@ -762,6 +762,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         with self.assertNoException():
             batch_process_type.execute(job)
 
+        job = self.refresh(job)
         self.assertEqual(Job.STATUS_ERROR, job.status)
         self.assertEqual(_('The filter does not exist anymore'), job.error)
         self.assertTrue(job.is_finished)

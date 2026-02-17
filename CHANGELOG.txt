@@ -2,8 +2,11 @@
 
   Users side :
   ------------
-    # The Job scheduler has been fixed: disabling then re-activating a Job was not possible.
-      You were obliged to restart the scheduler.
+    # Several issues in the Job scheduler had been fixed:
+        - Disabling then re-activating a Job was not possible;
+          you were obliged to restart the scheduler.
+        - Modifying a Job's configuration during it's execution did not work correctly
+          (new configuration could be lost).
 
 
 == Version 2.6.17 ==
