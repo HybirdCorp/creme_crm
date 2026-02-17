@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -295,12 +295,12 @@ class JobScheduler:
             )
             return
 
-        if not job.enabled:
-            logger.warning(
-                'JobScheduler.handle_command_refresh() -> REFRESH job %r: disabled',
-                job,
-            )
-            return
+        # if not job.enabled:
+        #     logger.warning(
+        #         'JobScheduler.handle_command_refresh() -> REFRESH job %r: disabled',
+        #         job,
+        #     )
+        #     return
 
         next_wakeup = self._next_wakeup(job)
 
@@ -321,10 +321,20 @@ class JobScheduler:
             next_wakeup = min(next_wakeup, secure_wakeup)
 
         heappush(system_jobs, (next_wakeup, job.id, job))
-        logger.warning(
-            'JobScheduler.handle_command_refresh() -> REFRESH job %r: next wake up at %s',
-            job, date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
-        )
+        # logger.warning(
+        #     'JobScheduler.handle_command_refresh() -> REFRESH job %r: next wake up at %s',
+        #     job, date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+        # )
+        if job.enabled:
+            logger.warning(
+                'JobScheduler.handle_command_refresh() -> REFRESH job %r: next wake up at %s',
+                job, date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+            )
+        else:
+            logger.warning(
+                'JobScheduler.handle_command_refresh() -> REFRESH job %r: disabled',
+                job,
+            )
 
     def _handle_command_start(self, cmd: Command) -> None:
         job_id = cmd.data_id
