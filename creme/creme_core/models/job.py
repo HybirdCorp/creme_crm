@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -143,7 +143,11 @@ class Job(models.Model):
         return str(self.type)
 
     def __repr__(self):
-        return f'<Job type="{self.type_id}" id="{self.id}">'
+        return (
+            f'Job(id={self.id}, type_id="{self.type_id}", user={self.user!r}, '
+            f'enabled={self.enabled}, status={self.status}'
+            f')'
+        )  # TODO: other attributes?
 
     def get_absolute_url(self):
         return reverse('creme_core__job', args=(self.id,))

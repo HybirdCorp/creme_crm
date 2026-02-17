@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
@@ -11,6 +14,23 @@ from ..base import CremeTestCase
 
 
 class JobTestCase(CremeTestCase):
+    def test_attributes(self):
+        job = self.get_object_or_fail(Job, type_id=reminder_type.id)
+        self.assertIsNone(job.user)
+        self.assertTrue(job.enabled)
+        self.assertIsInstance(job.reference_run, datetime)
+        self.assertIsNone(job.last_run)
+        self.assertIsNone(job.periodicity)
+        self.assertEqual(0, job.ack_errors)
+        self.assertEqual(Job.STATUS_OK, job.status)
+        self.assertIsNone(job.data)
+
+        self.assertEqual(_('Reminders'), str(job))
+        self.assertEqual(
+            f'Job(id={job.id}, type_id="creme_core-reminder", user=None, enabled=True, status=20)',
+            repr(job)
+        )
+
     def test_refresh__not_needed(self):
         "No refresh needed."
         queue = get_queue()
