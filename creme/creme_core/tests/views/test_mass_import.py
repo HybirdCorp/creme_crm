@@ -183,6 +183,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         mass_import_type.execute(job)
 
+        job = self.refresh(job)
         lines_count = len(lines)
         self.assertEqual(count + lines_count, FakeContact.objects.count())
         self.assertDatetimesAlmostEqual(now(), job.last_run)

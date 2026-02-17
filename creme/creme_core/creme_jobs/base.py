@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -116,24 +116,40 @@ class JobType:
         if self.periodic != self.NOT_PERIODIC and job.last_run:
             # TODO: 'self.result_model' instead of 'JobResult' ??
             JobResult.objects.filter(job=job).delete()
-            job.status = Job.STATUS_WAIT  # TODO: test
+            # job.status = Job.STATUS_WAIT
 
-        job.last_run = now()
-        job.save()
+        # job.last_run = now()
+        # job.save()
 
+        # NB: we use 'update()' because:
+        #  - Job.save() pushes a REFRESH command when a Job is edited;
+        #    it's cool when the Job's configurations is modified by the user,
+        #    but not here.
+        #  - some fields (like "enabled") can be modified by the used during the
+        #    execution, & we do not want to override these changes.
+        def _update_job(**fields):
+            Job.objects.filter(id=job.id).update(**fields)
+
+        _update_job(status=Job.STATUS_WAIT, last_run=now())
+
+        status = Job.STATUS_OK
+        error = None
         try:
             self._execute(job)
         except Exception as e:
             logger.exception(e)
 
-            job.status = Job.STATUS_ERROR
-            job.error = str(e)
-        else:
-            job.status = Job.STATUS_OK
-            job.error = None
+            # job.status = Job.STATUS_ERROR
+            # job.error = str(e)
+            status = Job.STATUS_ERROR
+            error = str(e)
+        # else:
+        #     job.status = Job.STATUS_OK
+        #     job.error = None
 
         # job.last_run = now()
-        job.save()
+        # job.save()
+        _update_job(status=status, error=error)
 
         events = WorkflowEngine.get_current()._queue.pickup()
         if events:
