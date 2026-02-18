@@ -234,10 +234,25 @@ class JobScheduler:
                             job,
                         )
                     else:
-                        if job.enabled:  # Job may have been disabled during its execution
-                            heappush(
-                                self._system_jobs,
-                                (self._next_wakeup(job, reference_run), job.id, job),
+                        # if job.enabled:  # Job may have been disabled during its execution
+                        #     heappush(
+                        #         self._system_jobs,
+                        #         (self._next_wakeup(job, reference_run), job.id, job),
+                        #     )
+                        next_wakeup = self._next_wakeup(job, reference_run)
+                        heappush(self._system_jobs, (next_wakeup, job.id, job))
+
+                        if job.enabled:
+                            logger.warning(
+                                'JobScheduler._handle_command_end() -> system '
+                                'job %r has ended: next wake up at %s',
+                                job, date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+                            )
+                        else:
+                            logger.warning(
+                                'JobScheduler.handle_command_end() -> system '
+                                'job %r has ended: disabled during its execution',
+                                job,
                             )
 
             self._end_job(job)
