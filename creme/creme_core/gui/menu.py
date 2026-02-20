@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.template.loader import get_template
@@ -81,7 +81,7 @@ class MenuEntry:
 
     # Classical permissions strings used by the method render(), to avoid
     # redirecting to a forbidden view for example.
-    permissions: str | Sequence[str] = ''
+    permissions: str | Collection[str] = ''
 
     # These attribute is used by 'creme_config', mainly for special level-1
     # entries which need extra data.
@@ -297,11 +297,11 @@ class ActionEntry(TemplateEntry):
 
     url_name: str = ''
 
-    icon_name: str = None
-    icon_title: str = None
+    icon_name: str = ''
+    icon_title: str = ''
 
     # Extra CSS classes for the link
-    classes: Sequence[str] = ()
+    classes: list[str] = []
 
     description: str = ''
 
@@ -314,12 +314,12 @@ class ActionEntry(TemplateEntry):
         url_name = self.url_name
         return reverse(url_name) if url_name else ''
 
-    def _get_icon(self, name, title, user) -> BaseIcon:
+    def _get_icon(self, name, title, user) -> BaseIcon | None:
         """
-        Builds Icon instance like templatetag {% widget_icon  %}.
+        Builds Icon instance like templatetag {% widget_icon %}.
         """
         if not self.icon_name:
-            return
+            return None
 
         theme = user.theme_info[0]
         return get_icon_by_name(
@@ -387,14 +387,14 @@ class ActionEntry(TemplateEntry):
 
 
 class UpdateActionEntry(ActionEntry):
-    """Helper action menu entry for POST queries"""
+    """Helper action menu entry for POST queries."""
     action = 'update'
 
     # Allows the ajax POST query to follow a 302 response.
     follow_redirect: bool = False
 
     redirect_url_name: str = ''
-    confirm_message: str = None
+    confirm_message: str = ''
 
     @property
     def redirect_url(self) -> str:
@@ -405,14 +405,14 @@ class UpdateActionEntry(ActionEntry):
         url_name = self.redirect_url_name
         return reverse(url_name) if url_name else ''
 
-    def get_confirm_message(self, context):
+    def get_confirm_message(self, context) -> str:
         """
         Enable an inner-popup message to confirm the action.
         Do nothing if empty or False.
         """
         return self.confirm_message
 
-    def get_action_props(self, context):
+    def get_action_props(self, context) -> dict:
         confirm_message = self.get_confirm_message(context)
         redirect_url = self.redirect_url
 

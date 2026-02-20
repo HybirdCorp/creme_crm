@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from creme.creme_core.utils.collections import FluentList
 class ChildTaskClonerM2MCopier(copying.ManyToManyFieldsCopier):
     # NB: Parenting is managed by TasksCopier
     #     & we do not want to mark the field as <clonable=False>.
-    exclude = ['parent_tasks']
+    exclude = {'parent_tasks'}
 
 
 class ChildTaskResourcesCopier(copying.PostSaveCopier):

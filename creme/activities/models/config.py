@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023-2025  Hybird
+#    Copyright (C) 2023-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,33 +81,31 @@ class CalendarConfigItem(CremeModel):
     superuser = models.BooleanField(default=False, editable=False)
 
     view = models.CharField(
-        verbose_name=_('Default view mode'),
-        max_length=100,
-        choices=CalendarViewMode,
-        default='month',
+        verbose_name=_('Default view mode'), max_length=100,
+        choices=CalendarViewMode, default='month',
     )
 
     view_day_start = models.TimeField(
         _('View start'), default=time(0, 0, 0), help_text=_(
             "Start of the displayed hours.\n"
-            "Can be different from the day range that restricts the moves and creation of events"
+            "Can be different from the day range that restricts the moves and "
+            "creation of events"
         )
     )
     view_day_end = models.TimeField(
         _('View end'), default=time(0, 0, 0), help_text=_(
             'End of the displayed hours.\n'
-            "Can be different from the day range that restricts the moves and creation of events"
+            "Can be different from the day range that restricts the moves and "
+            "creation of events"
         )
     )
 
     week_start = models.IntegerField(
-        _('First day of the week'),
-        choices=Weekday,
-        default=Weekday.MONDAY.value
+        _('First day of the week'), choices=Weekday, default=Weekday.MONDAY.value,
     )
 
     week_days = models.JSONField(
-        _('Days of the week'), default=Weekday.default_days, editable=False
+        _('Days of the week'), default=Weekday.default_days, editable=False,
     ).set_tags(viewable=False)
 
     day_start = models.TimeField(_('Start'), default=time(8, 0, 0))
@@ -157,7 +155,7 @@ class CalendarConfigItem(CremeModel):
             "view": self.view,
             "view_day_start": view_day_start,
             "view_day_end": view_day_end,
-            "week_days": list(self.week_days),
+            "week_days": [*self.week_days],
             "week_start": self.week_start,
             "day_start": self.day_start.strftime('%H:%M'),
             "day_end": self.day_end.strftime('%H:%M'),

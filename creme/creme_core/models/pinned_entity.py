@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterator
+from collections.abc import Iterator
 
 from django.conf import settings
 from django.contrib.auth import get_user_model

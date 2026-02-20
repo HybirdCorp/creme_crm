@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable
 from typing import Any, DefaultDict
 from uuid import uuid4
 
@@ -233,7 +233,7 @@ class CustomFieldValue(CremeModel):
     @classmethod
     def save_values_for_entities(cls,
                                  custom_field: CustomField,
-                                 entities: Sequence[CremeEntity],
+                                 entities: Collection[CremeEntity],
                                  value,
                                  ) -> None:
         cfv_klass = custom_field.value_class

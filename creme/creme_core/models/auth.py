@@ -54,7 +54,8 @@ from .entity import CremeEntity
 from .utils import model_verbose_name
 
 if TYPE_CHECKING:
-    from typing import DefaultDict, Iterable, Sequence, Type, Union
+    from collections.abc import Collection, Iterable, Sequence
+    from typing import DefaultDict, Type, Union
 
     from ..core.sandbox import SandboxType
     from .base import CremeModel
@@ -181,10 +182,10 @@ class UserRole(models.Model):
         return self._admin_4_apps
 
     @admin_4_apps.setter
-    def admin_4_apps(self, apps: Sequence[str]) -> None:
-        """@param apps: Sequence of app labels (strings)."""
+    def admin_4_apps(self, apps: Iterable[str]) -> None:
+        """@param apps: App labels (strings)."""
         self._admin_4_apps = {*apps}
-        self.raw_admin_4_apps = '\n'.join(apps)
+        self.raw_admin_4_apps = '\n'.join(self._admin_4_apps)
 
     @property
     def allowed_apps(self) -> set[str]:
@@ -199,10 +200,10 @@ class UserRole(models.Model):
         return self._allowed_apps
 
     @allowed_apps.setter
-    def allowed_apps(self, apps: Sequence[str]) -> None:
-        """@param apps: Sequence of app labels (strings)."""
+    def allowed_apps(self, apps: Iterable[str]) -> None:
+        """@param apps: App labels (strings)."""
         self._allowed_apps = {*apps}
-        self.raw_allowed_apps = '\n'.join(apps)
+        self.raw_allowed_apps = '\n'.join(self._allowed_apps)
 
     @property
     def special_permissions(self) -> dict[str, SpecialPermission]:
@@ -1270,7 +1271,7 @@ class CremeUser(AbstractBaseUser):
         return teammates
 
     @teammates.setter
-    def teammates(self, users: Sequence[CremeUser]):
+    def teammates(self, users: Collection[CremeUser]):
         # assert self.is_team
         if not self.is_team:
             raise ValueError('Only a team can have teammates')

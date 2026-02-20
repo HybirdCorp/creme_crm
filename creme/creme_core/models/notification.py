@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 from typing import Literal
 
 from django.conf import settings
@@ -166,8 +166,8 @@ class NotificationChannelConfigItemManager(models.Manager):
     smart_create.alters_data = True
 
     def bulk_get(self, *,
-                 channels: Sequence[NotificationChannel],
-                 users: Sequence[CremeUser],
+                 channels: Collection[NotificationChannel],
+                 users: Collection[CremeUser],
                  ) -> Iterator[NotificationChannelConfigItem]:
         """Retrieve the configuration of several channels & users in an optimized way.
         Items are created if needed.

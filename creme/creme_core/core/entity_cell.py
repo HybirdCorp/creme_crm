@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable
 from typing import DefaultDict
 
 from django.conf import settings
@@ -202,7 +202,7 @@ class EntityCell:
 
     @staticmethod
     def mixed_populate_entities(cells: Iterable[EntityCell],
-                                entities: Sequence[CremeEntity],
+                                entities: Collection[CremeEntity],
                                 user,
                                 ) -> None:
         """Fill caches of CremeEntity objects with grouped SQL queries, & so
@@ -223,7 +223,7 @@ class EntityCell:
 
     @staticmethod
     def populate_entities(cells: Iterable[EntityCell],
-                          entities: Sequence[CremeEntity],
+                          entities: Collection[CremeEntity],
                           user,
                           ) -> None:
         """Fill caches of CremeEntity objects with grouped SQL queries, & so

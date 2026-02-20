@@ -313,6 +313,8 @@
                   SendingBrick, SendingHTMLBodyBrick, MailsBrick.
                 - The class attribute 'views.sending.SendingBricksReloading.allowed_bricks'
                   has been replaced by the new attribute 'bricks'.
+            * Projects :
+                - The attribute 'cloners.ChildTaskClonerM2MCopier.exclude' is now a set.
             * CTI :
                 - The class bricks.CallersBrick is not registered anymore (so it can only be reloaded by its specific view).
             * SMS :

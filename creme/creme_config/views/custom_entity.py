@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections.abc import Sequence
+from collections.abc import Iterable
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -203,7 +203,7 @@ class CustomEntityTypeDeletion(base.ConfigDeletion):
     # TODO: factorise with CremeDeletionMixin.dependencies_to_html()
     @classmethod
     def dependencies_to_html(cls, *,
-                             entities: Sequence[CremeEntity],
+                             entities: Iterable[CremeEntity],
                              user: CremeUser,
                              ) -> str:
         def deps_generator():

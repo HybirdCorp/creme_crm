@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 
 import itertools
 from collections import defaultdict
-from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta
@@ -779,7 +779,7 @@ class MultiRelationEntityField(RelationEntityField):
 
     def _clean_entities(self,
                         ctype: ContentType,
-                        entity_ids: Sequence[int],
+                        entity_ids: Collection[int],
                         ) -> dict[int, CremeEntity]:
         entities = {
             entity.id: entity
@@ -1101,7 +1101,7 @@ class FilteredEntityTypeField(JSONField):
     value_type = dict
 
     def __init__(self, *,
-                 ctypes: Callable | Sequence[int | ContentType] = entity_ctypes,
+                 ctypes: Callable | Collection[int | ContentType] = entity_ctypes,
                  filter_types=(EF_REGULAR,),
                  empty_label=None,
                  **kwargs):
@@ -1133,7 +1133,7 @@ class FilteredEntityTypeField(JSONField):
         ]
 
     @ctypes.setter
-    def ctypes(self, ctypes: Callable | Sequence[int | ContentType]) -> None:
+    def ctypes(self, ctypes: Callable | Collection[int | ContentType]) -> None:
         "See constructor."
         if not callable(ctypes):
             ctypes_list = [*ctypes]  # We copy the sequence to avoid external modifications
@@ -1394,7 +1394,7 @@ class ListEditionField(fields.Field):
     """
     widget = core_widgets.ListEditionWidget
 
-    def __init__(self, *, content: Sequence[str] = (), only_delete=False, **kwargs):
+    def __init__(self, *, content: Collection[str] = (), only_delete=False, **kwargs):
         """Constructor.
         @param content: Sequence of strings
         @param only_delete: Can only delete elements, not edit them.
@@ -1404,11 +1404,12 @@ class ListEditionField(fields.Field):
         self.only_delete = only_delete
 
     @property
-    def content(self) -> Sequence[str]:
-        return self._content
+    def content(self) -> list[str]:
+        # return self._content
+        return [*self._content]
 
     @content.setter
-    def content(self, content: Sequence[str]):
+    def content(self, content: Collection[str]):
         self._content = content
         self.widget.content = content
 

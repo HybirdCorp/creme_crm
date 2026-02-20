@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Container, Iterable, Iterator, Sequence
+from collections.abc import Collection, Container, Iterable, Iterator
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
@@ -899,7 +899,7 @@ class HistoryLine(Model):
         return self._related_line_id
 
     @staticmethod
-    def populate_users(hlines: Sequence[HistoryLine], user):
+    def populate_users(hlines: Collection[HistoryLine], user):
         """Set the internal cache for 'user' in some HistoryLines, to optimize queries.
 
         @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
@@ -925,7 +925,7 @@ class HistoryLine(Model):
             hline.user = users.get(hline.username)
 
     @classmethod
-    def populate_related_lines(cls, hlines: Sequence[HistoryLine]) -> None:
+    def populate_related_lines(cls, hlines: Collection[HistoryLine]) -> None:
         pool = {hline.id: hline for hline in hlines}
         unpopulated = [hline for hline in hlines if hline._related_line is False]
         missing_line_ids = [

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2025  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -568,10 +568,11 @@ class SubjectsExtractorField(Field):
 
 
 # Main -------------------------------------------------------------------------
-def get_massimport_form_builder(header_dict, choices):
+def get_massimport_form_builder(header_dict, choices) -> type[ImportForm4CremeEntity]:
     class ActivityMassImportForm(ImportForm4CremeEntity):
         type_selector = ActivitySubTypeField(
-            label=_('Type'), limit_choices_to=~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
+            label=_('Type'),
+            limit_choices_to=~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
         )
 
         my_participation = act_fields.UserParticipationField(

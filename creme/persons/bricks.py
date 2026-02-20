@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 ################################################################################
 
 from collections import OrderedDict
-from collections.abc import Sequence
+from collections.abc import Collection
 from functools import partial
 
 from django.apps import apps
@@ -489,7 +489,7 @@ def _get_address_field_names():
 class _AddressesBrick(SimpleBrick):
     dependencies = (Address,)
     verbose_name = 'Addresses'
-    target_ctypes: Sequence[type[CremeEntity]] = (Contact, Organisation)
+    target_ctypes: Collection[type[CremeEntity]] = (Contact, Organisation)
     permissions = 'persons'
 
     def get_template_context(self, context, **kwargs):

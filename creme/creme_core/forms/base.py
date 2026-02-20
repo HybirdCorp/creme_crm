@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,20 +51,13 @@ from . import widgets
 from .validators import validate_linkable_model
 
 if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Callable,
-        Collection,
-        Iterable,
-        Iterator,
-        Sequence,
-        Union,
-    )
+    from collections.abc import Callable, Collection, Iterable, Iterator
+    from typing import Any, Union
 
     from ..gui.custom_form import CustomFormExtraSubCell
 
     # TODO: use Literal for '*' case?
-    FieldNamesOrWildcard = Union[Sequence[str], str]
+    FieldNamesOrWildcard = Union[Collection[str], str]
     FormCallback = Callable[[forms.Form], None]
 
 __all__ = (
@@ -410,9 +403,9 @@ class FieldBlockManager:
 
 class HookableFormMixin:
     # Beware: use related method to manipulate
-    _creme_post_clean_callbacks: Sequence[FormCallback] = ()  # ==> add_post_clean_callback()
-    _creme_post_init_callbacks: Sequence[FormCallback]  = ()  # ==> add_post_init_callback()
-    _creme_post_save_callbacks: Sequence[FormCallback]  = ()  # ==> add_post_save_callback()
+    _creme_post_clean_callbacks: Collection[FormCallback] = ()  # ==> add_post_clean_callback()
+    _creme_post_init_callbacks: Collection[FormCallback]  = ()  # ==> add_post_init_callback()
+    _creme_post_save_callbacks: Collection[FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
     def __add_callback(cls, attrname: str, callback: FormCallback) -> type[HookableFormMixin]:

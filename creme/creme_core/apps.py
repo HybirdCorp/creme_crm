@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Collection
 from sys import argv
 from typing import TYPE_CHECKING
 
@@ -207,7 +207,7 @@ class CremeAppConfig(AppConfig):
     # Names of the apps on which this app depends ;
     # an error is raised if the dependencies are not installed.
     # E.g. ['creme.persons']
-    dependencies: Sequence[str] = ()
+    dependencies: Collection[str] = ()
 
     CRED_NONE    = 0b00
     CRED_REGULAR = 0b01

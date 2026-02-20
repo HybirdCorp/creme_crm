@@ -366,7 +366,7 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         #   ['position__title', 'last_name']
         #   >> _explicit_ordering(['last_name', 'first_name', 'civility'])
         #   ['last_name', 'first_name', 'civility__title']
-        explicit_fields = []
+        explicit_fields: list[str] = []
         for ordered_field_name in ordering:
             ordered_field = OrderedField(ordered_field_name)
             desc = ordered_field.order.desc
@@ -380,7 +380,7 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         return explicit_fields
 
     # TODO: extract as standalone function?
-    def _is_ordering_stable(ordering: Iterator[str]) -> bool:
+    def _is_ordering_stable(ordering: Iterable[str]) -> bool:
         # Examples:
         #  With CremeUser:
         #    >> _is_ordering_stable(['username']) => True  # username is unique

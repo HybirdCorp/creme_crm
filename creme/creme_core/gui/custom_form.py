@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from collections import OrderedDict
-from collections.abc import Container, Iterable, Iterator, Sequence
+from collections.abc import Collection, Container, Iterable, Iterator
 from copy import deepcopy
 from itertools import chain
 
@@ -165,7 +165,7 @@ class EntityCellCustomFormExtra(EntityCell):
     You probably do not have to create one by hand.
     """
     type_id = 'cform_extra'
-    allowed_sub_cell_classes: Sequence[type[CustomFormExtraSubCell]] = ()
+    allowed_sub_cell_classes: Collection[type[CustomFormExtraSubCell]] = ()
 
     def __init__(self, sub_cell: CustomFormExtraSubCell):
         super().__init__(model=sub_cell.model, value=sub_cell.sub_type_id)
@@ -435,7 +435,7 @@ class FieldGroupList:
                    model: type[Model],
                    data: list[dict],
                    cell_registry: EntityCellRegistry,
-                   allowed_extra_group_classes: Sequence[type[ExtraFieldGroup]] = (),
+                   allowed_extra_group_classes: Collection[type[ExtraFieldGroup]] = (),
                    ) -> FieldGroupList:
         """Builder of FieldGroupList and contained AbstractFieldGroups
         from de-serialized dicts.
@@ -973,8 +973,8 @@ class CustomFormDescriptor:
                  verbose_name: str,
                  form_type: int = CREATION_FORM,
                  base_form_class=CremeEntityForm,
-                 excluded_fields: Sequence[str] = (),
-                 extra_sub_cells: Sequence[CustomFormExtraSubCell] = (),
+                 excluded_fields: Iterable[str] = (),
+                 extra_sub_cells: Iterable[CustomFormExtraSubCell] = (),
                  extra_group_classes: Iterable[type[ExtraFieldGroup]] = (),
                  default: type[CustomFormDefault] = CustomFormDefault,
                  ):

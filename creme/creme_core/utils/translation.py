@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2025 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,7 @@
 
 # import warnings
 from collections import Counter
-from collections.abc import Iterable
-from typing import Iterator
+from collections.abc import Iterable, Iterator
 
 from django.conf import settings
 from django.db.models import Model
@@ -47,7 +46,7 @@ else:
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by

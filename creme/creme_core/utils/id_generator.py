@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Collection
 from random import randint
 
 from django.db import IntegrityError
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: you should avoid to use this function, and use a classical integer ID + a UUIDField
 def generate_string_id_and_save(model: type[Model],
-                                objects: Sequence[Model],
+                                objects: Collection[Model],
                                 prefix: str,
                                 ) -> None:
     if not objects:

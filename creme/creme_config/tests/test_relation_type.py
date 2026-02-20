@@ -264,7 +264,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             },
         )
 
-    def test_edition__not_custom(self):
+    def test_edition__not_custom(self) -> None:
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -314,7 +314,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         self.assertFalse(rt.symmetric_type.minimal_display)
 
-    def test_edition__not_custom__other_values(self):
+    def test_edition__not_custom__other_values(self) -> None:
         self._login_as_admin()
 
         rt = RelationType.objects.builder(

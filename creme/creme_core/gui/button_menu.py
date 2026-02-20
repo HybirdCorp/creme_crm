@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 from heapq import heappop, heappush
 from typing import DefaultDict, Literal
 
@@ -66,7 +66,7 @@ class Button:
     # List of IDs of RelationType objects on which the brick depends ;
     # only used for Buttons which have the model 'Relation' in their dependencies.
     # Notice: it's the same thing as <Brick.relation_type_deps>.
-    relation_type_deps: Sequence[str] = ()
+    relation_type_deps: Collection[str] = ()
 
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/buttons/place-holder.html'
@@ -75,7 +75,7 @@ class Button:
     # Example: <'myapp.add_mymodel'>
     # BEWARE: you have to use the template context variable "button.permission_error"
     #         (computed from 'permissions' -- see 'check_permissions()' ) yourself.
-    permissions: str | Sequence[str] = ''
+    permissions: str | Collection[str] = ''
 
     def __eq__(self, other):
         return other.id == self.id
@@ -122,7 +122,7 @@ class Button:
         return ctxt
 
     # TODO: replace with an attribute (like Brick.target_ctypes) -> "compatible_models"?
-    def get_ctypes(self) -> Sequence[type[CremeEntity]]:
+    def get_ctypes(self) -> Collection[type[CremeEntity]]:
         """
         @return A sequence of CremeEntity classes that can have this type of button.
                 Void sequence means that all types are ok.
