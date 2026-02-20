@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 from typing import DefaultDict, List, Literal, Tuple, Type, Union
 
 from django.conf import settings
@@ -126,7 +126,7 @@ class Brick:
 
     # List of IDs of RelationType objects on which the brick depends ;
     # only used for Bricks which have the model 'Relation' in their dependencies.
-    relation_type_deps: Sequence[str] = ()
+    relation_type_deps: Collection[str] = ()
 
     # 'True' means that the brick will never be used to change the instances
     # of its dependencies models.
@@ -151,7 +151,7 @@ class Brick:
     # Example of value:
     #    # Available for detail-views of Contact & Organisation
     #    target_ctypes = (Contact, Organisation)
-    target_ctypes: Sequence[type[CremeEntity]] = ()
+    target_ctypes: Collection[type[CremeEntity]] = ()
 
     # The views (detail-view, home-view, 'creme_core.views.bricks.BricksReloading')
     # check these permissions, and display a <ForbiddenBrick> (see below) when the
@@ -165,7 +165,7 @@ class Brick:
     #  - a sequence of permission strings
     #    Example: <permissions = ['my_app1', 'my_app2.can_admin']>
     # An empty value (like the default empty string) means "No special permission required".
-    permissions: str | Sequence[str] = ''
+    permissions: str | Collection[str] = ''
 
     GENERIC_HAT_BRICK_ID: str = 'hat'
 
@@ -761,7 +761,7 @@ class BrickManager:
     def get_state(self, brick_id: str, user) -> BrickState:
         "Get the state for a brick and fill a cache to avoid multiple SQL requests."
         _state_cache = self._state_cache
-        if not _state_cache:
+        if _state_cache is None:
             _state_cache = self._state_cache = BrickState.objects.get_for_brick_ids(
                 brick_ids=[brick.id for brick in self._bricks],
                 user=user,
@@ -990,7 +990,7 @@ class BrickRegistry:
         return brick
 
     def get_bricks(self,
-                   brick_ids: Sequence[str],
+                   brick_ids: Collection[str],
                    entity: CremeEntity | None = None,
                    *,  # TODO: make all arguments keyword-only
                    user: CremeUser | None = None,

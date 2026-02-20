@@ -17,8 +17,8 @@
 ################################################################################
 
 from collections import defaultdict
+from collections.abc import Callable, Collection
 from json import loads as json_load
-from typing import Callable, Sequence
 
 from django import forms
 from django.conf import settings
@@ -312,7 +312,7 @@ class CTypeDescriptorMixin:
 
 
 class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
-    def __init__(self, allowed_models: Sequence[type[models.Model]] | Callable = (), **kwargs):
+    def __init__(self, allowed_models: Collection[type[models.Model]] | Callable = (), **kwargs):
         """
         @param allowed_models: Narrow the models which are accepted by the field;
                Set it if you want enumeration to work (quick-search in listviews,

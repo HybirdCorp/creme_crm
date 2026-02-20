@@ -74,7 +74,8 @@ from .widgets import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Optional, Sequence, Tuple
+    from collections.abc import Callable, Sequence
+    from typing import Any, Optional, Tuple
 
     Line = Sequence[str]
     ExtractedTuple = Tuple[Any, Optional[str]]

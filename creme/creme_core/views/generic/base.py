@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -114,7 +114,7 @@ class PermissionsMixin:
     """
     login_url_name: str | None = None
     login_redirect_arg_name: str = REDIRECT_FIELD_NAME
-    permissions: str | Sequence[str] = ''
+    permissions: str | Collection[str] = ''
 
     # NB: for linters only
     request: HttpRequest
@@ -206,13 +206,14 @@ class EntityRelatedMixin:
     LINK permission instead of CHANGE.
     """
     entity_id_url_kwarg: str = 'entity_id'
-    entity_classes: type[CremeEntity] | Sequence[type[CremeEntity]] | None = None
+    entity_classes: type[CremeEntity] | Collection[type[CremeEntity]] | None = None
     entity_form_kwarg: str | None = 'entity'
     entity_select_for_update: bool = False
 
     # NB: for linters only
     request: HttpRequest
     kwargs: dict
+    related_entity: CremeEntity
 
     def build_related_entity_queryset(self, model: type[CremeEntity]) -> QuerySet:
         qs = model._default_manager.all()
@@ -428,6 +429,9 @@ class BricksMixin:
     """
     brick_registry = brick_registry
     bricks_reload_url_name: str = 'creme_core__reload_bricks'
+
+    # NB: for linters only
+    request: HttpRequest
 
     def get_brick_ids(self) -> Iterable[str]:
         return ()

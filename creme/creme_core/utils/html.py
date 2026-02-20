@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2015-2024 Hybird
+# Copyright (c) 2015-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,8 @@ from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ngettext
 
 if TYPE_CHECKING:
-    from typing import Callable, Dict, Sequence, Union
+    from collections.abc import Callable, Sequence
+    from typing import Dict, Union
 
     AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
 

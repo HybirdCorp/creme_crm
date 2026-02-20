@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 # import warnings
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 
 # from django.conf import settings
 from django.db.models import CharField, Field, Model
@@ -146,7 +146,7 @@ class EmptyEnumerator(Enumerator):
 
 class QSEnumerator(Enumerator):
     """Specialisation of Enumerator to enumerate elements of a QuerySet."""
-    search_fields: Sequence[str] = ()
+    search_fields: Collection[str] = ()
     limit_choices_to = None
 
     def __init__(self, field: Field, search_fields=None, limit_choices_to=None):

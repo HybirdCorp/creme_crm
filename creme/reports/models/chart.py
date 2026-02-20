@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ from ..core.chart import (
 )
 
 if TYPE_CHECKING:
-    from ..core.chart import ReportChartHand
+    from ..core.chart import ChartHand
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ class ReportChart(CremeModel):
     abscissa_constraints = abscissa_constraints
     ordinate_constraints = ordinate_constraints
     fetcher_registry = chart_fetcher_registry
-    _hand: ReportChartHand | None = None
+    _hand: ChartHand | None = None
 
     class Meta:
         app_label = 'reports'
@@ -233,7 +233,7 @@ class ReportChart(CremeModel):
         return self.hand.fetch_colormap(user=user)
 
     @property
-    def hand(self) -> ReportChartHand:
+    def hand(self) -> ChartHand:
         from ..core.chart import CHART_HANDS_MAP  # Lazy loading
 
         hand = self._hand

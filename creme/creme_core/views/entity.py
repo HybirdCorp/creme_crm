@@ -343,7 +343,8 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             id=self.get_header_filter_id(),
         )
 
-    def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
+    # def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
+    def get_paginator(self, *, queryset, ordering: Iterable[str]) -> FlowPaginator:
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
         #  it retrieves the value of the key field, & it takes cares about

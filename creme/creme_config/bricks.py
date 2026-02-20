@@ -18,6 +18,7 @@
 
 import logging
 from collections import defaultdict
+from collections.abc import Collection
 from functools import reduce
 from operator import or_
 
@@ -77,7 +78,7 @@ class ExportButtonBrick(SimpleBrick):
 class GenericModelBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('creme_config', 'model_config')
     verbose_name = 'Model configuration'
-    dependencies = (core_models.CremeModel,)
+    dependencies: Collection[type[core_models.CremeModel], ...] = (core_models.CremeModel,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/configurable-model.html'
     configurable = False

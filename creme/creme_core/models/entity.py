@@ -22,7 +22,7 @@ import logging
 import uuid
 # import warnings
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, DefaultDict, Literal
 
 from django.contrib.contenttypes.models import ContentType
@@ -282,7 +282,7 @@ class CremeEntity(CremeModel):
         return relations
 
     @staticmethod
-    def populate_real_entities(entities: Sequence[CremeEntity]) -> None:
+    def populate_real_entities(entities: Collection[CremeEntity]) -> None:
         """Faster than calling get_real_entity() of each CremeEntity object,
         because it groups queries by ContentType.
         @param entities: Sequence of CremeEntity instances.
@@ -305,8 +305,8 @@ class CremeEntity(CremeModel):
             entity._real_entity = entities_map[entity.id]
 
     @staticmethod
-    def populate_relations(entities: Sequence[CremeEntity],
-                           relation_type_ids: Sequence[str],
+    def populate_relations(entities: Collection[CremeEntity],
+                           relation_type_ids: Collection[str],
                            ) -> None:
         from . import Relation
 
@@ -341,8 +341,8 @@ class CremeEntity(CremeModel):
         return cvalue
 
     @staticmethod
-    def populate_custom_values(entities: Sequence[CremeEntity],
-                               custom_fields: Sequence[CustomField],
+    def populate_custom_values(entities: Collection[CremeEntity],
+                               custom_fields: Collection[CustomField],
                                ) -> None:
         from . import CustomField
 
@@ -386,7 +386,7 @@ class CremeEntity(CremeModel):
         return self._properties
 
     @staticmethod
-    def populate_properties(entities: Sequence[CremeEntity]) -> None:
+    def populate_properties(entities: Collection[CremeEntity]) -> None:
         from . import CremeProperty
 
         properties_map: DefaultDict[int, list] = defaultdict(list)

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 from functools import partial
 from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
@@ -799,7 +799,7 @@ class BrickStateManager(models.Manager):
         except self.model.DoesNotExist:
             return self.model(brick_id=brick_id, user=user, **self._get_fields_values())
 
-    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> dict[str, BrickState]:
+    def get_for_brick_ids(self, *, brick_ids: Collection[str], user) -> dict[str, BrickState]:
         """Get current states of several bricks.
         @param brick_ids: a list of brick IDs.
         @param user: owner of the BrickStates.

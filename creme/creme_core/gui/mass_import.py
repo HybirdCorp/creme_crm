@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,8 @@ from typing import TYPE_CHECKING
 from ..models import CremeEntity
 
 if TYPE_CHECKING:
-    from typing import Callable, Union
+    from collections.abc import Callable
+    from typing import Union
 
     from ..forms.mass_import import ImportForm
 

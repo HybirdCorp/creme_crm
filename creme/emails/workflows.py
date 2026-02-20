@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from django.forms import Field as FormField
 
     from creme.creme_core.models import CremeEntity
+    from creme.emails.models import AbstractEmailTemplate
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -680,7 +681,7 @@ class TemplateSendingAction(WorkflowAction):
     def __init__(self, *,
                  recipient: ActionRecipient,
                  entity_source: WorkflowSource,
-                 template: EmailTemplate,
+                 template: AbstractEmailTemplate,
                  ):
         self._recipient = recipient
         self._entity_source = entity_source
@@ -706,7 +707,7 @@ class TemplateSendingAction(WorkflowAction):
         return self._recipient
 
     @property
-    def template(self) -> EmailTemplate:
+    def template(self) -> AbstractEmailTemplate:
         template = self._template
         if template is None:
             self._template = template = EmailTemplate.objects.filter(

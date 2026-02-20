@@ -24,10 +24,10 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from functools import partial
 from itertools import chain
-from typing import Iterator, Type
+from typing import Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES

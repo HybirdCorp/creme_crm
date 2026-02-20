@@ -39,7 +39,8 @@ from .base import CremeModel
 from .fields import CTypeOneToOneField
 
 if TYPE_CHECKING:
-    from typing import Dict, Iterable, Iterator, List, Sequence, Tuple
+    from collections.abc import Collection, Iterable, Iterator
+    from typing import Dict, List, Tuple
 
     from django.db.models import Field, Model
 
@@ -107,7 +108,7 @@ class FieldsConfigManager(models.Manager):
         return self.get_for_models((model,))[model]
 
     def get_for_models(self,
-                       models: Sequence[type[Model]],
+                       models: Collection[type[Model]],
                        ) -> dict[type[Model], FieldsConfig]:
         result = {}
         get_ct = ContentType.objects.get_for_model

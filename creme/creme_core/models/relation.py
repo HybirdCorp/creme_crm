@@ -96,6 +96,7 @@ class RelationTypeBuilder:
                 del self._ptypes[ptype_uuid]
 
     _id: str
+    _sym: RelationTypeBuilder | None
     predicate: str
     _is_internal: bool
     _is_custom: bool
@@ -165,9 +166,9 @@ class RelationTypeBuilder:
         sym._is_custom = self._is_custom
         sym.is_copiable = is_copiable
         sym.minimal_display = minimal_display
-        sym.models = models
-        sym.properties = properties
-        sym.forbidden_properties = forbidden_properties
+        # sym.models = models
+        # sym.properties = properties
+        # sym.forbidden_properties = forbidden_properties
         sym._enabled = self._enabled
         sym._models = set(models)
         sym._properties = self._PropertyTypesConstraints(properties)

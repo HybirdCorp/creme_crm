@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -95,12 +95,15 @@ class FetcherInterface:
 
 
 class CRUDityRegistry:
+    _fetchers: dict[str, FetcherInterface]
+    _backends: dict[type[CremeEntity], type[CrudityBackend]]
+
     class RegistrationError(Exception):
         pass
 
     def __init__(self):
-        self._fetchers: dict[str, FetcherInterface] = {}
-        self._backends: dict[type[CremeEntity], type[CrudityBackend]] = {}
+        self._fetchers = {}
+        self._backends = {}
 
     def __str__(self):
         res = 'CRUDityRegistry:'

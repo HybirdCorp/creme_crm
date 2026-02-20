@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 ################################################################################
 
 # import warnings
-from collections.abc import Sequence
+from collections.abc import Collection
 
 import creme.billing.forms.base as base_forms
 from creme import persons
@@ -52,7 +52,7 @@ from creme.creme_core.views import generic
 #         return initial
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
-    permissions: str | Sequence[str] = 'billing'  # Need creation perm too
+    permissions: str | Collection[str] = 'billing'  # Need creation perm too
     entity_id_url_kwarg = 'target_id'
     entity_classes = [
         persons.get_organisation_model(),

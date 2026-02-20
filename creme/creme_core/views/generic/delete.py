@@ -17,7 +17,7 @@
 ################################################################################
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Collection
 
 from django.db.models import ProtectedError
 from django.db.transaction import atomic
@@ -49,7 +49,7 @@ class CremeDeletionMixin:
 
     def dependencies_to_html(self, *,
                              instance: CremeModel,
-                             dependencies: Sequence[CremeModel],
+                             dependencies: Collection[CremeModel],
                              user: CremeUser,
                              ) -> str:
         def deps_generator():
