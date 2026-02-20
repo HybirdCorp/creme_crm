@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -118,7 +118,7 @@ if apps.is_installed('creme.opportunities'):
         template_name = 'billing/bricks/frags/card-summary-opportunity.html'
 
         # relation_type_deps = []
-        rtype_id = None  # OVERRIDE ME
+        rtype_id = 'OVERRIDE_ME'
 
         def get_context(self, *, entity, brick_context):
             context = super().get_context(entity=entity, brick_context=brick_context)
@@ -218,7 +218,7 @@ class InvoicesGeneratedFromQuoteSummary(CardSummary):
 class _BillingCardHatBrick(SimpleBrick):
     verbose_name = _('Card header block')
     template_name = 'billing/bricks/billing-hat-card.html'
-    summaries = []
+    summaries: list[type[CardSummary]] = []
 
     def __init__(self):
         super().__init__()

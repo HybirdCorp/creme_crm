@@ -326,6 +326,7 @@ class JobScheduler:
         #    => IDEA: create a transaction marker within the transaction, send
         #       its ID in the command, & wait for them to be reachable (so we
         #       are sure the transaction is finished).
+        # TODO: should job.type raise an exception instead of returning <None>?
         if job.enabled and job.type.periodic == JobType.PSEUDO_PERIODIC:
             secure_wakeup = now() + timedelta(seconds=30)
             next_wakeup = min(next_wakeup, secure_wakeup)

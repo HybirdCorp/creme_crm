@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,8 @@ def boolean_str(val):
 
 class _ConditionsField(JSONField):
     value_type = list
-    _model = None
+    # _model = None
+    _model: type[CremeEntity]
 
     def __init__(self, *,
                  model: type[CremeEntity] = CremeEntity,
@@ -107,7 +108,7 @@ class _ConditionsField(JSONField):
         return self._model
 
     @model.setter
-    def model(self, model: type[CremeEntity]):
+    def model(self, model: type[CremeEntity]) -> None:
         self._model = model
 
     def _set_initial_conditions(self, conditions):

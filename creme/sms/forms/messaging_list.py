@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,21 +21,21 @@ from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.forms import CremeForm, FieldBlockManager
+from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
-from creme.creme_core.models import EntityFilter
+from creme.creme_core.models import CremeEntity, EntityFilter
 from creme.persons import get_contact_model
 
 Contact = get_contact_model()
 
 
-class AddContactsForm(CremeForm):
+class AddContactsForm(core_forms.CremeForm):
     # TODO: other filter (name + email) ?
     recipients = MultiCreatorEntityField(
         label=_('Contacts'), required=False, model=Contact,
     )
 
-    blocks = FieldBlockManager({
+    blocks = core_forms.FieldBlockManager({
         'id': 'general', 'label': _('Contact-recipients'), 'fields': '*',
     })
 
@@ -51,7 +51,7 @@ class AddContactsForm(CremeForm):
             contacts.add(contact)
 
 
-class AddPersonsFromFilterForm(CremeForm):  # private class ???
+class AddPersonsFromFilterForm(core_forms.CremeForm):  # private class ???
     filters = ModelChoiceField(
         label=_('Filters'),
         queryset=EntityFilter.objects.none(),
@@ -59,7 +59,7 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
         required=False,
     )
 
-    person_model = None  # Contact/Organisation
+    person_model = CremeEntity  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,7 +87,7 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
 
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager({
+    blocks = core_forms.FieldBlockManager({
         'id': 'general', 'label': _('Contact-recipients'), 'fields': '*',
     })
 

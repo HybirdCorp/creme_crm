@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model, setting_keys
 from ..forms import buttons as buttons_forms
-from ..models import ActivitySubType, Calendar, Status
+from ..models import AbstractActivity, ActivitySubType, Calendar, Status
 
 Activity = get_activity_model()
 
@@ -77,7 +77,7 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
             {'key': setting_keys.unsuccessful_duration_key},
         )
 
-    def _build_activity(self, user) -> Activity:
+    def _build_activity(self, user) -> AbstractActivity:
         try:
             self.setting_values = values = self._get_setting_values()
 

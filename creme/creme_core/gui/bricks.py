@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -761,7 +761,7 @@ class BrickManager:
     def get_state(self, brick_id: str, user) -> BrickState:
         "Get the state for a brick and fill a cache to avoid multiple SQL requests."
         _state_cache = self._state_cache
-        if not _state_cache:
+        if _state_cache is None:
             _state_cache = self._state_cache = BrickState.objects.get_for_brick_ids(
                 brick_ids=[brick.id for brick in self._bricks],
                 user=user,

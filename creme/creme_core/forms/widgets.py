@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ import logging
 from datetime import date
 from functools import partial
 from types import GeneratorType
+from typing import Collection
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
@@ -1314,7 +1315,7 @@ class Label(widgets.TextInput):
 class ListEditionWidget(widgets.Widget):
     # TODO: 'disabled' state is probably not working as expected...
     template_name = 'creme_core/forms/widgets/list-editor.html'
-    content = ()
+    content: Collection[str] = ()
     only_delete = False
 
     def get_context(self, name, value, attrs):

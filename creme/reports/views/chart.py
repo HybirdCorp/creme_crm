@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,12 @@
 
 import logging
 
-from django.http.response import Http404, HttpResponseBadRequest
+from django.http.response import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme import reports
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
@@ -61,7 +62,7 @@ class ChartDetail(generic.CremeModelDetail):
 class ChartDetailBricksReloading(BricksReloading):
     chart_id_url_kwarg = 'chart_id'
     permissions = 'reports'  # TODO: test
-    bricks = ChartDetail.bricks
+    bricks: list[type[Brick]] = ChartDetail.bricks
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -146,7 +147,7 @@ class ChartFetchSettingsUpdate(generic.base.CheckedView):
     def get_chart(self, request) -> ReportChart:
         return get_object_or_404(ReportChart, id=self.kwargs[self.chart_id_url_kwarg])
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> HttpResponse:
         try:
             plot_name: str = self.clean_plot(request)
             order: Order = self.clean_sort(request)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2025  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ class _ModelSmartColumnsRegistry:
         cells: list[EntityCell] = []
 
         for cell_cls, data in self._cells:
-            cell = None
+            cell: EntityCell | None = None
 
             if cell_cls is EntityCellRegularField:
                 cell = EntityCellRegularField.build(model=model, name=data)

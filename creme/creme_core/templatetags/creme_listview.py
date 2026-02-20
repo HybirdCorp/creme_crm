@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,6 +122,7 @@ def listview_header_filters(*,
     )
 
     selected_hfilter = hfilters.selected
+    assert selected_hfilter is not None
     edition_allowed, edition_error = selected_hfilter.can_edit(user)
     deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
 
@@ -224,7 +225,7 @@ def listview_td_action_for_cell(*, cell: EntityCell, instance: CremeEntity, user
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/entity-actions.html')
-def listview_entity_actions(*, cell: EntityCell, instance: CremeEntity, user: CremeUser):
+def listview_entity_actions(*, cell: EntityCellActions, instance: CremeEntity, user: CremeUser):
     actions = cell.instance_actions(instance=instance, user=user)
     count = len(actions)
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2025  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,8 +44,8 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 if TYPE_CHECKING:
     from django.db.models import Field
 
-    from creme.creme_core.gui.bricks import InstanceBrick
     from creme.creme_core.models import CremeUser
+    from creme.reports.bricks import ReportChartInstanceBrick
     from creme.reports.models import ReportChart
 
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ class ChartFetcher:
         raise NotImplementedError
 
     def create_brick_config_item(self,
-                                 brick_class: type[InstanceBrick] | None = None,
+                                 brick_class: type[ReportChartInstanceBrick] | None = None,
                                  uuid: str | UUID | None = None,
                                  ) -> InstanceBrickConfigItem:
         if brick_class is None:

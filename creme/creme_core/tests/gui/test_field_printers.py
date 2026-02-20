@@ -1063,7 +1063,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(3, len(printers2))
         self.assertIsInstance(printers2[0], FKPrinter)
 
-    def test_registry_register_model_field_type(self):
+    def test_registry_register_model_field_type(self) -> None:
         "Register by field types, different outputs..."
         user = self.get_root_user()
 

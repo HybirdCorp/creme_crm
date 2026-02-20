@@ -214,7 +214,7 @@ class WorkflowTrigger:
     verbose_name = '??'
 
     # NB: override in child classes
-    event_class = WorkflowEvent
+    event_class: type[WorkflowEvent] = WorkflowEvent
 
     # Behaviour of the related WorkflowConditions:
     conditions_use_or = False  # accept()'s "use_or" argument
@@ -523,8 +523,10 @@ entity_filter_registries.register(wf_efilter_registry)
 
 class WorkflowConditions:
     """It stores EntityFilterCondition instances for the root Source of a Workflow."""
+    _conditions_per_source: list[dict]
+
     def __init__(self):
-        self._conditions_per_source: list[dict] = []
+        self._conditions_per_source = []
 
     @classmethod
     def from_dicts(cls, data: list[dict], registry: WorkflowRegistry) -> WorkflowConditions:
