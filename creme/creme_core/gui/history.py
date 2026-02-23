@@ -683,15 +683,24 @@ class _AuxiliaryEditionExplainer(HistoryLineExplainer):
             ctype = ContentType.objects.get_for_id(ct_id)
         except ContentType.DoesNotExist:
             ctype = None
+            model = None
+        else:
+            model = ctype.model_class()
+            if model is None:
+                logger.critical(
+                    'The line id=%s references the ContentType id=%s which '
+                    'seems to be invalid', hline.id, ctype.id,
+                )
+                ctype = None
 
         self._aux_ctype = ctype
         self._aux_value = str_obj
         self._field_explainers = [
             *self._explainers_for_fields(
-                model_class=ctype.model_class(),
+                model_class=model,
                 modifications=modifications[1:],
             ),
-        ] if ctype else []
+        ] if model else []
 
     def get_context(self):
         context = super().get_context()
