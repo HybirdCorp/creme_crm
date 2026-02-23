@@ -121,6 +121,76 @@ class _JSONFieldBaseTestCase(CremeTestCase):
 
 
 class JSONFieldTestCase(_JSONFieldBaseTestCase):
+    def test_clean_value(self):
+        clean_value = JSONField().clean_value
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_value(data=None, name='my_field', type=int, required=True)
+        self.assertEqual('invalidformat', cm.exception.code)
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_value(data=[], name='my_field', type=int, required=True)
+        self.assertEqual('invalidformat', cm.exception.code)
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_value(data={'my_field': None}, name='my_field', type=int, required=True)
+        self.assertEqual('required', cm.exception.code)
+
+        self.assertIsNone(
+            clean_value(data={'my_field': None}, name='my_field', type=int, required=False)
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_value(data={'my_field': 'not_int'}, name='my_field', type=int)
+        self.assertEqual('invalidformat', cm.exception.code)
+
+        self.assertEqual(
+            42, clean_value(data={'my_field': '42'}, name='my_field', type=int),
+        )
+        self.assertEqual(
+            123, clean_value(data={'my_field': '123'}, name='my_field', type=int),
+        )
+        self.assertEqual(
+            '123', clean_value(data={'my_field': '123'}, name='my_field', type=str),
+        )
+
+    def test_clean_entity__not_required(self):
+        user = self.get_root_user()
+        clean_entity = JSONField(user=user, required=False)._clean_entity
+
+        contact = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+        self.assertEqual(
+            contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
+        )
+        self.assertEqual(
+            contact, clean_entity(ctype=contact.entity_type_id, entity_pk=contact.id),
+        )
+
+        self.assertIsNone(clean_entity(ctype=contact.entity_type, entity_pk=0))
+
+        # ---
+        with self.assertRaises(ValidationError) as cm:
+            clean_entity(ctype=contact.entity_type, entity_pk=self.UNUSED_PK)
+        self.assertEqual('doesnotexist', cm.exception.code)
+
+        # Deleted ---
+        contact.is_deleted = True
+        contact.save()
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_entity(ctype=contact.entity_type, entity_pk=contact.id)
+        self.assertEqual('isdeleted', cm.exception.code)
+
+    def test_clean_entity__required(self):
+        field = JSONField(required=True)
+
+        with self.assertRaises(ValidationError) as cm:
+            field._clean_entity(
+                ctype=ContentType.objects.get_for_model(FakeContact),
+                entity_pk=0,
+            )
+        self.assertEqual('required', cm.exception.code)
+
     def test_clean__empty__required(self):
         code = 'required'
         self.assertFormfieldError(
