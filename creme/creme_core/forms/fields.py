@@ -259,6 +259,8 @@ class JSONField(fields.CharField):
         """
         if not isinstance(ctype, ContentType):
             ctype = self._clean_ctype(ctype)
+            if ctype is None:
+                return None
 
         entity = None
 
