@@ -155,6 +155,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             contact, clean_entity(ctype=contact.entity_type_id, entity_pk=contact.id),
         )
 
+        self.assertIsNone(clean_entity(ctype=0, entity_pk=1))
         self.assertIsNone(clean_entity(ctype=contact.entity_type, entity_pk=0))
 
         # ---
@@ -171,10 +172,15 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('isdeleted', cm.exception.code)
 
     def test_clean_entity__required(self):
-        field = JSONField(required=True)
+        clean_entity = JSONField(required=True)._clean_entity
 
         with self.assertRaises(ValidationError) as cm:
-            field._clean_entity(
+            clean_entity(ctype=0, entity_pk=1)
+        self.assertEqual('ctyperequired', cm.exception.code)
+
+        # ---
+        with self.assertRaises(ValidationError) as cm:
+            clean_entity(
                 ctype=ContentType.objects.get_for_model(FakeContact),
                 entity_pk=0,
             )

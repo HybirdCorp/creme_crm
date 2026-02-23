@@ -18,8 +18,11 @@
         # The base class view 'creme_core.views.generic.delete.CremeModelDeletion' now manages
           exception with type 'creme_core.core.exceptions.SpecificProtectedError'.
           It will display a better error message if the method 'delete()' of a model raises one.
-        # An issue in 'creme_core.forms.workflows.RelationAddingTriggerField' when
-          <required=False> has been fixed. It did not happen in vanilla code.
+        # In 'creme_core.forms' :
+            - An issue in 'workflows.RelationAddingTriggerField' when
+              <required=False> has been fixed. It did not happen in vanilla code.
+            - A crash in 'creme_core.forms.fields.JSONField._clean_entity()' has been fixed.
+              It happened with '0' as ContentType's ID. It did not happen in vanilla code.
 
 
 == Version 2.7.5 ==
