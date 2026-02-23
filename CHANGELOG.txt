@@ -8,6 +8,13 @@
         - Modifying a Job's configuration during it's execution did not work correctly
           (new configuration could be lost).
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The history rendering has been improved code to manage ContentTypes badly removed.
+
 
 == Version 2.6.17 ==
 

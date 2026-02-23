@@ -1721,6 +1721,65 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
+    def test_render_auxiliary_edition__broken_ctype(self):
+        "ContentType with no related model."
+        user = self.get_root_user()
+
+        ct = ContentType.objects.create(app_label='creme_core', model='invalid')
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        address = FakeAddress.objects.create(entity=gainax, country='Japan')
+
+        address = self.refresh(address)
+        address.department = 'Tokyo'
+        address.save()
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
+        hline.value = json.dumps([
+            'Gainax',
+            [
+                ct.id,  # <==
+                address.id,
+                'Tokyo Japan',
+            ],
+            ['department', 'Tokyo'],
+        ])
+        hline.save()
+
+        with self.assertLogs(level='CRITICAL'):
+            render = self.render_line(hline, user)
+
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-auxiliary_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details"></ul>'
+            '<div>'.format(
+                title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': '??',
+                    'auxiliary_value': address,
+                },
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
+            ),
+            render,
+        )
+
+        # Cleanup
+        ct.delete()
+        ContentType.objects.clear_cache()
+
     def test_render_auxiliary_deletion(self):
         user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
