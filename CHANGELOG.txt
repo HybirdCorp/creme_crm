@@ -15,6 +15,7 @@
 
     Non breaking changes :
     ----------------------
+        # The history rendering has been improved code to manage ContentTypes badly removed.
         # The base class view 'creme_core.views.generic.delete.CremeModelDeletion' now manages
           exception with type 'creme_core.core.exceptions.SpecificProtectedError'.
           It will display a better error message if the method 'delete()' of a model raises one.
