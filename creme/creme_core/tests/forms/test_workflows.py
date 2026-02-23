@@ -183,9 +183,20 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             field2.clean(self._build_value(rtype=rtype2, model=FakeActivity)),
         )
 
-    def test_empty(self):
+    def test_empty__not_required(self):
         field = RelationAddingTriggerField(model=FakeContact, required=False)
         self.assertIsNone(field.clean(None))
+
+        # -----------
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of',
+        ).symmetric(
+            id='creme_core-object_client', predicate='has a client',
+        ).get_or_create()[0]
+        self.assertIsNone(field.clean(json_dump({
+            'rtype': rtype.id,
+            # 'ctype': ...,
+        })))
 
     def test_empty__required(self):
         field = RelationAddingTriggerField(model=FakeContact)
