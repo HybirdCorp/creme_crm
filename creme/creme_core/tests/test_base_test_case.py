@@ -59,23 +59,28 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
+    # TODO: remove when minimal version is Python 3.14
     def test_assertHasAttr(self):
         self.assertHasAttr(1, 'bit_length')
         self.assertHasAttr([], 'append')
 
-        with self.assertRaises(self.failureException) as cm1:
+        # with self.assertRaises(self.failureException) as cm1:
+        #     self.assertHasAttr(1, 'invalid')
+        # self.assertEqual(
+        #     '<1> has no attribute named "invalid".',
+        #     str(cm1.exception),
+        # )
+        with self.assertRaises(self.failureException):
             self.assertHasAttr(1, 'invalid')
-        self.assertEqual(
-            '<1> has no attribute named "invalid".',
-            str(cm1.exception),
-        )
 
-        with self.assertRaises(self.failureException) as cm2:
+        # with self.assertRaises(self.failureException) as cm2:
+        #     self.assertHasAttr([], 'unknown')
+        # self.assertEqual(
+        #     '<[]> has no attribute named "unknown".',
+        #     str(cm2.exception),
+        # )
+        with self.assertRaises(self.failureException):
             self.assertHasAttr([], 'unknown')
-        self.assertEqual(
-            '<[]> has no attribute named "unknown".',
-            str(cm2.exception),
-        )
 
     def test_assertHasNoAttr(self):
         self.assertHasNoAttr(1, 'invalid')
@@ -269,6 +274,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm.exception)
         )
 
+    # TODO: remove when minimal version is Python 3.
     def test_assertIsSubclass(self):
         class A:
             pass
@@ -281,24 +287,28 @@ class BaseTestCaseTestCase(CremeTestCase):
 
         self.assertIsSubclass(C, A)
 
-        with self.assertRaises(self.failureException) as cm:
+        # with self.assertRaises(self.failureException) as cm:
+        #     self.assertIsSubclass(B, A)
+        # self.assertEqual(
+        #     "<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+        #     "test_assertIsSubclass.<locals>.B'> is not a subclass of <class "
+        #     "'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+        #     "test_assertIsSubclass.<locals>.A'> "
+        #     "[list of parent classes "
+        #     "(<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+        #     "test_assertIsSubclass.<locals>.B'>, "
+        #     "<class 'object'>)]",
+        #     str(cm.exception),
+        # )
+        with self.assertRaises(self.failureException):
             self.assertIsSubclass(B, A)
-        self.assertEqual(
-            "<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
-            "test_assertIsSubclass.<locals>.B'> is not a subclass of <class "
-            "'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
-            "test_assertIsSubclass.<locals>.A'> "
-            "[list of parent classes "
-            "(<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
-            "test_assertIsSubclass.<locals>.B'>, "
-            "<class 'object'>)]",
-            str(cm.exception),
-        )
 
         msg = 'My message'
-        with self.assertRaises(self.failureException) as cm:
+        # with self.assertRaises(self.failureException) as cm:
+        #     self.assertIsSubclass(B, A, msg=msg)
+        # self.assertEqual(msg, str(cm.exception))
+        with self.assertRaises(self.failureException):
             self.assertIsSubclass(B, A, msg=msg)
-        self.assertEqual(msg, str(cm.exception))
 
     def test_assertIsList(self):
         empty_list = []
@@ -485,6 +495,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm.exception)
         )
 
+    # TODO: remove when minimal version is Python 3.14
     def test_assertStartsWith(self):
         self.assertStartsWith('Hello world', 'Hello')
         self.assertStartsWith('foobar', 'foo')
@@ -492,10 +503,11 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm:
             self.assertStartsWith('Hello world', 'foo')
         self.assertEqual(
-            "The string 'Hello world' does not start with 'foo'",
+            "'Hello world' doesn't start with 'foo'",
             str(cm.exception),
         )
 
+    # TODO: remove when minimal version is Python 3.14
     def test_assertEndsWith(self):
         self.assertEndsWith('Hello world', 'orld')
         self.assertEndsWith('foobar', 'bar')
@@ -503,11 +515,11 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm:
             self.assertEndsWith('Hello world', 'bar')
         self.assertEqual(
-            "The string 'Hello world' does not end with 'bar'",
+            "'Hello world' doesn't end with 'bar'",
             str(cm.exception),
         )
 
-    def test_assertValidationError01(self):
+    def test_assertValidationError(self):
         err = ValidationError(message='Foo')
         self.assertValidationError(err, messages='Foo')
         self.assertValidationError(err, messages=['Foo'])

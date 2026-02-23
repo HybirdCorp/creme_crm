@@ -443,6 +443,7 @@ class _CremeTestCase:
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)
 
+    # TODO: remove when minimal version is Python 3.14
     def assertHasAttr(self, o, attr_name):
         if not hasattr(o, attr_name):
             self.fail(f'<{o}> has no attribute named "{attr_name}".')
@@ -471,6 +472,7 @@ class _CremeTestCase:
 
         return index
 
+    # TODO: remove when minimal version is Python 3.14
     def assertIsSubclass(self, cls, parent_cls, msg=None):
         if not issubclass(cls, parent_cls):
             if msg is None:
@@ -832,13 +834,15 @@ class _CremeTestCase:
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2, exclude_internal)
 
+    # TODO: remove when minimal version is Python 3.14
     def assertStartsWith(self, s, prefix):
         if not s.startswith(prefix):
-            raise self.failureException(f'The string {s!r} does not start with {prefix!r}')
+            raise self.failureException(f"{s!r} doesn't start with {prefix!r}")
 
+    # TODO: remove when minimal version is Python 3.14
     def assertEndsWith(self, s, prefix):
         if not s.endswith(prefix):
-            raise self.failureException(f'The string {s!r} does not end with {prefix!r}')
+            raise self.failureException(f"{s!r} doesn't end with {prefix!r}")
 
     # TODO: add a context manager assertRaisesValidationError() ?
     def assertValidationError(
