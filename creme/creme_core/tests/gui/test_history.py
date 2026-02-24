@@ -1731,6 +1731,7 @@ class HistoryRenderTestCase(CremeTestCase):
             ),
             render,
         )
+        ct.delete()  # Cleanup
 
     def test_auxiliary_deletion(self):
         user = self.get_root_user()
