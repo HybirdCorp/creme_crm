@@ -26,12 +26,18 @@ commands:
       - checkout:
           path: << pipeline.parameters.source_path >>
 
-  install-creme-system-packages:
+  install-system-packages:
     description: Install creme dependencies
     steps:
       - run: sudo apt update
       # Weasyprint => pango & libharfbuzz
-      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 latexmk texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
+#      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 latexmk texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
+      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
+
+  install-latex:
+    description: Install latex packages (long)
+    steps:
+      - run: sudo apt install -y latexmk texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
 
   install-py-dev-env:
     steps:
@@ -164,7 +170,7 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout-creme
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - run: make -C << pipeline.parameters.source_path >> isort-check
 
@@ -174,7 +180,7 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout-creme
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - run: flake8 << pipeline.parameters.source_path >>/creme/ --config << pipeline.parameters.source_path >>/setup.cfg
 
@@ -194,7 +200,7 @@ jobs:
           encoding: UTF-8
       - wait-database:
           port: 3306
-      - install-creme-system-packages
+      - install-system-packages
       - run: sudo apt install -y mariadb-client
       - install-py-dev-env
       - create-creme-project
@@ -219,7 +225,7 @@ jobs:
           encoding: UTF-8
       - wait-database:
           port: 5432
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests:
@@ -236,7 +242,7 @@ jobs:
 #      - setup-locale:
 #          language: fr_FR
 #          encoding: UTF-8
-#      - install-creme-system-packages
+#      - install-system-packages
 #      - install-py-dev-env
 #      - create-creme-project
 #      - setup-creme-unit-tests
@@ -251,7 +257,8 @@ jobs:
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
-      - install-creme-system-packages
+      - install-system-packages
+      - install-latex
       - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
@@ -275,7 +282,7 @@ jobs:
           encoding: UTF-8
       - wait-database:
           port: 5432
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests:
@@ -292,7 +299,7 @@ jobs:
 #      - setup-locale:
 #          language: fr_FR
 #          encoding: UTF-8
-#      - install-creme-system-packages
+#      - install-system-packages
 #      - install-py-dev-env
 #      - create-creme-project
 #      - setup-creme-unit-tests
@@ -308,7 +315,7 @@ jobs:
 #      - setup-locale:
 #          language: fr_FR
 #          encoding: UTF-8
-#      - install-creme-system-packages
+#      - install-system-packages
 #      - install-py-dev-env
 #      - create-creme-project
 #      - setup-creme-unit-tests
@@ -328,7 +335,7 @@ jobs:
           encoding: UTF-8
       - wait-database:
           port: 3306
-      - install-creme-system-packages
+      - install-system-packages
       - run: sudo apt install -y mariadb-client
       - install-py-dev-env
       - create-creme-project
@@ -345,7 +352,7 @@ jobs:
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
@@ -360,7 +367,8 @@ jobs:
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
-      - install-creme-system-packages
+      - install-system-packages
+      - install-latex
       - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
@@ -371,7 +379,7 @@ jobs:
      - image: cimg/python:3.10-node
     steps:
       - checkout-creme
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - create-creme-project
       - setup-creme-statics
@@ -409,7 +417,7 @@ jobs:
 #      - browser-tools/install-browser-tools
       - browser-tools/install_browser_tools
       - checkout-creme
-      - install-creme-system-packages
+      - install-system-packages
       - install-py-dev-env
       - create-creme-project
       - setup-creme-statics
