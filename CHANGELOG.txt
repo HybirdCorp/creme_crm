@@ -287,6 +287,8 @@
             - There is no "back" button in the template "creme_core/detailview.html" anymore.
             - Beware if you have overridden 'creme_core/bricks/frags/hat-card-title-indicators.html'
               because the new "Pinned" indicator has been added in it.
+        # In Javascript :
+            - 'creme.widget.Editor' widget ('ui-creme-editor' in html) is replaced by 'creme.widget.TinyMCEditor' ('ui-creme-tinymceditor' in html)
         # Apps :
             * Reports :
                 - The entity model 'ReportGraph' has been replaced by the new simple model 'ReportChart'
