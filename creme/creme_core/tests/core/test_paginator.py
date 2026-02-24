@@ -12,7 +12,9 @@ from creme.creme_core.core.paginator import (
     InvalidPage,
     LastPage,
 )
+# from creme.creme_core.models import UserRole
 from creme.creme_core.models import (
+    FakeAddress,
     FakeContact,
     FakeDocument,
     FakeFolder,
@@ -21,7 +23,6 @@ from creme.creme_core.models import (
     FakeInvoiceLine,
     FakeOrganisation,
     FakeSector,
-    UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.profiling import CaptureQueriesContext
@@ -202,10 +203,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             FlowPaginator(contacts, key='languages__name', per_page=2, count=count)
 
-        # No ordering
-        self.assertFalse(UserRole._meta.ordering)
-        with self.assertRaises(ValueError):
-            FlowPaginator(contacts, key='user__role', per_page=2, count=count)
+        # # No ordering
+        # self.assertFalse(UserRole._meta.ordering)
+        # with self.assertRaises(ValueError):
+        #     FlowPaginator(contacts, key='user__role', per_page=2, count=count)
+        self.assertFalse(FakeAddress._meta.ordering)
+        with self.assertRaises(ValueError) as cm:
+            FlowPaginator(contacts, key='address', per_page=2, count=count)
+        self.assertIn('(not order-able)', str(cm.exception))
 
     def test_not_ordered(self):
         with self.assertRaises(ValueError):

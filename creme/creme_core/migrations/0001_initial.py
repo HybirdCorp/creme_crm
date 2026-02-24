@@ -89,6 +89,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name':        'Role',
                 'verbose_name_plural': 'Roles',
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
