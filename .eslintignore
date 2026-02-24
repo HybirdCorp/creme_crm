@@ -28,4 +28,5 @@
 **/sketch/js/lib/filesaver-*.js
 !**/sketch/js/lib/d3-radial-axis.js
 **/tiny_mce/**
+**/tinymce/**
 **/media/static/**
