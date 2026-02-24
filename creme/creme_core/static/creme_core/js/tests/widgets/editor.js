@@ -2,8 +2,8 @@
 
 (function($) {
 
-QUnit.module("creme.widget.Editor", new QUnitMixin(QUnitEventMixin,
-                                                   QUnitWidgetMixin, {
+QUnit.module("creme.widget.TinyMCEditor", new QUnitMixin(QUnitEventMixin,
+                                                         QUnitWidgetMixin, {
     afterEach: function() {
         creme.widget.shutdown(this.qunitFixture());
     },
@@ -21,48 +21,19 @@ QUnit.module("creme.widget.Editor", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.widget.Editor.create', function(assert) {
+QUnit.test('creme.widget.TinyMCEditor.create', function(assert) {
     var element = $(
-       '<textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto"></textarea>'
+       '<textarea widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto"></textarea>'
     ).appendTo(this.qunitFixture());
 
-    var faker = this.withTinymceLoaderFaker(function() {
-        var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element);
 
+    this.awaitsPromise(widget.editor().editorSetup(), function() {
         assert.equal(element.hasClass('widget-active'), true);
         assert.equal(element.hasClass('widget-ready'), true);
-        assert.equal(widget.editor() instanceof tinymce.Editor, true);
+        assert.equal(widget.editor() instanceof creme.TinyMCEditor, true);
+        assert.equal(widget.editor().editor() instanceof tinymce.Editor, true);
     });
-
-    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
-        "spellchecker",
-        "pagebreak",
-        "style",
-        "layer",
-        "table",
-        "save",
-        "advhr",
-        "advimage",
-        "advlink",
-        "emotions",
-        "iespell",
-        "inlinepopups",
-        "insertdatetime",
-        "preview",
-        "media",
-        "searchreplace",
-        "print",
-        "contextmenu",
-        "paste",
-        "directionality",
-        "fullscreen",
-        "noneditable",
-        "visualchars",
-        "nonbreaking",
-        "xhtmlxtras",
-        "template",
-        "fullpage"
-    ]);
 });
 
 }(jQuery));
