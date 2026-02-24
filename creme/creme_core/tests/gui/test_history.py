@@ -1746,6 +1746,10 @@ class HistoryRenderTestCase(CremeTestCase):
             render,
         )
 
+        # Cleanup
+        ct.delete()
+        ContentType.objects.clear_cache()
+
     def test_render_auxiliary_deletion(self):
         user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
