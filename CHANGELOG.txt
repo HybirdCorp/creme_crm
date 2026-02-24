@@ -25,7 +25,10 @@
               <required=False> has been fixed. It did not happen in vanilla code.
             - A crash in 'creme_core.forms.fields.JSONField._clean_entity()' has been fixed.
               It happened with '0' as ContentType's ID. It did not happen in vanilla code.
-
+        # In Javascript :
+            - Add '_.formDataEntriesAll'; completes the standard FormData.entries() using FormData.getAll() to retrieve all the data of a key.
+            - The '_.assignFormData' function now accepts multiple arguments like Object.assign() and also support FormData objects.
+            - Fix issue in creme.ajax.Query() : merging of FormData & dict wasn't working.
 
 == Version 2.7.5 ==
 

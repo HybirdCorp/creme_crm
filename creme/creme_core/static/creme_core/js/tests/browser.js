@@ -144,4 +144,47 @@ QUnit.parametrize('BrowserVersion.isFirefox', [
     });
 });
 
+QUnit.parametrize('BrowserVersion.isJSDom', [
+    [{name: 'nodejs'}, true],
+    [{name: 'other'}, false]
+], function(windowInfo, expected, assert) {
+    var faker = new PropertyFaker({
+        instance: window, props: windowInfo
+    });
+
+    faker.with(function() {
+        equal(BrowserVersion.isJSDom(), expected);
+    });
+});
+
+QUnit.parametrize('BrowserVersion.isWebWorker', [
+    [undefined, false],
+    [{}, false],
+    [{constructor: 'any'}, false],
+    [{constructor: {name: "DedicatedWorkerGlobalScope"}}, true]
+], function(selfInfo, expected, assert) {
+    var faker = new PropertyFaker({
+        instance: window, props: {self: selfInfo}
+    });
+
+    faker.with(function() {
+        equal(BrowserVersion.isWebWorker(), expected);
+    });
+});
+
+QUnit.parametrize('BrowserVersion.isNode', [
+    [undefined, false],
+    [{versions: null}, false],
+    [{versions: {node: null}}, false],
+    [{versions: {node: "20.0.2"}}, true]
+], function(processInfo, expected, assert) {
+    var faker = new PropertyFaker({
+        instance: window, props: {process: processInfo}
+    });
+
+    faker.with(function() {
+        equal(BrowserVersion.isNode(), expected);
+    });
+});
+
 }(jQuery));
