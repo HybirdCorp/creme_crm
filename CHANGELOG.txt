@@ -73,6 +73,8 @@
                   use 'CTypeForeignKeyEnumerator' (& set the argument 'allowed_models') instead.
                 - The method 'meta.Order.reverse()' is deprecated;
                   use the method 'reversed()' instead.
+            - The method 'creme_core.forms.fields.JSONField._clean_ctype()' got an argument
+              "required" which you should fill. Hint: pass <self.required> to keep the same behaviour.
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.
@@ -248,6 +250,8 @@
               has been renamed "quickform_registry".
             - In the classes 'EnhancedMultipleChoiceField' & 'EnhancedModelMultipleChoiceField',
               the attribute 'initial' is not a set anymore (the value you assign is not changed).
+            - The attribute of 'GenericEntityField._clean_ctype()' has been renamed "ctype_id"
+              to respect the parent signature.
         # In 'creme_core.gui' :
             - The method 'button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
             - The method 'bricks.Brick._render()' uses now the "template_name" found in the passed
