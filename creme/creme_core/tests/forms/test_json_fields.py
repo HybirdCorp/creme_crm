@@ -154,6 +154,27 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             '123', clean_value(data={'my_field': '123'}, name='my_field', type=str),
         )
 
+    def test_clean_ctype__not_required(self):
+        clean_type = JSONField(required=False)._clean_ctype
+        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertEqual(ct, clean_type(ct.id))
+
+        self.assertIsNone(clean_type(0))
+        self.assertIsNone(clean_type(None))
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_type(self.UNUSED_PK)
+        self.assertEqual('ctypedoesnotexist', cm.exception.code)
+
+    def test_clean_ctype__required(self):
+        clean_type = JSONField(required=True)._clean_ctype
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertEqual(ct, clean_type(ct.id))
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_type(None)
+        self.assertEqual('ctyperequired', cm.exception.code)
+
     def test_clean_entity__not_required(self):
         user = self.get_root_user()
         clean_entity = JSONField(user=user, required=False)._clean_entity

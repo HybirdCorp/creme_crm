@@ -227,8 +227,7 @@ class JSONField(fields.CharField):
 
         return self._value_from_unjsonfied(data)
 
-    def _clean_ctype(self, ctype_id: int) -> ContentType | None:
-        # TODO: validate integer (avoid putting strings in the ContentType's cache?)?
+    def _clean_ctype(self, ctype_id: int | None) -> ContentType | None:
         if not ctype_id:
             if self.required:
                 raise ValidationError(
