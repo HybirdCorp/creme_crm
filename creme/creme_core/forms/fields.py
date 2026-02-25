@@ -17,6 +17,7 @@
 ################################################################################
 
 import itertools
+import warnings
 from collections import defaultdict
 from collections.abc import Callable, Collection, Iterable, Iterator
 from copy import deepcopy
@@ -147,6 +148,7 @@ class JSONField(fields.CharField):
 
         return []
 
+    # TODO: keyword only
     def clean_value(self, data, name, type, required=True, required_error_key='required'):
         if not data:
             raise ValidationError(
@@ -192,7 +194,11 @@ class JSONField(fields.CharField):
                 code='invalidformat',
             ) from e
 
-        if expected_type is not None and data is not None and not isinstance(data, expected_type):
+        if (
+            expected_type is not None
+            and data is not None
+            and not isinstance(data, expected_type)
+        ):
             raise ValidationError(
                 self.error_messages['invalidtype'],
                 code='invalidtype',
@@ -227,9 +233,20 @@ class JSONField(fields.CharField):
 
         return self._value_from_unjsonfied(data)
 
-    def _clean_ctype(self, ctype_id: int | None) -> ContentType | None:
+    def _clean_ctype(self,
+                     ctype_id: int | None,
+                     *,
+                     required: bool | None = None,  # TODO: remove None in creme 3.0
+                     ) -> ContentType | None:
+        if required is None:
+            warnings.warn(
+                'In JSONField._clean_ctype(), using an implicit value for the '
+                'argument "required" is now deprecated.', DeprecationWarning,
+            )
+            required = self.required
+
         if not ctype_id:
-            if self.required:
+            if required:
                 raise ValidationError(
                     self.error_messages['ctyperequired'],
                     code='ctyperequired',
@@ -257,7 +274,7 @@ class JSONField(fields.CharField):
         @raise: ValidationError.
         """
         if not isinstance(ctype, ContentType):
-            ctype = self._clean_ctype(ctype)
+            ctype = self._clean_ctype(ctype, required=self.required)
             if ctype is None:
                 return None
 
@@ -524,21 +541,39 @@ class GenericEntityField(EntityCredsJSONField):
         }
 
     def _value_from_unjsonfied(self, data):
+        # clean_value = self.clean_value
+        # required = self.required
+        #
+        # ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
+        # ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
+        #
+        # entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
+        # ctype = self._clean_ctype(ctype_pk)
+        #
+        # return self._check_entity_perms(
+        #     entity=self._clean_entity(ctype=ctype, entity_pk=entity_pk),
+        # ) if ctype else None
         clean_value = self.clean_value
         required = self.required
 
-        ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
-        ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
+        ctype = self._clean_ctype(
+            ctype_id=clean_value(
+                data=clean_value(data, 'ctype', dict, required, 'ctyperequired'),
+                name='id', type=int, required=False,
+            ),
+            required=required,
+        )
+        if ctype is None:
+            return None
 
-        entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
-        ctype = self._clean_ctype(ctype_pk)
+        return self._check_entity_perms(entity=self._clean_entity(
+            ctype=ctype,
+            entity_pk=clean_value(data, 'entity', int, required, 'entityrequired'),
+        ))
 
-        return self._check_entity_perms(
-            entity=self._clean_entity(ctype=ctype, entity_pk=entity_pk),
-        ) if ctype else None
-
-    def _clean_ctype(self, ctype_pk):
-        ctype = super()._clean_ctype(ctype_pk)
+    # def _clean_ctype(self, ctype_pk):
+    def _clean_ctype(self, ctype_id, *, required=None):
+        ctype = super()._clean_ctype(ctype_id, required=required)
 
         if ctype and not any(
             ctype == allowed_ct for allowed_ct in self.get_ctypes()
@@ -630,9 +665,9 @@ class MultiGenericEntityField(GenericEntityField):
 
         # Build the list of entities (ignore invalid entries)
         for ct_id, ctype_entity_pks in entities_by_ctype.items():
-            ctype_entities = self._clean_ctype(ct_id) \
-                                 .get_all_objects_for_this_type() \
-                                 .in_bulk(ctype_entity_pks)
+            ctype_entities = self._clean_ctype(
+                ct_id, required=self.required,
+            ).get_all_objects_for_this_type().in_bulk(ctype_entity_pks)
 
             if not all(pk in ctype_entities for pk in ctype_entity_pks):
                 raise ValidationError(
@@ -724,16 +759,23 @@ class RelationEntityField(EntityCredsJSONField):
         clean_value = self.clean_value
         rtype_pk = clean_value(data, 'rtype',  str)
 
-        ctype_pk = clean_value(data, 'ctype',  int, required=False)
-        if not ctype_pk:
-            return self._return_none_or_raise(self.required, 'ctyperequired')
+        # ctype_pk = clean_value(data, 'ctype',  int, required=False)
+        # if not ctype_pk:
+        #     return self._return_none_or_raise(self.required, 'ctyperequired')
+        ctype = self._clean_ctype(
+            ctype_id=clean_value(data, 'ctype',  int, required=False),
+            required=self.required,
+        )
+        if ctype is None:
+            return None
 
         entity_pk = clean_value(data, 'entity', int, required=False)
         if not entity_pk:
             return self._return_none_or_raise(self.required, 'entityrequired')
 
         rtype = self._clean_rtype(rtype_pk)
-        entity = self._clean_entity(ctype_pk, entity_pk)
+        # entity = self._clean_entity(ctype_pk, entity_pk)
+        entity = self._clean_entity(ctype, entity_pk)
         self._check_entity_perms(entity)
 
         Relation(
