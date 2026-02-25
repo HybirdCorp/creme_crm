@@ -680,27 +680,18 @@ class _AuxiliaryEditionExplainer(HistoryLineExplainer):
         # TODO: use aux_id to display an up-to-date value ??
         ct_id, __aux_id, str_obj = modifications[0]
         try:
-            ctype = ContentType.objects.get_for_id(ct_id)
+            ctype = ContentType.objects.get_fresh_for_id(ct_id)
         except ContentType.DoesNotExist:
             ctype = None
-            model = None
-        else:
-            model = ctype.model_class()
-            if model is None:
-                logger.critical(
-                    'The line id=%s references the ContentType id=%s which '
-                    'seems to be invalid', hline.id, ctype.id,
-                )
-                ctype = None
 
         self._aux_ctype = ctype
         self._aux_value = str_obj
         self._field_explainers = [
             *self._explainers_for_fields(
-                model_class=model,
+                model_class=ctype.model_class(),
                 modifications=modifications[1:],
             ),
-        ] if model else []
+        ] if ctype else []
 
     def get_context(self):
         context = super().get_context()

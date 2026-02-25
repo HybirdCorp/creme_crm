@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -347,7 +347,7 @@ class HistoryBrick(QuerysetBrick):
     def _populate_related_real_entities(hlines):
         hlines = [hline for hline in hlines if hline.entity_id]
         entities_ids_by_ct = defaultdict(set)
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
 
         for hline in hlines:
             ct_id = hline.entity_ctype_id

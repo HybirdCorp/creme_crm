@@ -60,7 +60,7 @@ class _BatchProcessType(JobType):
         return efilter
 
     def _get_model(self, job_data):
-        return ContentType.objects.get_for_id(job_data['ctype']).model_class()
+        return ContentType.objects.get_fresh_for_id(job_data['ctype']).model_class()
 
     def _humanize_validation_error(self, entity, ve):
         get_field = entity._meta.get_field

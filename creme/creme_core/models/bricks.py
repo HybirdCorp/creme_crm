@@ -548,7 +548,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return f'{self._brick_id_prefix}-{self.uuid}'
 
     def _dump_cells_map(self):
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
         self.json_cells_map = {
             # ctype_as_key(get_ct(ct_id)): [cell.to_dict(portable=True) for cell in cells]
             get_ct(ct_id).portable_key(): [cell.to_dict(portable=True) for cell in cells]
@@ -594,7 +594,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
     def iter_cells(self) -> Iterator[tuple[ContentType, list[EntityCell]]]:
         "Beware: do not modify the returned objects."
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
 
         for ct_id, cells in self._cells_by_ct().items():
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)

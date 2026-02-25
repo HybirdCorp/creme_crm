@@ -101,7 +101,8 @@ def get_ctype_or_404(ct_id: int | str) -> ContentType:
     @raise: Http404 Exception if the ContentType does not exist.
     """
     try:
-        ct = ContentType.objects.get_for_id(ct_id)
+        # ct = ContentType.objects.get_for_id(ct_id)
+        ct = ContentType.objects.get_fresh_for_id(ct_id)
     except (ValueError, ContentType.DoesNotExist) as e:
         raise Http404(f'No content type with this id: {ct_id}') from e
 

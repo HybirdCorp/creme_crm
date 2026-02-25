@@ -624,7 +624,7 @@ class SpecificRelationsBrick(QuerysetBrick):
         # Entities that do not have a customised columns setting
         unconfigured_group: list[CremeEntity] = []
 
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
 
         for ct_id, entities in entities_by_ct.items():
             cells = config_item.get_cells(get_ct(ct_id))
