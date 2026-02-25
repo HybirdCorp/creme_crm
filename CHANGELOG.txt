@@ -73,8 +73,9 @@
                   use 'CTypeForeignKeyEnumerator' (& set the argument 'allowed_models') instead.
                 - The method 'meta.Order.reverse()' is deprecated;
                   use the method 'reversed()' instead.
-            - The method 'creme_core.forms.fields.JSONField._clean_ctype()' got an argument
-              "required" which you should fill. Hint: pass <self.required> to keep the same behaviour.
+            - In 'creme_core.forms.fields.JSONField', the methods '_clean_ctype()'
+              & _clean_entity() got an argument "required" which you should fill.
+              Hint: pass <self.required> to keep the same behaviour.
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.
