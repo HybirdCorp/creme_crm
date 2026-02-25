@@ -38,3 +38,33 @@ class ContentTypeTestCase(CremeTestCase):
         with self.assertNoException():
             got_ct = ContentType.objects.get_by_portable_key(key)
         self.assertEqual(ct, got_ct)
+
+    def test_get_fresh_for_id(self):
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertEqual(ct, ContentType.objects.get_fresh_for_id(ct.id))
+
+        # ---
+        with self.assertNoLogs():
+            with self.assertRaises(ContentType.DoesNotExist) as exc_cm1:
+                ContentType.objects.get_fresh_for_id(self.UNUSED_PK)
+            self.assertEqual(
+                'ContentType matching query does not exist.', str(exc_cm1.exception),
+            )
+
+        # ---
+        stale_ct = ContentType.objects.create(app_label='creme_core', model='i_am_stale')
+        with self.assertLogs(level='CRITICAL') as logs_cm:
+            with self.assertRaises(ContentType.DoesNotExist) as exc_cm2:
+                ContentType.objects.get_fresh_for_id(stale_ct.id)
+        self.assertEqual(
+            f'ContentType with id={stale_ct.id} is stale.', str(exc_cm2.exception),
+        )
+        self.assertListEqual(
+            [
+                f'CRITICAL:creme.creme_core.models.content_type:'
+                f'ContentType with id={stale_ct.id} is stale; it seems the '
+                f'model has been removed but not the related ContentType.'
+            ],
+            logs_cm.output,
+        )
+        stale_ct.delete()  # Cleanup

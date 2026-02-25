@@ -156,6 +156,7 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         self.hook_str()
         self.hook_fields()
         self.hook_portable_key()
+        self.add_extra_manager_methods()
 
     def hook_order(self):
         from django.contrib.contenttypes.models import ContentType
@@ -188,6 +189,13 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         ct_models.ContentType.portable_key = creme_ct.ct_portable_key
         # NB: we hook the default manager instead of adding one to use only one cache.
         ct_models.ContentTypeManager.get_by_portable_key = creme_ct.get_ct_by_portable_key
+
+    def add_extra_manager_methods(self):
+        from django.contrib.contenttypes.models import ContentTypeManager
+
+        from .models import content_type as creme_ct
+
+        ContentTypeManager.get_fresh_for_id = creme_ct.get_fresh_ct_for_id
 
 
 class CremeAppConfig(AppConfig):

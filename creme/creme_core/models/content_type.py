@@ -21,7 +21,11 @@
 # SOFTWARE.
 ################################################################################
 
+import logging
+
 from .utils import model_verbose_name
+
+logger = logging.getLogger(__name__)
 
 
 # Hint: can be used as __str__() method (see apps.py)
@@ -40,3 +44,19 @@ def get_ct_by_portable_key(manager, key):
     app_label, model_name = key.split('.', 2)
 
     return manager.get_by_natural_key(app_label=app_label, model=model_name)
+
+
+# Hint: can be used as method for manager (see apps.py)
+def get_fresh_ct_for_id(manager, id):
+    """Like get_ct_for_id(), but it raises an exception if the ContentType is stale
+    (the related model has been removed).
+    """
+    ct = manager.get_for_id(id)
+    if ct.model_class() is None:
+        logger.critical(
+            'ContentType with id=%s is stale; it seems the model has been '
+            'removed but not the related ContentType.', id,
+        )
+        raise manager.model.DoesNotExist(f'ContentType with id={id} is stale.')
+
+    return ct

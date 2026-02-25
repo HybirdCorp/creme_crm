@@ -361,7 +361,7 @@ class CustomFieldsBrick(SimpleBrick):
         for cfield in cfields:
             cfields_per_ct_id[cfield.content_type_id].append(cfield)
 
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
         ctypes = [
             _ContentTypeWrapper(get_ct(ct_id), ct_cfields)
             for ct_id, ct_cfields in cfields_per_ct_id.items()
@@ -908,7 +908,7 @@ class CustomBricksConfigBrick(PaginatedBrick):
         for cb_item in core_models.CustomBrickConfigItem.objects.order_by('name'):
             cbi_per_ctid[cb_item.content_type_id].append(cb_item)
 
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
         ctypes = [
             _ContentTypeWrapper(get_ct(ct_id), cb_items)
             for ct_id, cb_items in cbi_per_ctid.items()

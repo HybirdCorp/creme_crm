@@ -184,7 +184,7 @@ class PropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
         return ctype_ids
 
     def get_ctypes(self, ptype, exclude: bool):
-        get_ct = ContentType.objects.get_for_id
+        get_ct = ContentType.objects.get_fresh_for_id
         ctypes = [get_ct(ct_id) for ct_id in self.get_ctype_ids()]
 
         if not ctypes:

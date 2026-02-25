@@ -827,7 +827,7 @@ class RelationsConditionsField(_ConditionsField):
 
         if ct_id:
             try:
-                ct = ContentType.objects.get_for_id(ct_id)
+                ct = ContentType.objects.get_fresh_for_id(ct_id)
             except ContentType.DoesNotExist as e:
                 raise ValidationError(
                     self.error_messages['invalidct'],

@@ -239,7 +239,7 @@ class JSONField(fields.CharField):
             return None
 
         try:
-            ctype = ContentType.objects.get_for_id(ctype_id)
+            ctype = ContentType.objects.get_fresh_for_id(ctype_id)
         except ContentType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['ctypedoesnotexist'],
