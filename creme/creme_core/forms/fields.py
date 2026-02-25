@@ -265,26 +265,38 @@ class JSONField(fields.CharField):
         return ctype
 
     def _clean_entity(self,
-                      ctype: ContentType | int,
-                      entity_pk: int | str,
+                      ctype: ContentType | int | None,
+                      entity_pk: int | None,
+                      *,
+                      required: bool | None = None,  # TODO: remove None in creme 3.0
                       ) -> CremeEntity | None:
         """Clean a CremeEntity from its model & its PK.
         @param ctype: ContentType instance, or ContentType's PK.
         @param entity_pk: ID of CremeEntity instance.
+        @param required: <True> means a <None> result is allowed.
         @raise: ValidationError.
         """
+        if required is None:
+            warnings.warn(
+                'In JSONField._clean_entity(), using an implicit value for the '
+                'argument "required" is now deprecated.', DeprecationWarning,
+            )
+            required = self.required
+
         if not isinstance(ctype, ContentType):
-            ctype = self._clean_ctype(ctype, required=self.required)
+            ctype = self._clean_ctype(ctype, required=required)
             if ctype is None:
                 return None
 
         entity = None
 
         if not entity_pk:
-            if self.required:
+            if required:
                 raise ValidationError(
-                    self.error_messages['required'],
-                    code='required',
+                    # self.error_messages['required'],
+                    self.error_messages['entityrequired'],
+                    # code='required',
+                    code='entityrequired',
                 )
         else:
             model = ctype.model_class()
@@ -556,19 +568,19 @@ class GenericEntityField(EntityCredsJSONField):
         clean_value = self.clean_value
         required = self.required
 
-        ctype = self._clean_ctype(
-            ctype_id=clean_value(
-                data=clean_value(data, 'ctype', dict, required, 'ctyperequired'),
-                name='id', type=int, required=False,
-            ),
-            required=required,
-        )
-        if ctype is None:
-            return None
-
         return self._check_entity_perms(entity=self._clean_entity(
-            ctype=ctype,
-            entity_pk=clean_value(data, 'entity', int, required, 'entityrequired'),
+            ctype=self._clean_ctype(
+                ctype_id=clean_value(
+                    data=clean_value(
+                        data=data, name='ctype', type=dict,
+                        required=required, required_error_key='ctyperequired',
+                    ),
+                    name='id', type=int, required=False,
+                ),
+                required=required,
+            ),
+            entity_pk=clean_value(data=data, name='entity', type=int, required=False),
+            required=required,
         ))
 
     # def _clean_ctype(self, ctype_pk):
@@ -756,27 +768,45 @@ class RelationEntityField(EntityCredsJSONField):
         }
 
     def _value_from_unjsonfied(self, data):
-        clean_value = self.clean_value
-        rtype_pk = clean_value(data, 'rtype',  str)
-
+        # clean_value = self.clean_value
+        # rtype_pk = clean_value(data, 'rtype',  str)
+        #
         # ctype_pk = clean_value(data, 'ctype',  int, required=False)
         # if not ctype_pk:
         #     return self._return_none_or_raise(self.required, 'ctyperequired')
-        ctype = self._clean_ctype(
-            ctype_id=clean_value(data, 'ctype',  int, required=False),
-            required=self.required,
-        )
-        if ctype is None:
+        #
+        # entity_pk = clean_value(data, 'entity', int, required=False)
+        # if not entity_pk:
+        #     return self._return_none_or_raise(self.required, 'entityrequired')
+        #
+        # rtype = self._clean_rtype(rtype_pk)
+        # entity = self._clean_entity(ctype_pk, entity_pk)
+        # self._check_entity_perms(entity)
+        #
+        # Relation(
+        #     # user=self.user
+        #     subject_entity=entity,
+        #     type=rtype.symmetric_type,
+        # ).clean_subject_entity()
+        #
+        # return rtype, entity
+        clean_value = self.clean_value
+        required = self.required
+        # TODO: manage required=False??
+        rtype_pk = clean_value(data=data, name='rtype', type=str)
+
+        entity = self._check_entity_perms(entity=self._clean_entity(
+            ctype=self._clean_ctype(
+                ctype_id=clean_value(data=data, name='ctype', type=int, required=False),
+                required=required,
+            ),
+            entity_pk=clean_value(data=data, name='entity', type=int, required=False),
+            required=required,
+        ))
+        if entity is None:
             return None
 
-        entity_pk = clean_value(data, 'entity', int, required=False)
-        if not entity_pk:
-            return self._return_none_or_raise(self.required, 'entityrequired')
-
         rtype = self._clean_rtype(rtype_pk)
-        # entity = self._clean_entity(ctype_pk, entity_pk)
-        entity = self._clean_entity(ctype, entity_pk)
-        self._check_entity_perms(entity)
 
         Relation(
             # user=self.user

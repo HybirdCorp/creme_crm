@@ -200,14 +200,15 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_type(self.UNUSED_PK, required=False)
         self.assertEqual('ctypedoesnotexist', cm.exception.code)
 
-    def test_clean_entity__not_required(self):
+    def test_clean_entity__not_required__legacy(self):  # DEPRECATED
         user = self.get_root_user()
         clean_entity = JSONField(user=user, required=False)._clean_entity
 
         contact = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
-        self.assertEqual(
-            contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
-        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
+            )
         self.assertEqual(
             contact, clean_entity(ctype=contact.entity_type_id, entity_pk=contact.id),
         )
@@ -228,7 +229,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_entity(ctype=contact.entity_type, entity_pk=contact.id)
         self.assertEqual('isdeleted', cm.exception.code)
 
-    def test_clean_entity__required(self):
+    def test_clean_entity__required__legacy(self):  # DEPRECATED
         clean_entity = JSONField(required=True)._clean_entity
 
         with self.assertRaises(ValidationError) as cm:
@@ -241,7 +242,53 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
                 ctype=ContentType.objects.get_for_model(FakeContact),
                 entity_pk=0,
             )
-        self.assertEqual('required', cm.exception.code)
+        # self.assertEqual('required', cm.exception.code)
+        self.assertEqual('entityrequired', cm.exception.code)
+
+    def test_clean_entity(self):
+        user = self.get_root_user()
+        clean_entity = JSONField(user=user)._clean_entity
+
+        contact = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+        ctype = contact.entity_type
+        self.assertEqual(
+            contact,
+            clean_entity(ctype=ctype, entity_pk=contact.id, required=False),
+        )
+        self.assertEqual(
+            contact,
+            clean_entity(ctype=ctype, entity_pk=contact.id, required=True),
+        )
+
+        # Empty ---
+        self.assertIsNone(clean_entity(ctype=None,  entity_pk=contact.id, required=False))
+
+        self.assertIsNone(clean_entity(ctype=ctype, entity_pk=None, required=False))
+        self.assertIsNone(clean_entity(ctype=ctype, entity_pk=0,    required=False))
+
+        with self.assertRaises(ValidationError) as cm1:
+            clean_entity(ctype=ctype, entity_pk=0, required=True)
+        self.assertEqual('entityrequired', cm1.exception.code)
+
+        # ---
+        with self.assertRaises(ValidationError) as cm2:
+            clean_entity(ctype=ctype, entity_pk=self.UNUSED_PK, required=False)
+        self.assertEqual('doesnotexist', cm2.exception.code)
+
+    def test_clean_entity__deleted(self):
+        user = self.get_root_user()
+        field = JSONField(user=user)
+        contact = FakeContact.objects.create(
+            user=user, first_name='John', last_name='Doe',
+            is_deleted=True,  # <==
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field._clean_entity(
+                ctype=contact.entity_type, entity_pk=contact.id, required=False,
+            )
+
+        self.assertEqual('isdeleted', cm.exception.code)
 
     def test_clean__empty__required(self):
         code = 'required'
@@ -1269,14 +1316,15 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean__unknown_rtype(self):
-        contact = self.create_contact(user=self.get_root_user())
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
 
         # Message changes cause unknown rtype is ignored in allowed list
         self.assertFormfieldError(
-            field=RelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]),
+            field=RelationEntityField(user=user, allowed_rtypes=[rtype_id1, rtype_id2]),
             value=self._build_data(rtype_id1, contact),
             messages=_(
                 'This type of relationship causes a constraint error (id="%(rtype_id)s").'
@@ -1285,7 +1333,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean__forbidden_rtype(self):
-        contact = self.create_contact(user=self.get_root_user())
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         rtype1 = self.create_loves_rtype()
         rtype2 = self.create_hates_rtype()
@@ -1294,7 +1343,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ).symmetric(id='test-object_friend', predicate='has friend').get_or_create()[0]
 
         self.assertFormfieldError(
-            field=RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]),
+            field=RelationEntityField(user=user, allowed_rtypes=[rtype1.id, rtype2.id]),
             value=self._build_data(rtype3.id, contact),
             messages=_(
                 'This type of relationship causes a constraint error (id="%(rtype_id)s").'
@@ -1303,7 +1352,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean__forbidden_rtype__queryset(self):
-        contact = self.create_contact(user=self.get_root_user())
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         rtype1 = self.create_loves_rtype()
         rtype2 = self.create_hates_rtype()
@@ -1315,6 +1365,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         self.assertFormfieldError(
             field=RelationEntityField(
+                user=user,
                 allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]),
             ),
             value=self._build_data(rtype3.id, contact),
