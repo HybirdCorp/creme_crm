@@ -33828,7 +33828,7 @@
         }
         editor.focus();
     };
-    const hasImage = (dataTransfer) => exists(dataTransfer.files, (file) => /^image\//.test(file.type));
+    const hasImage = (dataTransfer) => exists(dataTransfer.files, (file) => new RegExp('^image/').test(file.type));
     const needsCustomInternalDrop = (dom, schema, target, dropContent) => {
         const parentTransparent = dom.getParent(target, (node) => isTransparentBlock(schema, node));
         const inSummary = !isNull(dom.getParent(target, 'summary'));
@@ -40615,7 +40615,7 @@
             let documentBaseURL = URI.getDocumentBaseUrl(document.location);
             // Check if the URL is a document based format like: http://site/dir/file and file:///
             // leave other formats like applewebdata://... intact
-            if (/^[^:]+:\/\/\/?[^\/]+\//.test(documentBaseURL)) {
+            if (new RegExp('^[^:]+:///?[^/]+/').test(documentBaseURL)) {
                 documentBaseURL = documentBaseURL.replace(/[\?#].*$/, '').replace(/[\/\\][^\/]+$/, '');
                 if (!/[\/\\]$/.test(documentBaseURL)) {
                     documentBaseURL += '/';
