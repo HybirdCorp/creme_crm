@@ -168,11 +168,7 @@ class ContentTypesConfig(VanillaContentTypesConfig):
     def hook_str(self):
         from django.contrib.contenttypes.models import ContentType
 
-        from .models.utils import model_verbose_name
-
-        def ct_str(this):
-            model = this.model_class()
-            return this.model if model is None else model_verbose_name(model)
+        from .models.content_type import ct_str
 
         # NB: the original prefix with app's name => ugly choices for final users
         ContentType.__str__ = ct_str
@@ -187,16 +183,11 @@ class ContentTypesConfig(VanillaContentTypesConfig):
     def hook_portable_key(self):
         from django.contrib.contenttypes import models as ct_models
 
-        def portable_key(this):
-            return '.'.join(this.natural_key())
+        from .models import content_type as creme_ct
 
-        def get_by_portable_key(this, key):
-            app_label, model_name = key.split('.', 2)
-
-            return this.get_by_natural_key(app_label=app_label, model=model_name)
-
-        ct_models.ContentType.portable_key = portable_key
-        ct_models.ContentTypeManager.get_by_portable_key = get_by_portable_key
+        ct_models.ContentType.portable_key = creme_ct.ct_portable_key
+        # NB: we hook the default manager instead of adding one to use only one cache.
+        ct_models.ContentTypeManager.get_by_portable_key = creme_ct.get_ct_by_portable_key
 
 
 class CremeAppConfig(AppConfig):
