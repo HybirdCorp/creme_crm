@@ -205,7 +205,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         clean_entity = JSONField(user=user, required=False)._clean_entity
 
-        contact = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+        contact = self.create_contact(user=user)
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(
                 contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
@@ -250,7 +250,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         clean_entity = JSONField(user=user)._clean_entity
 
-        contact = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+        contact = self.create_contact(user=user)
         ctype = contact.entity_type
         self.assertEqual(
             contact,
@@ -290,13 +290,36 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_entity(ctype=ctype, entity_pk=self.UNUSED_PK, required=False)
         self.assertEqual('doesnotexist', cm3.exception.code)
 
+    def test_clean_entity__filtered(self):
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        field = JSONField(required=True, user=user)
+        clean_entity = field._clean_entity
+        self.assertEqual(
+            contact,
+            clean_entity(FakeContact, contact.pk, qfilter=Q(pk=contact.pk)),
+        )
+
+        # ---
+        code = 'isexcluded'
+
+        with self.assertNoException():
+            message = field.default_error_messages[code]
+        self.assertEqual(message, _('«%(entity)s» violates the constraints.'))
+
+        with self.assertRaises(ValidationError) as cm:
+            clean_entity(FakeContact, contact.pk, qfilter=~Q(pk=contact.pk))
+
+        self.assertValidationError(
+            cm.exception,
+            messages=message % {'entity': str(contact)},
+            codes=code,
+        )
+
     def test_clean_entity__deleted(self):
         user = self.get_root_user()
         field = JSONField(user=user)
-        contact = FakeContact.objects.create(
-            user=user, first_name='John', last_name='Doe',
-            is_deleted=True,  # <==
-        )
+        contact = self.create_contact(user=user, is_deleted=True)
 
         with self.assertRaises(ValidationError) as cm:
             field._clean_entity(
@@ -417,7 +440,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             JSONField().from_python(val),
         )
 
-    def test_clean_entity_from_model(self):
+    def test_clean_entity_from_model(self):  # DEPRECATED
         user = self.get_root_user()
         contact = self.create_contact(user=user)
         field = JSONField(required=True)
@@ -439,7 +462,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_entity(FakeContact, self.UNUSED_PK)
         self.assertValidationError(cm2.exception, messages=message, codes='doesnotexist')
 
-    def test_clean_filtered_entity_from_model(self):
+    def test_clean_entity_from_model__filtered(self):  # DEPRECATED
         user = self.get_root_user()
         contact = self.create_contact(user=user)
         field = JSONField(required=True, user=user)
@@ -463,7 +486,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             codes=code,
         )
 
-    def test_clean_deleted_entity_from_model(self):
+    def test_clean_entity_from_model__deleted(self):  # DEPRECATED
         user = self.get_root_user()
         contact = self.create_contact(user=user, is_deleted=True)
         field = JSONField(user=user)
