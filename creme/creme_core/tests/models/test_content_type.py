@@ -67,4 +67,7 @@ class ContentTypeTestCase(CremeTestCase):
             ],
             logs_cm.output,
         )
-        stale_ct.delete()  # Cleanup
+
+        # Cleanup
+        stale_ct.delete()
+        ContentType.objects.clear_cache()

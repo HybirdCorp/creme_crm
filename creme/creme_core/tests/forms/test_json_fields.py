@@ -361,7 +361,9 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             messages=f'The ContentType with id={ctype.id} has no related model, it is a bug.',
         )
 
-        ctype.delete()  # Cleanup
+        # Cleanup
+        ctype.delete()
+        ContentType.objects.clear_cache()
 
     def test_clean__empty__required(self):
         code = 'required'
