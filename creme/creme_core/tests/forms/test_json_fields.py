@@ -37,6 +37,7 @@ from creme.creme_core.utils.content_type import entity_ctypes
 
 from .. import fake_forms
 from ..base import CremeTestCase
+from ..fake_models import FakeSector
 
 
 class _JSONFieldBaseTestCase(CremeTestCase):
@@ -259,21 +260,35 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             contact,
             clean_entity(ctype=ctype, entity_pk=contact.id, required=True),
         )
+        self.assertEqual(
+            contact,
+            clean_entity(ctype=FakeContact, entity_pk=contact.id, required=True),
+        )
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                contact,
+                clean_entity(ctype=ctype.id, entity_pk=contact.id, required=True),
+            )
 
         # Empty ---
-        self.assertIsNone(clean_entity(ctype=None,  entity_pk=contact.id, required=False))
+        self.assertIsNone(clean_entity(ctype=None, entity_pk=contact.id, required=False))
+
+        with self.assertRaises(ValidationError) as cm1:
+            clean_entity(ctype=None, entity_pk=0, required=True)
+        self.assertEqual('entityrequired', cm1.exception.code)
 
         self.assertIsNone(clean_entity(ctype=ctype, entity_pk=None, required=False))
         self.assertIsNone(clean_entity(ctype=ctype, entity_pk=0,    required=False))
 
-        with self.assertRaises(ValidationError) as cm1:
+        with self.assertRaises(ValidationError) as cm2:
             clean_entity(ctype=ctype, entity_pk=0, required=True)
-        self.assertEqual('entityrequired', cm1.exception.code)
+        self.assertEqual('entityrequired', cm2.exception.code)
 
         # ---
-        with self.assertRaises(ValidationError) as cm2:
+        with self.assertRaises(ValidationError) as cm3:
             clean_entity(ctype=ctype, entity_pk=self.UNUSED_PK, required=False)
-        self.assertEqual('doesnotexist', cm2.exception.code)
+        self.assertEqual('doesnotexist', cm3.exception.code)
 
     def test_clean_entity__deleted(self):
         user = self.get_root_user()
@@ -289,6 +304,41 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             )
 
         self.assertEqual('isdeleted', cm.exception.code)
+
+    def test_clean_entity__not_entity_model(self):
+        field = JSONField(user=self.get_root_user())
+        sector = FakeSector.objects.first()
+
+        with self.assertRaises(ValidationError) as cm1:
+            field._clean_entity(
+                ctype=FakeSector, entity_pk=sector.id, required=False,
+            )
+
+        message = 'The model <FakeSector> is not an entity, it is a bug.'
+        self.assertValidationError(cm1.exception, messages=message)
+
+        # ---
+        with self.assertRaises(ValidationError) as cm2:
+            field._clean_entity(
+                ctype=ContentType.objects.get_for_model(FakeSector),
+                entity_pk=sector.id, required=False,
+            )
+        self.assertValidationError(cm2.exception, messages=message)
+
+    def test_clean_entity__broken_ctype(self):
+        field = JSONField(user=self.get_root_user())
+        ctype = ContentType.objects.create(app_label='creme_core', model='broke')
+
+        with self.assertRaises(ValidationError) as cm1:
+            field._clean_entity(
+                ctype=ctype, entity_pk=1, required=False,
+            )
+        self.assertValidationError(
+            cm1.exception,
+            messages=f'The ContentType with id={ctype.id} has no related model, it is a bug.',
+        )
+
+        ctype.delete()  # Cleanup
 
     def test_clean__empty__required(self):
         code = 'required'

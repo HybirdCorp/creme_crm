@@ -265,13 +265,13 @@ class JSONField(fields.CharField):
         return ctype
 
     def _clean_entity(self,
-                      ctype: ContentType | int | None,
+                      ctype: ContentType | type[CremeEntity] | int | None,
                       entity_pk: int | None,
                       *,
                       required: bool | None = None,  # TODO: remove None in creme 3.0
                       ) -> CremeEntity | None:
         """Clean a CremeEntity from its model & its PK.
-        @param ctype: ContentType instance, or ContentType's PK.
+        @param ctype: ContentType instance, CremeEntity class or ContentType's PK.
         @param entity_pk: ID of CremeEntity instance.
         @param required: <True> means a <None> result is allowed.
         @raise: ValidationError.
@@ -283,44 +283,60 @@ class JSONField(fields.CharField):
             )
             required = self.required
 
-        if not isinstance(ctype, ContentType):
+        if ctype is None or not entity_pk:
+            if required:
+                raise ValidationError(
+                    self.error_messages['entityrequired'],
+                    code='entityrequired',
+                )
+            return None
+
+        if isinstance(ctype, ContentType):
+            model = ctype.model_class()
+            if model is None:
+                raise ValidationError(
+                    f'The ContentType with id={ctype.id} has no related model, it is a bug.',
+                )
+        elif isinstance(ctype, type):
+            model = ctype
+        else:
+            assert isinstance(ctype, int)
+
+            warnings.warn(
+                'Passing an integer to JSONField._clean_entity() is deprecated; '
+                'pass a ContentType instance or a CremeEntity model instead.',
+                DeprecationWarning,
+            )
+
             ctype = self._clean_ctype(ctype, required=required)
             if ctype is None:
                 return None
-
-        entity = None
-
-        if not entity_pk:
-            if required:
-                raise ValidationError(
-                    # self.error_messages['required'],
-                    self.error_messages['entityrequired'],
-                    # code='required',
-                    code='entityrequired',
-                )
-        else:
             model = ctype.model_class()
-            assert issubclass(model, CremeEntity)
 
-            try:
-                # TODO: use filter(..).first() if we allow extra Q filter
-                entity = model.objects.get(pk=entity_pk)
-            except model.DoesNotExist as e:
+        if not issubclass(model, CremeEntity):
+            raise ValidationError(
+                f'The model <{model.__name__}> is not an entity, it is a bug.'
+            )
+
+        try:
+            # TODO: use filter(..).first() if we allow extra Q filter
+            entity = model.objects.get(pk=entity_pk)
+        except model.DoesNotExist as e:
+            raise ValidationError(
+                self.error_messages['doesnotexist'],
+                params={
+                    'ctype': ctype.pk,
+                    'entity': entity_pk,
+                },
+                code='doesnotexist',
+            ) from e
+        else:
+            if entity.is_deleted:
                 raise ValidationError(
-                    self.error_messages['doesnotexist'],
-                    params={
-                        'ctype': ctype.pk,
-                        'entity': entity_pk,
-                    },
-                    code='doesnotexist',
-                ) from e
-            else:
-                if entity.is_deleted:
-                    raise ValidationError(
-                        self.error_messages['isdeleted'],
-                        code='isdeleted',
-                        params={'entity': entity.allowed_str(self._user)},
-                    )
+                    self.error_messages['isdeleted'],
+                    code='isdeleted',
+                    params={'entity': entity.allowed_str(self._user)},
+                )
 
         return entity
 
