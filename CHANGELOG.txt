@@ -77,6 +77,8 @@
                 - The methods '_clean_ctype()' & '_clean_entity()' got an argument "required" which you should fill.
                   Hint: pass <self.required> to keep the same behaviour.
                 - Passing an integer as 'ctype' argument to the method '_clean_entity()' is now deprecated.
+                - The method '_clean_entity_from_model()' is deprecated;
+                  you can use '_clean_entity()' instead with its new argument "qfilter".
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.

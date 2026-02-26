@@ -264,16 +264,67 @@ class JSONField(fields.CharField):
 
         return ctype
 
+    def _entity_queryset(self, model: type[CremeEntity], qfilter: Q | None = None) -> QuerySet:
+        query = model.objects.all()
+
+        if qfilter is not None:
+            query = query.filter(qfilter)
+
+        return query
+
+    # def _clean_entity(self,
+    #                   ctype: ContentType | int,
+    #                   entity_pk: int | str,
+    #                   ) -> CremeEntity | None:
+    #     if not isinstance(ctype, ContentType):
+    #         ctype = self._clean_ctype(ctype)
+    #         if ctype is None:
+    #             return None
+    #
+    #     entity = None
+    #
+    #     if not entity_pk:
+    #         if self.required:
+    #             raise ValidationError(
+    #                 self.error_messages['required'],
+    #                 code='required',
+    #             )
+    #     else:
+    #         model = ctype.model_class()
+    #         assert issubclass(model, CremeEntity)
+    #
+    #         try:
+    #             entity = model.objects.get(pk=entity_pk)
+    #         except model.DoesNotExist as e:
+    #             raise ValidationError(
+    #                 self.error_messages['doesnotexist'],
+    #                 params={
+    #                     'ctype': ctype.pk,
+    #                     'entity': entity_pk,
+    #                 },
+    #                 code='doesnotexist',
+    #             ) from e
+    #         else:
+    #             if entity.is_deleted:
+    #                 raise ValidationError(
+    #                     self.error_messages['isdeleted'],
+    #                     code='isdeleted',
+    #                     params={'entity': entity.allowed_str(self._user)},
+    #                 )
+    #
+    #     return entity
     def _clean_entity(self,
                       ctype: ContentType | type[CremeEntity] | int | None,
                       entity_pk: int | None,
                       *,
-                      required: bool | None = None,  # TODO: remove None in creme 3.0
+                      required: bool | None = None,  # TODO: remove None in creme 3.
+                      qfilter: Q | None = None,
                       ) -> CremeEntity | None:
-        """Clean a CremeEntity from its model & its PK.
+        """Get a CremeEntity from its model & its PK.
         @param ctype: ContentType instance, CremeEntity class or ContentType's PK.
         @param entity_pk: ID of CremeEntity instance.
         @param required: <True> means a <None> result is allowed.
+        @param qfilter: To restrict the allowed entities.
         @raise: ValidationError.
         """
         if required is None:
@@ -318,35 +369,27 @@ class JSONField(fields.CharField):
                 f'The model <{model.__name__}> is not an entity, it is a bug.'
             )
 
-        try:
-            # TODO: use filter(..).first() if we allow extra Q filter
-            entity = model.objects.get(pk=entity_pk)
-        except model.DoesNotExist as e:
+        entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
+        if entity is None:
+            if qfilter:
+                entity = self._entity_queryset(model).filter(pk=entity_pk).first()
+                if entity is not None:
+                    raise ValidationError(
+                        self.error_messages['isexcluded'],
+                        code='isexcluded',
+                        params={'entity': entity.allowed_str(self._user)},
+                    )
+
+            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
+
+        if entity.is_deleted:
             raise ValidationError(
-                self.error_messages['doesnotexist'],
-                params={
-                    'ctype': ctype.pk,
-                    'entity': entity_pk,
-                },
-                code='doesnotexist',
-            ) from e
-        else:
-            if entity.is_deleted:
-                raise ValidationError(
-                    self.error_messages['isdeleted'],
-                    code='isdeleted',
-                    params={'entity': entity.allowed_str(self._user)},
-                )
+                self.error_messages['isdeleted'],
+                code='isdeleted',
+                params={'entity': entity.allowed_str(self._user)},
+            )
 
         return entity
-
-    def _entity_queryset(self, model: type[CremeEntity], qfilter: Q | None = None) -> QuerySet:
-        query = model.objects.all()
-
-        if qfilter is not None:
-            query = query.filter(qfilter)
-
-        return query
 
     def _clean_entity_from_model(self,
                                  model: type[CremeEntity],
@@ -354,6 +397,12 @@ class JSONField(fields.CharField):
                                  qfilter: Q | None = None,
                                  ) -> CremeEntity:
         """@raise: ValidationError"""
+        warnings.warn(
+            'JSONField._clean_entity_from_model() is deprecated; '
+            'use JSONField._clean_entity() instead.',
+            DeprecationWarning,
+        )
+
         entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
         if entity is None:
             if qfilter:
@@ -1061,7 +1110,7 @@ class CreatorEntityField(EntityCredsJSONField):
     def create_action_url(self) -> str:
         if self._create_action_url:
             return self._create_action_url
-
+        #
         model = self._model
 
         if model is not None and self._has_quickform(model):
@@ -1127,9 +1176,9 @@ class CreatorEntityField(EntityCredsJSONField):
                 'The model is not set; contact your administrator.',
             )
 
-        return self._check_entity_perms(
-            self._clean_entity_from_model(model, data, self.q_filter_query)
-        )
+        return self._check_entity_perms(self._clean_entity(
+            ctype=model, entity_pk=data, qfilter=self.q_filter_query, required=True,
+        ))
 
 
 class MultiCreatorEntityField(CreatorEntityField):
@@ -1163,16 +1212,18 @@ class MultiCreatorEntityField(CreatorEntityField):
                 'The model is not set; contact your administrator.',
             )
 
+        # clean_entity = partial(
+        #     self._clean_entity_from_model,
+        #     model=model, qfilter=self.q_filter_query,
+        # )
         clean_entity = partial(
-            self._clean_entity_from_model,
-            model=model, qfilter=self.q_filter_query,
+            self._clean_entity, ctype=model, qfilter=self.q_filter_query, required=True,
         )
 
         for entry in data:
             if not isinstance(entry, int):
                 raise ValidationError(
-                    self.error_messages['invalidtype'],
-                    code='invalidtype',
+                    self.error_messages['invalidtype'], code='invalidtype',
                 )
 
             # entity = clean_entity(entity_pk=entry)
