@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block portal_help %}
-{% blocktranslate asvar help_msg %}The users which are not super-users must have a role. It limits what the concerned users can see, edit, delete…
+{% blocktranslate asvar role_msg %}The users which are not super-users must have a role. It limits what the concerned users can see, edit, delete…
 If you have many users, it's a good practice to use roles.{% endblocktranslate %}
-    {% widget_help_sign message=help_msg %}
+    {% widget_help_sign message=role_msg %}
+
+{% blocktranslate asvar creds_msg %}Some explanations on <strong>Entities credentials</strong>:
+- An action which is never allowed is forbidden. E.g. if you only have the rule «Own Contacts can be viewed», you cannot edit your Contacts, you cannot view Contacts who belong to other users, you cannot view your Organisations…
+- The rules are added between them. E.g. if you have the rule «All entities can be viewed» & the rule «Contacts can be edited», Contacts can be viewed & edited.
+- The rules which forbid an action have priority on rules which allow the same action. E.g. if you have the rule «All entities can be viewed & edited» & the rule «Invoices cannot be edited», you cannot edit Invoices (but you can view them).
+{% endblocktranslate %}
+    {% widget_help_sign message=creds_msg %}
 {% endblock %}
