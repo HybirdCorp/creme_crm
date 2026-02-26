@@ -416,7 +416,7 @@ class EntityCredsJSONField(JSONField):
         # self.quickforms_registry = quickforms_registry or quick_forms.quickform_registry
         self.quickform_registry = quickforms_registry or quick_forms.quickform_registry
 
-    def _check_entity_perms(self, entity, *args):
+    def _check_entity_perms(self, entity: CremeEntity, *args) -> CremeEntity:
         user = self._user
         credentials = args[0] if args else self._credentials
 
@@ -1112,17 +1112,24 @@ class CreatorEntityField(EntityCredsJSONField):
         return value.id
 
     def _value_from_unjsonfied(self, data):
+        # model = self.model
+        # if model is None:
+        #     if self.required:
+        #         raise ValidationError(self.error_messages['required'], code='required')
+        #
+        #     return None
+        # entity = self._clean_entity_from_model(model, data, self.q_filter_query)
+        # return self._check_entity_perms(entity)
         model = self.model
 
         if model is None:
-            if self.required:
-                raise ValidationError(self.error_messages['required'], code='required')
+            raise ValidationError(
+                'The model is not set; contact your administrator.',
+            )
 
-            return None
-
-        entity = self._clean_entity_from_model(model, data, self.q_filter_query)
-
-        return self._check_entity_perms(entity)
+        return self._check_entity_perms(
+            self._clean_entity_from_model(model, data, self.q_filter_query)
+        )
 
 
 class MultiCreatorEntityField(CreatorEntityField):
@@ -1151,33 +1158,33 @@ class MultiCreatorEntityField(CreatorEntityField):
         entities = []
         model = self.model
 
-        if model is not None:
-            clean_entity = partial(
-                self._clean_entity_from_model,
-                model=model, qfilter=self.q_filter_query,
-            )
-
-            for entry in data:
-                if not isinstance(entry, int):
-                    raise ValidationError(
-                        self.error_messages['invalidtype'],
-                        code='invalidtype',
-                    )
-
-                entity = clean_entity(entity_pk=entry)
-
-                if entity is None:
-                    raise ValidationError(
-                        self.error_messages['doesnotexist'],
-                        code='doesnotexist',
-                    )
-
-                entities.append(entity)
-        elif self.required:
+        if model is None:
             raise ValidationError(
-                self.error_messages['required'],
-                code='required',
+                'The model is not set; contact your administrator.',
             )
+
+        clean_entity = partial(
+            self._clean_entity_from_model,
+            model=model, qfilter=self.q_filter_query,
+        )
+
+        for entry in data:
+            if not isinstance(entry, int):
+                raise ValidationError(
+                    self.error_messages['invalidtype'],
+                    code='invalidtype',
+                )
+
+            # entity = clean_entity(entity_pk=entry)
+            #
+            # if entity is None:
+            #     raise ValidationError(
+            #         self.error_messages['doesnotexist'],
+            #         code='doesnotexist',
+            #     )
+            #
+            # entities.append(entity)
+            entities.append(clean_entity(entity_pk=entry))
 
         return self._check_entities_perms(entities)
 
