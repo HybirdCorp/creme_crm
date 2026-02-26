@@ -256,6 +256,8 @@
               the attribute 'initial' is not a set anymore (the value you assign is not changed).
             - The attribute of 'GenericEntityField._clean_ctype()' has been renamed "ctype_id"
               to respect the parent signature.
+            - In 'CreatorEntityField' & 'MultiCreatorEntityField', it's now always an error to
+              not set the attribute 'model' of a instance, even when 'required' is set to 'False'.
         # In 'creme_core.gui' :
             - The method 'button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
             - The method 'bricks.Brick._render()' uses now the "template_name" found in the passed
