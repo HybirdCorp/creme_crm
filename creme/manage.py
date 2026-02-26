@@ -56,6 +56,7 @@ def execute():
     #     start_parallel_coverage()
     if is_test_mode(argv) and is_parallel_mode(argv):
         if os.name == 'posix':
+            # TODO: (genglert, 26 february 2026) it seems Django 6.0 fixed the forkserver mode
             # NB: (genglert, 19 february 2026, creme 2.8 beta)
             #     with Python 3.14, 'forkserver' became the default mode, but
             #      - it's not compatible with the sqlite backend
