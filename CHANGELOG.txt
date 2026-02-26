@@ -73,9 +73,10 @@
                   use 'CTypeForeignKeyEnumerator' (& set the argument 'allowed_models') instead.
                 - The method 'meta.Order.reverse()' is deprecated;
                   use the method 'reversed()' instead.
-            - In 'creme_core.forms.fields.JSONField', the methods '_clean_ctype()'
-              & _clean_entity() got an argument "required" which you should fill.
-              Hint: pass <self.required> to keep the same behaviour.
+            - In 'creme_core.forms.fields.JSONField' :
+                - The methods '_clean_ctype()' & '_clean_entity()' got an argument "required" which you should fill.
+                  Hint: pass <self.required> to keep the same behaviour.
+                - Passing an integer as 'ctype' argument to the method '_clean_entity()' is now deprecated.
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.
@@ -106,6 +107,8 @@
         # In 'creme_core.gui' :
              - New 'menu.TemplateEntry' that allows usage of Django template for rendering.
              - New 'menu.ActionEntry' helper entry to build custom action links.
+        # The method 'creme_core.forms.fields.JSONField._clean_entity()' now accepts
+          a model class for its argument 'ctype'.
         # In 'creme_core.models' :
             - The field 'CTypeForeignKey' (& so, 'EntityCTypeForeignKey') got a
               parameter "allowed_models" to narrow the models which are accepted.
