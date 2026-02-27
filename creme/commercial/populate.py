@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -159,11 +159,6 @@ class Populator(BasePopulator):
     BUTTONS = [
         ButtonMenuItem(button=buttons.CompleteGoalButton, order=60),
     ]
-    # SEARCH = {
-    #     'ACT': ['name', 'expected_sales', 'cost', 'goal'],
-    #     'STRATEGY': ['name'],
-    #     'PATTERN': [],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Act, fields=['name', 'expected_sales', 'cost', 'goal'],
@@ -214,79 +209,6 @@ class Populator(BasePopulator):
     def _populate_act_types(self):
         self._save_minions(self.ACT_TYPES)
 
-    # def _populate_relation_types(self):
-    #     RelationType.objects.smart_update_or_create(
-    #         (constants.REL_SUB_SOLD, _('has sold'),         [self.Contact, self.Organisation]),
-    #         (constants.REL_OBJ_SOLD, _('has been sold by'), [self.Product, self.Service]),
-    #     )
-    #
-    #     complete_goal_models = {*creme_registry.iter_entity_models()}
-    #     complete_goal_models.discard(self.Strategy)
-    #     if apps.is_installed('creme.billing'):
-    #         from creme import billing
-    #         from creme.billing.core.line import line_registry
-    #
-    #         complete_goal_models.discard(billing.get_credit_note_model())
-    #         complete_goal_models.discard(billing.get_template_base_model())
-    #         complete_goal_models.difference_update(line_registry)
-    #
-    #     RelationType.objects.smart_update_or_create(
-    #         (
-    #             constants.REL_SUB_COMPLETE_GOAL,
-    #             _('completes a goal of the commercial action'),
-    #             complete_goal_models,
-    #         ),
-    #         (
-    #             constants.REL_OBJ_COMPLETE_GOAL,
-    #             _('is completed thanks to'),
-    #             [self.Act],
-    #         ),
-    #     )
-
-    # def _populate_header_filters_for_act(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
-    #         name=_('Com Action view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'expected_sales'}),
-    #             (EntityCellRegularField, {'name': 'due_date'}),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters_for_strategy(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
-    #         name=_('Strategy view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #
-    # def _populate_header_filters_for_pattern(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
-    #         name=_('Objective pattern view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'segment'}),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters(self):
-    #     self._populate_header_filters_for_act()
-    #     self._populate_header_filters_for_strategy()
-    #     self._populate_header_filters_for_pattern()
-
-    # def _populate_search_config(self):
-    #     def create_sci(model, key):
-    #         fields = self.SEARCH[key]
-    #         SearchConfigItem.objects.create_if_needed(
-    #             model=model, fields=fields, disabled=not bool(fields),
-    #         )
-    #
-    #     create_sci(model=self.Act,                 key='ACT')
-    #     create_sci(model=self.Strategy,            key='STRATEGY')
-    #     create_sci(model=self.ActObjectivePattern, key='PATTERN')
-
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -314,11 +236,6 @@ class Populator(BasePopulator):
         ).first()
         if creations_entry is not None:
             create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
-
-    # def _populate_buttons_config(self):
-    #     ButtonMenuItem.objects.create_if_needed(
-    #         button=buttons.CompleteGoalButton, order=60,
-    #     )
 
     def _populate_bricks_config_for_act(self):
         BrickDetailviewLocation.objects.multi_create(

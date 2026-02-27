@@ -32,7 +32,6 @@ class ConfigPortal(generic.BricksView):
     brick_classes: list[type[Brick]] = []
 
     def get_bricks(self):
-        # return [brick_cls() for brick_cls in self.brick_classes]
         return {'main': [brick_cls() for brick_cls in self.brick_classes]}
 
 

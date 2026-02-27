@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 
-# from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import lock
 from creme.creme_core.views import generic
@@ -55,7 +54,6 @@ class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserPasswordChangeForm
     pk_url_kwarg = 'user_id'
-    # permissions = SUPERUSER_PERM
     permissions = user_config_perm.as_perm
     title = _('Change password for «{object}»')
     title_for_own = _('Change your password')
@@ -72,7 +70,6 @@ class PasswordChange(generic.CremeModelEditionPopup):
 
 class BaseUserCreation(generic.CremeModelCreationPopup):
     model = get_user_model()
-    # permissions = SUPERUSER_PERM
     permissions = user_config_perm.as_perm
 
 
@@ -89,7 +86,6 @@ class TeamCreation(BaseUserCreation):
 class BaseUserEdition(generic.CremeModelEditionPopup):
     model = get_user_model()
     pk_url_kwarg = 'user_id'
-    # permissions = SUPERUSER_PERM
     permissions = user_config_perm.as_perm
 
     def get_queryset(self):
@@ -143,7 +139,6 @@ class UserDeletion(BaseUserEdition):
 
 class UserDeactivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-    # permissions = SUPERUSER_PERM
     permissions = user_config_perm.as_perm
 
     def post(self, request, **kwargs):
@@ -174,7 +169,6 @@ class UserDeactivation(generic.CheckedView):
 
 class UserActivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-    # permissions = SUPERUSER_PERM
     permissions = user_config_perm.as_perm
 
     def post(self, request, **kwargs):

@@ -106,7 +106,6 @@ def get_by_index(sequence, index):
 
 # TODO rename (get? get_item?)?
 @register.filter
-# def get_value(dic, key, default=''):
 def get_value(dic, key):
     """Get a value from its key in a dictionary-like object.
     A default value is used as fallback (like <dict.get()>).
@@ -128,11 +127,9 @@ def get_value(dic, key):
             {% for key in keys %}{{ some_dict|get_value:key }}{% endfor %}
     """
     try:
-        # return dic.get(key, default)
         return dic.get(key, '')
     except Exception as e:
         logger.debug('Exception in get_value(): %s', e)
-        # return default
         return ''
 
 
@@ -582,13 +579,6 @@ def verbose_models(models):
 def get_cloning_info(entity, user):
     url = entity.get_clone_absolute_url()
 
-    # if url == '':
-    #     logger.warning(
-    #         'The entity "%s" returns an empty cloning URL; it is now useless '
-    #         'with the cloning registry (just do not register this model).',
-    #         entity,
-    #     )
-
     cloner = entity_cloner_registry.get(model=type(entity))
     if cloner is None:
         return {'enabled': False}
@@ -610,13 +600,6 @@ def get_cloning_info(entity, user):
 @register.simple_tag
 def get_deletion_info(entity, user):
     url = entity.get_delete_absolute_url()
-
-    # if url == '':
-    #     logger.warning(
-    #         'The entity "%s" returns an empty deletion URL; it is now useless '
-    #         'with the deletion registry (just do not register this model).',
-    #         entity,
-    #     )
 
     deletor = entity_deletor_registry.get(model=type(entity))
     if deletor is None:
@@ -660,22 +643,12 @@ def get_entity_html_attrs(context, entity):
 
 
 @register.simple_tag
-# def inner_edition_uri(instance, cells, callback_url=None):
 def inner_edition_uri(instance, cells):
     # TODO: pass the registry in context? accept it as argument?
-    uri = bulk_update_registry.inner_uri(
+    return bulk_update_registry.inner_uri(
         instance=instance,
         cells=[cells] if isinstance(cells, EntityCell) else cells,
     )
-
-    # if callback_url and uri:
-    #     warnings.warn(
-    #         'In the tag {% inner_edition_uri %}, the argument "callback_url" is deprecated.',
-    #         DeprecationWarning
-    #     )
-    #     uri += f'&callback_url={callback_url}'
-
-    return uri
 
 
 # TODO: need a templatetag to build a ViewTag?

@@ -370,11 +370,6 @@ class EntityCTypeForeignKey(CTypeForeignKey):
     # def __set__(self, instance, value):
     #     setattr(instance, self.attname, value.id if value else value)
 
-    # def formfield(self, **kwargs):
-    #     from ..forms.fields import EntityCTypeChoiceField
-    #
-    #     return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
-
 
 class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
     def __init__(self, **kwargs):

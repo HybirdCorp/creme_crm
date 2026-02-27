@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_config import notification
 from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import Notification  # UserRole
+from creme.creme_core.models import Notification
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 CremeUser = get_user_model()
@@ -55,24 +55,16 @@ class UserCreationForm(CremeModelForm):
         help_text=_('Enter the same password as before, for verification.'),
     )
 
-    # role = forms.ModelChoiceField(
-    #     label=_('Role'), required=False, queryset=UserRole.objects.all(),
-    # )
-
     class Meta:
         model = CremeUser
         fields = (
             'username', 'last_name', 'first_name', 'email', 'displayed_name',
-            # 'role',
             'roles',
         )
         field_classes = {'username': auth_forms.UsernameField}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # # NB: browser can ignore <em> tag in <option>...
-        # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
         roles_f = self.fields['roles']
         roles_f.queryset = roles_f.queryset.filter(deactivated_on=None)
@@ -129,7 +121,6 @@ class UserCreationForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        # instance.is_superuser = (instance.role is None)
         instance.set_password(self.cleaned_data['password_1'])
         super().save(*args, **kwargs)
 
@@ -141,23 +132,15 @@ class UserCreationForm(CremeModelForm):
 
 # TODO: factorise with UserCreationForm
 class UserEditionForm(CremeModelForm):
-    # role = forms.ModelChoiceField(
-    #     label=_('Role'), queryset=UserRole.objects.all(), required=False,
-    # )
-
     class Meta:
         model = CremeUser
         fields = (
             'first_name', 'last_name', 'email', 'displayed_name',
-            # 'role', 'is_superuser'
             'roles',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # # NB: browser can ignore <em> tag in <option>...
-        # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
         roles_f = self.fields['roles']
         roles_f.queryset = roles_f.queryset.filter(
@@ -165,15 +148,6 @@ class UserEditionForm(CremeModelForm):
             | Q(id__in=self.instance.roles.values_list('id', flat=True))
         )
 
-    # def clean(self):
-    #     cdata = super().clean()
-    #
-    #     if not self._errors:
-    #         instance = self.instance
-    #         instance.role = role = cdata['role']
-    #         instance.is_superuser = (role is None)
-    #
-    #     return cdata
     def clean_roles(self):
         roles = self.cleaned_data.get('roles')
         instance = self.instance

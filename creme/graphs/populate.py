@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,29 +56,16 @@ class Populator(BasePopulator):
         custom_forms.GRAPH_CREATION_CFORM,
         custom_forms.GRAPH_EDITION_CFORM,
     ]
-    # SEARCH = ['name']
     SEARCH = [
         SearchConfigItem.objects.builder(model=Graph, fields=['name']),
     ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Graph = get_graph_model()
         self.Graph = Graph
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=DEFAULT_HFILTER_GRAPH).exists()
-
-    # def _populate_header_filters(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=DEFAULT_HFILTER_GRAPH, name=_('Graph view'), model=self.Graph,
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-
-    # def _populate_search_config(self):
-    #     SearchConfigItem.objects.create_if_needed(
-    #         model=self.Graph, fields=self.SEARCH,
-    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

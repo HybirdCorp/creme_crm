@@ -1007,7 +1007,6 @@ class TransformationIntoUserTestCase(_PersonsTestCase):
 
         with self.assertNoException():
             fields = context1['form'].fields
-            # role_f = fields['role']
             email_f = fields['email']
 
         self.assertIn('username', fields)
@@ -1017,8 +1016,6 @@ class TransformationIntoUserTestCase(_PersonsTestCase):
         self.assertIn('roles', fields)
         self.assertNotIn('last_name', fields)
         self.assertNotIn('first_name', fields)
-
-        # self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
 
         self.assertTrue(email_f.required)
         self.assertEqual(email, email_f.initial)
@@ -1038,7 +1035,6 @@ class TransformationIntoUserTestCase(_PersonsTestCase):
                 # 'displayed_name': ...
                 'password_1': password,
                 'password_2': password,
-                # 'role': ...
                 'roles': [],
                 'email': email,
             },
@@ -1104,7 +1100,6 @@ class TransformationIntoUserTestCase(_PersonsTestCase):
             email_f.help_text,
         )
 
-        # self.assertInChoices(value=role.id, label=role.name, choices=role_f.choices)
         self.assertInChoices(value=role.id, label=role.name, choices=roles_f.choices)
 
         # ---

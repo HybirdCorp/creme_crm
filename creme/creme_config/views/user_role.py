@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
@@ -68,7 +67,6 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
         role_forms.UserRoleCredentialsFilterStep,
     ]
     model = UserRole
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
 
     def __init__(self, *args, **kwargs):
@@ -107,7 +105,6 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
 class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
 
     form_list = [
@@ -127,7 +124,6 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
 class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
     title = _('Add credentials to «{object}»')
 
@@ -157,7 +153,6 @@ class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
 class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
     model = SetCredentials
     pk_url_kwarg = 'cred_id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
     title = _('Edit credentials for «{role}»')
 
@@ -179,7 +174,6 @@ class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
 
 class CredentialsDeletion(generic.CheckedView):
     creds_id_arg = 'id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
 
     @atomic
@@ -273,7 +267,6 @@ class RoleActivation(generic.CheckedView):
 class RoleCloning(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
     form_class = role_forms.UserRoleCloningForm
     template_name = 'creme_core/generics/blockform/add-popup.html'  # TODO: clone-popup.html
@@ -291,7 +284,6 @@ class RoleCloning(generic.CremeModelEditionPopup):
 class RoleDeletion(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    # permissions = SUPERUSER_PERM
     permissions = role_config_perm.as_perm
     form_class = role_forms.UserRoleDeletionForm
     template_name = 'creme_core/generics/blockform/delete-popup.html'

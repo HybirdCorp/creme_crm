@@ -69,7 +69,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
 
         choices = [*choices_it2]
         self.assertInChoices(
-            # value=f'{constants.RGF_NOLINK}|',
             value=f'{SimpleChartFetcher.type_id}|',
             label=pgettext('reports-volatile_choice', 'None'),
             choices=choices,
@@ -77,25 +76,21 @@ class ChartFetcherFieldTestCase(CremeTestCase):
 
         fields_group = self.get_choices_group_or_fail(_('Fields'), choices)
         self.assertInChoices(
-            # value=f'{constants.RGF_FK}|image',
             value=f'{RegularFieldLinkedChartFetcher.type_id}|image',
             label=_('Photograph'),
             choices=fields_group,
         )
-        # self.assertNotInChoices(f'{constants.RGF_FK}|is_user', fields_group)
         self.assertNotInChoices(
             f'{RegularFieldLinkedChartFetcher.type_id}|is_user', fields_group,
         )
 
         relations_group = self.get_choices_group_or_fail(_('Relationships'), choices)
         self.assertInChoices(
-            # value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
             value=f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_EMPLOYED_BY}',
             label='is an employee of — employs',
             choices=relations_group,
         )
         self.assertNotInChoices(
-            # f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}',
             f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_BILL_ISSUED}',
             relations_group,
         )
@@ -124,18 +119,15 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         self.assertEqual(chart, field.chart)
 
         # No Link ---
-        # fetcher1a = field.clean(value=constants.RGF_NOLINK)
         fetcher1a = field.clean(value=SimpleChartFetcher.type_id)
         self.assertIsInstance(fetcher1a, SimpleChartFetcher)
         self.assertIsNone(fetcher1a.error)
 
-        # fetcher1b = field.clean(value=f'{constants.RGF_NOLINK}|')
         fetcher1b = field.clean(value=f'{SimpleChartFetcher.type_id}|')
         self.assertIsInstance(fetcher1b, SimpleChartFetcher)
         self.assertIsNone(fetcher1b.error)
 
         # FK link ---
-        # fetcher2 = field.clean(value=f'{constants.RGF_FK}|image')
         fetcher2 = field.clean(value=f'{RegularFieldLinkedChartFetcher.type_id}|image')
         self.assertIsInstance(fetcher2, RegularFieldLinkedChartFetcher)
         self.assertIsNone(fetcher2.error)
@@ -145,7 +137,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
 
         # Relation link ---
         fetcher3 = field.clean(
-            # value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
             value=f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_EMPLOYED_BY}',
         )
         self.assertIsInstance(fetcher3, RelationLinkedChartFetcher)
@@ -155,7 +146,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
     def test_clean__error__no_link(self):
         chart = self._build_chart()
         field = ChartFetcherField(chart=chart)
-        # value = f'{constants.RGF_NOLINK}|whatever'
         value = f'{SimpleChartFetcher.type_id}|whatever'
         self.assertFormfieldError(
             field=field, value=value, codes='invalid_choice',
@@ -179,7 +169,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         msg = _(
             'Select a valid choice. %(value)s is not one of the available choices.'
         )
-        # value1 = constants.RGF_FK
         value1 = RegularFieldLinkedChartFetcher.type_id
         self.assertFormfieldError(
             field=field, value=value1,
@@ -188,7 +177,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         )
 
         # Unknown field
-        # value2 = f'{constants.RGF_FK}|invalid'
         value2 = f'{RegularFieldLinkedChartFetcher.type_id}|invalid'
         self.assertFormfieldError(
             field=field, value=value2,
@@ -197,7 +185,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         )
 
         # Invalid field (not FK)
-        # value3 = f'{constants.RGF_FK}|last_name'
         value3 = f'{RegularFieldLinkedChartFetcher.type_id}|last_name'
         self.assertFormfieldError(
             field=field, value=value3,
@@ -206,7 +193,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         )
 
         # Invalid field (not FK to CremeEntity)
-        # value4 = f'{constants.RGF_FK}|sector'
         value4 = f'{RegularFieldLinkedChartFetcher.type_id}|sector'
         self.assertFormfieldError(
             field=field, value=value4,
@@ -214,7 +200,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         )
 
         # Hidden field
-        # value5 = f'{constants.RGF_FK}|{hidden_fname}'
         value5 = f'{RegularFieldLinkedChartFetcher.type_id}|{hidden_fname}'
         self.assertFormfieldError(
             field=field, value=value5,
@@ -223,7 +208,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
 
     def test_clean__error__relation(self):
         chart = self._build_chart()
-        # value = f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}'
         value = f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_BILL_ISSUED}'
         self.assertFormfieldError(
             field=ChartFetcherField(chart=chart),
@@ -246,7 +230,6 @@ class ChartFetcherFieldTestCase(CremeTestCase):
         self.assertEqual('#', choices_it.separator)
 
         fields_group = self.get_choices_group_or_fail(_('Fields'), [*choices_it])
-        # value = f'{constants.RGF_FK}#image'
         value = f'{RegularFieldLinkedChartFetcher.type_id}#image'
         self.assertInChoices(
             value=value,
@@ -284,7 +267,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
         fk_name = 'linked_folder'
         form2 = ChartInstanceBrickForm(
             user=user, chart=chart,
-            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
             data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form2.is_valid())
@@ -292,7 +274,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
         ibci = form2.save()
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
         self.assertEqual(chart.linked_report_id, ibci.entity_id)
-        # self.assertEqual(constants.RGF_FK, ibci.get_extra_data('type'))
         self.assertEqual(RegularFieldLinkedChartFetcher.type_id, ibci.get_extra_data('type'))
         self.assertEqual(fk_name, ibci.get_extra_data('value'))
         self.assertUUIDEqual(chart.uuid, ibci.get_extra_data('chart'))
@@ -310,7 +291,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
 
         form1 = ChartInstanceBrickForm(
             user=user, chart=chart,
-            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
             data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertFormInstanceErrors(
@@ -325,7 +305,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
         )
 
         form2 = ChartInstanceBrickForm(
-            # user=user, chart=chart, data={'fetcher': constants.RGF_NOLINK},
             user=user, chart=chart, data={'fetcher': SimpleChartFetcher.type_id},
         )
         self.assertTrue(form2.is_valid())
@@ -345,7 +324,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
 
         form = ChartInstanceBrickForm(
             user=user, chart=chart1,
-            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
             data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form.is_valid())
@@ -366,7 +344,6 @@ class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
 
         form = ChartInstanceBrickForm(
             user=user, chart=chart,
-            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
             data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form.is_valid())

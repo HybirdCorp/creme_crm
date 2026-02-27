@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -303,106 +303,6 @@ class Base(CremeEntity):
             self._get_lines_total_n_creditnotes_total_with_tax()
 
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
-
-    # def _pre_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Base._pre_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self.source = source.source
-    #     self.target = source.target
-    #
-    #     self.number = ''
-    #
-    #     self._address_auto_copy = False
-    #
-    # def _post_clone(self, source):
-    #     warnings.warn(
-    #         'The method Base._post_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     source.invalidate_cache()
-    #
-    #     for line in source.iter_all_lines():
-    #         line.clone(self)
-    #
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Base._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     save = False
-    #
-    #     if source.billing_address is not None:
-    #         self.billing_address = source.billing_address.clone(self)
-    #         save = True
-    #
-    #     if source.shipping_address is not None:
-    #         self.shipping_address = source.shipping_address.clone(self)
-    #         save = True
-    #
-    #     if save:
-    #         self.save()
-
-    # def build(self, template: Base):
-    #     warnings.warn(
-    #         'The method billing.models.Base.build() is deprecated; '
-    #         'use the new conversion/spawning systems instead.',
-    #         DeprecationWarning,
-    #     )
-    #     self._address_auto_copy = False
-    #
-    #     self._build_object(template)
-    #     self._post_save_clone(template)  # Copy addresses
-    #     self._post_clone(template)  # Copy lines
-    #     self._build_relations(template)
-    #     self._build_properties(template)
-    #
-    #     return self
-    #
-    # build.alters_data = True
-    #
-    # def _build_object(self, template: Base):
-    #     warnings.warn(
-    #         'The method billing.models.Base._build_object() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self.user         = template.user
-    #     self.name         = template.name
-    #     self.number       = template.number
-    #     self.discount     = template.discount
-    #     self.currency     = template.currency
-    #     self.comment      = template.comment
-    #     self.payment_info = template.payment_info
-    #
-    #     self.issuing_date = self.expiration_date = date.today()
-    #
-    #     self.source = template.source
-    #     self.target = template.target
-    #
-    #     self.save()
-    #
-    #     # NB: not copied:
-    #     # - additional_info
-    #     # - payment_terms
-    #
-    # def _build_relations(self, template: Base):
-    #     warnings.warn(
-    #         'The method billing.models.Base._build_relations() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #     self._copy_relations(template)
-    #
-    # def _build_properties(self, template: Base):
-    #     warnings.warn(
-    #         'The method billing.models.Base._build_properties() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #     self._copy_properties(template)
 
     # TODO: remove *args, **kwargs
     def _create_addresses(self, *args, **kwargs):

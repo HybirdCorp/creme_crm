@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import OrderedDict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
@@ -318,22 +317,3 @@ entity_filter_registries = EntityFilterSuperRegistry().register(
         deletion_url_name='creme_core__delete_efilter',
     ),
 )
-
-
-# def __getattr__(name):
-#     if name == '_EntityFilterRegistry':
-#         warnings.warn(
-#             '"_EntityFilterRegistry" is deprecated; use "EntityFilterRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return EntityFilterRegistry
-#
-#     if name == '_EntityFilterSuperRegistry':
-#         warnings.warn(
-#             '"_EntityFilterSuperRegistry" is deprecated;
-#             use "EntityFilterSuperRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return EntityFilterSuperRegistry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

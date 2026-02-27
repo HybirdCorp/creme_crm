@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2025  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -300,13 +300,9 @@ def search_person(request):
     return render(
         request, 'mobile/search.html',
         {
-            'search':        search,
-
-            'contacts':      contacts,
-            # 'contact_model': Contact,
-
+            'search': search,
+            'contacts': contacts,
             'organisations': orgas,
-            # 'orga_model':    Organisation,
         },
     )
 
@@ -382,7 +378,6 @@ def activities_portal(request):
     ))[:10]
 
     floating_qs = cred_filter(
-        # activities.filter(floating_type=act_constants.FLOATING).order_by('title')
         activities.filter(floating_type=Activity.FloatingType.FLOATING).order_by('title')
     )
     floating = floating_qs[:FLOATING_SIZE]
@@ -669,7 +664,6 @@ def _set_pcall_as_failed(pcall, request):
         ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
     )
     pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
-    # pcall.floating_type = act_constants.NARROW
     pcall.floating_type = Activity.FloatingType.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     _improve_minutes(pcall, POST.get('minutes', ''))
@@ -719,7 +713,6 @@ def phonecall_workflow_postponed(request):
         )
         postponed.status = None
 
-    # postponed.floating_type = act_constants.FLOATING_TIME
     postponed.floating_type = Activity.FloatingType.FLOATING_TIME
 
     tomorrow = now() + timedelta(days=1)
@@ -727,7 +720,6 @@ def phonecall_workflow_postponed(request):
     postponed.start = make_aware(dt_combine(tomorrow, time(hour=0,  minute=0)))
     postponed.end   = make_aware(dt_combine(tomorrow, time(hour=23, minute=59)))
 
-    # postponed.clone()
     cloner = entity_cloner_registry.get(model=type(postponed))
     # TODO: test
     if cloner is None:

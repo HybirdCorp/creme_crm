@@ -141,12 +141,7 @@ class SalesOrderViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
             form = context['form']
             status_f = form.fields['status']
 
-        self.assertDictEqual(
-            # {'status': 1, self.TARGET_KEY: target},
-            {self.TARGET_KEY: target},
-            form.initial,
-        )
-        # self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        self.assertDictEqual({self.TARGET_KEY: target}, form.initial)
         self.assertEqual(
             SalesOrderStatus.objects.default().id,
             status_f.get_bound_field(form, 'status').initial,

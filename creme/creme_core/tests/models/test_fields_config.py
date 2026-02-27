@@ -37,13 +37,11 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             field.name: {*values}
             for field, values in FieldsConfig.objects.configurable_fields(FakeContact)
         }
-        # self.assertEqual({FieldsConfig.REQUIRED}, conf_fields.get('email'))
         self.assertSetEqual(
             {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION},
             conf_fields.get('email'),
         )
         self.assertSetEqual(
-            # {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
             {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION, FieldsConfig.HIDDEN},
             conf_fields.get('phone'),
         )
@@ -76,7 +74,6 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             for field, values in FieldsConfig.objects.configurable_fields(FakeInvoice)
         }
         self.assertSetEqual(
-            # {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
             {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION, FieldsConfig.HIDDEN},
             conf_fields.get('expiration_date'),
         )
@@ -309,7 +306,6 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             )
 
         self.assertEqual(1, len(fconf.descriptions))
-        # self.assertTrue(fconf.is_fieldname_required(required_field))
         self.assertTrue(fconf.is_fieldname_required(required_field, creation=True))
         self.assertTrue(fconf.is_fieldname_required(required_field, creation=False))
         self.assertTrue(fconf.is_fieldname_required(blank_field, creation=False))
@@ -415,7 +411,6 @@ class FieldsConfigManagerTestCase(CremeTestCase):
         self.assertTrue(is_hidden('unknown'))
 
         is_required = fc.is_fieldname_required
-        # self.assertTrue(is_required(r_field1))
         self.assertTrue(is_required(r_field1, creation=False))
         self.assertTrue(is_required(r_field1, creation=True))
         self.assertFalse(is_required(r_field2, creation=False))

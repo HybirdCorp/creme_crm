@@ -31,7 +31,7 @@ from .creme_jobs.base import JobType
 from .gui import button_menu, statistics
 from .gui.bricks import Brick, BrickManager, QuerysetBrick, SimpleBrick
 from .gui.history import html_history_registry
-from .models import (  # CremeUser
+from .models import (
     ButtonMenuItem,
     CremeEntity,
     CremeProperty,
@@ -59,13 +59,11 @@ class ButtonsBrick(SimpleBrick):
 
     button_registry = button_menu.button_registry
 
-    # def _get_buttons(self, entity: CremeEntity, user: CremeUser) -> dict[str, Button]:
     def _get_buttons(self, entity: CremeEntity, request) -> dict[str, button_menu.Button]:
         registry = self.button_registry
         # NB1: remember that dicts keep the order of insertion
         # NB2: we insert mandatory buttons at the beginning
         buttons = {
-            # button.id: button for button in registry.mandatory_buttons(entity=entity)
             button.id: button
             for button in registry.mandatory_buttons(entity=entity, request=request)
         }
@@ -89,7 +87,6 @@ class ButtonsBrick(SimpleBrick):
         role_items = [*filter(role_predicate, items)]
 
         for button in registry.get_buttons(
-            # id_list=[item.button_id for item in (role_items or items) if item.button_id],
             button_ids=[
                 item.button_id for item in (role_items or items) if item.button_id
             ],
@@ -131,20 +128,6 @@ class ButtonsBrick(SimpleBrick):
             ],
             **extra_kwargs
         )
-
-    # def detailview_display(self, context):
-    #     entity = context['object']
-    #     request = context['request']
-    #     buttons = self._get_buttons(entity=entity, user=context['user'])
-    #     self._set_dependencies(buttons=buttons, model=type(entity))
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         buttons=[
-    #             button.get_context(entity=entity, request=request)
-    #             for button in buttons.values()
-    #         ],
-    #     ))
 
 
 class PropertiesBrick(QuerysetBrick):
@@ -220,9 +203,6 @@ class RelationsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        # relations = entity.relations.select_related(
-        #     'type', 'type__symmetric_type',
-        # ).prefetch_related('real_object')
         # NB: we order by:
         #   - "type__predicate" + "type_id" to group relationships by their type
         #     (& preventing issues with types with identical predicate-- even if
@@ -307,22 +287,6 @@ class CustomFieldsBrick(SimpleBrick):
             cells=[EntityCellCustomField(cfield) for cfield in cfields],
             **extra_kwargs
         )
-
-    # def detailview_display(self, context):
-    #     entity = context['object']
-    #
-    #     # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
-    #     cfields = [
-    #         cfield
-    #         for cfield in CustomField.objects.get_for_model(entity.entity_type).values()
-    #         if not cfield.is_deleted
-    #     ]
-    #     CremeEntity.populate_custom_values([entity], cfields)
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         cells=[EntityCellCustomField(cfield) for cfield in cfields],
-    #     ))
 
 
 class HistoryBrick(QuerysetBrick):
@@ -525,7 +489,6 @@ class StatisticsBrick(Brick):
     )
     template_name = 'creme_core/bricks/statistics.html'
 
-    # statistics_registry = statistics.statistic_registry
     statistic_registry = statistics.statistic_registry
 
     def _get_items(self, user):
@@ -545,60 +508,7 @@ class StatisticsBrick(Brick):
         )
 
     def home_display(self, context):
-        # has_perm = context['user'].has_perm
-        #
-        # return self._render(self.get_template_context(
-        #     context,
-        #     items=[
-        #         item
-        #         for item in self.statistics_registry
-        #         if not item.perm or has_perm(item.perm)
-        #     ],
-        # ))
         return self._render(self.get_template_context(context))
-
-
-# class JobBrick(Brick):
-#     id = Brick.generate_id('creme_core', 'job')
-#     dependencies = (Job,)
-#     verbose_name = _('Job')
-#     template_name = 'creme_core/bricks/job.html'
-#     configurable = False
-#
-#     @Brick.reloading_info.setter
-#     def reloading_info(self, info):
-#         info_are_ok = False
-#
-#         if isinstance(info, dict):
-#             info_are_ok = isinstance(info.get('list_url', ''), str)
-#
-#         if info_are_ok:
-#             self._reloading_info = info
-#         else:
-#             # We do not leave 'None' (because it means 'first render').
-#             self._reloading_info = {}
-#             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
-#
-#     def detailview_display(self, context):
-#         job = context['job']
-#
-#         reloading_info = self._reloading_info
-#
-#         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
-#             list_url = context.get('list_url')
-#             self._reloading_info = {'list_url': list_url}
-#         else:
-#             list_url = reloading_info.get('list_url')
-#
-#         return self._render(self.get_template_context(
-#             context, job=job,
-#             JOB_OK=Job.STATUS_OK,
-#             JOB_ERROR=Job.STATUS_ERROR,
-#             JOB_WAIT=Job.STATUS_WAIT,
-#             # PERIODIC=JobType.PERIODIC,
-#             NOT_PERIODIC=JobType.NOT_PERIODIC,
-#             list_url=list_url,
-#         ))
 
 
 class JobsBrick(QuerysetBrick):

@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 from PIL import Image
 
-# from creme.creme_core.models import FakeContact, FakeImage, FakeOrganisation
 from creme.creme_core.models import Currency, Language
 from creme.creme_core.utils.media import get_creme_media_url
 from creme.creme_core.views.generic.base import PermissionsMixin
@@ -165,48 +164,6 @@ class MiscViewsTestCase(CremeTestCase):
             500, '/test_http_response?status=500', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(response.content, b'Tests: server internal error')
-
-    # def test_auth_decorators01(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['documents'],  # Not 'creme_core'
-    #         creatable_models=[FakeContact],
-    #     )
-    #     self.assertGET403('/tests/contact/add')
-    #
-    # def test_auth_decorators02(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['creme_core'],
-    #         creatable_models=[FakeImage],  # Not FakeContact
-    #     )
-    #     self.assertGET403('/tests/contact/add')
-    #
-    # def test_auth_decorators03(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['creme_core'],
-    #         creatable_models=[FakeContact],
-    #     )
-    #     self.assertGET200('/tests/contact/add')
-    #
-    # def test_auth_decorators_multiperm01(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['documents'],  # Not 'creme_core'
-    #         creatable_models=[FakeOrganisation],
-    #     )
-    #     self.assertGET403('/tests/organisation/add')
-    #
-    # def test_auth_decorators_multiperm02(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['creme_core'],
-    #         creatable_models=[FakeImage],  # Not FakeOrganisation
-    #     )
-    #     self.assertGET403('/tests/organisation/add')
-    #
-    # def test_auth_decorators_multiperm03(self):
-    #     self.login_as_standard(
-    #         allowed_apps=['creme_core'],
-    #         creatable_models=[FakeOrganisation],
-    #     )
-    #     self.assertGET200('/tests/organisation/add')
 
     def test_utils_build_cancel_path(self):
         from creme.creme_core.views.utils import build_cancel_path

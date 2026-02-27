@@ -3,16 +3,6 @@ import os
 import sys
 
 
-# def is_coverage_parallel_mode(argv):
-#     if 'test' not in argv or '--parallel' not in argv:
-#         # Not running tests, or running tests with one process
-#         return False
-#
-#     # `COVERAGE_PROCESS_START` environment variable only has to be defined
-#     if os.getenv("COVERAGE_PROCESS_START") is None:
-#         return False
-#
-#     return True
 def is_test_mode(argv):
     return 'test' in argv
 
@@ -52,8 +42,6 @@ def execute():
     from django.core.management import execute_from_command_line
 
     argv = sys.argv
-    # if is_coverage_parallel_mode(argv):
-    #     start_parallel_coverage()
     if is_test_mode(argv) and is_parallel_mode(argv):
         if os.name == 'posix':
             # TODO: (genglert, 26 february 2026) it seems Django 6.0 fixed the forkserver mode

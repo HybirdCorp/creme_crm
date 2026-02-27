@@ -284,7 +284,6 @@ def mergefield_factory(modelfield: models.Field,
         if fields_config.is_field_hidden(modelfield):
             return None
 
-        # if fields_config.is_field_required(modelfield):
         if fields_config.is_field_required(modelfield, creation=False):
             formfield.required = True
 

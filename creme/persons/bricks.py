@@ -232,7 +232,6 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 
 # TODO: move to core ?
-# class _PersonsCardHatBrick(Brick):
 class _PersonsCardHatBrick(SimpleBrick):
     intro_summary = LastActivityIntroSummary  # TODO: accept several summaries?
     summaries = [

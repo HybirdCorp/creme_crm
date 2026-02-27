@@ -39,10 +39,6 @@ from creme.creme_core.core.entity_cell import EntityCell, EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.forms.listview import ListViewSearchForm
 from creme.creme_core.gui import actions
-# from creme.creme_core.gui.actions import ActionRegistry
-# from creme.creme_core.gui.actions import (
-#     action_registry as global_actions_registry,
-# )
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import (
@@ -117,7 +113,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     transient_arg: str = 'transient'
 
     is_popup_view: bool = False
-    # actions_registry: ActionRegistry = global_actions_registry
     action_registry: actions.ActionRegistry = actions.action_registry
     reload_url_name: str = ''
 
@@ -217,7 +212,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-        # user.has_perm_to_access_or_die(self.model._meta.app_label)
         user.has_perm_to_list_or_die(self.model)
 
     def dispatch(self, request, *args, **kwargs):
@@ -261,10 +255,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             ct_id=ContentType.objects.get_for_model(model).id,
         )
 
-    # def get_actions_registry(self) -> ActionRegistry:
     def get_action_registry(self) -> actions.ActionRegistry:
         """Get the registry of UIActions."""
-        # return self.actions_registry
         return self.action_registry
 
     def get_cells(self, hfilter: HeaderFilter) -> list[EntityCell]:
@@ -275,7 +267,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                 0,
                 EntityCellActions(
                     model=self.model,
-                    # actions_registry=self.get_actions_registry(),
                     action_registry=self.get_action_registry(),
                 )
             )

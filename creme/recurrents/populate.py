@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.conf import settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     HeaderFilter,
     Job,
@@ -63,17 +61,6 @@ class Populator(BasePopulator):
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_RGENERATOR).exists()
-
-    # def _populate_header_filters(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_RGENERATOR,
-    #         model=RecurrentGenerator,
-    #         name=_('Generator view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-
-    # def _populate_search_config(self):
-    #     SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
     def _populate_menu_config(self):
         container = MenuConfigItem.objects.get_or_create(

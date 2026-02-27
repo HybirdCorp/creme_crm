@@ -120,22 +120,6 @@ class AbstractFolder(CremeEntity):
     def get_lv_absolute_url():
         return reverse('documents__list_folders')
 
-    # def _pre_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Folder._pre_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     max_length = self._meta.get_field('title').max_length
-    #     self.title = truncate_str(
-    #         source.title, max_length,
-    #         suffix=' ({} {:08x})'.format(gettext('Copy'), randint(0, MAXINT)),
-    #     )
-    #
-    #     # TODO: atomic
-    #     while Folder.objects.filter(title=self.title).exists():
-    #         self._pre_save_clone(source)
-
     def already_in_children(self, other_folder_id):
         children = self.children.all()
 

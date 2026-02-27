@@ -31,11 +31,6 @@ else:
         return _aux
 
 
-# @override_settings(
-#     USE_L10N=False,
-#     DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
-#     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
-# )
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()
@@ -202,19 +197,6 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(
-            # body_html="""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-            # <html>
-            #   <head>
-            #     <meta http-equiv="content-type" content="text/html;
-            #       charset=ISO-8859-1">
-            #   </head>
-            #   <body text="#3366ff" bgcolor="#ffffff">
-            #     <font face="Calibri">password=contact<br>
-            #       password=creme<br>
-            #       created=01-02-2003<br>
-            #     </font>
-            #   </body>
-            # </html>""",
             body_html=f"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
         <html>
           <head>
@@ -657,7 +639,6 @@ description3=[[<br>]]
         self.assertFalse(WaitingAction.objects.all())
 
         email_input.create(PopEmail(
-            # body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nurl_site=plop',
             body=(
                 f'password=creme\n'
                 f'user_id={user.id}\n'
@@ -814,8 +795,6 @@ description3=[[<br>]]
             body_map={
                 'user_id':     user.id,
                 'title':       '',
-                # 'type_id':     ACTIVITYTYPE_MEETING,
-                # 'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
                 'type_id':     sub_type.type_id,
                 'sub_type_id': sub_type.id,
                 'start':       '',
@@ -849,8 +828,6 @@ description3=[[<br>]]
         activity = self.refresh(activity)
         self.assertEqual(user,             activity.user)
         self.assertEqual(title,            activity.title)
-        # self.assertEqual(ACTIVITYTYPE_MEETING,            activity.type.id)
-        # self.assertEqual(ACTIVITYSUBTYPE_MEETING_MEETING, activity.sub_type.id)
         self.assertEqual(sub_type.type_id, activity.type.id)
         self.assertEqual(sub_type.id,      activity.sub_type.id)
 

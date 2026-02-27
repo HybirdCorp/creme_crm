@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -290,29 +290,6 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
         if not allowed:
             raise PermissionDenied(msg)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #
-    #     efilter = self.object
-    #     user = self.request.user
-    #     context['edition_perm'] = efilter.can_edit(user)[0]
-    #     context['deletion_perm'] = efilter.can_delete(user)[0]
-    #
-    #     return context
-
-    # def get_bricks(self):
-    #     bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
-    #     efilter = self.object
-    #
-    #     for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
-    #         if issubclass(rel_objects.related_model, CremeEntity):
-    #             bricks.append(
-    #                 EntityFilterLinkedEntitiesBrick(
-    #                     model=rel_objects.related_model,
-    #                     field=rel_objects.field,
-    #                 )
-    #             )
-    #     return bricks
     def get_bricks(self):
         main_bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
         efilter = self.object

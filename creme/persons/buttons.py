@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,6 @@ Organisation = persons.get_organisation_model()
 class CrmButton(Button):
     dependencies = (Relation,)  # NB: override 'relation_type_deps' in child classes
     __managed_orga = False
-    # relation_type_id = 'OVERRIDE'
     template_name = 'persons/buttons/become.html'
 
     def check_permissions(self, *, entity, request):
@@ -48,7 +47,6 @@ class CrmButton(Button):
 
         return context
 
-    # def ok_4_display(self, entity):
     def is_displayed(self, *, entity, request):
         # TODO: only one query ??
         already_linked_pk = Relation.objects.filter(

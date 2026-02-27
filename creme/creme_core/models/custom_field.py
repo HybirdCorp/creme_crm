@@ -309,7 +309,6 @@ class CustomFieldText(CustomFieldValue):
 
 
 class CustomFieldURL(CustomFieldValue):
-    # value = models.URLField()
     value = CremeURLField(max_length=200)
 
     verbose_name = _('URL (link)')

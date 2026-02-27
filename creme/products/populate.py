@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -133,14 +133,6 @@ class Populator(BasePopulator):
         custom_forms.SERVICE_CREATION_CFORM,
         custom_forms.SERVICE_EDITION_CFORM,
     ]
-    # SEARCH = {
-    #     'PRODUCT': [
-    #         'name', 'description', 'category__name', 'sub_category__name',
-    #     ],
-    #     'SERVICE': [
-    #         'name', 'description', 'category__name', 'sub_category__name',
-    #     ],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Product,
@@ -221,8 +213,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Product = get_product_model()
-        # self.Service = get_service_model()
         self.Product = Product
         self.Service = Service
 
@@ -247,37 +237,6 @@ class Populator(BasePopulator):
             for sub_category in sub_categories:
                 sub_category.category = category
                 sub_category.save()
-
-    # def _populate_header_filters(self):
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_PRODUCT,
-    #         model=self.Product,
-    #         name=_('Product view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'images'}),
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'code'}),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #         ],
-    #     )
-    #
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_SERVICE,
-    #         model=self.Service,
-    #         name=_('Service view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'images'}),
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'reference'}),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.Product, fields=self.SEARCH['PRODUCT'])
-    #     create_sci(model=self.Service, fields=self.SEARCH['SERVICE'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

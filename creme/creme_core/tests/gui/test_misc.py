@@ -1,20 +1,14 @@
-# from functools import partial
-# from time import sleep
-#
-# from django.contrib.sessions.models import Session
-# from django.test.utils import override_settings
 from django.apps import apps
 
 from creme.creme_core.forms import CremeEntityQuickForm, CremeModelForm
 from creme.creme_core.gui.fields_config import FieldsConfigRegistry
 from creme.creme_core.gui.icons import Icon, IconRegistry
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.mass_import import FormRegistry
 from creme.creme_core.gui.merge import _MergeFormRegistry
 from creme.creme_core.gui.quick_forms import QuickFormRegistry
 from creme.creme_core.gui.statistics import StatisticRegistry
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import (  # CremeEntity
+from creme.creme_core.models import (
     FakeContact,
     FakeEmailCampaign,
     FakeImage,
@@ -33,87 +27,6 @@ from ..fake_forms import (
 
 
 class GuiTestCase(CremeTestCase):
-    # @override_settings(MAX_LAST_ITEMS=5)
-    # def test_last_viewed_items(self):
-    #     self.login_as_root()
-    #     user = self.get_root_user()
-    #
-    #     class FakeRequest:
-    #         def __init__(this):
-    #             user_id = str(user.id)
-    #             this.session = self.get_alone_element(
-    #                 d
-    #                 for d in (s.get_decoded() for s in Session.objects.all())
-    #                 if d.get('_auth_user_id') == user_id
-    #             )
-    #
-    #     def get_items():
-    #         return LastViewedItem.get_all(FakeRequest())
-    #
-    #     self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
-    #
-    #     create_contact = partial(FakeContact.objects.create, user=user)
-    #     contact1 = create_contact(first_name='Casca',    last_name='Mylove')
-    #     contact2 = create_contact(first_name='Puck',     last_name='Elfman')
-    #     contact3 = create_contact(first_name='Judo',     last_name='Doe')
-    #     contact04 = create_contact(first_name='Griffith', last_name='Femto')
-    #
-    #     self.assertGET200(contact1.get_absolute_url())
-    #     items = get_items()
-    #     self.assertEqual(1, len(items))
-    #     self.assertEqual(contact1.pk, items[0].pk)
-    #
-    #     # ---
-    #     self.assertGET200(contact2.get_absolute_url())
-    #     self.assertGET200(contact3.get_absolute_url())
-    #     self.assertGET200(contact04.get_absolute_url())
-    #     items = get_items()
-    #     self.assertEqual(4, len(items))
-    #     self.assertListEqual(
-    #         [contact04.pk, contact3.pk, contact2.pk, contact1.pk],
-    #         [i.pk for i in items],
-    #     )
-    #
-    #     # ---
-    #     sleep(1)
-    #     contact1.last_name = 'ILoveYou'
-    #     contact1.save()
-    #     self.assertGET200(FakeContact.get_lv_absolute_url())
-    #     old_item = get_items()[-1]
-    #     self.assertEqual(contact1.pk,   old_item.pk)
-    #     self.assertEqual(str(contact1), old_item.name)
-    #
-    #     # ---
-    #     self.assertGET200(contact2.get_absolute_url())
-    #     self.assertListEqual(
-    #         [contact2.pk, contact04.pk, contact3.pk, contact1.pk],
-    #         [i.pk for i in get_items()],
-    #     )
-    #
-    #     # ---
-    #     contact3.delete()
-    #     self.assertFalse(CremeEntity.objects.filter(pk=contact3.id))
-    #     self.assertGET200(FakeContact.get_lv_absolute_url())
-    #     items = get_items()
-    #     self.assertListEqual(
-    #         [contact2.pk, contact04.pk, contact1.pk],
-    #         [i.pk for i in items],
-    #     )
-    #
-    #     # ---
-    #     contact04.trash()
-    #     self.assertGET200(FakeContact.get_lv_absolute_url())
-    #     self.assertListEqual(
-    #         [contact2.pk, contact1.pk],
-    #         [i.pk for i in get_items()],
-    #     )
-    #
-    #     # ---
-    #     with override_settings(MAX_LAST_ITEMS=1):
-    #         self.assertGET200(FakeContact.get_lv_absolute_url())
-    #
-    #     self.assertListEqual([contact2.pk], [i.pk for i in get_items()])
-
     def test_statistics(self):
         user = self.get_root_user()
 

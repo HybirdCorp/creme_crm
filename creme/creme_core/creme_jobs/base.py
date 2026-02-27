@@ -116,10 +116,6 @@ class JobType:
         if self.periodic != self.NOT_PERIODIC and job.last_run:
             # TODO: 'self.result_model' instead of 'JobResult' ??
             JobResult.objects.filter(job=job).delete()
-            # job.status = Job.STATUS_WAIT
-
-        # job.last_run = now()
-        # job.save()
 
         # NB: we use 'update()' because:
         #  - Job.save() pushes a REFRESH command when a Job is edited;
@@ -139,16 +135,9 @@ class JobType:
         except Exception as e:
             logger.exception(e)
 
-            # job.status = Job.STATUS_ERROR
-            # job.error = str(e)
             status = Job.STATUS_ERROR
             error = str(e)
-        # else:
-        #     job.status = Job.STATUS_OK
-        #     job.error = None
 
-        # job.last_run = now()
-        # job.save()
         _update_job(status=status, error=error)
 
         events = WorkflowEngine.get_current()._queue.pickup()

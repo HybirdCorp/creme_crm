@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2025  Hybird
+#    Copyright (C) 2012-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from functools import partial
 
 from django.conf import settings
@@ -66,14 +65,6 @@ class AbstractPollForm(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('polls__list_forms')
-
-    # def _post_clone(self, source):
-    #     warnings.warn(
-    #         'The method PollForm._post_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     source.duplicate_tree(self, source.lines.filter(disabled=False))
 
     def _build_section_matches(self, instance):
         """Build a dict that is the correspondence between PollFormSection &

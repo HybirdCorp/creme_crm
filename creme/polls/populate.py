@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2025  Hybird
+#    Copyright (C) 2012-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -103,12 +103,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Contact      = persons.get_contact_model()
-        # self.Organisation = persons.get_organisation_model()
-        #
-        # self.PollCampaign = polls.get_pollcampaign_model()
-        # self.PollForm     = polls.get_pollform_model()
-        # self.PollReply    = polls.get_pollreply_model()
         self.Contact      = Contact
         self.Organisation = Organisation
 
@@ -125,38 +119,6 @@ class Populator(BasePopulator):
 
     def _populate_poll_types(self):
         self._save_minions(self.POLL_TYPES)
-
-    # def _populate_header_filters(self):
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_PFORM,
-    #         model=self.PollForm, name=_('Form view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_PREPLY,
-    #         model=self.PollReply, name=_('Reply view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'pform'}),
-    #             (EntityCellRegularField, {'name': 'person'}),
-    #         ],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
-    #         model=self.PollCampaign, name=_('Campaign view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'due_date'}),
-    #             (EntityCellRegularField, {'name': 'segment'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.PollForm,     fields=['name'])
-    #     create_sci(model=self.PollReply,    fields=['name'])
-    #     create_sci(model=self.PollCampaign, fields=['name'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

@@ -159,20 +159,3 @@ class OpportunityTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=opportunity)
         # Internal
         self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=clone)
-
-    # def test_clone__method(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #
-    #     opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
-    #     cloned = opportunity.clone()
-    #
-    #     self.assertEqual(opportunity.name,         cloned.name)
-    #     self.assertEqual(opportunity.sales_phase,  cloned.sales_phase)
-    #     self.assertEqual(opportunity.closing_date, cloned.closing_date)
-    #
-    #     self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
-    #     self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=cloned)
-    #
-    #     self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=opportunity)
-    #     # Internal
-    #     self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=cloned)

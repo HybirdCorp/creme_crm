@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from collections.abc import Iterator
 from typing import Type
 
@@ -385,28 +384,3 @@ class ActionRegistry:
 
 
 action_registry = ActionRegistry()
-
-
-# def __getattr__(name):
-#     if name == 'ActionsRegistry':
-#         warnings.warn(
-#             '"ActionsRegistry" is deprecated; use "ActionRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return ActionRegistry
-#
-#     if name == 'ActionsChain':
-#         warnings.warn(
-#             '"ActionsChain" is deprecated; use "ActionChain" instead.',
-#             DeprecationWarning,
-#         )
-#         return ActionChain
-#
-#     if name == 'actions_registry':
-#         warnings.warn(
-#             '"actions_registry" is deprecated; use "action_registry" instead.',
-#             DeprecationWarning,
-#         )
-#         return action_registry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

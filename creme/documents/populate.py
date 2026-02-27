@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,12 +96,6 @@ class Populator(BasePopulator):
         custom_forms.DOCUMENT_CREATION_CFORM,
         custom_forms.DOCUMENT_EDITION_CFORM,
     ]
-    # SEARCH = {
-    #     'FOLDER': ['title', 'description', 'category__name'],
-    #     'DOCUMENT': [
-    #         'title', 'description', 'linked_folder__title', 'categories__name',
-    #     ],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Folder, fields=['title', 'description', 'category__name'],
@@ -114,9 +108,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # self.Document = get_document_model()
-        # self.Folder   = get_folder_model()
         self.Document = Document
         self.Folder   = Folder
 
@@ -169,12 +160,6 @@ class Populator(BasePopulator):
             },
         )
 
-    # def _populate_relation_types(self):
-    #     RelationType.objects.smart_update_or_create(
-    #         (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
-    #         (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [self.Document])
-    #     )
-
     def _populate_entity_filters(self):
         EntityFilter.objects.smart_update_or_create(
             constants.EFILTER_IMAGES, name=_('Images'), model=self.Document,
@@ -188,37 +173,6 @@ class Populator(BasePopulator):
                 ),
             ],
         )
-
-    # def _populate_header_filters_for_document(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
-    #         name=_('Document view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'title'}),
-    #             (EntityCellRegularField, {'name': 'linked_folder__title'}),
-    #             (EntityCellRegularField, {'name': 'mime_type'}),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters_for_folder(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
-    #         name=_('Folder view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'title'}),
-    #             (EntityCellRegularField, {'name': 'description'}),
-    #             (EntityCellRegularField, {'name': 'category'}),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters(self):
-    #     self._populate_header_filters_for_document()
-    #     self._populate_header_filters_for_folder()
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.Folder,   fields=self.SEARCH['FOLDER'])
-    #     create_sci(model=self.Document, fields=self.SEARCH['DOCUMENT'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

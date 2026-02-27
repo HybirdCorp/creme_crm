@@ -67,11 +67,6 @@ class DatePeriodFieldTestCase(CremeTestCase):
         self.assertEqual(WeeksPeriod(2),  field.to_python({'type': 'weeks', 'value': 2}))
         self.assertEqual(MonthsPeriod(1), field.get_prep_value({'type': 'months', 'value': 1}))
 
-        # # Str
-        # self.assertEqual(MonthsPeriod(1), field.to_python('{"type": "months", "value": 1}'))
-        # self.assertEqual(WeeksPeriod(2),  field.to_python('{"type": "weeks", "value": 2}'))
-        # self.assertEqual(WeeksPeriod(2),  field.get_prep_value('{"type": "weeks", "value": 2}'))
-
         # DatePeriod
         period = MonthsPeriod(1)
         self.assertEqual(period, field.to_python(period))
@@ -92,33 +87,6 @@ class DatePeriodFieldTestCase(CremeTestCase):
             error=cm.exception,
             messages="DatePeriodField.to_python(): period is invalid (dict argument)",
         )
-
-    # def test_str_errors(self):
-    #     field = DatePeriodField(name='Periodicity')
-    #
-    #     with self.assertRaises(ValidationError) as cm:
-    #         field.to_python('{"a_key": "a_value"}')
-    #     self.assertValidationError(
-    #         error=cm.exception,
-    #         messages="DatePeriodField.to_python(): string is invalid (missing key 'type')",
-    #     )
-    #
-    #     with self.assertRaises(ValidationError) as cm:
-    #         field.to_python('{"type": "invalid", "value": 1}')
-    #     self.assertValidationError(
-    #         error=cm.exception,
-    #         messages="DatePeriodField.to_python(): period is invalid (string argument)",
-    #     )
-    #
-    #     with self.assertRaises(ValidationError) as cm:
-    #         field.to_python('{"type": "')
-    #     self.assertValidationError(
-    #         error=cm.exception,
-    #         messages=(
-    #             "DatePeriodField.to_python(): invalid JSON "
-    #             "(Unterminated string starting at: line 1 column 10 (char 9))"
-    #         ),
-    #     )
 
     def test_type_error(self):
         field = DatePeriodField(name='Periodicity')

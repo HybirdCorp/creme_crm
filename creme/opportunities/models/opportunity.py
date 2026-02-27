@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from functools import partial
 
 from django.apps import apps
@@ -83,11 +82,9 @@ class AbstractOpportunity(core_models.CremeEntity):
         _('Reference'), max_length=100, blank=True,
     ).set_tags(optional=True)
 
-    # estimated_sales = models.PositiveIntegerField(
     estimated_sales = core_fields.PositiveIntegerMoneyField(
         _('Estimated sales'), blank=True, null=True,
     ).set_tags(optional=True)
-    # made_sales = models.PositiveIntegerField(
     made_sales = core_fields.PositiveIntegerMoneyField(
         _('Made sales'), blank=True, null=True,
     ).set_tags(optional=True)
@@ -148,15 +145,6 @@ class AbstractOpportunity(core_models.CremeEntity):
 
             if not self._opp_target:
                 raise ValidationError(gettext('Target is required.'))
-
-    # def _pre_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Opportunity._pre_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self.emitter = source.emitter
-    #     self.target  = source.target
 
     def clean(self):
         self._clean_emitter_n_target()

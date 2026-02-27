@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,6 @@ class AbstractMessageTemplate(CremeEntity):
     name = models.CharField(_('Name'), max_length=100)
     subject = models.CharField(_('Subject'), max_length=100)
     body = models.TextField(
-        # _('Body'),
         pgettext_lazy('sms', 'Message body'),
         help_text=lazy(
             (lambda: gettext(
@@ -93,9 +92,6 @@ class AbstractMessageTemplate(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('sms__list_templates')
-
-    # def resolve(self, date):
-    #     return self.subject + ' : ' + self.body
 
 
 class MessageTemplate(AbstractMessageTemplate):

@@ -272,47 +272,6 @@ class JSONField(fields.CharField):
 
         return query
 
-    # def _clean_entity(self,
-    #                   ctype: ContentType | int,
-    #                   entity_pk: int | str,
-    #                   ) -> CremeEntity | None:
-    #     if not isinstance(ctype, ContentType):
-    #         ctype = self._clean_ctype(ctype)
-    #         if ctype is None:
-    #             return None
-    #
-    #     entity = None
-    #
-    #     if not entity_pk:
-    #         if self.required:
-    #             raise ValidationError(
-    #                 self.error_messages['required'],
-    #                 code='required',
-    #             )
-    #     else:
-    #         model = ctype.model_class()
-    #         assert issubclass(model, CremeEntity)
-    #
-    #         try:
-    #             entity = model.objects.get(pk=entity_pk)
-    #         except model.DoesNotExist as e:
-    #             raise ValidationError(
-    #                 self.error_messages['doesnotexist'],
-    #                 params={
-    #                     'ctype': ctype.pk,
-    #                     'entity': entity_pk,
-    #                 },
-    #                 code='doesnotexist',
-    #             ) from e
-    #         else:
-    #             if entity.is_deleted:
-    #                 raise ValidationError(
-    #                     self.error_messages['isdeleted'],
-    #                     code='isdeleted',
-    #                     params={'entity': entity.allowed_str(self._user)},
-    #                 )
-    #
-    #     return entity
     def _clean_entity(self,
                       ctype: ContentType | type[CremeEntity] | int | None,
                       entity_pk: int | None,
@@ -497,7 +456,6 @@ class EntityCredsJSONField(JSONField):
         return entities
 
     def _has_quickform(self, model):
-        # return self.quickforms_registry.get_form_class(model) is not None
         return self.quickform_registry.get_form_class(model) is not None
 
 
@@ -618,18 +576,6 @@ class GenericEntityField(EntityCredsJSONField):
         }
 
     def _value_from_unjsonfied(self, data):
-        # clean_value = self.clean_value
-        # required = self.required
-        #
-        # ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
-        # ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
-        #
-        # entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
-        # ctype = self._clean_ctype(ctype_pk)
-        #
-        # return self._check_entity_perms(
-        #     entity=self._clean_entity(ctype=ctype, entity_pk=entity_pk),
-        # ) if ctype else None
         clean_value = self.clean_value
         required = self.required
 
@@ -648,7 +594,6 @@ class GenericEntityField(EntityCredsJSONField):
             required=required,
         ))
 
-    # def _clean_ctype(self, ctype_pk):
     def _clean_ctype(self, ctype_id, *, required=None):
         ctype = super()._clean_ctype(ctype_id, required=required)
 
@@ -833,28 +778,6 @@ class RelationEntityField(EntityCredsJSONField):
         }
 
     def _value_from_unjsonfied(self, data):
-        # clean_value = self.clean_value
-        # rtype_pk = clean_value(data, 'rtype',  str)
-        #
-        # ctype_pk = clean_value(data, 'ctype',  int, required=False)
-        # if not ctype_pk:
-        #     return self._return_none_or_raise(self.required, 'ctyperequired')
-        #
-        # entity_pk = clean_value(data, 'entity', int, required=False)
-        # if not entity_pk:
-        #     return self._return_none_or_raise(self.required, 'entityrequired')
-        #
-        # rtype = self._clean_rtype(rtype_pk)
-        # entity = self._clean_entity(ctype_pk, entity_pk)
-        # self._check_entity_perms(entity)
-        #
-        # Relation(
-        #     # user=self.user
-        #     subject_entity=entity,
-        #     type=rtype.symmetric_type,
-        # ).clean_subject_entity()
-        #
-        # return rtype, entity
         clean_value = self.clean_value
         required = self.required
         # TODO: manage required=False??
@@ -1110,7 +1033,7 @@ class CreatorEntityField(EntityCredsJSONField):
     def create_action_url(self) -> str:
         if self._create_action_url:
             return self._create_action_url
-        #
+
         model = self._model
 
         if model is not None and self._has_quickform(model):
@@ -1161,16 +1084,7 @@ class CreatorEntityField(EntityCredsJSONField):
         return value.id
 
     def _value_from_unjsonfied(self, data):
-        # model = self.model
-        # if model is None:
-        #     if self.required:
-        #         raise ValidationError(self.error_messages['required'], code='required')
-        #
-        #     return None
-        # entity = self._clean_entity_from_model(model, data, self.q_filter_query)
-        # return self._check_entity_perms(entity)
         model = self.model
-
         if model is None:
             raise ValidationError(
                 'The model is not set; contact your administrator.',
@@ -1212,10 +1126,6 @@ class MultiCreatorEntityField(CreatorEntityField):
                 'The model is not set; contact your administrator.',
             )
 
-        # clean_entity = partial(
-        #     self._clean_entity_from_model,
-        #     model=model, qfilter=self.q_filter_query,
-        # )
         clean_entity = partial(
             self._clean_entity, ctype=model, qfilter=self.q_filter_query, required=True,
         )
@@ -1226,15 +1136,6 @@ class MultiCreatorEntityField(CreatorEntityField):
                     self.error_messages['invalidtype'], code='invalidtype',
                 )
 
-            # entity = clean_entity(entity_pk=entry)
-            #
-            # if entity is None:
-            #     raise ValidationError(
-            #         self.error_messages['doesnotexist'],
-            #         code='doesnotexist',
-            #     )
-            #
-            # entities.append(entity)
             entities.append(clean_entity(entity_pk=entry))
 
         return self._check_entities_perms(entities)
@@ -1552,7 +1453,6 @@ class ListEditionField(fields.Field):
 
     @property
     def content(self) -> list[str]:
-        # return self._content
         return [*self._content]
 
     @content.setter
@@ -2145,7 +2045,6 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
         @param kwargs: See <MultipleChoiceField>.
         """
         self._raw_choices = None  # Backup of the choices, in order to build iterator.
-        # self._initial = None
         self._forced_values = frozenset(forced_values)
 
         if iterator is not None:
@@ -2179,21 +2078,6 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
         self._forced_values = frozenset(values or ())
         self.choices = self._raw_choices
 
-    # @property
-    # def initial(self):
-    #     result = set()
-    #
-    #     initial = self._initial
-    #     if initial is not None:
-    #         result.update(initial)
-    #
-    #     result.update(self._forced_values)
-    #
-    #     return result
-    #
-    # @initial.setter
-    # def initial(self, value):
-    #     self._initial = value
     def prepare_value(self, value):
         prepared = {*value} if value else set()
         prepared.update(self._forced_values)
@@ -2279,21 +2163,6 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
         """@param values: Iterable of PKs."""
         self._forced_values = frozenset(values or ())
         self.widget.choices = self.choices
-
-    # @property
-    # def initial(self):
-    #     result = set()
-    #     initial = self._initial
-    #     if initial is not None:
-    #         result.update(initial)
-    #
-    #     result.update(self._forced_values)
-    #
-    #     return result
-    #
-    # @initial.setter
-    # def initial(self, value):
-    #     self._initial = value
 
 
 class PropertyTypeChoiceIterator(EnhancedModelChoiceIterator):

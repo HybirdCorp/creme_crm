@@ -79,7 +79,6 @@ from creme.creme_core.models import (
     UserRole,
 )
 from creme.creme_core.models.custom_field import _TABLES as CF_TABLES
-# from creme.creme_core.utils.content_type import ctype_from_key
 from creme.creme_core.utils.dependence_sort import (
     DependenciesLoopError,
     dependence_sort,
@@ -441,12 +440,10 @@ class UserRolesImporter(Importer):
 
     def _validate_section(self, deserialized_section, validated_data):
         def load_creds(info):
-            # ctype_str = info.get('ctype')
             ctype_key = info.get('ctype')
             data = {
                 'value':     info['value'],
                 'set_type':  info['type'],
-                # 'ctype':     ctype_from_key(ctype_str) if ctype_str else None,
                 'ctype': ContentType.objects.get_by_portable_key(
                     ctype_key
                 ) if ctype_key else None,
@@ -475,11 +472,9 @@ class UserRolesImporter(Importer):
                 'admin_4_apps': role_info.get('admin_4_apps', ()),
 
                 'creatable_ctypes':  [
-                    # *map(ctype_from_key, role_info.get('creatable_ctypes', ())),
                     *map(get_ct, role_info.get('creatable_ctypes', ())),
                 ],
                 'exportable_ctypes': [
-                    # *map(ctype_from_key, role_info.get('exportable_ctypes', ())),
                     *map(get_ct, role_info.get('exportable_ctypes', ())),
                 ],
 
@@ -579,9 +574,6 @@ class ButtonsConfigImporter(Importer):
             'order': int(bmi_info['order']),
         }
 
-        # natural_ctype = bmi_info.get('ctype')
-        # if natural_ctype:
-        #     data['content_type'] = ctype_from_key(natural_ctype)
         ctype_key = bmi_info.get('ctype')
         if ctype_key:
             data['content_type'] = ContentType.objects.get_by_portable_key(ctype_key)
@@ -621,7 +613,6 @@ class SearchConfigImporter(Importer):
 
     def _validate_section(self, deserialized_section, validated_data):
         def load_sci(sci_info):
-            # ct = ctype_from_key(sci_info['ctype'])
             ct = ContentType.objects.get_by_portable_key(sci_info['ctype'])
             model = ct.model_class()
 
@@ -830,7 +821,6 @@ class FieldsConfigImporter(Importer):
     def _validate_section(self, deserialized_section, validated_data):
         def load_fields_config(fconfig_info: dict) -> dict:
             return {
-                # 'content_type': ctype_from_key(fconfig_info['ctype']),
                 'content_type': ContentType.objects.get_by_portable_key(fconfig_info['ctype']),
                 'descriptions': fconfig_info['descriptions'],
             }
@@ -868,7 +858,6 @@ class CustomFieldsImporter(Importer):
             )
 
         name = cfield_info['name']
-        # ctype = ctype_from_key(cfield_info['ctype'])
         ctype = ContentType.objects.get_by_portable_key(cfield_info['ctype'])
         if CustomField.objects.filter(content_type=ctype, name=name).exists():
             raise ValidationError(
@@ -1179,8 +1168,6 @@ class ConditionProxyRelation(ConditionProxy):
                     ).format(id=self.efilter_id, uuid=entity_uuid)
                 )
 
-        # ct_str = value.get('ct')
-        # self.ct = ctype_from_key(ct_str) if ct_str else None
         ct_key = value.get('ct')
         self.ct = ContentType.objects.get_by_portable_key(ct_key) if ct_key else None
 
@@ -1639,7 +1626,6 @@ class RelationBrickItemsImporter(Importer):
 
     def _validate_section(self, deserialized_section, validated_data):
         def load_ctype_cells(rtype_id, ctype_key, cells_dicts):
-            # ctype = ctype_from_key(ctype_key)
             ctype = ContentType.objects.get_by_portable_key(ctype_key)
 
             return ctype, self.cells_proxies_registry.build_proxies_from_dicts(
@@ -1724,7 +1710,6 @@ class CustomBrickConfigItemsImporter(Importer):
 
         for info in deserialized_section:
             cbci_uuid = info['uuid']
-            # ctype = ctype_from_key(info['content_type'])
             ctype = ContentType.objects.get_by_portable_key(info['content_type'])
 
             data.append({
@@ -1784,7 +1769,6 @@ class DetailviewBricksLocationsImporter(Importer):
 
             natural_ctype = info.get('ctype')
             if natural_ctype:
-                # data['content_type'] = ctype_from_key(natural_ctype)
                 data['content_type'] = ContentType.objects.get_by_portable_key(natural_ctype)
 
             role_uuid = info.get('role')

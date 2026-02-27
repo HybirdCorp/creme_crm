@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core.bricks import TrashBrick  # TrashCleanerJobErrorsBrick
+from creme.creme_core.bricks import TrashBrick
 from creme.creme_core.creme_jobs import reminder_type
 from creme.creme_core.creme_jobs.trash_cleaner import (
     TrashCleanerJobErrorsBrick,

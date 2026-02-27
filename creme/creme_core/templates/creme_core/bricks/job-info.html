@@ -50,12 +50,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% comment %}
-    <tr>
-        <td>{% translate 'Type' %}</td>
-        <td>{{job.type}}</td>
-    </tr>
-{% endcomment %}
     <tr>
         <td>{% translate 'App' %}</td>
         <td>{{job.type.app_config.verbose_name}}</td>
