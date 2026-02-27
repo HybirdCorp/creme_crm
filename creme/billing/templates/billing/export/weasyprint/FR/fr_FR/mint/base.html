@@ -1,4 +1,4 @@
-{% load creme_core_tags persons_tags %}
+{% load creme_core_tags creme_ctype persons_tags %}
 {% with currency=object.currency source=object.source %}
 <!doctype html>
 <html>
@@ -21,12 +21,12 @@
       </address>
       {% endblock %}
 
-      {% block address_to %}
-      <address id="to">
-        <span id="target" >{{object.target}}</span>
+      {% block address_to %}{% with receiver=object.target %}
+       <address id="to">
+        <span id="target">{{receiver}}</span>{% if receiver.entity_type == 'PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}<br><span class="target-info-key">N° TVA</span>: <span class="target-info-value">{{receiver.tvaintra|default:'—'}}</span>{% endif %}
         {% with billing_address=object.billing_address %}{% if billing_address %}{{billing_address|persons_pretty_address|linebreaksbr}}{% if billing_address.country %}<br>{{billing_address.country}}{% endif %}{% endif %}{% endwith %}
-      </address>
-      {% endblock %}
+       </address>
+      {% endwith %}{% endblock %}
     </aside>
 
     <dl id="information">
