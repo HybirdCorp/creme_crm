@@ -10,6 +10,9 @@
           you were obliged to restart the scheduler.
         - Modifying a Job's configuration during it's execution did not work correctly
           (new configuration could be lost).
+    # Apps :
+        * Billing :
+            - The VAT number of the target organisation has been added in exported PDFs ('FR' templates).
 
   Developers side :
   -----------------
