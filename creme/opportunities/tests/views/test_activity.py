@@ -86,7 +86,6 @@ class UnsuccessfulPhoneCallCreationTestCase(OpportunitiesBaseTestCase):
             self.get_object_or_fail(Status, uuid=act_constants.UUID_STATUS_UNSUCCESSFUL),
             activity.status,
         )
-        # self.assertEqual(act_constants.NARROW, activity.floating_type)
         self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
         end = activity.end

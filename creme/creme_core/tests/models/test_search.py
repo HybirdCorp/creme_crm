@@ -190,11 +190,6 @@ class SearchConfigItemManagerTestCase(CremeTestCase):
         role1 = create_role(name='CEO')
         role2 = create_role(name='Office lady')
 
-        # create_sci = SearchConfigItem.objects.create_if_needed
-        # create_sci(FakeContact, ['first_name', 'last_name'])
-        # create_sci(FakeContact, ['first_name'], role=role1)
-        # sc_item = create_sci(FakeContact, ['last_name'], role='superuser')  # <==
-        # create_sci(FakeContact, ['first_name', 'description'], role=role2)
         sci_builder = partial(SearchConfigItem.objects.builder, model=FakeContact)
         sci_builder(fields=['first_name', 'last_name']).get_or_create()
         sci_builder(fields=['first_name'], role=role1).get_or_create()

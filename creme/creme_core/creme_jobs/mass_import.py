@@ -96,7 +96,6 @@ class _MassImportType(JobType):
 
     @property
     def results_bricks(self):
-        # from ..bricks import MassImportJobErrorsBrick
         return [MassImportJobErrorsBrick()]
 
     def get_description(self, job):

@@ -98,7 +98,6 @@ class _BatchProcessType(JobType):
 
         entities = EntityCredentials.filter(job.user, entities, EntityCredentials.CHANGE)
         paginator = FlowPaginator(
-            # queryset=entities.order_by('id'), key='id', per_page=1024,
             queryset=entities.order_by('id'), per_page=1024,
         )
         actions = [*self._get_actions(model, job_data)]

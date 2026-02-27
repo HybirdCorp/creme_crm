@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
 from creme.creme_core.models import Sandbox
@@ -70,14 +69,3 @@ class SandboxTypeRegistry:
 
 
 sandbox_type_registry = SandboxTypeRegistry()
-
-
-# def __getattr__(name):
-#     if name == '_SandboxTypeRegistry':
-#         warnings.warn(
-#             '"_SandboxTypeRegistry" is deprecated; use "SandboxTypeRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return SandboxTypeRegistry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

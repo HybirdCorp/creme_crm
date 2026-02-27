@@ -41,7 +41,6 @@ class ResourceTestCase(ProjectsTestCase):
             user=user,
             linked_project=project,
             title='legs',
-            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
             tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),

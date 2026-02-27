@@ -203,7 +203,6 @@ class ConversionViewTestCase(_BillingTestCase):
         self.assertEqual(0, Invoice.objects.count())
 
         order = self.get_alone_element(SalesOrder.objects.all())
-        # self.assertEqual('ORD1', order.number)
         self.assertStartsWith(order.number, _('ORD'))
         self.assertEqual(def_status, order.status)
         self.assertHaveNoRelation(subject=order, type=REL_SUB_INVOICE_FROM_QUOTE, object=quote)

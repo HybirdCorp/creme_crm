@@ -22,7 +22,6 @@ from creme.creme_core.gui.custom_form import (
     FieldGroup,
     FieldGroupList,
 )
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -109,11 +108,6 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(response.context['visitor'])
 
         # -----
-        # last_item = self.get_alone_element(LastViewedItem.get_all(self.FakeRequest(user)))
-        # self.assertEqual(fox.id,             last_item.pk)
-        # self.assertEqual(fox.entity_type_id, last_item.ctype_id)
-        # self.assertEqual(url,                last_item.url)
-        # self.assertEqual(str(fox),           last_item.name)
         last_viewed = self.get_object_or_fail(LastViewedEntity, entity_id=fox.id)
         self.assertEqual(user, last_viewed.user)
 
@@ -974,7 +968,6 @@ class EditionTestCase(CremeTestCase):
             user=user, title='my activity', place='Mars sea', type=atype1,
         )
 
-        # url = reverse('creme_core__edit_fake_activity', args=[activity.id])
         url = activity.get_edit_absolute_url()
         response1 = self.assertGET200(url)
         with self.assertNoException():

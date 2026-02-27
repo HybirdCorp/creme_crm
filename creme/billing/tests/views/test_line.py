@@ -10,7 +10,7 @@ from parameterized import parameterized
 
 from creme.billing import bricks
 from creme.billing.constants import REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM
-from creme.creme_core.models import FakeOrganisation, Vat  # Relation
+from creme.creme_core.models import FakeOrganisation, Vat
 from creme.creme_core.tests.views import base
 from creme.persons.models import Contact, Organisation
 from creme.persons.tests.base import skipIfCustomOrganisation

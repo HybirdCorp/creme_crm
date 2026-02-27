@@ -2590,7 +2590,6 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, FakeContact, [])
 
     def test_relations__deleted_rtype(self):
-        # loves = self._aux_test_relations()
         loves = RelationType.objects.builder(
             id='test-subject_love', predicate='Is loving',
         ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]

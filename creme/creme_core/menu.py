@@ -266,43 +266,6 @@ class EntitiesCreationEntry(menu.MenuEntry):
         )
 
 
-# class RecentEntitiesEntry(menu.MenuEntry):
-#     """Entry displaying links to detail-views recently consulted."""
-#     id = 'creme_core-recent_entities'
-#     label = _('Recent entities')
-#     level = 0
-#     single_instance = True
-#
-#     def render(self, context):
-#         from .gui.last_viewed import LastViewedItem
-#
-#         lv_items = LastViewedItem.get_all(context['request'])
-#
-#         if lv_items:
-#             li_tags = format_html_join(
-#                 '\n',
-#                 '<li>'
-#                 '<a href="{url}">'
-#                 '<span class="ui-creme-navigation-ctype">{ctype}</span>'
-#                 '{name}'
-#                 '</a>'
-#                 '</li>',
-#                 (
-#                     {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
-#                     for lvi in lv_items
-#                 ),
-#             )
-#         else:
-#             li_tags = format_html(
-#                 '<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
-#                 gettext('No recently visited entity'),
-#             )
-#
-#         return format_html(
-#             '{label}<ul>{li_tags}</ul>',
-#             label=self.render_label(context),
-#             li_tags=li_tags,
-#         )
 class QuickAccessEntry(menu.ContainerEntry):
     """Entry displaying links to detail-views recently consulted & to pinned entities."""
     id = 'creme_core-recent_entities'  # TODO: change + data migration

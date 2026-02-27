@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE
 
-# from .. import get_template_base_model
 from .base import Base
-# from .templatebase import TemplateBase
 from .other_models import SalesOrderStatus, get_default_sales_order_status_pk
 
 
@@ -60,21 +57,6 @@ class AbstractSalesOrder(Base):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('billing__list_orders')
-
-    # def build(self, template):
-    #     warnings.warn(
-    #         'The method billing.models.SalesOrder.build() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     status = None
-    #
-    #     if isinstance(template, get_template_base_model()):
-    #         status = SalesOrderStatus.objects.filter(uuid=template.status_uuid).first()
-    #
-    #     self.status = status or SalesOrderStatus.objects.default()
-    #
-    #     return super().build(template)
 
 
 class SalesOrder(AbstractSalesOrder):

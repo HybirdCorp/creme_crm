@@ -101,7 +101,6 @@
 
         createBrickHtml: function(options) {
             options = $.extend({
-//                id: 'brick-for-test',
                 id: 'creme_core-test',
                 title: 'Test it',
                 header: '',
@@ -117,7 +116,6 @@
             };
 
             var html = (
-//                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
                 '<div class="brick ui-creme-widget ${classes}" widget="brick" id="brick-${id}" data-brick-id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
                      + '<div class="brick-header">'
                          + '<div class="brick-title">${title}</div>'

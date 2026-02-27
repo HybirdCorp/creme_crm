@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2025  Hybird
+    Copyright (C) 2009-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -53,54 +53,6 @@ creme.utils.goTo = function(url, data) {
         creme.utils.redirect(urlinfo.href());
     }
 };
-
-/*
-creme.utils.showPageLoadOverlay = function() {
-    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
-    creme.utils.loading('', false);
-};
-*/
-
-/*
-creme.utils.hidePageLoadOverlay = function() {
-    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
-    creme.utils.loading('', true);
-};
-*/
-
-/*
-creme.utils.loading = function(div_id, is_loaded, params) {
-    console.warn('creme.utils.loading is deprecated; Use creme.dialog.Overlay instead.');
-
-    var overlay = creme.utils._overlay;
-
-    if (overlay === undefined) {
-        overlay = creme.utils._overlay = new creme.dialog.Overlay();
-        overlay.bind($('body'))
-               .addClass('page-loading')
-               .content($('<h2>').append($('<img>').attr('src', creme_media_url("images/wait.gif")),
-                                         $('<span>').text(gettext('Loading…'))));
-
-        overlay._loadstack = 0;
-    }
-
-    overlay._loadstack += !is_loaded ? 1 : -1;
-
-    var visible = overlay._loadstack > 0;
-    overlay.update(visible, null, visible ? 100 : 0);
-};
-*/
-
-/*
-creme.utils.confirmSubmit = function(atag, msg) {
-    console.warn('creme.utils.confimSubmit is now deprecated; should use actions instead');
-    creme.dialogs.confirm(msg || gettext('Are you sure?'))
-                 .onOk(function() {
-                      $('form', $(atag)).trigger('submit');
-                  })
-                 .open();
-};
-*/
 
 creme.utils.scrollTo = function(element) {
     if (Object.isNone(element) === false) {
@@ -223,19 +175,6 @@ creme.utils.ajaxQuery = function(url, options, data) {
                       _success(result);
                   }
               });
-
-/*
-        if (options.waitingOverlay) {
-            console.warn('The option "waitingOverlay" of creme.utils.ajaxQuery is deprecated.');
-
-            query.onStart(function() {
-                      creme.utils.showPageLoadOverlay();
-                  })
-                 .onComplete(function() {
-                      creme.utils.hidePageLoadOverlay();
-                  });
-        }
-*/
 
         if (options.confirm) {
             var confirmMessage = Object.isString(options.confirm) ? options.confirm : gettext("Are you sure?");

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,31 +58,16 @@ class Populator(BasePopulator):
         custom_forms.REPORT_CREATION_CFORM,
         custom_forms.REPORT_EDITION_CFORM,
     ]
-    # SEARCH = ['name']
     SEARCH = [
         SearchConfigItem.objects.builder(model=Report, fields=['name']),
     ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Report = get_report_model()
         self.Report = Report
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_REPORT).exists()
-
-    # def _populate_header_filters(self):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_REPORT,
-    #         name=_('Report view'), model=self.Report,
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'ct'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
@@ -105,7 +90,6 @@ class Populator(BasePopulator):
                 {'order': 5},
                 {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
                 {'brick': bricks.ReportFieldsBrick,         'order':  50},
-                # {'brick': bricks.ReportGraphChartListBrick, 'order':  60},
                 {'brick': bricks.ReportChartsBrick,         'order':  60},
                 {'brick': core_bricks.PropertiesBrick,      'order': 450},
                 {'brick': core_bricks.RelationsBrick,       'order': 500},

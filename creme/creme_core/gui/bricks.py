@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
 from typing import DefaultDict, List, Literal, Tuple, Type, Union
@@ -307,11 +306,9 @@ class ForbiddenBrick(Brick):
         )
 
     def detailview_display(self, context):
-        # return self._render(self.get_template_context(context, permissions_error=self.error))
         return self._render(self.get_template_context(context))
 
     def home_display(self, context):
-        # return self.detailview_display(context=context)
         return self._render(self.get_template_context(context))
 
 
@@ -492,7 +489,6 @@ class QuerysetBrick(PaginatedBrick):
         )
 
 
-# class EntityBrick(Brick):
 class EntityBrick(SimpleBrick):
     id = MODELBRICK_ID
     verbose_name = _('Information on the entity (generic)')
@@ -536,15 +532,6 @@ class EntityBrick(SimpleBrick):
             cells=self._get_cells(entity, context),
             **extra_kwargs
         )
-
-    # def detailview_display(self, context):
-    #     entity = context['object']
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         title=self._get_title(entity, context),
-    #         cells=self._get_cells(entity, context),
-    #     ))
 
 
 class SpecificRelationsBrick(QuerysetBrick):
@@ -591,10 +578,6 @@ class SpecificRelationsBrick(QuerysetBrick):
         relation_type = config_item.relation_type
         btc = self.get_template_context(
             context,
-            # entity.relations
-            #       .filter(type=relation_type)
-            #       .select_related('type')
-            #       .prefetch_related('real_object'),
             # NB: we order by:
             #   - "ctype" to group entities with the same type (sadly types will be ordered
             #     by their ID, not their localized labels -- it would be difficult to do).
@@ -707,14 +690,6 @@ class CustomBrick(SimpleBrick):
             **extra_kwargs
         )
 
-    # def detailview_display(self, context) -> str:
-    #     config_item = self.config_item
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         config_item=config_item,
-    #         cells=[*config_item.filtered_cells],
-    #     ))
-
 
 class BrickManager:
     """The bricks of a page are registered in order to regroup the query to get
@@ -810,13 +785,6 @@ class BrickRegistry:
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
-
-            # if hasattr(brick_cls, 'has_perms'):
-            #     logger.critical(
-            #         'The brick class %s still defines a method "has_perms()"; '
-            #         'define the new method "check_permissions()" instead.',
-            #         brick_cls,
-            #     )
 
         return self
 
@@ -1209,21 +1177,3 @@ class BrickRegistry:
 
 
 brick_registry = BrickRegistry()
-
-
-# def __getattr__(name):
-#     if name == '_BrickRegistry':
-#         warnings.warn(
-#             '"_BrickRegistry" is deprecated; use "BrickRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return BrickRegistry
-#
-#     if name == 'BricksManager':
-#         warnings.warn(
-#             '"BricksManager" is deprecated; use "BrickManager" instead.',
-#             DeprecationWarning,
-#         )
-#         return BrickManager
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

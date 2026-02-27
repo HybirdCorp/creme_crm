@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from datetime import timedelta
 
 from django.utils.timezone import now
@@ -66,14 +65,3 @@ class ImprintManager:
 
 
 imprint_manager = ImprintManager()
-
-
-# def __getattr__(name):
-#     if name == '_ImprintManager':
-#         warnings.warn(
-#             '"_ImprintManager" is deprecated; use "ImprintManager" instead.',
-#             DeprecationWarning,
-#         )
-#         return ImprintManager
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

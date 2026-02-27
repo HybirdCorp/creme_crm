@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2025  Hybird
+#    Copyright (C) 2020-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,18 +20,14 @@ from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.reports.core.graph.fetcher import GraphFetcher
 from creme.reports.core.chart.fetcher import ChartFetcher
 
-# from .constants import RGF_OWNED
 from . import get_contact_model
 
 Contact = get_contact_model()
 
 
-# class OwnedGraphFetcher(GraphFetcher):
 class OwnedChartFetcher(ChartFetcher):
-    # type_id = RGF_OWNED
     type_id = 'persons-owned'
 
     def __init__(self, *args, **kwargs):
@@ -56,12 +52,7 @@ class OwnedChartFetcher(ChartFetcher):
                 f'(see field "is_user")'
             )
 
-        # return self.graph.fetch(
-        #     extra_q=Q(user=owner), order=order, user=user,
-        # )
-        return self.chart.fetch(
-            extra_q=Q(user=owner), order=order, user=user,
-        )
+        return self.chart.fetch(extra_q=Q(user=owner), order=order, user=user)
 
     @classmethod
     def choices(cls, model):

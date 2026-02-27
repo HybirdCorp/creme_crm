@@ -126,13 +126,9 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
     def test_register__empty_id(self):
-        # class FoobarBrick(Brick):
         class FoobarBrick(SimpleBrick):
             # id = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
             verbose_name = 'Testing purpose'
-
-            # def detailview_display(self, context):
-            #     return self._render(self.get_template_context(context))
 
         brick_registry = BrickRegistry()
 
@@ -1432,7 +1428,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual('regular-creme_core-test_html_id',       brick.id)
         self.assertEqual('brick-regular-creme_core-test_html_id', brick.html_id)
 
-    # def test_has_perms(self):
     def test_check_permissions(self):
         root = self.get_root_user()
         user = self.create_user(
@@ -1449,8 +1444,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         brick1 = AlwaysAllowedBrick()
         self.assertEqual('', brick1.permissions)
-        # self.assertIs(brick1.has_perms(root), True)
-        # self.assertIs(brick1.has_perms(user), True)
         with self.assertNoException():
             brick1.check_permissions(root)
             brick1.check_permissions(user)
@@ -1462,8 +1455,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = 'creme_core'
 
         brick2 = SimpleAllowedBrick()
-        # self.assertIs(brick2.has_perms(root), True)
-        # self.assertIs(brick2.has_perms(user), True)
         with self.assertNoException():
             brick2.check_permissions(root)
             brick2.check_permissions(user)
@@ -1475,8 +1466,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = ['creme_core', 'documents']
 
         brick3 = MultiAllowedBrick()
-        # self.assertIs(brick3.has_perms(root), True)
-        # self.assertIs(brick3.has_perms(user), True)
         with self.assertNoException():
             brick3.check_permissions(root)
             brick3.check_permissions(user)
@@ -1488,8 +1477,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = 'persons'
 
         brick4 = SimpleForbiddenBrick()
-        # self.assertIs(brick4.has_perms(root), True)
-        # self.assertIs(brick4.has_perms(user), False)
         with self.assertNoException():
             brick4.check_permissions(root)
 
@@ -1503,8 +1490,6 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = ['documents', 'persons']
 
         brick5 = MultiForbiddenBrick()
-        # self.assertIs(brick5.has_perms(root), True)
-        # self.assertIs(brick5.has_perms(user), False)
         with self.assertNoException():
             brick5.check_permissions(root)
 

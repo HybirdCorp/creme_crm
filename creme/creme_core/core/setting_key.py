@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections.abc import Callable, Iterator
 from functools import partial
 from json import loads as json_load
@@ -201,17 +200,6 @@ class SettingKeyRegistry:
 
 setting_key_registry = SettingKeyRegistry(SettingKey)
 user_setting_key_registry = SettingKeyRegistry(UserSettingKey)
-
-
-# def __getattr__(name):
-#     if name == '_SettingKeyRegistry':
-#         warnings.warn(
-#             '"_SettingKeyRegistry" is deprecated; use "SettingKeyRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return SettingKeyRegistry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class UserSettingValueManager:

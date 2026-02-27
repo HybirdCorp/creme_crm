@@ -160,7 +160,6 @@ class UserRoleExporter(Exporter):
 
         ctype = sc.ctype
         if ctype:
-            # dumped['ctype'] = ctype_as_key(ctype)
             dumped['ctype'] = ctype.portable_key()
 
         forbidden = sc.forbidden
@@ -183,11 +182,9 @@ class UserRoleExporter(Exporter):
             'allowed_apps': [*instance.allowed_apps],
             'admin_4_apps': [*instance.admin_4_apps],
 
-            # 'creatable_ctypes':  [*map(ctype_as_key, instance.creatable_ctypes.all())],
             'creatable_ctypes':  [
                 ctype.portable_key() for ctype in instance.creatable_ctypes.all()
             ],
-            # 'exportable_ctypes': [*map(ctype_as_key, instance.exportable_ctypes.all())],
             'exportable_ctypes': [
                 ctype.portable_key() for ctype in instance.exportable_ctypes.all()
             ],
@@ -241,7 +238,6 @@ class CustomBrickConfigItemExporter(Exporter):
             'uuid': str(instance.uuid),
             'name': instance.name,
 
-            # 'content_type': ctype_as_key(instance.content_type),
             'content_type': instance.content_type.portable_key(),
             'cells': instance.json_cells,
         }
@@ -277,7 +273,6 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
 
         ctype = instance.content_type
         if ctype:
-            # data['ctype'] = ctype_as_key(ctype)
             data['ctype'] = ctype.portable_key()
 
         role = instance.role
@@ -382,7 +377,6 @@ class ButtonMenuItemExporter(Exporter):
 
         ctype = instance.content_type
         if ctype:
-            # data['ctype'] = ctype_as_key(ctype)
             data['ctype'] = ctype.portable_key()
 
         role = instance.role
@@ -402,7 +396,6 @@ class SearchConfigItemExporter(Exporter):
         assert isinstance(instance, models.SearchConfigItem)
 
         data = {
-            # 'ctype': ctype_as_key(instance.content_type),
             'ctype': instance.content_type.portable_key(),
             'cells': instance.json_cells,
         }
@@ -437,7 +430,6 @@ class CremePropertyTypeExporter(Exporter):
 
         ctypes = instance.subject_ctypes.all()
         if ctypes:
-            # data['subject_ctypes'] = [*map(ctype_as_key, ctypes)]
             data['subject_ctypes'] = [ctype.portable_key() for ctype in ctypes]
 
         return data
@@ -474,12 +466,10 @@ class RelationTypeExporter(Exporter):
 
         subject_ctypes = instance.subject_ctypes.all()
         if subject_ctypes:
-            # data['subject_ctypes'] = [*map(ctype_as_key, subject_ctypes)]
             data['subject_ctypes'] = [ctype.portable_key() for ctype in subject_ctypes]
 
         object_ctypes = instance.object_ctypes.all()
         if object_ctypes:
-            # data['object_ctypes'] = [*map(ctype_as_key, object_ctypes)]
             data['object_ctypes'] = [ctype.portable_key() for ctype in object_ctypes]
 
         subject_prop_uuids = instance.subject_properties.values_list('uuid', flat=True)
@@ -511,7 +501,6 @@ class FieldsConfigExporter(Exporter):
         assert isinstance(instance, models.FieldsConfig)
 
         return {
-            # 'ctype': ctype_as_key(instance.content_type),
             'ctype': instance.content_type.portable_key(),
             'descriptions': instance.descriptions,
         }
@@ -532,7 +521,6 @@ class CustomFieldExporter(Exporter):
         cf_type = instance.field_type
         data = {
             'uuid': str(instance.uuid),
-            # 'ctype': ctype_as_key(instance.content_type),
             'ctype': instance.content_type.portable_key(),
             'name': instance.name,
             'type': cf_type,
@@ -565,7 +553,6 @@ class HeaderFilterExporter(Exporter):
         data = {
             'id':    instance.id,
             'name':  instance.name,
-            # 'ctype': ctype_as_key(instance.entity_type),
             'ctype': instance.entity_type.portable_key(),
             'cells': instance.json_cells,
         }
@@ -639,7 +626,6 @@ class EntityFilterExporter(Exporter):
         data = {
             'id': instance.id,
             'name': instance.name,
-            # 'ctype': ctype_as_key(instance.entity_type),
             'ctype': instance.entity_type.portable_key(),
             'filter_type': instance.filter_type,
             'use_or': instance.use_or,

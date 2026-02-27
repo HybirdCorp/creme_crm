@@ -117,7 +117,6 @@ class GenericModelBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            # model.objects.all(),
             self._build_queryset(model),
             model=model,
 
@@ -302,12 +301,8 @@ class FieldsConfigsBrick(PaginatedBrick):
             return [str(f.verbose_name) for f in fields]
 
         for fconf in btc['page'].object_list:
-            # hidden_vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
-            # hidden_vnames.sort(key=sort_key)
-            # fconf.hidden_fields_vnames = hidden_vnames
             fconf.hidden_fields_vnames = fields_vnames(fconf.hidden_fields)
 
-            # required_vnames = [str(f.verbose_name) for f in fconf.required_fields]
             fconf.required_fields_vnames = fields_vnames(fconf.required_fields)
             fconf.required_at_creation_fields_vnames = fields_vnames(
                 fconf.required_at_creation_fields

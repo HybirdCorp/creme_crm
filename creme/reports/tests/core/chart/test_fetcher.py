@@ -48,7 +48,6 @@ class ChartFetcherTestCase(CremeTestCase):
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
         self.assertEqual(chart.linked_report_id, ibci.entity_id)
         self.assertEqual(ReportChartInstanceBrick.id, ibci.brick_class_id)
-        # self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
         self.assertEqual(SimpleChartFetcher.type_id, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
         self.assertUUIDEqual(chart.uuid, ibci.get_extra_data('chart'))
@@ -82,7 +81,6 @@ class ChartFetcherTestCase(CremeTestCase):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
-            # user=user,
             name='Field Test', linked_report=report,
             abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
             ordinate_type=OrdinateAggregator.COUNT,
@@ -99,7 +97,6 @@ class ChartFetcherTestCase(CremeTestCase):
         uid = uuid4()
         ibci = fetcher1.create_brick_config_item(uuid=uid)
         self.assertEqual(uid, ibci.uuid)
-        # self.assertEqual(RGF_FK, ibci.get_extra_data('type'))
         self.assertEqual(
             RegularFieldLinkedChartFetcher.type_id, ibci.get_extra_data('type'),
         )

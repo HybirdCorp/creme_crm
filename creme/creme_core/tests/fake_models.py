@@ -344,7 +344,6 @@ else:
         ).set_tags(optional=True)
         sector = models.ForeignKey(
             FakeSector, verbose_name=_('Line of business'), blank=True, null=True,
-            # on_delete=models.SET_NULL,
             on_delete=deletion.CREME_REPLACE_NULL,
             limit_choices_to=lambda: ~Q(title='[INVALID]'),
         ).set_tags(optional=True)

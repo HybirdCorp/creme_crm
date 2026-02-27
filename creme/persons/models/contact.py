@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 import logging
 
 from django.conf import settings
@@ -208,14 +207,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             relations__type__in=(constants.REL_OBJ_EMPLOYED_BY, constants.REL_OBJ_MANAGES),
             relations__object_entity=self.id,
         )
-
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Contact._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

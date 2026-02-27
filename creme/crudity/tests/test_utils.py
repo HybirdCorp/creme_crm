@@ -52,21 +52,13 @@ JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3x
         self.assertEqual(img_blob, blob)
 
     def test_is_sandbox_by_user01(self):
-        sv = self.get_object_or_fail(
-            SettingValue,
-            # key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
-            key_id=sandbox_key.id,
-        )
+        sv = self.get_object_or_fail(SettingValue, key_id=sandbox_key.id)
         self.assertIs(sv.value, False)
 
         self.assertFalse(is_sandbox_by_user())
 
     def test_is_sandbox_by_user02(self):
-        sv = self.get_object_or_fail(
-            SettingValue,
-            # key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
-            key_id=sandbox_key.id,
-        )
+        sv = self.get_object_or_fail(SettingValue, key_id=sandbox_key.id)
         sv.value = True
         sv.save()
 

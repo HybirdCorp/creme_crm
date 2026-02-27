@@ -1,12 +1,1 @@
 {% extends 'creme_core/generics/view_entity.html' %}
-
-{% comment %}
-{% block instance_buttons %}
-    {% if not object.is_closed %}
-        <li>
-            {% include 'projects/buttons/close-project.html' %}
-        </li>
-    {% endif %}
-    {{block.super}}
-{% endblock %}
-{% endcomment %}

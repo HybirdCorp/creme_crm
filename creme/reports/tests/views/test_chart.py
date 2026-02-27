@@ -101,13 +101,8 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         )
 
         response = self.assertGET200(chart.get_absolute_url())
-        # self.assertTemplateUsed(response, 'reports/view_graph.html')
         self.assertTemplateUsed(response, 'reports/view_chart.html')
 
-        # with self.assertNoException():
-        #     chart_registry = response.context['report_charts']
-        # from ..report_chart_registry import report_chart_registry
-        # self.assertIs(chart_registry, report_chart_registry)
         get_ctxt = response.context.get
         self.assertEqual(chart, get_ctxt('object'))
 
@@ -209,7 +204,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
             self.client.post(
                 url,
                 data={
-                    # 'user': user.pk,  # todo: report.user used instead ??
                     'name': name,
 
                     'abscissa': self.formfield_value_abscissa(
@@ -262,7 +256,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
             return self.client.post(
                 url,
                 data={
-                    # 'user': user.id,
                     'name': name,
                     'plot_name': 'barchart',
                     **kwargs
@@ -308,7 +301,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user, chart.user)
         self.assertEqual(abscissa,   chart.abscissa_cell_value)
         self.assertEqual(chart_type, chart.abscissa_type)
         self.assertIsNone(chart.abscissa_parameter)
@@ -331,7 +323,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
             self.client.post(
                 self._build_add_chart_url(report),
                 data={
-                    # 'user': user.pk,
                     'name': name,
 
                     'abscissa': self.formfield_value_abscissa(
@@ -380,7 +371,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user,      chart.user)
         self.assertEqual(rtype_id,                     chart.abscissa_cell_value)
         self.assertEqual(ReportChart.Aggregator.COUNT, chart.ordinate_type)
         self.assertEqual('',                           chart.ordinate_cell_key)
@@ -401,7 +391,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
             return self.client.post(
                 url,
                 data={
-                    # 'user': user.pk,
                     'name': name,
                     'plot_name': 'barchart',
 
@@ -432,7 +421,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(post(abscissa_field=abscissa))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user, rgraph.user)
         self.assertEqual(abscissa,   chart.abscissa_cell_value)
         self.assertEqual(chart_type, chart.abscissa_type)
         self.assertIsNone(chart.abscissa_parameter)
@@ -486,7 +474,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(post(abscissa_field=abscissa, parameter=days, aggr_id=aggregate))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user, chart.user)
         self.assertEqual(abscissa,   chart.abscissa_cell_value)
         self.assertEqual(chart_type, chart.abscissa_type)
         self.assertEqual(days,       chart.abscissa_parameter)
@@ -519,7 +506,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user,              chart.user)
         self.assertEqual(str(cf_enum.uuid), chart.abscissa_cell_value)
         self.assertEqual(chart_type,        chart.abscissa_type)
 
@@ -555,7 +541,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user,                         chart.user)
         self.assertEqual(str(cf_dt.uuid),              chart.abscissa_cell_value)
         self.assertEqual(chart_type,                   chart.abscissa_type)
         self.assertEqual(ReportChart.Aggregator.COUNT, chart.ordinate_type)
@@ -596,7 +581,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user,                         chart.user)
         self.assertEqual(str(cf_date.uuid),            chart.abscissa_cell_value)
         self.assertEqual(chart_type,                   chart.abscissa_type)
         self.assertEqual(ReportChart.Aggregator.COUNT, chart.ordinate_type)
@@ -621,7 +605,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(self.client.post(
             url,
             data={
-                # 'user': user.pk,
                 'name': name,
                 'plot_name': 'barchart',
 
@@ -635,7 +618,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         ))
 
         chart = self.get_object_or_fail(ReportChart, linked_report=report, name=name)
-        # self.assertEqual(user,                         chart.user)
         self.assertEqual(str(cf_dt.uuid),              chart.abscissa_cell_value)
         self.assertEqual(chart_type,                   chart.abscissa_type)
         self.assertEqual(days,                         chart.abscissa_parameter)
@@ -667,7 +649,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.assertPOST200(
             self._build_add_chart_url(report),
             data={
-                # 'user': user.pk,
                 'name': 'My Chart #1',
                 'plot_name': 'barchart',
 
@@ -703,7 +684,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.assertPOST200(
             self._build_add_chart_url(report),
             data={
-                # 'user': user.pk,
                 'name': 'My Chart #1',
                 'plot_name': 'barchart',
 
@@ -758,7 +738,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(self.client.post(
             url,
             data={
-                # 'user': ...,
                 'name': name,
                 'plot_name': 'barchart',
 
@@ -800,7 +779,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(self.client.post(
             url,
             data={
-                # 'user': user.pk,
                 'name': chart.name,
                 'plot_name': 'barchart',
 
@@ -866,7 +844,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.assertPOST200(
             self._build_edit_url(chart),
             data={
-                # 'user': user.pk,
                 'name': chart.name,
                 'plot_name': 'barchart',
 
@@ -901,7 +878,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.client.post(
             self._build_edit_url(chart),
             data={
-                # 'user':  chart.user.pk,
                 'name':      chart.name,
                 'plot_name': 'barchart',
 
@@ -944,7 +920,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.client.post(
             self._build_edit_url(chart),
             data={
-                # 'user':  chart.user.pk,
                 'name':      chart.name,
                 'plot_name': 'barchart',
 
@@ -970,7 +945,6 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         )
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of clans per countries',
             abscissa_type=ReportChart.Group.CUSTOM_FK,
@@ -1039,16 +1013,12 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
 
 
 @skipIfCustomReport
-# class GraphFetchSettingsTestCase(BaseReportsTestCase):
 class ChartFetchSettingsUpdateTestCase(BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         # TODO: use a fake registry instead.
-        # report_chart_registry.register(
-        #     ReportPieChart(name='fakepie', label='Fake Pie')
-        # )
         plot_registry.register(
             Pie(name='fakepie', label='Fake Pie'),
         )
@@ -1056,9 +1026,7 @@ class ChartFetchSettingsUpdateTestCase(BaseReportsTestCase):
     def test_update_settings__missing_id(self):
         self.login_as_root()
         self.assertPOST404(
-            # path=reverse('reports__update_graph_fetch_settings', args=(self.UNUSED_PK,)),
             path=reverse('reports__update_chart_fetch_settings', args=(self.UNUSED_PK,)),
-            # data={'chart': 'fakepie'},
             data={'plot': 'fakepie'},
         )
 
@@ -1067,45 +1035,30 @@ class ChartFetchSettingsUpdateTestCase(BaseReportsTestCase):
         user = self.login_as_standard(allowed_apps=['reports'])
         self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
-        # graph = self._create_documents_rgraph(user=self.get_root_user())
         chart = self._create_documents_chart(user=self.get_root_user())
-        # self.assertEqual(graph.asc, True)
         self.assertEqual(chart.asc, True)
-        # self.assertEqual(graph.chart, None)
         self.assertEqual(chart.plot_name, None)
 
-        # with self.assertLogs(graph_views.logger, level='WARNING') as logs:
         with self.assertLogs(chart_views.logger, level='WARNING') as logs:
             response = self.assertPOST200(
-                # path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
                 path=reverse('reports__update_chart_fetch_settings', args=(chart.id,)),
-                # data={'sort': 'DESC', 'chart': 'fakepie'},
                 data={'sort': 'DESC', 'plot': 'fakepie'},
             )
 
-        # self.assertJSONEqual(response.content, {'sort': 'ASC', 'chart': None})
         self.assertJSONEqual(response.content, {'sort': 'ASC', 'plot': None})
         self.assertEqual([
-            # f'WARNING:creme.reports.views.graph:The ReportGraph id="{graph.id}" '
             f'WARNING:creme.reports.views.chart:The ReportChart id="{chart.id}" '
             'cannot be edited, so the settings are not saved.'
         ], logs.output)
 
     @parameterized.expand([
-        # ({}, 'Chart value is missing'),
         ({}, 'Plot name is missing'),
-        # ({"sort": "ASC"}, 'Chart value is missing'),
         ({'sort': 'ASC'}, 'Plot name is missing'),
-        # ({"chart": "unknown", "sort": "ASC"}, (
         ({'plot': 'unknown', 'sort': 'ASC'}, (
-            # 'Chart value must be in '
-            # f'{[c[0] for c in report_chart_registry] + ["fakepie"]} '
-            # '(value=unknown)'
             'Plot name must be in '
             f'{[plot.name for plot in plot_registry] + ["fakepie"]} '
             '(given name="unknown")'
         )),
-        # ({"chart": "fakepie", "sort": "unknown"}, (
         ({'plot': 'fakepie', 'sort': 'unknown'}, (
             'Order value must be ASC or DESC (value=unknown)'
         )),
@@ -1139,80 +1092,3 @@ class ChartFetchSettingsUpdateTestCase(BaseReportsTestCase):
         chart.refresh_from_db()
         self.assertEqual(chart.asc, False)
         self.assertEqual(chart.plot_name, plot)
-
-    # # DEPRECATED
-    # def test_update_instance_settings__missing_id(self):
-    #     user = self.login_as_root_and_get()
-    #
-    #     url_name = 'reports__update_graph_fetch_settings_for_instance'
-    #     UNUSED_PK = self.UNUSED_PK
-    #     self.assertPOST404(
-    #         path=reverse(url_name, args=(UNUSED_PK, UNUSED_PK)),
-    #         data={'chart': 'fakepie'},
-    #     )
-    #
-    #     entity = FakeOrganisation.objects.create(user=user, name='Acme')
-    #     graph = self._create_documents_rgraph(user=user)
-    #     self.assertPOST404(
-    #         # path=reverse(url_name, args=(UNUSED_PK, graph.pk)),
-    #         path=reverse(url_name, args=(UNUSED_PK, entity.id)),
-    #         data={'chart': 'fakepie'},
-    #     )
-    #
-    #     config = self._create_graph_instance_brick(graph)
-    #     self.assertPOST404(
-    #         path=reverse(url_name, args=(config.pk, UNUSED_PK)),
-    #         data={'chart': 'fakepie'},
-    #     )
-    #
-    # # DEPRECATED
-    # @parameterized.expand([
-    #     ({}, 'Chart value is missing'),
-    #     ({"sort": "ASC"}, 'Chart value is missing'),
-    #     ({"chart": "unknown", "sort": "ASC"}, (
-    #         'Chart value must be in '
-    #         f'{[c[0] for c in report_chart_registry] + ["fakepie"]} '
-    #         '(value=unknown)'
-    #     )),
-    #     ({"chart": "fakepie", "sort": "unknown"}, (
-    #         'Order value must be ASC or DESC (value=unknown)'
-    #     )),
-    # ])
-    # def test_update_instance_settings__invalid_argument(self, data, expected):
-    #     user = self.login_as_root_and_get()
-    #     graph = self._create_documents_rgraph(user=user)
-    #     ibci = self._create_graph_instance_brick(graph)
-    #     entity = FakeOrganisation.objects.create(user=user, name='Acme')
-    #
-    #     response = self.assertPOST(
-    #         400,
-    #         path=reverse(
-    #             'reports__update_graph_fetch_settings_for_instance',
-    #             args=(ibci.id, entity.id),
-    #         ),
-    #         data=data,
-    #     )
-    #     self.assertEqual(response.text, expected)
-    #
-    # def test_update_instance_settings(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #     graph = self._create_documents_rgraph(user=user)
-    #     ibci = self._create_graph_instance_brick(graph)
-    #     entity = FakeOrganisation.objects.create(user=user, name='Acme')
-    #
-    #     self.assertEqual(graph.asc, True)
-    #     self.assertEqual(graph.chart, None)
-    #
-    #     data = {'sort': 'DESC', 'chart': 'fakepie'}
-    #     response = self.assertPOST200(
-    #         path=reverse(
-    #             'reports__update_graph_fetch_settings_for_instance',
-    #             args=(ibci.pk, entity.id),
-    #         ),
-    #         data=data,
-    #     )
-    #     self.assertJSONEqual(response.content, data)
-    #
-    #     graph.refresh_from_db()
-    #     self.assertEqual(graph.asc, False)
-    #     self.assertEqual(graph.chart, 'fakepie')

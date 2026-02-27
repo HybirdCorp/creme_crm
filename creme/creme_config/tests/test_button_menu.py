@@ -764,7 +764,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         bmi4 = create_bmi(button=TestButton1, superuser=True, content_type=ct)
         bmi5 = create_bmi(button=TestButton1, role=self.create_role(), content_type=ct)
 
-        # self.assertPOST200(self.DEL_URL, data={'id': ct.id})
         self.assertPOST200(self.DEL_URL, data={'ctype': ct.id})
         self.assertDoesNotExist(bmi2)
         self.assertStillExists(bmi1)

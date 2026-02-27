@@ -145,9 +145,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # system time zone.
 TIME_ZONE = 'Europe/Paris'
 
-# The default value is already 'True' since Django 5.0
-# USE_TZ = True
-
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr'  # Choose in the LANGUAGES values
@@ -262,7 +259,6 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_world_settings',
-                # 'creme.creme_core.context_processors.get_entities_deletion_allowed',
                 'creme.creme_core.context_processors.get_css_theme',
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
@@ -721,8 +717,6 @@ BLOCK_SIZE = 10
 # Note: it is used by custom blocks (i.e. in detailed views) too.
 CELL_SIZE = 500
 
-# # Maximum number of items in the menu entry "Recent entities"
-# MAX_LAST_ITEMS = 9
 # Recent entities:
 #  Number of recent entities kept in DB (per user).
 LAST_ENTITIES_SIZE = 20
@@ -764,8 +758,6 @@ URLIZE_TARGET_BLANK = False
 # URL used in the GUI to indicate the repository address
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
-
-# ENUMERABLE_REGISTRATION_ERROR = True
 
 # GUI [END]#####################################################################
 
@@ -887,7 +879,6 @@ CREME_CORE_JS = [
 
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
-    # 'creme_core/js/lib/fallbacks/array-0.9.js',
     'creme_core/js/lib/fallbacks/string-0.1.js',
     'creme_core/js/lib/math.js',
     'creme_core/js/lib/color.js',
@@ -913,12 +904,10 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/utils/template.js',
     'creme_core/js/widgets/utils/lambda.js',
     'creme_core/js/widgets/utils/converter.js',
-    # 'creme_core/js/widgets/utils/json.js',
     'creme_core/js/widgets/utils/compare.js',
     'creme_core/js/widgets/utils/history.js',
     'creme_core/js/widgets/utils/plugin.js',
 
-    # 'creme_core/js/widgets/ajax/url.js',
     'creme_core/js/widgets/ajax/backend.js',
     'creme_core/js/widgets/ajax/mockbackend.js',
     'creme_core/js/widgets/ajax/cachebackend.js',
@@ -1314,10 +1303,8 @@ DEFAULT_TIME_TODO_REMIND = 120
 
 # REPORTS ----------------------------------------------------------------------
 REPORTS_REPORT_MODEL = 'reports.Report'
-# REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
 
 REPORTS_REPORT_FORCE_NOT_CUSTOM = False
-# REPORTS_GRAPH_FORCE_NOT_CUSTOM  = False
 
 # ACTIVITIES -------------------------------------------------------------------
 ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'

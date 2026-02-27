@@ -513,7 +513,6 @@ class ObjectiveViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         priv_efilter = create_efilter(
             'test-filter_priv01', 'Acme', Organisation,
-            # is_custom=True, is_private=True, user=self.other_user,
             is_custom=True, is_private=True, user=self.create_user(),
         )
 

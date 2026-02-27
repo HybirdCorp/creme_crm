@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -145,22 +145,6 @@ class AbstractAct(CremeEntity):
 
         return relopps
 
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Act._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     ActObjective.objects.bulk_create([
-    #         ActObjective(
-    #             name=objective.name,
-    #             act=self,
-    #             counter=objective.counter,
-    #             counter_goal=objective.counter_goal,
-    #             ctype=objective.ctype,
-    #         ) for objective in ActObjective.objects.filter(act=source).order_by('id')
-    #     ])
-
 
 class Act(AbstractAct):
     class Meta(AbstractAct.Meta):
@@ -297,15 +281,6 @@ class AbstractActObjectivePattern(CremeEntity):
             self._components_cache = root_components
 
         return root_components
-
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method ActObjectivePattern._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     for pattern_component in source.get_components_tree():
-    #         pattern_component.clone(self)
 
 
 class ActObjectivePattern(AbstractActObjectivePattern):

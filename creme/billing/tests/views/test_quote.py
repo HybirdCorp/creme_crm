@@ -207,7 +207,6 @@ class QuoteCreationTestCase(_BillingTestCase):
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        # self.assertEqual('0',   quote.number)
         self.assertEqual('',    quote.number)
         self.assertEqual(terms, quote.payment_type)
 

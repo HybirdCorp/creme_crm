@@ -743,20 +743,17 @@ QUnit.test('creme.bricks.Brick.refresh (no data-brick-id)', function(assert) {
 
 QUnit.test('creme.bricks.Brick.refresh', function(assert) {
     var element = $(
-//        '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>'
         '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" data-brick-id="creme_core-test"></div>'
     ).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
     assert.equal(true, brick.isBound());
-//    assert.equal('brick-for-test', brick.id());
     assert.equal('brick-creme_core-test', brick.id());
     assert.equal('creme_core-test', brick.type_id());
 
     brick.refresh();
     assert.deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

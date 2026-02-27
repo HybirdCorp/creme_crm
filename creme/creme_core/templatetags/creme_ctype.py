@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2025  Hybird
+#    Copyright (C) 2017-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from django.template import Library
@@ -30,16 +29,6 @@ register = Library()
 
 
 # TODO: {% if object|ctype_is:my_ctype %} ?
-
-
-# @register.simple_tag
-# def ctype_for_model(model: type[Model]) -> ContentType:
-#     warnings.warn(
-#         '{% ctype_for_model %} is deprecated; '
-#         'use the filter "|ctype_for_instance" instead.',
-#         DeprecationWarning
-#     )
-#     return ContentType.objects.get_for_model(model)
 
 
 @register.filter

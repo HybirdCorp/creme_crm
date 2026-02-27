@@ -22,7 +22,6 @@ class SubCategoryFormTestCase(CremeTestCase):
             pgettext('products', 'Create a sub-category'),
             context.get('title'),
         )
-        # self.assertEqual(_('Save'), context.get('submit_label'))
         self.assertEqual(_('Save the sub-category'), context.get('submit_label'))
 
         # ---

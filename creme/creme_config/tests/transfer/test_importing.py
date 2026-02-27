@@ -45,7 +45,6 @@ from creme.creme_core.gui.custom_form import (
     EntityCellCustomFormSpecial,
 )
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
-# RecentEntitiesEntry
 from creme.creme_core.menu import CremeEntry, QuickAccessEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -606,7 +605,6 @@ class ImportingTestCase(TransferBaseTestCase):
             # Existing Role
             {
                 'order': 1,
-                # 'id': RecentEntitiesEntry.id,
                 'id': QuickAccessEntry.id,
                 'role': str(role1.uuid),
             }, {
@@ -622,7 +620,6 @@ class ImportingTestCase(TransferBaseTestCase):
             # New Role
             {
                 'order': 2,
-                # 'id': RecentEntitiesEntry.id,
                 'id': QuickAccessEntry.id,
                 'role': role_uid2,
             }, {
@@ -726,7 +723,6 @@ class ImportingTestCase(TransferBaseTestCase):
         role2_items = MenuConfigItem.objects.filter(parent=None, role=role2)
         self.assertEqual(2, len(role2_items))
 
-        # self.assertEqual(RecentEntitiesEntry.id, role2_items[0].entry_id)
         self.assertEqual(QuickAccessEntry.id, role2_items[0].entry_id)
 
         role2_item2 = role2_items[1]

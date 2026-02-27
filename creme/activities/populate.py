@@ -161,15 +161,10 @@ class Populator(BasePopulator):
         SettingValue(key=setting_keys.unsuccessful_duration_key, value=3),
     ]
     BUTTONS = [
-        # # (class, order)
-        # (buttons.AddRelatedActivityButton, 10),
-        # (buttons.AddMeetingButton,         11),
-        # (buttons.AddPhoneCallButton,       12),
         ButtonMenuItem(button=buttons.AddRelatedActivityButton, order=10),
         ButtonMenuItem(button=buttons.AddMeetingButton,         order=11),
         ButtonMenuItem(button=buttons.AddPhoneCallButton,       order=12),
     ]
-    # SEARCH = ['title', 'description', 'type__name']
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Activity, fields=['title', 'description', 'type__name'],
@@ -393,9 +388,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Contact      = persons.get_contact_model()
-        # self.Organisation = persons.get_organisation_model()
-        # self.Activity = get_activity_model()
         self.Contact      = Contact
         self.Organisation = Organisation
         self.Activity = Activity
@@ -453,50 +445,6 @@ class Populator(BasePopulator):
         # Create default calendar configuration
         CalendarConfigItem.objects.get_or_create(role=None, superuser=False)
 
-    # def _populate_relation_types(self):
-    #     Contact = self.Contact
-    #     Organisation = self.Organisation
-    #     Activity = self.Activity
-    #
-    #     create_rtype = RelationType.objects.smart_update_or_create
-    #     create_rtype(
-    #         (
-    #             constants.REL_SUB_LINKED_2_ACTIVITY,
-    #             _('related to the activity'),
-    #         ), (
-    #             constants.REL_OBJ_LINKED_2_ACTIVITY,
-    #             _('(activity) related to'),
-    #             [Activity],
-    #         ),
-    #         minimal_display=(True, False),
-    #     )
-    #     create_rtype(
-    #         (
-    #             constants.REL_SUB_ACTIVITY_SUBJECT,
-    #             _('is subject of the activity'),
-    #             [Contact, Organisation],
-    #         ), (
-    #             constants.REL_OBJ_ACTIVITY_SUBJECT,
-    #             _('(activity) has for subject'),
-    #             [Activity],
-    #         ),
-    #         is_internal=True,  # NB: avoid the disabling of this RelationType
-    #         minimal_display=(True, False),
-    #     )
-    #     create_rtype(
-    #         (
-    #             constants.REL_SUB_PART_2_ACTIVITY,
-    #             _('participates in the activity'),
-    #             [Contact],
-    #         ), (
-    #             constants.REL_OBJ_PART_2_ACTIVITY,
-    #             _('(activity) has as participant'),
-    #             [Activity],
-    #         ),
-    #         is_internal=True,
-    #         minimal_display=(True, False),
-    #     )
-
     def _populate_entity_filters(self):
         Activity = self.Activity
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -533,34 +481,6 @@ class Populator(BasePopulator):
             ],
         )
 
-    # def _populate_header_filters(self):
-    #     Activity = self.Activity
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_ACTIVITY,
-    #         name=_('Activity view'),
-    #         model=Activity,
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'start'}),
-    #             (EntityCellRegularField, {'name': 'title'}),
-    #             (EntityCellRegularField, {'name': 'type'}),
-    #             EntityCellRelation(
-    #                 model=Activity,
-    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
-    #             ),
-    #             EntityCellRelation(
-    #                 model=Activity,
-    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
-    #             ),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #             (EntityCellRegularField, {'name': 'end'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     SearchConfigItem.objects.create_if_needed(
-    #         model=self.Activity, fields=self.SEARCH,
-    #     )
-
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create
         menu_container = create_mitem(
@@ -572,12 +492,6 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.ActivitiesEntry.id, order=20, parent=menu_container)
         create_mitem(entry_id=menu.PhoneCallsEntry.id, order=30, parent=menu_container)
         create_mitem(entry_id=menu.MeetingsEntry.id,   order=40, parent=menu_container)
-
-    # def _populate_buttons_config(self):
-    #     create_bmi = ButtonMenuItem.objects.create_if_needed
-    #
-    #     for button_cls, order in self.BUTTONS:
-    #         create_bmi(button=button_cls, order=order)
 
     def _populate_bricks_config_for_activity(self):
         Activity = self.Activity

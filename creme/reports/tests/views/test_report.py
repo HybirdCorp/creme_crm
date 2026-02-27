@@ -646,10 +646,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_inner_edition__filter__private(self):
         "Private filter to another user -> cannot edit."
-        # self.login_as_root()
         user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
         self.add_credentials(role=user.role, all='*')
-        # other_user = self.create_user()
         other_user = self.create_user(index=1)
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -1706,7 +1704,6 @@ class ReportFieldTestCase(BaseReportsTestCase):
         self.assertEqual(old_rfields[0].id, column1.id)
 
         column2 = columns[1]
-        # self.assertEqual(cf_id,      column2.name)
         self.assertEqual(str(cf.uuid), column2.name)
         self.assertEqual(cf.name,      column2.title)
         self.assertEqual(RFT_CUSTOM,   column2.type)

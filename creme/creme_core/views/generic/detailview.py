@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.views.generic import DetailView
 from creme.creme_core.bricks import ButtonsBrick
 from creme.creme_core.core import imprint
 from creme.creme_core.gui.bricks import Brick, brick_registry
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.gui.visit import EntityVisitor
 from creme.creme_core.models import (
@@ -222,10 +221,8 @@ class EntityDetail(base.EntityModelMixin, CremeModelDetail):
         entity = super().get_object(*args, **kwargs)
         request = self.request
 
-        # LastViewedItem(request, entity)
         user = request.user
         if not entity.is_deleted:
-            # Deleted entities are ignored in render anyway
             LastViewedEntity.objects.create(user=user, real_entity=entity)
 
         self.imprint_manager.create_imprint(entity=entity, user=user)

@@ -2222,24 +2222,10 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
-    # def test_no_model(self):
-    #     "Model is None."
-    #     with self.assertNumQueries(0):
-    #         field = CreatorEntityField(required=False)
-    #
-    #     self.assertIsNone(field.model)
-    #     self.assertIsNone(field.widget.model)
-    #     self.assertIsNone(field.clean('1'))
-
-    # def test_no_model__required(self):
-    #     "Model is None; required."
     def test_no_model(self):
         with self.assertNumQueries(0):
             field = CreatorEntityField()
 
-        # self.assertFormfieldError(
-        #     field=field, messages=_('This field is required.'), codes='required', value='1',
-        # )
         self.assertFormfieldError(
             field=field, value='1',
             messages='The model is not set; contact your administrator.',
@@ -2639,25 +2625,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
-    # def test_no_model(self):
-    #     "Model is None."
-    #     user = self.get_root_user()
-    #
-    #     with self.assertNumQueries(0):
-    #         field = MultiCreatorEntityField(required=False, user=user)
-    #
-    #     self.assertListEqual([], field.clean('[1]'))
-
-    # def test_no_model__required(self):
-    #    "Model is None; required."
     def test_no_model(self):
         with self.assertNumQueries(0):
             field = MultiCreatorEntityField()
 
-        # self.assertFormfieldError(
-        #     field=field, value='[1]',
-        #     messages=_('This field is required.'), codes='required',
-        # )
         self.assertFormfieldError(
             field=field, value='[1]',
             messages='The model is not set; contact your administrator.',

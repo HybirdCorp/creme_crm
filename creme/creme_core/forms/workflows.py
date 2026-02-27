@@ -148,10 +148,6 @@ class RelationAddingTriggerField(core_fields.JSONField):
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
 
-        # ctype_id = clean_value(data, 'ctype', int, required=False)
-        # if not ctype_id:
-        #     return self._return_none_or_raise(self.required, 'ctyperequired')
-        # ctype = self._clean_ctype(ctype_id=ctype_id)
         ctype = self._clean_ctype(
             ctype_id=clean_value(data=data, name='ctype', type=int, required=False),
             required=self.required,

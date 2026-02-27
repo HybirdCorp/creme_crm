@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,17 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-# from creme.persons.workflow import transform_target_into_customer
 from creme.creme_core.models import deletion
 
-# from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
 from .base import Base
 from .other_models import InvoiceStatus, get_default_invoice_status_pk
@@ -59,20 +56,6 @@ class AbstractInvoice(Base):
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
 
-    # def _pre_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Invoice._pre_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     super()._pre_save_clone(source=source)
-    #
-    #     status = InvoiceStatus.objects.default()
-    #     if status:
-    #         self.status = status
-    #     else:
-    #         logger.critical('AbstractInvoice._pre_save_clone(): cannot find a default status')
-
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
 
@@ -103,23 +86,6 @@ class AbstractInvoice(Base):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('billing__list_invoices')
-
-    # def build(self, template):
-    #     warnings.warn(
-    #         'The method billing.models.Invoice.build() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     status = None
-    #
-    #     if isinstance(template, get_template_base_model()):
-    #         status = InvoiceStatus.objects.filter(uuid=template.status_uuid).first()
-    #
-    #     self.status = status or InvoiceStatus.objects.default()
-    #
-    #     super().build(template)
-    #
-    #     return self
 
 
 class Invoice(AbstractInvoice):

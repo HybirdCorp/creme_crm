@@ -29,19 +29,16 @@ class ReportsConfig(CremeAppConfig):
 
     def ready(self):
         self.register_reports_aggregations()
-        # self.register_reports_charts()
         self.register_reports_plots()
-        # self.register_reports_graph_fetchers()
         self.register_reports_chart_fetchers()
         self.register_reports_efilter_registry()
 
         from . import signals  # NOQA
 
     def all_apps_ready(self):
-        from . import get_report_model  # get_rgraph_model
+        from . import get_report_model
 
         self.Report = get_report_model()
-        # self.ReportGraph = get_rgraph_model()
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
@@ -57,14 +54,11 @@ class ReportsConfig(CremeAppConfig):
 
         brick_registry.register(
             bricks.ReportFieldsBrick,
-            # bricks.ReportGraphChartListBrick,
             bricks.ReportChartsBrick,
-            # bricks.ReportGraphChartBrick,
             # NB: have their own reloading views
             #  - bricks.ReportChartBrick,
             #  - bricks.InstanceBricksInfoBrick,
         ).register_4_instance(
-            # bricks.ReportGraphChartInstanceBrick,
             bricks.ReportChartInstanceBrick,
         ).register_hat(
             self.Report,
@@ -103,9 +97,7 @@ class ReportsConfig(CremeAppConfig):
         )
 
     def register_deletors(self, entity_deletor_registry):
-        entity_deletor_registry.register(
-            model=self.Report,
-        )  # .register(model=self.ReportGraph)
+        entity_deletor_registry.register(model=self.Report)
 
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
@@ -119,7 +111,6 @@ class ReportsConfig(CremeAppConfig):
         icon_registry.register(
             self.Report, 'images/report_%(size)s.png',
         ).register(
-            # self.ReportGraph, 'images/graph_%(size)s.png',
             ReportChart, 'images/graph_%(size)s.png',
         )
 
@@ -156,15 +147,6 @@ class ReportsConfig(CremeAppConfig):
             FieldAggregation('sum', aggregates.Sum, '{}__sum', _('Sum'))
         )
 
-    # def register_reports_charts(self):
-    #     from . import report_chart_registry as charts
-    #
-    #     charts.report_chart_registry.register(
-    #         charts.ReportBarChart(name='barchart', label=_('Histogram')),
-    #         charts.ReportPieChart(name='piechart', label=_('Pie')),
-    #         charts.ReportLineChart(name='linechart', label=_('Curve')),
-    #         charts.ReportTubeChart(name='tubechart', label=_('Tube')),
-    #     )
     def register_reports_plots(self):
         from .core.chart import plot
 
@@ -175,15 +157,6 @@ class ReportsConfig(CremeAppConfig):
             plot.Tube(name='tubechart', label=_('Tube')),
         )
 
-    # def register_reports_graph_fetchers(self):
-    #     from .core.graph import fetcher
-    #     from .graph_fetcher_registry import graph_fetcher_registry
-    #
-    #     graph_fetcher_registry.register(
-    #         fetcher.SimpleChartFetcher,
-    #         fetcher.RegularFieldLinkedChartFetcher,
-    #         fetcher.RelationLinkedChartFetcher,
-    #     )
     def register_reports_chart_fetchers(self):
         from .core.chart import fetcher
 
