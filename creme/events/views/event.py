@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2010-2025  Hybird
+#    Copyright (C) 2010-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -121,12 +121,10 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)  # NB: entity == event
 
-    # def get_actions_registry(self):
     def get_action_registry(self):
         view_action_class = next(
             (
                 c
-                # for c in self.actions_registry.instance_action_classes(model=Contact)
                 for c in self.action_registry.instance_action_classes(model=Contact)
                 if (issubclass(c, ViewAction))
             ),

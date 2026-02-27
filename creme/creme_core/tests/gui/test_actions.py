@@ -952,19 +952,6 @@ class BuiltinActionsTestCase(CremeTestCase):
             icon='view',
             help_text=gettext('Go to the entity {entity}').format(entity=self.contact),
         )
-        # self.assertAction(
-        #     actions.ViewAction(self.user, instance=self.contact_other),
-        #     model=FakeContact,
-        #     action_id='creme_core-view',
-        #     action_type='redirect',
-        #     url=self.contact_other.get_absolute_url(),
-        #     is_enabled=False,  # other users can view entity
-        #     is_visible=True,
-        #     is_default=True,
-        #     label=_('See'),
-        #     icon='view',
-        #     help_text=gettext('Go to the entity {entity}').format(entity=self.contact_other),
-        # )
 
     def test_clone_action(self):
         user = self.user

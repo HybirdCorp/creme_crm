@@ -67,7 +67,6 @@ def boolean_str(val):
 
 class _ConditionsField(JSONField):
     value_type = list
-    # _model = None
     _model: type[CremeEntity] = CremeEntity
 
     def __init__(self, *,

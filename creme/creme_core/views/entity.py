@@ -76,7 +76,6 @@ from ..gui import bulk_update
 from ..gui.listview import search
 from ..gui.merge import merge_form_registry
 from ..http import CremeJsonResponse, is_ajax
-# from ..models import Relation
 from ..models import (
     CremeEntity,
     CremeUser,
@@ -343,7 +342,6 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             id=self.get_header_filter_id(),
         )
 
-    # def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
     def get_paginator(self, *, queryset, ordering: Iterable[str]) -> FlowPaginator:
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
@@ -354,7 +352,6 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         #  not seem very useful.
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
-            # key=ordering[0],
             per_page=2,  # NB: cannot set 1
         )
 
@@ -1230,9 +1227,6 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
     # TODO: should the deletors registry manage the perm to restore too?
     def check_related_entity_permissions(self, entity, user):
-        # if not entity.is_deleted:
-        #     raise ConflictError('Can not restore an entity which is not in the trash')
-
         user.has_perm_to_delete_or_die(entity)
 
     @atomic

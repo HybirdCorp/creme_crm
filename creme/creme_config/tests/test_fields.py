@@ -5,7 +5,7 @@ from json import dumps as json_dump
 
 from django import forms
 from django.db import models
-from django.forms.fields import InvalidJSONInput  # CallableChoiceIterator
+from django.forms.fields import InvalidJSONInput
 from django.urls import reverse
 from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext as _

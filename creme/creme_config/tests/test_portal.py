@@ -23,8 +23,6 @@ class PortalTestCase(CremeTestCase):
         self.assertIn('creme_core', (r.name for r in app_configs))
 
         bricks = get('bricks')
-        # self.assertIsList(bricks)
-        # self.assertIn(FakePortalBrick, [type(brick) for brick in bricks])
         self.assertIsDict(bricks, length=1)
         main_bricks = bricks.get('main')
         self.assertIsList(main_bricks)

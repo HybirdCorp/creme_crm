@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,24 +28,19 @@ from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.utils.unicode_collation import collator
-# from creme.reports.bricks import ReportGraphChartInstanceBrick
 from creme.reports.bricks import ReportChartInstanceBrick
 
-# from ..core.graph.fetcher import GraphFetcher
 from ..core.chart.fetcher import ChartFetcher
 
 if TYPE_CHECKING:
-    from ..models import ReportChart  # AbstractReportGraph
+    from ..models import ReportChart
 
 
 class FetcherChoiceIterator:
-    # def __init__(self, graph: AbstractReportGraph, separator='|'):
     def __init__(self, chart: ReportChart, separator='|'):
-        # self.graph = graph
         self.chart = chart
         self.separator = separator
 
-    # def build_fetcher_choices(self, fetcher_cls: type[GraphFetcher], model):
     def build_fetcher_choices(self, fetcher_cls: type[ChartFetcher], model):
         type_id = fetcher_cls.type_id
         sep = self.separator
@@ -54,16 +49,12 @@ class FetcherChoiceIterator:
             yield f'{type_id}{sep}{value}', label
 
     def __iter__(self):
-        # graph = self.graph
         chart = self.chart
 
-        # if not graph:
         if not chart:
             return
 
-        # registry = graph.fetcher_registry
         registry = chart.fetcher_registry
-        # model    = graph.model
         model    = chart.model
         sort_key = collator.sort_key
         build_choices = partial(self.build_fetcher_choices, model=model)
@@ -93,7 +84,6 @@ class FetcherChoiceIterator:
                 yield group_name, choices
 
 
-# class GraphFetcherField(Field):
 class ChartFetcherField(Field):
     widget = DynamicSelect(attrs={'autocomplete': True})
     default_error_messages = {
@@ -102,15 +92,10 @@ class ChartFetcherField(Field):
         ),
     }
 
-    # _graph: AbstractReportGraph
     _chart: ReportChart
     choice_iterator_class = FetcherChoiceIterator
     _choice_separator: str  # Separate the type & the value of each fetcher choice
 
-    # def __init__(self, *, graph=None, choice_separator='|', **kwargs):
-    #     super().__init__(**kwargs)
-    #     self._choice_separator = choice_separator
-    #     self.graph = graph
     def __init__(self, *, chart=None, choice_separator='|', **kwargs):
         super().__init__(**kwargs)
         self._choice_separator = choice_separator
@@ -118,7 +103,6 @@ class ChartFetcherField(Field):
 
     def _update_choices(self):
         self.widget.choices = self.choice_iterator_class(
-            # graph=self._graph,
             chart=self._chart,
             separator=self._choice_separator,
         )
@@ -132,14 +116,6 @@ class ChartFetcherField(Field):
         self._choice_separator = sep
         self._update_choices()
 
-    # @property
-    # def graph(self):
-    #     return self._graph
-    #
-    # @graph.setter
-    # def graph(self, graph):
-    #     self._graph = graph
-    #     self._update_choices()
     @property
     def chart(self) -> ReportChart:
         return self._chart
@@ -155,15 +131,7 @@ class ChartFetcherField(Field):
             return None
 
         fetcher_type_id, __, fetcher_value = value.partition(self._choice_separator)
-        # graph = self.graph
         chart = self.chart
-        # fetcher = graph.fetcher_registry.get(
-        #     graph=graph,
-        #     fetcher_dict={
-        #         GraphFetcher.DICT_KEY_TYPE:  fetcher_type_id,
-        #         GraphFetcher.DICT_KEY_VALUE: fetcher_value,
-        #     },
-        # )
         fetcher = chart.fetcher_registry.get(
             chart=chart,
             fetcher_dict={
@@ -182,60 +150,6 @@ class ChartFetcherField(Field):
         return fetcher
 
 
-# class GraphInstanceBrickForm(CremeModelForm):
-#     fetcher = GraphFetcherField(
-#         label=_('Volatile column'),
-#         help_text=_(
-#             'When the chart is displayed on the detail-view of an entity, '
-#             'only the entities linked to this entity by the following link '
-#             'are used to compute the chart.\n'
-#             'Notice: if you chose «No volatile column», the block will display '
-#             'the same data on Home & on detail-views (it could be useful to get '
-#             'a recall on general data anyway).',
-#         ),
-#     )
-#
-#     error_messages = {
-#         'duplicated': _(
-#             'The instance block for «{chart}» with these parameters already exists!'
-#         ),
-#     }
-#
-#     class Meta(CremeModelForm.Meta):
-#         model = InstanceBrickConfigItem
-#
-#     brick_class = ReportGraphChartInstanceBrick
-#
-#     def __init__(self, graph, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.graph = graph
-#         self.fields['fetcher'].graph = graph
-#
-#     def clean_fetcher(self) -> GraphFetcher:
-#         fetcher: GraphFetcher = self.cleaned_data['fetcher']
-#         graph = self.graph
-#         extra_items = dict(fetcher.as_dict_items())
-#
-#         for ibci in InstanceBrickConfigItem.objects.filter(
-#             entity=graph.id, brick_class_id=self.brick_class.id,
-#         ):
-#             if extra_items == dict(ibci.extra_data_items):
-#                 raise ValidationError(
-#                     self.error_messages['duplicated'].format(chart=graph),
-#                     code='duplicated',
-#                 )
-#
-#         return fetcher
-#
-#     def save(self, *args, **kwargs) -> InstanceBrickConfigItem:
-#         ibci: InstanceBrickConfigItem = self.instance
-#         ibci.brick_class_id = self.brick_class.id
-#         ibci.entity = self.graph
-#
-#         for k, v in self.cleaned_data['fetcher'].as_dict_items():
-#             ibci.set_extra_data(key=k, value=v)
-#
-#         return super().save(*args, **kwargs)
 class ChartInstanceBrickForm(CremeModelForm):
     fetcher = ChartFetcherField(
         label=_('Volatile column'),

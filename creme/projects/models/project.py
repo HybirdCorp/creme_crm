@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -151,16 +150,6 @@ class AbstractProject(core_models.CremeEntity):
     @property
     def is_closed(self):
         return bool(self.effective_end_date)
-
-    # def _post_save_clone(self, source):
-    #     from creme.projects.models.task import ProjectTask
-    #
-    #     warnings.warn(
-    #         'The method Project._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     ProjectTask.clone_scope(source.get_tasks(), self)
 
 
 class Project(AbstractProject):

@@ -39,11 +39,7 @@ class MessagingListTestCase(CremeTestCase):
 
         name = 'My friends'
         response = self.client.post(
-            url, follow=True,
-            data={
-                'user': user.id,
-                'name': name,
-            },
+            url, follow=True, data={'user': user.id, 'name': name},
         )
         self.assertNoFormError(response)
 
@@ -63,14 +59,9 @@ class MessagingListTestCase(CremeTestCase):
         self.assertGET200(url)
 
         name = f'{mlist.name}_edited'
-        response = self.client.post(
-            url, follow=True,
-            data={
-                'user': user.id,
-                'name': name,
-            },
-        )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(
+            url, follow=True, data={'user': user.id, 'name': name},
+        ))
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
@@ -340,29 +331,6 @@ class MessagingListTestCase(CremeTestCase):
         self.assertCountEqual(
             [phone], cloned_mlist.recipient_set.values_list('phone', flat=True),
         )
-
-    # @skipIfCustomContact
-    # def test_clone__method(self):  # DEPRECATED
-    #     user = self.get_root_user()
-    #
-    #     contact = Contact.objects.create(
-    #         user=user, first_name='Spike', last_name='Spiegel',
-    #     )
-    #
-    #     mlist = MessagingList.objects.create(user=user, name='ml01')
-    #     mlist.contacts.add(contact)
-    #
-    #     phone = '123 456'
-    #     Recipient.objects.create(messaging_list=mlist, phone=phone)
-    #
-    #     cloned_mlist = mlist.clone()
-    #     self.assertIsInstance(cloned_mlist, MessagingList)
-    #     self.assertNotEqual(mlist.pk, cloned_mlist.pk)
-    #     self.assertEqual(mlist.name, cloned_mlist.name)
-    #     self.assertCountEqual([contact], cloned_mlist.contacts.all())
-    #     self.assertCountEqual(
-    #         [phone], cloned_mlist.recipient_set.values_list('phone', flat=True),
-    #     )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete(self):

@@ -31,7 +31,6 @@ commands:
     steps:
       - run: sudo apt update
       # Weasyprint => pango & libharfbuzz
-#      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 latexmk texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
       - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 
   install-latex:
@@ -161,8 +160,7 @@ commands:
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
 orbs:
-# See https://circleci.com/developer/orbs/orb/circleci/browser-tools
-#  browser-tools: circleci/browser-tools@2.3.2
+  # See https://circleci.com/developer/orbs/orb/circleci/browser-tools
   browser-tools: circleci/browser-tools@2.4.0
 
 jobs:
@@ -233,22 +231,6 @@ jobs:
           local_settings: 'pgsql_settings'
       - run-creme-unit-tests
 
-
-#  python38-tests-sqlite3:
-#    docker:
-#      - image: cimg/python:3.8
-#    resource_class: large
-#    steps:
-#      - checkout-creme
-#      - setup-locale:
-#          language: fr_FR
-#          encoding: UTF-8
-#      - install-system-packages
-#      - install-py-dev-env
-#      - create-creme-project
-#      - setup-creme-unit-tests
-#      - run-creme-unit-tests
-
   python310-tests-sqlite3:
     docker:
       - image: cimg/python:3.10
@@ -267,9 +249,7 @@ jobs:
 
   run-coverage:
     docker:
-#      - image: cimg/python:3.8
       - image: cimg/python:3.10
-#      - image: cimg/postgres:12.10
       - image: cimg/postgres:14.17
         environment:
           POSTGRES_USER: creme
@@ -290,37 +270,6 @@ jobs:
           local_settings: 'pgsql_settings'
       - run-creme-coverage
 
-
-#  python39-tests-sqlite3:
-#    docker:
-#      - image: cimg/python:3.9
-#    resource_class: large
-#    steps:
-#      - checkout-creme
-#      - setup-locale:
-#          language: fr_FR
-#          encoding: UTF-8
-#      - install-system-packages
-#      - install-py-dev-env
-#      - create-creme-project
-#      - setup-creme-unit-tests
-#      - run-creme-unit-tests
-
-
-#  python311-tests-sqlite3:
-#    docker:
-#      - image: cimg/python:3.11
-#    resource_class: large
-#    steps:
-#      - checkout-creme
-#      - setup-locale:
-#          language: fr_FR
-#          encoding: UTF-8
-#      - install-system-packages
-#      - install-py-dev-env
-#      - create-creme-project
-#      - setup-creme-unit-tests
-#      - run-creme-unit-tests
   python311-tests-mariadb:
     docker:
       - image: cimg/python:3.11
@@ -430,7 +379,6 @@ jobs:
     docker:
      - image: cimg/python:3.10-browsers
     steps:
-#      - browser-tools/install-browser-tools
       - browser-tools/install_browser_tools
       - checkout-creme
       - install-system-packages
@@ -570,17 +518,6 @@ workflows:
           requires:
             - python310-lint-isort
             - python310-lint-flake8
-#      - python38-tests-sqlite3:
-#          filters:
-#            tags:
-#              only: /.*/
-#          requires:
-#            - python38-lint-isort
-#            - python38-lint-flake8
-#      - python39-tests-sqlite3:
-#          requires:
-#            - python38-lint-isort
-#            - python38-lint-flake8
       - python310-tests-sqlite3:
           filters:
             tags:
@@ -588,7 +525,6 @@ workflows:
           requires:
             - python310-lint-isort
             - python310-lint-flake8
-#      - python311-tests-sqlite3:
       - python311-tests-mariadb:
           requires:
             - python310-lint-isort

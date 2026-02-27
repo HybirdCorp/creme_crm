@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -183,14 +182,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
             relations__type=constants.REL_SUB_EMPLOYED_BY,
             relations__object_entity=self.id,
         )
-
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Organisation._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self._aux_post_save_clone(source)
 
     def trash(self):
         self._check_deletion()

@@ -1,7 +1,6 @@
 from functools import partial
 from json import dumps as json_dump
 
-# from parameterized import parameterized
 from django.contrib.contenttypes.models import ContentType
 from django.forms import BooleanField, CharField
 from django.urls import reverse
@@ -68,24 +67,14 @@ class BaseUserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def login_with_role_perm(self):
         return self.login_as_standard(special_permissions=[role_config_perm])
 
-    # def login_not_as_superuser(self):
-    #     apps = ('creme_config',)
-    #     return self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
     def login_without_role_perm(self):
         return self.login_as_standard(allowed_apps=('creme_config',))
 
 
 class UserRolePortalTestCase(BaseUserRoleTestCase):
-    # @parameterized.expand([False, True])
-    # def test_portal(self, superuser):
     def test_allowed(self):
-        # if superuser:
-        #     self.login_as_super()
-        # else:
-        #     self.login_as_standard(admin_4_apps=['creme_config'])
         user = self.login_with_role_perm()
 
-        # role = UserRole.objects.first()
         role = user.role
         self.assertIsNotNone(role)
 
@@ -101,7 +90,6 @@ class UserRolePortalTestCase(BaseUserRoleTestCase):
         )
         self.assertBrickTitleEqual(
             brick_node,
-            # count=1 if superuser else 2,
             count=2,
             title='{count} Role', plural_title='{count} Roles',
         )
@@ -125,7 +113,6 @@ class UserRoleCreationTestCase(BaseUserRoleTestCase):
     @skipIfNotInstalled('creme.documents')
     @skipIfNotInstalled('creme.activities')
     def test_no_entity_filter(self):
-        # self.login_as_root()
         self.login_with_role_perm()
         url = self.ROLE_CREATION_URL
         name = 'Basic role'
@@ -591,7 +578,6 @@ class UserRoleCreationTestCase(BaseUserRoleTestCase):
 
     def test_forbidden(self):
         "No role permission."
-        # self.login_not_as_superuser()
         self.login_without_role_perm()
         self.assertGET403(self.ROLE_CREATION_URL)
 
@@ -602,7 +588,6 @@ class CredentialsAddingTestCase(BaseUserRoleTestCase):
         return reverse('creme_config__add_credentials_to_role', args=(role.id,))
 
     def test_allowed(self):
-        # self.login_as_root()
         self.login_with_role_perm()
         user = self.get_root_user()
 
@@ -1197,7 +1182,6 @@ class CredentialsEditionTestCase(BaseUserRoleTestCase):
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.activities')
     def test_allowed(self):
-        # self.login_as_root()
         self.login_with_role_perm()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
@@ -1939,7 +1923,6 @@ class CredentialsDeletionTestCase(BaseUserRoleTestCase):
     DEL_CREDS_URL = reverse('creme_config__remove_role_credentials')
 
     def test_allowed(self):
-        # self.login_as_root()
         self.login_with_role_perm()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
@@ -1960,7 +1943,6 @@ class CredentialsDeletionTestCase(BaseUserRoleTestCase):
         self.assertStillExists(sc2)
 
     def test_forbidden(self):
-        # self.login_not_as_superuser()
         self.login_without_role_perm()
 
         role = self.create_role(name='CEO')
@@ -1979,7 +1961,6 @@ class UserRoleEditionTestCase(BaseUserRoleTestCase):
     @skipIfNotInstalled('creme.documents')
     @skipIfNotInstalled('creme.activities')
     def test_allowed(self):
-        # self.login_as_root()
         self.login_with_role_perm()
 
         role = self.create_role(
@@ -2096,7 +2077,6 @@ class UserRoleEditionTestCase(BaseUserRoleTestCase):
 
         # Step 5 (exportable models) ---
         context5 = response5.context
-        # self.assertEqual(_('Save the modifications'), context5.get('submit_label'))
 
         with self.assertNoException():
             exp_ctypes = context5['form'].fields['exportable_ctypes'].ctypes
@@ -2148,9 +2128,7 @@ class UserRoleEditionTestCase(BaseUserRoleTestCase):
 
         self.assertListEqual([role_config_perm], [*role.special_permissions.values()])
 
-    # def test_edition__not_superuser(self):
     def test_forbidden(self):
-        # self.login_not_as_superuser()
         self.login_without_role_perm()
 
         role = self.create_role(name='CEO')
@@ -2163,7 +2141,6 @@ class UserRoleDeletionTestCase(BaseUserRoleTestCase):
         return reverse('creme_config__delete_role', args=(role.id,))
 
     def test_forbidden(self):
-        # self.login_not_as_superuser()
         self.login_without_role_perm()
 
         role = self.create_role(name='Test')
@@ -2173,7 +2150,6 @@ class UserRoleDeletionTestCase(BaseUserRoleTestCase):
 
     def test_role_not_used(self):
         "Role is not used."
-        # user = self.login_as_root_and_get()
         user = self.login_with_role_perm()
 
         role = self.create_role(name='CEO')
@@ -2463,7 +2439,6 @@ class UserRoleEnablingTestCase(BaseUserRoleTestCase):
 
 class UserRoleCloningTestCase(BaseUserRoleTestCase):
     def test_main(self):
-        # self.login_as_root()
         self.login_with_role_perm()
 
         role1 = self.create_role(

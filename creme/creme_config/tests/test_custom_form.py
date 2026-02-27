@@ -884,9 +884,7 @@ class GroupEditionTestCase(CremeTestCase):
                 'layout': LAYOUT_DUAL_SECOND,
                 'cells': [
                     {'type': 'regular_field', 'value': rfield_name},
-                    # {'type': 'custom_field', 'value': str(cfields[1].id)},
                     {'type': 'custom_field', 'value': str(cfields[1].uuid)},
-                    # {'type': 'custom_field', 'value': str(cfields[0].id)},
                     {'type': 'custom_field', 'value': str(cfields[0].uuid)},
                 ],
             },
@@ -1319,9 +1317,7 @@ class GroupCreationTestCase(CremeTestCase):
                 'name': group_name,
                 'layout': LAYOUT_REGULAR,
                 'cells': [
-                    # {'type': 'custom_field', 'value': str(cfields[1].id)},
                     {'type': 'custom_field', 'value': str(cfields[1].uuid)},
-                    # {'type': 'custom_field', 'value': str(cfields[0].id)},
                     {'type': 'custom_field', 'value': str(cfields[0].uuid)},
                 ],
             },

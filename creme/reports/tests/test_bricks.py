@@ -17,11 +17,9 @@ from creme.reports.bricks import (
     ReportChartsBrick,
 )
 from creme.reports.core.chart.hand import _generate_date_format
-# from creme.reports.report_chart_registry import report_chart_registry
 from creme.reports.core.chart.plot import plot_registry
 from creme.reports.models import ReportChart
 from creme.reports.tests.base import BaseReportsTestCase
-# from .base import ReportGraph
 from creme.reports.tests.fake_models import (
     FakeReportsColorCategory,
     FakeReportsDocument,
@@ -97,10 +95,6 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'settings_update_url': reverse(
                 'reports__update_chart_fetch_settings', args=(chart.id,)
             ),
-            # 'charts': [chart for _, chart in report_chart_registry],
-            # 'props': {
-            #     name: chart.props(chart, []) for name, chart in report_chart_registry
-            # },
         })
 
     def test_detailview_display(self, mock_brick_render):
@@ -131,10 +125,6 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'settings_update_url': reverse(
                 'reports__update_chart_fetch_settings', args=(chart.id,),
             ),
-            # 'charts': [chart for _, chart in report_chart_registry],
-            # 'props': {
-            #     name: chart.props(chart, data) for name, chart in report_chart_registry
-            # }
         })
 
     def test_detailview_display__colors(self, mock_brick_render):
@@ -175,26 +165,13 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'settings_update_url': reverse(
                 'reports__update_chart_fetch_settings', args=(chart.id,),
             ),
-            # 'charts': [chart for _, chart in report_chart_registry],
-            # 'props': {
-            #     name: chart.props(chart, data) for name, chart in report_chart_registry
-            # }
         })
 
 
-# @mock.patch('creme.reports.bricks.ReportGraphChartListBrick._render')
 @mock.patch('creme.reports.bricks.ReportChartsBrick._render')
 class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def _create_report_charts(self, report):
         return (
-            # ReportGraph.objects.create(
-            #     user=report.user,
-            #     linked_report=report,
-            #     name='Number of created documents / year',
-            #     abscissa_cell_value='created',
-            #     abscissa_type=ReportGraph.Group.YEAR,
-            #     ordinate_type=ReportGraph.Aggregator.COUNT,
-            # ),
             ReportChart.objects.create(
                 linked_report=report,
                 name='Number of created documents / year',
@@ -202,14 +179,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 abscissa_type=ReportChart.Group.YEAR,
                 ordinate_type=ReportChart.Aggregator.COUNT,
             ),
-            # ReportGraph.objects.create(
-            #     user=report.user,
-            #     linked_report=report,
-            #     name='Number of created documents / month',
-            #     abscissa_cell_value='created',
-            #     abscissa_type=ReportGraph.Group.MONTH,
-            #     ordinate_type=ReportGraph.Aggregator.COUNT,
-            # ),
             ReportChart.objects.create(
                 linked_report=report,
                 name='Number of created documents / month',
@@ -230,13 +199,7 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         mock_brick_render.assert_called_once()
         render_context = mock_brick_render.call_args[0][0]
-
-        # self.assertEqual(
-        #     render_context['charts'],
-        #     [chart for _, chart in report_chart_registry],
-        # )
         self.assertEqual(render_context['plots'], [*plot_registry])
-
         self.assertEqual(render_context['rows'], [])
 
     def test_detailview_display__no_data(self, mock_brick_render):
@@ -265,8 +228,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                     'reports__update_chart_fetch_settings', args=(chart_by_year.id,)
                 ),
                 'props': {
-                    # name: chart.props(graph_by_year, data)
-                    # for name, chart in report_chart_registry
                     plot.name: plot.props(chart=chart_by_year, data=data)
                     for plot in plot_registry
                 },
@@ -278,8 +239,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                     'reports__update_chart_fetch_settings', args=(chart_by_month.id,)
                 ),
                 'props': {
-                    # name: chart.props(graph_by_month, data)
-                    # for name, chart in report_chart_registry
                     plot.name: plot.props(chart=chart_by_month, data=data)
                     for plot in plot_registry
                 },
@@ -344,8 +303,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                         'reports__update_chart_fetch_settings', args=(chart_by_year.id,),
                     ),
                     'props': {
-                        # name: chart.props(chart_by_year, graph_by_year_data)
-                        # for name, chart in report_chart_registry
                         plot.name: plot.props(chart_by_year, chart_by_year_data)
                         for plot in plot_registry
                     },
@@ -357,8 +314,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                         'reports__update_chart_fetch_settings', args=(chart_by_month.id,),
                     ),
                     'props': {
-                        # name: chart.props(chart_by_month, graph_by_month_data)
-                        # for name, chart in report_chart_registry
                         plot.name: plot.props(chart_by_month, chart_by_month_data)
                         for plot in plot_registry
                     },
@@ -409,8 +364,6 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
                 'props': {
-                    # name: chart.props(chart, data)
-                    # for name, chart in report_chart_registry
                     plot.name: plot.props(chart=chart, data=data)
                     for plot in plot_registry
                 },
@@ -419,24 +372,19 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
 
-# @mock.patch('creme.reports.bricks.ReportGraphChartInstanceBrick._render')
 @mock.patch('creme.reports.bricks.ReportChartInstanceBrick._render')
 class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
-        # user = self.login_as_root_and_get()
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'reports'], admin_4_apps=['reports'],
         )
         self.add_credentials(role=user.role, all=['VIEW'])
-        # graph = self._create_documents_rgraph(user=user)
         chart = self._create_documents_chart(user=user)
-        # ibci = self._create_graph_instance_brick(graph)
         ibci = self._create_chart_instance_brick(chart)
         entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
         context = self.build_context(user=user, instance=entity)
 
-        # brick = ReportGraphChartInstanceBrick(ibci)
         brick = ReportChartInstanceBrick(ibci)
         brick.detailview_display(context)
 
@@ -445,19 +393,13 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertDictEqual(
             {
                 **context,
-                # 'graph': graph,
                 'chart': chart,
                 'data': [],
                 'settings_update_url': reverse(
-                    # 'reports__update_graph_fetch_settings', args=(graph.id,),
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
-                # 'charts': [chart for _, chart in report_chart_registry],
                 'plots': [*plot_registry],
-                'props': {
-                    # name: chart.props(graph, []) for name, chart in report_chart_registry
-                    plot.name: plot.props(chart, []) for plot in plot_registry
-                },
+                'props': {plot.name: plot.props(chart, []) for plot in plot_registry},
             },
             mock_brick_render.call_args[0][0],
         )
@@ -500,9 +442,7 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
 
     def test_detailview_display(self, mock_brick_render):
         user = self.login_as_root_and_get()
-        # graph = self._create_documents_rgraph(user=user)
         chart = self._create_documents_chart(user=user)
-        # ibci = self._create_graph_instance_brick(graph)
         ibci = self._create_chart_instance_brick(chart)
         entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
@@ -520,7 +460,6 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             },
         ]
 
-        # brick = ReportGraphChartInstanceBrick(ibci)
         brick = ReportChartInstanceBrick(ibci)
         brick.detailview_display(context)
 
@@ -529,37 +468,24 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertDictEqual(
             {
                 **context,
-                # 'graph': graph,
                 'chart': chart,
                 'data': data,
-                # 'settings_update_url': reverse(
-                #     'reports__update_graph_fetch_settings_for_instance',
-                #     args=(ibci.id, graph.id),
-                # ),
                 'settings_update_url': reverse(
-                    # 'reports__update_graph_fetch_settings', args=(graph.id,),
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
-                # 'charts': [chart for _, chart in report_chart_registry],
                 'plots': [*plot_registry],
-                'props': {
-                    # name: chart.props(graph, data) for name, chart in report_chart_registry
-                    plot.name: plot.props(chart, data) for plot in plot_registry
-                },
+                'props': {plot.name: plot.props(chart, data) for plot in plot_registry},
             },
             mock_brick_render.call_args[0][0],
         )
 
     def test_home_display__no_data(self, mock_brick_render):
         user = self.login_as_root_and_get()
-        # graph = self._create_documents_rgraph(user=user)
         chart = self._create_documents_chart(user=user)
-        # ibci = self._create_graph_instance_brick(graph)
         ibci = self._create_chart_instance_brick(chart)
 
         context = self.build_context(user=user)
 
-        # brick = ReportGraphChartInstanceBrick(ibci)
         brick = ReportChartInstanceBrick(ibci)
         brick.home_display(context)
 
@@ -568,28 +494,20 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertDictEqual(
             {
                 **context,
-                # 'graph': graph,
                 'chart': chart,
                 'data': [],
                 'settings_update_url': reverse(
-                    # 'reports__update_graph_fetch_settings', args=(graph.id,),
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
-                # 'charts': [chart for _, chart in report_chart_registry],
                 'plots': [*plot_registry],
-                'props': {
-                    # name: chart.props(graph, []) for name, chart in report_chart_registry
-                    plot.name: plot.props(chart, []) for plot in plot_registry
-                },
+                'props': {plot.name: plot.props(chart, []) for plot in plot_registry},
             },
             mock_brick_render.call_args[0][0],
         )
 
     def test_home_display(self, mock_brick_render):
         user = self.login_as_root_and_get()
-        # graph = self._create_documents_rgraph(user=user)
         chart = self._create_documents_chart(user=user)
-        # ibci = self._create_graph_instance_brick(graph)
         ibci = self._create_chart_instance_brick(chart)
 
         create_fake_docs(user)
@@ -606,7 +524,6 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             },
         ]
 
-        # brick = ReportGraphChartInstanceBrick(ibci)
         brick = ReportChartInstanceBrick(ibci)
         brick.home_display(context)
 
@@ -615,19 +532,13 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertDictEqual(
             {
                 **context,
-                # 'graph': graph,
                 'chart': chart,
                 'data': data,
                 'settings_update_url': reverse(
-                    # 'reports__update_graph_fetch_settings', args=(graph.id,),
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
-                # 'charts': [chart for _, chart in report_chart_registry],
                 'plots': [*plot_registry],
-                'props': {
-                    # name: chart.props(graph, data) for name, chart in report_chart_registry
-                    plot.name: plot.props(chart, data) for plot in plot_registry
-                },
+                'props': {plot.name: plot.props(chart, data) for plot in plot_registry},
             },
             mock_brick_render.call_args[0][0],
         )
@@ -635,9 +546,7 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
     def test_home_display__colors(self, mock_brick_render):
         user = self.login_as_root_and_get()
         report = self._create_simple_documents_report(user=user)
-        # graph = self._create_documents_colors_rgraph(report)
         chart = self._create_documents_colors_chart(report)
-        # ibci = self._create_graph_instance_brick(graph)
         ibci = self._create_chart_instance_brick(chart)
 
         create_fake_docs(user)
@@ -663,7 +572,6 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             },
         ]
 
-        # brick = ReportGraphChartInstanceBrick(ibci)
         brick = ReportChartInstanceBrick(ibci)
         brick.home_display(context)
 
@@ -672,19 +580,13 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertDictEqual(
             {
                 **context,
-                # 'graph': graph,
                 'chart': chart,
                 'data': data,
                 'settings_update_url': reverse(
-                    # 'reports__update_graph_fetch_settings', args=(graph.id,),
                     'reports__update_chart_fetch_settings', args=(chart.id,),
                 ),
-                # 'charts': [chart for _, chart in report_chart_registry],
                 'plots': [*plot_registry],
-                'props': {
-                    # name: chart.props(graph, data) for name, chart in report_chart_registry
-                    plot.name: plot.props(chart, data) for plot in plot_registry
-                },
+                'props': {plot.name: plot.props(chart, data) for plot in plot_registry},
             },
             mock_brick_render.call_args[0][0],
         )

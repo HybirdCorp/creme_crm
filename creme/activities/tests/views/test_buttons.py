@@ -215,7 +215,6 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
 
         # Badly formed UUID (should not happen if you do not edit manually the DB)
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value='not-a-uuid',
             key=setting_keys.unsuccessful_subtype_key, value='not-a-uuid',
         )
 

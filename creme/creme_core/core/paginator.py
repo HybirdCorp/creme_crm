@@ -64,7 +64,6 @@ class FlowPaginator:
             (i.e. first in ASC order, last in DESC order).
             Tip: you can use 'creme.models.manager.LowNullsQuerySet'.
     """
-    # queryset: QuerySet
     _queryset: QuerySet
 
     _per_page: int
@@ -74,7 +73,6 @@ class FlowPaginator:
     _attr_name: str
     _reverse_order: bool
 
-    # def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
     def __init__(self, queryset: QuerySet, *, per_page: int, count: int = sys.maxsize):
         """Constructor.
         @param queryset: QuerySet instance.
@@ -102,11 +100,6 @@ class FlowPaginator:
         self._attr_name: str = ''  # TODO: rename "attr_nameS"?
         self._reverse_order: bool = False
 
-        # if not queryset.ordered:
-        #     raise ValueError('The Queryset must be ordered')
-
-        # self.queryset = queryset
-        # self.key = key
         ordering = get_stable_ordering(queryset)
         self._queryset = queryset.order_by(*ordering)
         self._set_key(ordering[0])
@@ -135,8 +128,6 @@ class FlowPaginator:
     def queryset(self) -> QuerySet:
         return self._queryset
 
-    # @key.setter
-    # def key(self, value: str) -> None:
     def _set_key(self, value: str) -> None:
         self._key = value
 
@@ -147,7 +138,6 @@ class FlowPaginator:
             attr_name = value
             self._reverse_order = False
 
-        # field_info = FieldInfo(self.queryset.model, attr_name)
         field_info = FieldInfo(self._queryset.model, attr_name)
 
         if any(f.many_to_many for f in field_info):
@@ -230,7 +220,6 @@ class FlowPaginator:
                 q |= Q(**{attr_name + '__isnull': True})
 
         try:
-            # qs = self.queryset.filter(q)
             qs = self._queryset.filter(q)
         except (ValueError, ValidationError) as e:
             raise InvalidPage(f'Invalid "value" [{e}].') from e
@@ -289,7 +278,6 @@ class FlowPaginator:
         elif move_type == 'last':
             self._check_key_info(page_info)
 
-            # instances = reversed(self.queryset.reverse()[:per_page])
             instances = reversed(self._queryset.reverse()[:per_page])
             next_item = None
             forward = False

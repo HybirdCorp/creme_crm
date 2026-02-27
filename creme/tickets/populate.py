@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,10 +122,6 @@ class Populator(BasePopulator):
             model=persons.get_organisation_model(), button=buttons.Linked2TicketButton, order=1050,
         )
     ]
-    # SEARCH = [
-    #     'title', 'number', 'description',
-    #     'status__name', 'priority__name', 'criticity__name',
-    # ]
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Ticket,
@@ -182,8 +178,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Ticket = get_ticket_model()
-        # self.TicketTemplate = get_tickettemplate_model()
         self.Ticket         = Ticket
         self.TicketTemplate = TicketTemplate
 
@@ -219,17 +213,6 @@ class Populator(BasePopulator):
         self._save_minions(self.CRITICALITY)
 
     def _populate_relation_types(self):
-        # RelationType.objects.smart_update_or_create(
-        #     (
-        #         constants.REL_SUB_LINKED_2_TICKET,
-        #         _('is linked to the ticket'),
-        #     ),
-        #     (
-        #         constants.REL_OBJ_LINKED_2_TICKET,
-        #         _('(ticket) linked to the entity'),
-        #         [self.Ticket],
-        #     ),
-        # )
         super()._populate_relation_types()
 
         if apps.is_installed('creme.activities'):
@@ -243,38 +226,6 @@ class Populator(BasePopulator):
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Ticket)
 
-    # def _populate_header_filters(self):
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_TICKET,
-    #         model=self.Ticket,
-    #         name=_('Ticket view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'number'}),
-    #             (EntityCellRegularField, {'name': 'title'}),
-    #             (EntityCellRegularField, {'name': 'status'}),
-    #             (EntityCellRegularField, {'name': 'priority'}),
-    #             (EntityCellRegularField, {'name': 'criticity'}),
-    #             (EntityCellRegularField, {'name': 'closing_date'}),
-    #         ],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_TTEMPLATE,
-    #         model=self.TicketTemplate,
-    #         name=_('Ticket template view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'title'}),
-    #             (EntityCellRegularField, {'name': 'status'}),
-    #             (EntityCellRegularField, {'name': 'priority'}),
-    #             (EntityCellRegularField, {'name': 'criticity'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     SearchConfigItem.objects.create_if_needed(
-    #         model=self.Ticket, fields=self.SEARCH,
-    #     )
-
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -286,15 +237,6 @@ class Populator(BasePopulator):
         MenuConfigItem.objects.create(
             entry_id=TicketsEntry.id, parent=menu_container, order=100,
         )
-
-    # def _populate_buttons_config(self):
-    #     if apps.is_installed('creme.persons'):
-    #         from creme import persons
-    #         from creme.tickets.buttons import Linked2TicketButton
-    #
-    #         create_bmi = ButtonMenuItem.objects.create_if_needed
-    #         for model in (persons.get_contact_model(), persons.get_organisation_model()):
-    #             create_bmi(model=model, button=Linked2TicketButton, order=1050)
 
     def _populate_bricks_config(self):
         Ticket = self.Ticket

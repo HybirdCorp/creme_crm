@@ -233,7 +233,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertEqual(
             _('Operation successfully completed'),
-            # response.content.decode()
             response.text,
         )
 
@@ -268,7 +267,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertEqual(
             _('You are not allowed to validate/delete the waiting action <{}>').format(wa2.id),
-            # response.content.decode()
             response.text,
         )
 
@@ -356,7 +354,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            # config.read_file(io.StringIO(response.content.decode()))
             config.read_file(io.StringIO(response.text))
 
         with self.assertNoException():
@@ -409,7 +406,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            # config.read_file(io.StringIO(response.content.decode()))
             config.read_file(io.StringIO(response.text))
 
         with self.assertNoException():
@@ -429,7 +425,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         )
 
         with self.assertNoException():
-            # bricks = [*context['bricks']]
             bricks = [*context['bricks']['main']]
 
         self.assertTrue(bricks)
@@ -446,7 +441,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        # brick_id = f'block_crudity-{ct.id}'
         brick_id = f'regular-crudity-{ct.id}'
         response = self.assertGET200(
             reverse('crudity__reload_history_bricks'),
@@ -467,7 +461,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(
             reverse('crudity__reload_history_bricks'),
-            # data={'brick_id': f'block_crudity-{ct.id}'},
             data={'brick_id': f'regular-crudity-{ct.id}'},
         )
 
@@ -475,16 +468,12 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         CRUDITY_BACKENDS=[{
             'fetcher': 'email',
             'input': 'raw',
-            # 'input': '',
             'method': 'create',
-            # 'model': 'emails.entityemail',
             'model': 'creme_core.fakecontact',
             'password': '',
             'limit_froms': (),
             'in_sandbox': True,
-            # 'body_map': {},
             'body_map': {'user_id': 1},
-            # 'subject': '*',
             'subject': 'CONTACT_CREATE',
         }],
         CREME_GET_EMAIL_SSL=True,
@@ -506,7 +495,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         get = response.context.get
         self.assertEqual(reverse('crudity__reload_actions_bricks'), get('bricks_reload_url'))
-        # self.assertIsList(get('bricks'))
         self.assertIsDict(get('bricks'), length=1)  # TODO: improve
 
         self.assertFalse(FakePOP3.instances)
@@ -517,7 +505,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         response = self.assertGET200(reverse('crudity__actions'))
 
-        # brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         brick_id = 'regular-crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         document = self.get_html_tree(response.content)
         self.get_brick_node(document, brick_id)
@@ -527,7 +514,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login_as_root()
 
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
-        # brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         brick_id = 'regular-crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         response = self.assertGET200(
             reverse('crudity__reload_actions_bricks'),
@@ -647,7 +633,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     def test_job02(self):
         "Default backend + job configuration."
         self.login_as_root()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         queue = get_queue()

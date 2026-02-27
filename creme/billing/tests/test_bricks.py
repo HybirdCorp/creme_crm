@@ -437,10 +437,6 @@ class PaymentInformationBricksTestCase(BrickTestCaseMixin, _BillingTestCase):
         PaymentInformation.objects.create(organisation=orga, name='RIB sony')
 
         response = self.assertGET200(orga.get_absolute_url())
-        # self.assertNoBrick(
-        #     self.get_html_tree(response.content),
-        #     brick_id=PaymentInformationBrick.id,
-        # )
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
             brick=billing_bricks.PaymentInformationBrick,

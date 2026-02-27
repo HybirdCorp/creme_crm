@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,8 @@ from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.models import UserRole
 from creme.creme_core.forms import CremeEntityForm, CremeModelForm
 
 
@@ -60,13 +58,8 @@ class UserFromContactCreationForm(CremeModelForm):
         help_text=_('Enter the same password as before, for verification.'),
     )
 
-    # role = forms.ModelChoiceField(
-    #     label=_('Role'), required=False, queryset=UserRole.objects.all(),
-    # )
-
     class Meta:
         model = get_user_model()
-        # fields = ('username', 'first_name', 'email', 'displayed_name', 'role')
         fields = ('username', 'first_name', 'email', 'displayed_name', 'roles')
         field_classes = {'username': auth_forms.UsernameField}
 
@@ -74,9 +67,6 @@ class UserFromContactCreationForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         self.contact = contact
         fields = self.fields
-
-        # # NB: browser can ignore <em> tag in <option>...
-        # fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
         instance = self.instance
         instance.last_name = contact.last_name

@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{#    {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user.is_superuser %} #}
     {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user|has_special_perm:user_config_perm %}
 {% endblock %}
 
@@ -28,7 +27,6 @@ When an entity belongs to a team, each teammate has the same permissions on this
 {% endblock %}
 
 {% block brick_table_rows %}
-{# {% with admin_perm=user.is_superuser %} #}
 {% with admin_perm=user|has_special_perm:user_config_perm %}
   {% for team in page.object_list %}
     <tr>

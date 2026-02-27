@@ -39,7 +39,6 @@ class AbstractRecurrentGenerator(CremeEntity):
     )
     periodicity = core_fields.DatePeriodField(_('Periodicity of the generation'))
 
-    # ct = core_fields.CTypeForeignKey(
     ct = core_fields.EntityCTypeForeignKey(
         verbose_name=_('Type of the recurrent resource'), editable=False,
         allowed_models=_registered_models,

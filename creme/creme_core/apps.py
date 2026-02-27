@@ -486,7 +486,6 @@ class CremeCoreConfig(CremeAppConfig):
 
         menu_registry.register(
             menu.CremeEntry,
-            # menu.RecentEntitiesEntry,
             menu.QuickAccessEntry,
             menu.JobsEntry,
             menu.QuickFormsEntries,
@@ -607,9 +606,7 @@ class CremeCoreConfig(CremeAppConfig):
             model=models.Vat,
             enumerator_class=enumerators.VatEnumerator,
         ).register_field_type(
-            # field_class=models.fields.EntityCTypeForeignKey,
             field_class=models.fields.CTypeForeignKey,
-            # enumerator_class=enumerators.EntityCTypeForeignKeyEnumerator,
             enumerator_class=enumerators.CTypeForeignKeyEnumerator,
         ).register_field(
             model=models.HeaderFilter,

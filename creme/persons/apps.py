@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,6 @@ class PersonsConfig(CremeAppConfig):
             from . import signals  # NOQA
 
             if apps.is_installed('creme.reports'):
-                # self.register_reports_graph_fetchers()
                 self.register_reports_chart_fetchers()
 
     def register_entity_models(self, creme_registry):
@@ -385,14 +384,6 @@ class PersonsConfig(CremeAppConfig):
         # NB: to facilitate customisation by a child class
         return ContactUserCreationForm
 
-    # def register_reports_graph_fetchers(self):
-    #     from creme.reports.graph_fetcher_registry import graph_fetcher_registry
-    #
-    #     from . import reports
-    #
-    #     graph_fetcher_registry.register(
-    #         reports.OwnedGraphFetcher,
-    #     )
     def register_reports_chart_fetchers(self):
         from creme.reports.core.chart import fetcher
 

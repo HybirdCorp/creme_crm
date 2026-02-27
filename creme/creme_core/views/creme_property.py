@@ -159,16 +159,12 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
         return self.get_property_type().get_absolute_url()
 
 
-# class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
-#                               generic.CremeDeletion):
 class PropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
                          generic.CremeDeletion):
     ptype_id_arg: str = 'ptype_id'
     ctype_id_arg: str = 'ct_id'
     exclude_ctypes_arg: str = 'exclude_ctypes'
 
-    # def get_ctype_id(self) -> int:
-    #     return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg, cast=int)
     # TODO: factorise (RelationsDeletion)
     def get_ctype_ids(self):
         ctype_ids = []
@@ -229,28 +225,6 @@ class PropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
         return reverse('creme_core__ptype', args=(self.get_ptype_id(),))
 
     def perform_deletion(self, request):
-        # ctype = self.get_ctype()
-        # ptype_id = self.get_ptype_id()
-        # key = 'cremeentity_ptr_id'
-        # qs = EntityCredentials.filter(
-        #     user=self.request.user,
-        #     queryset=ctype.model_class()
-        #                   .objects
-        #                   .order_by(key)
-        #                   .filter(properties__type=ptype_id, is_deleted=False),
-        #     perm=EntityCredentials.CHANGE,
-        # )
-        # for page in FlowPaginator(
-        #     queryset=qs,
-        #     key=key,
-        #     per_page=256,
-        #     count=qs.count(),
-        # ).pages():
-        #     with atomic():
-        #         CremeProperty.objects.filter(
-        #             type_id=ptype_id,
-        #             creme_entity_id__in=[e.id for e in page.object_list],
-        #         ).delete()
         ptype = self.get_ptype()
 
         for ctype in self.get_ctypes(ptype=ptype, exclude=self.get_exclude_ctypes()):
@@ -557,7 +531,6 @@ class PropertyTypeBricksReloading(BricksReloading):
                     if not self.request.user.has_perm_to_access(ctype.app_label):
                         brick = ForbiddenBrick(
                             id=brick.id,
-                            # verbose_name=ctype.model_class()._meta.verbose_name_plural,
                             verbose_name=model_verbose_name_plural(ctype.model_class()),
                         )
 

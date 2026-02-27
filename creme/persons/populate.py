@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -211,23 +211,6 @@ class Populator(BasePopulator):
         custom_forms.ORGANISATION_CREATION_CFORM,
         custom_forms.ORGANISATION_EDITION_CFORM,
     ]
-    # BUTTONS = {
-    #     'CONTACT': [
-    #         # (class, order)
-    #         (buttons.BecomeProspectButton, 1021),
-    #         (buttons.BecomeSuspectButton,  1022),
-    #         (buttons.BecomeInactiveButton, 1023),
-    #     ],
-    #     'ORGANISATION': [
-    #         # (class, order)
-    #         (buttons.BecomeCustomerButton,   1020),
-    #         (buttons.BecomeProspectButton,   1021),
-    #         (buttons.BecomeSuspectButton,    1022),
-    #         (buttons.BecomeInactiveButton,   1023),
-    #         (buttons.BecomeSupplierButton,   1024),
-    #         (buttons.AddLinkedContactButton, 1025),
-    #     ],
-    # }
     BUTTONS = [
         _Button(model=Contact, button=buttons.BecomeProspectButton, order=1021),
         _Button(model=Contact, button=buttons.BecomeSuspectButton,  order=1022),
@@ -240,14 +223,6 @@ class Populator(BasePopulator):
         _Button(model=Organisation, button=buttons.BecomeSupplierButton,   order=1024),
         _Button(model=Organisation, button=buttons.AddLinkedContactButton, order=1025),
     ]
-    # SEARCH = {
-    #     'CONTACT': [
-    #         'last_name', 'first_name', 'phone', 'mobile', 'email',
-    #     ],
-    #     'ORGANISATION': [
-    #         'name', 'phone', 'email', 'sector__title', 'legal_form__title',
-    #     ],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Contact,
@@ -311,8 +286,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Contact      = persons.get_contact_model()
-        # self.Organisation = persons.get_organisation_model()
         self.Contact      = Contact
         self.Organisation = Organisation
 
@@ -362,47 +335,6 @@ class Populator(BasePopulator):
         self._save_minions(self.STAFF_SIZES)
 
     def _populate_relation_types(self):
-        # Contact      = self.Contact
-        # Organisation = self.Organisation
-        # any_person = [Contact, Organisation]
-        #
-        # create_rtype = RelationType.objects.smart_update_or_create
-        # create_rtype(
-        #     (constants.REL_SUB_EMPLOYED_BY, _('is an employee of'), [Contact]),
-        #     (constants.REL_OBJ_EMPLOYED_BY, _('employs'),           [Organisation]),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_CUSTOMER_SUPPLIER, _('is a customer of'), any_person),
-        #     (constants.REL_OBJ_CUSTOMER_SUPPLIER, _('is a supplier of'), any_person),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_MANAGES, _('manages'),    [Contact]),
-        #     (constants.REL_OBJ_MANAGES, _('managed by'), [Organisation]),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_PROSPECT, _('is a prospect of'), any_person),
-        #     (constants.REL_OBJ_PROSPECT, _('has as prospect'),  any_person),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_SUSPECT, _('is a suspect of'), any_person),
-        #     (constants.REL_OBJ_SUSPECT, _('has as suspect'),  any_person),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_PARTNER, _('is a partner of'), any_person),
-        #     (constants.REL_OBJ_PARTNER, _('has as partner'),  any_person),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_INACTIVE, _('is an inactive customer of'), any_person),
-        #     (constants.REL_OBJ_INACTIVE, _('has as inactive customer'),   any_person),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_SUBSIDIARY, _('has as subsidiary'),  [Organisation]),
-        #     (constants.REL_OBJ_SUBSIDIARY, _('is a subsidiary of'), [Organisation]),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_COMPETITOR, _('is a competitor of'), any_person),
-        #     (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  any_person),
-        # )
         super()._populate_relation_types()
 
         get_rtype = RelationType.objects.get
@@ -441,70 +373,6 @@ class Populator(BasePopulator):
         self._populate_entity_filters_for_contact()
         self._populate_entity_filters_for_organisation()
 
-    # def _populate_header_filters_for_contact(self):
-    #     Contact = self.Contact
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
-    #         name=_('Contact view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'last_name'}),
-    #             (EntityCellRegularField, {'name': 'first_name'}),
-    #             (EntityCellRegularField, {'name': 'phone'}),
-    #             (EntityCellRegularField, {'name': 'email'}),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #             EntityCellRelation(
-    #                 model=Contact,
-    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_EMPLOYED_BY),
-    #             ),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters_for_organisation(self):
-    #     Organisation = self.Organisation
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     get_rtype = RelationType.objects.get
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
-    #         name=_('Organisation view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'phone'}),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #             EntityCellRelation(
-    #                 model=Organisation, rtype=get_rtype(id=constants.REL_OBJ_MANAGES),
-    #             ),
-    #         ],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
-    #         name=_('Prospect/Suspect view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'sector'}),
-    #             (EntityCellRegularField, {'name': 'phone'}),
-    #             (EntityCellRegularField, {'name': 'email'}),
-    #             (EntityCellRegularField, {'name': 'user'}),
-    #             EntityCellRelation(
-    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_CUSTOMER_SUPPLIER),
-    #             ),
-    #             EntityCellRelation(
-    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_PROSPECT),
-    #             ),
-    #             EntityCellRelation(
-    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_SUSPECT),
-    #             ),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters(self):
-    #     self._populate_header_filters_for_contact()
-    #     self._populate_header_filters_for_organisation()
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.Contact,      fields=self.SEARCH['CONTACT'])
-    #     create_sci(model=self.Organisation, fields=self.SEARCH['ORGANISATION'])
-
     def _populate_menu_config(self):
         directory_entry = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -530,15 +398,6 @@ class Populator(BasePopulator):
                 entry_id=menu.ContactCreationEntry.id,
                 order=20, parent=creations_entry,
             )
-
-    # def _populate_buttons_config(self):
-    #     create_bmi = ButtonMenuItem.objects.create_if_needed
-    #
-    #     for button_cls, order in self.BUTTONS['CONTACT']:
-    #         create_bmi(model=self.Contact, button=button_cls, order=order)
-    #
-    #     for button_cls, order in self.BUTTONS['ORGANISATION']:
-    #         create_bmi(model=self.Organisation, button=button_cls, order=order)
 
     def _populate_bricks_config_for_contact(self):
         Contact = self.Contact

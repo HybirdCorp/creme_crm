@@ -26,7 +26,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 import creme.creme_core.bricks as core_bricks
-from creme import billing, persons  # products
+from creme import billing, persons
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
@@ -335,12 +335,6 @@ class Populator(BasePopulator):
         _ButtonProxy(model=Organisation, button=buttons.AddSalesOrderButton, order=1011),
         _ButtonProxy(model=Organisation, button=buttons.AddInvoiceButton,    order=1012),
     ]
-    # SEARCH = {
-    #     'INVOICE':     ['name', 'number', 'status__name'],
-    #     'QUOTE':       ['name', 'number', 'status__name'],
-    #     'CREDIT_NOTE': ['name', 'number', 'status__name'],
-    #     'SALES_ORDER': ['name', 'number', 'status__name'],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=Invoice,    fields=['name', 'number', 'status__name'],
@@ -490,17 +484,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Contact      = persons.get_contact_model()
-        # self.Organisation = persons.get_organisation_model()
-        #
-        # self.CreditNote   = billing.get_credit_note_model()
-        # self.Invoice      = billing.get_invoice_model()
-        # self.Quote        = billing.get_quote_model()
-        # self.SalesOrder   = billing.get_sales_order_model()
-        # self.TemplateBase = billing.get_template_base_model()
-        #
-        # self.ProductLine = billing.get_product_line_model()
-        # self.ServiceLine = billing.get_service_line_model()
         self.Contact      = Contact
         self.Organisation = Organisation
 
@@ -591,75 +574,6 @@ class Populator(BasePopulator):
         self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
-        # line_models = [*line_registry]
-        #
-        # create_rtype = RelationType.objects.smart_update_or_create
-        # create_rtype(
-        #     (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
-        #     (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [self.Organisation]),
-        #     is_internal=True,
-        #     minimal_display=(False, True),
-        # )
-        # create_rtype(
-        #     (
-        #         constants.REL_SUB_BILL_RECEIVED,
-        #         _('received by'),
-        #         BILLING_MODELS,
-        #     ),
-        #     (
-        #         constants.REL_OBJ_BILL_RECEIVED,
-        #         _('has received'),
-        #         [self.Organisation, self.Contact],
-        #     ),
-        #     is_internal=True,
-        #     minimal_display=(False, True),
-        # )
-        # create_rtype(
-        #     (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
-        #     (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_models),
-        #     is_internal=True,
-        #     minimal_display=(True, True),
-        # )
-        # create_rtype(
-        #     (
-        #         constants.REL_SUB_LINE_RELATED_ITEM,
-        #         _('has the related item'),
-        #         line_models,
-        #     ),
-        #     (
-        #         constants.REL_OBJ_LINE_RELATED_ITEM,
-        #         _('is the related item of'),
-        #         # [Product, Service],
-        #         {line_model.related_item_class() for line_model in line_models},
-        #     ),
-        #     is_internal=True,
-        # )
-        # create_rtype(
-        #     (
-        #         constants.REL_SUB_CREDIT_NOTE_APPLIED,
-        #         _('is used in the billing document'),
-        #         [self.CreditNote],
-        #     ),
-        #     (
-        #         constants.REL_OBJ_CREDIT_NOTE_APPLIED,
-        #         _('uses the credit note'),
-        #         [self.Quote, self.SalesOrder, self.Invoice],
-        #     ),
-        #     is_internal=True,
-        #     minimal_display=(True, True),
-        # )
-        # create_rtype(
-        #     (
-        #         constants.REL_SUB_INVOICE_FROM_QUOTE,
-        #         _('(Invoice) converted from the Quote'),
-        #         [self.Invoice],
-        #     ),
-        #     (
-        #         constants.REL_OBJ_INVOICE_FROM_QUOTE,
-        #         _('(Quote) converted to the Invoice'),
-        #         [self.Quote],
-        #     ),
-        # )
         super()._populate_relation_types()
 
         if apps.is_installed('creme.activities'):
@@ -794,104 +708,6 @@ class Populator(BasePopulator):
             ],
         )
 
-    # def _create_header_filter(self, *, pk, name, model, status=True):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=pk, name=name, model=model,
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             EntityCellRelation(
-    #                 model=model,
-    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED),
-    #             ),
-    #             (EntityCellRegularField, {'name': 'number'}),
-    #             (EntityCellRegularField, {'name': 'status'}) if status else None,
-    #             (EntityCellRegularField, {'name': 'total_no_vat'}),
-    #             (EntityCellRegularField, {'name': 'issuing_date'}),
-    #             (EntityCellRegularField, {'name': 'expiration_date'}),
-    #         ],
-    #     )
-    #
-    # def _create_header_filter_for_line(self, *, pk, name, model):
-    #     HeaderFilter.objects.create_if_needed(
-    #         pk=pk, name=name, model=model,
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'on_the_fly_item'}),
-    #             (EntityCellRegularField, {'name': 'quantity'}),
-    #             (EntityCellRegularField, {'name': 'unit_price'}),
-    #         ],
-    #     )
-    #
-    # def _populate_header_filters_for_invoice(self):
-    #     self._create_header_filter(
-    #         pk=constants.DEFAULT_HFILTER_INVOICE,
-    #         name=_('Invoice view'),
-    #         model=self.Invoice,
-    #     )
-    #
-    # def _populate_header_filters_for_quote(self):
-    #     self._create_header_filter(
-    #         pk=constants.DEFAULT_HFILTER_QUOTE,
-    #         name=_('Quote view'),
-    #         model=self.Quote,
-    #     )
-    #
-    # def _populate_header_filters_for_order(self):
-    #     self._create_header_filter(
-    #         pk=constants.DEFAULT_HFILTER_ORDER,
-    #         name=_('Sales order view'),
-    #         model=self.SalesOrder,
-    #     )
-    #
-    # def _populate_header_filters_for_creditnode(self):
-    #     self._create_header_filter(
-    #         pk=constants.DEFAULT_HFILTER_CNOTE,
-    #         name=_('Credit note view'),
-    #         model=self.CreditNote,
-    #     )
-    #
-    # def _populate_header_filters_for_templatebase(self):
-    #     self._create_header_filter(
-    #         pk=constants.DEFAULT_HFILTER_TEMPLATE,
-    #         name=_('Template view'),
-    #         model=self.TemplateBase,
-    #         status=False,
-    #     )
-    #
-    # def _populate_header_filters_for_productline(self):
-    #     self._create_header_filter_for_line(
-    #         pk=constants.DEFAULT_HFILTER_PLINE,
-    #         name=_('Product lines view'),
-    #         model=self.ProductLine,
-    #     )
-    #
-    # def _populate_header_filters_for_serviceline(self):
-    #     self._create_header_filter_for_line(
-    #         pk=constants.DEFAULT_HFILTER_SLINE,
-    #         name=_('Service lines view'),
-    #         model=self.ServiceLine,
-    #     )
-    #
-    # def _populate_header_filters(self):
-    #     self._populate_header_filters_for_invoice()
-    #     self._populate_header_filters_for_quote()
-    #     self._populate_header_filters_for_order()
-    #     self._populate_header_filters_for_creditnode()
-    #     self._populate_header_filters_for_templatebase()
-    #
-    #     self._populate_header_filters_for_productline()
-    #     self._populate_header_filters_for_serviceline()
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     fields = self.SEARCH
-    #     create_sci(model=self.Invoice,    fields=fields['INVOICE'])
-    #     create_sci(model=self.CreditNote, fields=fields['CREDIT_NOTE'])
-    #     create_sci(model=self.Quote,      fields=fields['QUOTE'])
-    #     create_sci(model=self.SalesOrder, fields=fields['SALES_ORDER'])
-    #
-    #     for model in (self.ProductLine, self.ServiceLine):
-    #         create_sci(model=model, fields=[], disabled=True)
-
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -908,53 +724,7 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
         create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
 
-    # def _populate_buttons_config_for_credit_note(self):
-    #     ButtonMenuItem.objects.create_if_needed(
-    #         model=self.CreditNote, button=buttons.GenerateNumberButton, order=1001,
-    #     )
-    #
-    # def _populate_buttons_config_for_invoice(self):
-    #     ButtonMenuItem.objects.create_if_needed(
-    #         model=self.Invoice, button=buttons.GenerateNumberButton, order=1001,
-    #     )
-    #
-    # def _populate_buttons_config_for_quote(self):
-    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Quote)
-    #     create_bmi(button=buttons.ConvertToInvoiceButton,    order=1001)
-    #     create_bmi(button=buttons.ConvertToSalesOrderButton, order=1002)
-    #
-    # def _populate_buttons_config_for_order(self):
-    #     ButtonMenuItem.objects.create_if_needed(
-    #         model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=101,
-    #     )
-    #
-    # def _populate_buttons_config_for_contact(self):
-    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Contact)
-    #     create_bmi(button=buttons.AddQuoteButton,      order=1010)
-    #     create_bmi(button=buttons.AddSalesOrderButton, order=1011)
-    #     create_bmi(button=buttons.AddInvoiceButton,    order=1012)
-    #
-    # def _populate_buttons_config_for_organisation(self):
-    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Organisation)
-    #     create_bmi(button=buttons.AddQuoteButton,      order=1010)
-    #     create_bmi(button=buttons.AddSalesOrderButton, order=1011)
-    #     create_bmi(button=buttons.AddInvoiceButton,    order=1012)
-    #
-    # def _populate_buttons_config(self):
-    #     self._populate_buttons_config_for_credit_note()
-    #     self._populate_buttons_config_for_invoice()
-    #     self._populate_buttons_config_for_quote()
-    #     self._populate_buttons_config_for_order()
-    #
-    #     self._populate_buttons_config_for_contact()
-    #     self._populate_buttons_config_for_organisation()
-
     def _populate_bricks_config_for_documents(self):
-        # logger.info(
-        #   'Documents app is installed
-        #   => we use the documents block on detail views'
-        # )
-
         from creme.documents.bricks import LinkedDocsBrick
 
         RIGHT = BrickDetailviewLocation.RIGHT
@@ -1168,12 +938,10 @@ class Populator(BasePopulator):
 
         from creme import reports
         from creme.reports.constants import RFT_FIELD, RFT_RELATION
-        # from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         from creme.reports.core.chart.fetcher import SimpleChartFetcher
         from creme.reports.models import Field, ReportChart
 
         admin = get_user_model().objects.get_admin()
-        # ReportGraph = reports.get_rgraph_model()
 
         Invoice = self.Invoice
         total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
@@ -1195,7 +963,6 @@ class Populator(BasePopulator):
             create_field(name='expiration_date', order=7)
 
         create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
-        # create_graph = partial(ReportGraph.objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
@@ -1206,14 +973,6 @@ class Populator(BasePopulator):
         create_report_columns(invoices_report1)
 
         cell_key = total_no_vat_cell.portable_key
-        # rgraph1 = create_graph(
-        #     uuid=UUID_RCHART_INVOICES_PER_MONTH,
-        #     name=_('Sum of current year invoices total without taxes / month'),
-        #     linked_report=invoices_report1,
-        #     abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-        #     ordinate_type=ReportGraph.Aggregator.SUM,
-        #     ordinate_cell_key=cell_key,
-        # )
         chart1 = ReportChart.objects.create(
             uuid=UUID_RCHART_INVOICES_PER_MONTH,
             user=admin,
@@ -1223,14 +982,6 @@ class Populator(BasePopulator):
             ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        # create_graph(
-        #     uuid=UUID_RCHART_INVOICES_PER_STATUS,
-        #     name=_('Sum of current year invoices total without taxes / invoices status'),
-        #     linked_report=invoices_report1,
-        #     abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
-        #     ordinate_type=ReportGraph.Aggregator.SUM,
-        #     ordinate_cell_key=cell_key,
-        # )
         ReportChart.objects.create(
             uuid=UUID_RCHART_INVOICES_PER_STATUS,
             user=admin,
@@ -1240,7 +991,6 @@ class Populator(BasePopulator):
             ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        # ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item(
         ibci1 = SimpleChartFetcher(chart=chart1).create_brick_config_item(
             uuid=UUID_IBRICK_INVOICES_PER_MONTH,
         )
@@ -1254,14 +1004,6 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report2)
 
-        # rgraph3 = create_graph(
-        #     uuid=UUID_RCHART_UNPAID_INVOICES_PER_MONTH,
-        #     name=_('Sum of current year and unpaid invoices total without taxes / month'),
-        #     linked_report=invoices_report2,
-        #     abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-        #     ordinate_type=ReportGraph.Aggregator.SUM,
-        #     ordinate_cell_key=cell_key,
-        # )
         chart3 = ReportChart.objects.create(
             uuid=UUID_RCHART_UNPAID_INVOICES_PER_MONTH,
             user=admin,
@@ -1271,7 +1013,6 @@ class Populator(BasePopulator):
             ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        # ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item(
         ibci3 = SimpleChartFetcher(chart=chart3).create_brick_config_item(
             uuid=UUID_IBRICK_UNPAID_INVOICES_PER_MONTH,
         )

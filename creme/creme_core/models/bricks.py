@@ -35,7 +35,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .. import setting_keys
 from ..constants import MODELBRICK_ID
-from ..utils.content_type import entity_ctypes  # ctype_from_key ctype_as_key
+from ..utils.content_type import entity_ctypes
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
@@ -550,7 +550,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     def _dump_cells_map(self):
         get_ct = ContentType.objects.get_fresh_for_id
         self.json_cells_map = {
-            # ctype_as_key(get_ct(ct_id)): [cell.to_dict(portable=True) for cell in cells]
             get_ct(ct_id).portable_key(): [cell.to_dict(portable=True) for cell in cells]
             for ct_id, cells in self._cells_map.items()
         }
@@ -567,7 +566,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             get_ct = ContentType.objects.get_by_portable_key
 
             for ct_key, cells_as_dicts in self.json_cells_map.items():
-                # ct = ctype_from_key(ct_key)
                 ct = get_ct(ct_key)
                 # TODO: do it lazily ??
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)

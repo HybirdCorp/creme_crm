@@ -119,7 +119,6 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         tree1 = self.get_html_tree(response1.content)
         self.get_brick_node(tree1, brick=JobBarHatBrick)
 
-        # info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
         info_brick_node1 = self.get_brick_node(tree1, brick=JobInfoBrick)
         info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
         self.assertBrickHeaderHasNoButton(info_buttons1, job.get_edit_absolute_url())
@@ -139,7 +138,6 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            # self.get_html_tree(response2.content), brick=JobBrick,
             self.get_html_tree(response2.content), brick=JobInfoBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
@@ -220,7 +218,6 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            # self.get_html_tree(response2.content), brick=JobBrick,
             self.get_html_tree(response2.content), brick=JobInfoBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
@@ -869,14 +866,12 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         self._aux_test_reload(job, JobBarHatBrick.id)
-        # self._aux_test_reload(job, JobBrick.id)
         self._aux_test_reload(job, JobInfoBrick.id)
         self._aux_test_reload(job, JobErrorsBrick.id)
 
     def test_reload__entity_errors(self):
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user)
-        # self._aux_test_reload(job, JobBrick.id)
         self._aux_test_reload(job, JobInfoBrick.id)
         self._aux_test_reload(job, EntityJobErrorsBrick.id)
 
@@ -885,6 +880,5 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job = self._create_batchprocess_job(user=self.get_root_user())
         self.assertGET403(
             reverse('creme_core__reload_job_bricks', args=(job.id,)),
-            # data={'brick_id': JobBrick.id},
             data={'brick_id': JobInfoBrick.id},
         )

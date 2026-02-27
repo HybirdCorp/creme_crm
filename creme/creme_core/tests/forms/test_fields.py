@@ -1141,7 +1141,6 @@ class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
         )
         self.assertTrue(field.required)
         self.assertIsInstance(field.widget, core_widgets.UnorderedMultipleChoiceWidget)
-        # self.assertSetEqual(set(), field.initial)
         self.assertIsNone(field.initial)
 
         clean = field.clean
@@ -1313,13 +1312,11 @@ class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
         )
         field1 = field_builder()
         self.assertEqual(frozenset(), field1.forced_values)
-        # self.assertFalse(field1.initial)
         wchoices1 = iter(field1.choices)
         old_wchoices1 = iter(field1.widget.choices)
 
         field1.forced_values = [1, 3]
         self.assertEqual(frozenset([1, 3]), field1.forced_values)  # TODO: '1', '3' ???
-        # self.assertSetEqual({1, 3}, field1.initial)
         self.assertSetEqual({1, 3}, field1.prepare_value(None))
         self.assertSetEqual({1, 3}, field1.prepare_value([]))
         self.assertSetEqual({1, 2, 3}, field1.prepare_value([2]))
@@ -1344,7 +1341,6 @@ class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
         # --
         field2 = field_builder(forced_values=[2])
         self.assertEqual(frozenset([2]), field2.forced_values)
-        # self.assertSetEqual({2}, field2.initial)
         self.assertSetEqual({2}, field2.prepare_value([]))
 
         clean = field2.clean
@@ -1374,23 +1370,6 @@ class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertTrue(choices[1][0].readonly)
 
         self.assertCountEqual(['1', '2', '3'], field.clean(['1', '2']))
-
-    # def test_initial(self):
-    #     field = EnhancedMultipleChoiceField(choices=[
-    #         (1, 'Sword'),
-    #         (2, 'Axes'),
-    #         (3, 'Spear'),
-    #     ])
-    #
-    #     field.initial = [2, 1]
-    #     self.assertSetEqual({1, 2}, field.initial)
-    #
-    #     field.initial = None
-    #     self.assertFalse(field.initial)
-    #
-    #     field.forced_values = [1]
-    #     field.initial = [2]
-    #     self.assertSetEqual({1, 2}, field.initial)
 
     def test_iterator(self):
         class CustomIterator(EnhancedChoiceIterator):
@@ -1524,7 +1503,6 @@ class EnhancedModelMultipleChoiceFieldTestCase(_EnhancedModelMultipleChoiceField
 
         field1.forced_values = [sector1.id, sector3.id]
         self.assertEqual(frozenset([sector1.id, sector3.id]), field1.forced_values)
-        # self.assertSetEqual({sector1.id, sector3.id}, field1.initial)
         self.assertIsNone(field1.prepare_value(None))
         self.assertCountEqual([sector1.id, sector3.id], field1.prepare_value([]))
         self.assertCountEqual(
@@ -1575,24 +1553,6 @@ class EnhancedModelMultipleChoiceFieldTestCase(_EnhancedModelMultipleChoiceField
 
         choice2 = self.assertFoundChoice(sector2.title, sector2.title, choices)
         self.assertTrue(choice2.readonly)
-
-    # def test_initial(self):
-    #     field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
-    #     sector1, sector2 = FakeSector.objects.all()[:2]
-    #
-    #     field.initial = [sector2.id, sector1.id]
-    #     self.assertSetEqual({sector2.id, sector1.id}, field.initial)
-    #
-    #     field.initial = [sector1.id]
-    #     self.assertSetEqual({sector1.id}, field.initial)
-    #
-    #     field.initial = None
-    #     self.assertFalse(field.initial)
-    #
-    #     field.forced_values = [sector1.id]
-    #     field.initial = [sector2.id]
-    #     self.assertSetEqual({sector2.id, sector1.id}, field.initial)
-    #     self.assertEqual(frozenset([sector1.id]), field.forced_values)
 
     def test_widget_choices(self):
         field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -1687,7 +1647,6 @@ class PropertyTypesChoiceFieldTestCase(_EnhancedModelMultipleChoiceFieldMixin,
 
         field.forced_values = [ptype2.id]
         self.assertEqual(frozenset([ptype2.id]), field.forced_values)
-        # self.assertSetEqual({ptype2.id}, field.initial)
         self.assertListEqual([ptype2.id],             field.prepare_value([]))
         self.assertCountEqual([ptype1.id, ptype2.id], field.prepare_value([ptype1.id]))
 

@@ -224,7 +224,6 @@ class CremeModel(Model):
             ).format(
                 model._meta.get_field(fname).verbose_name
             )
-            # for fname in FieldsConfig.objects.get_for_model(model).required_field_names
             for fname in FieldsConfig.objects.get_for_model(
                 model
             ).conditional_required_field_names(creation=self.pk is None)

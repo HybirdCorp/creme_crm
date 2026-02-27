@@ -428,13 +428,6 @@ class FieldsConfig(CremeModel):
     def is_field_hidden(self, field: Field) -> bool:
         return field.name in self.hidden_field_names
 
-    # def is_field_required(self, field: Field) -> bool:
-    #     return (
-    #         not isinstance(field, BooleanField)
-    #         and (
-    #             not field.blank or field.name in self.required_field_names
-    #         )
-    #     )
     def is_field_required(self, field: Field, *, creation: bool) -> bool:
         """Is a model field required (naturally or by configuration)?
         @param creation: True means <instance is being created>.
@@ -462,10 +455,6 @@ class FieldsConfig(CremeModel):
 
         return self.is_field_hidden(field)
 
-    # def is_fieldname_required(self, field_name: str) -> bool:
-    #     field = self.content_type.model_class()._meta.get_field(field_name)
-    #
-    #     return self.is_field_required(field)
     def is_fieldname_required(self, field_name: str, *, creation: bool) -> bool:
         """Is a field (given by its name) required (naturally or by configuration)?
         @param creation: True means <instance is being created>.
@@ -496,7 +485,6 @@ class FieldsConfig(CremeModel):
 
         missing_field_names = []
 
-        # for field_name in self.required_field_names:
         for field_name in self.conditional_required_field_names(
             creation=(form.instance.pk is None) if creation is None else creation
         ):

@@ -48,10 +48,6 @@ Organisation = persons.get_organisation_model()
 Activity = get_activity_model()
 
 
-# class ActivityTypeBrick(GenericModelBrick):
-#     id = GenericModelBrick.generate_id('activities', 'type_config')
-#     template_name = 'activities/bricks/activity-types.html'
-#     dependencies = (ActivityType,)
 class ActivityTypesBrick(GenericModelBrick):
     id = GenericModelBrick.generate_id('activities', 'types_config')
     template_name = 'activities/bricks/activity-types.html'
@@ -452,13 +448,11 @@ class CalendarConfigItemsBrick(QuerysetBrick):
     # permissions = 'activities.can_admin' => useless because views check that.
 
     def detailview_display(self, context):
-        # user = context['user']
         btc = self.get_template_context(
             context,
             queryset=CalendarConfigItem.objects.filter(
                 role__isnull=False, superuser=False,
             ).order_by('role__name'),
-            # has_app_perm=user.has_perm('activities'),
         )
 
         try:

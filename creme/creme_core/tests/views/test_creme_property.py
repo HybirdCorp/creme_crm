@@ -806,7 +806,6 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(prop1)
         self.assertStillExists(prop2)
 
-    # def test_delete_from_content_type(self):
     def test_delete_properties__narrowed_types(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
@@ -1112,25 +1111,3 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertListEqual([entity], tagged_entities(ptype1))
         self.assertListEqual([entity], tagged_entities(ptype2))
-
-    # def test_not_copiable_properties(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #
-    #     create_ptype = CremePropertyType.objects.create
-    #     ptype01 = create_ptype(text='wears strange hats', is_copiable=False)
-    #     ptype02 = create_ptype(text='wears strange pants')
-    #
-    #     entity = CremeEntity.objects.create(user=user)
-    #
-    #     create_prop = partial(CremeProperty.objects.create, creme_entity=entity)
-    #     create_prop(type=ptype01)
-    #     create_prop(type=ptype02)
-    #
-    #     filter_prop = CremeProperty.objects.filter
-    #     self.assertEqual(1, filter_prop(type=ptype01).count())
-    #     self.assertEqual(1, filter_prop(type=ptype02).count())
-    #
-    #     entity.clone()
-    #
-    #     self.assertEqual(1, filter_prop(type=ptype01).count())
-    #     self.assertEqual(2, filter_prop(type=ptype02).count())

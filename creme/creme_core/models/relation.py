@@ -166,9 +166,6 @@ class RelationTypeBuilder:
         sym._is_custom = self._is_custom
         sym.is_copiable = is_copiable
         sym.minimal_display = minimal_display
-        # sym.models = models
-        # sym.properties = properties
-        # sym.forbidden_properties = forbidden_properties
         sym._enabled = self._enabled
         sym._models = set(models)
         sym._properties = self._PropertyTypesConstraints(properties)

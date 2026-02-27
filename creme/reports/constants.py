@@ -39,9 +39,3 @@ class OrdinateAggregator(models.TextChoices):
     MAX   = 'max',   _('Maximum'),
     MIN   = 'min',   _('Minimum'),
     SUM   = 'sum',   _('Sum'),
-
-
-# # ReportGraph fetchers
-# RGF_NOLINK   = 'reports-no_link'
-# RGF_FK       = 'reports-fk'
-# RGF_RELATION = 'reports-relation'

@@ -102,7 +102,6 @@ class _TrashCleanerType(JobType):
             #             entity_class.objects.filter(is_deleted=True),
             #             EntityCredentials.DELETE,
             #         ).order_by('id').select_for_update(),
-            #         key='id',
             #         per_page=256,
             #     )
             #
@@ -117,7 +116,6 @@ class _TrashCleanerType(JobType):
                         entity_class.objects.filter(is_deleted=True),
                         EntityCredentials.DELETE,
                     ).order_by('id'),  # .select_for_update()
-                    # key='id',
                     per_page=256,
                 )
 
@@ -190,7 +188,6 @@ class _TrashCleanerType(JobType):
 
     @property
     def results_bricks(self):
-        # from ..bricks import TrashCleanerJobErrorsBrick
         return [TrashCleanerJobErrorsBrick()]
 
 
