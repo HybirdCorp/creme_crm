@@ -17,7 +17,6 @@ from creme.creme_core.gui.menu import (
     Separator1Entry,
     menu_registry,
 )
-# RecentEntitiesEntry
 from creme.creme_core.menu import CremeEntry, LogoutEntry, QuickAccessEntry
 from creme.creme_core.models import FakeContact, MenuConfigItem
 from creme.creme_core.tests import fake_menu
@@ -870,13 +869,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             choices02 = response1.context['form'].fields['entry_id'].choices
 
         self.assertInChoices(
-            # value=RecentEntitiesEntry.id, label=RecentEntitiesEntry.label,
             value=QuickAccessEntry.id, label=QuickAccessEntry.label,
             choices=choices02,
         )
         self.assertNotInChoices(value=CremeEntry.id, choices=choices02)
 
-        # entry_id = RecentEntitiesEntry.id
         entry_id = QuickAccessEntry.id
         response2 = self.client.post(url, data={'entry_id': entry_id})
         self.assertNoFormError(response2)
@@ -1149,7 +1146,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         item01 = create_item(entry_id=CremeEntry.id, order=0)
         self.assertGET404(self._build_edit_container_url(item01))
 
-        # item02 = create_item(entry_id=RecentEntitiesEntry.id, order=0)
         item02 = create_item(entry_id=QuickAccessEntry.id, order=0)
         self.assertGET404(self._build_edit_container_url(item02))
 
@@ -1174,7 +1170,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_remove_container__special(self):
         self.login_as_root()
 
-        # item = MenuConfigItem.objects.create(entry_id=RecentEntitiesEntry.id, order=0)
         item = MenuConfigItem.objects.create(entry_id=QuickAccessEntry.id, order=0)
         self.assertPOST200(self.DELETE_URL, data={'id': item.id})
         self.assertDoesNotExist(item)

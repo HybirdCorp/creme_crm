@@ -477,7 +477,6 @@ class SetCredentials(models.Model):
         # NB: NULL means "No specific type" (i.e. any kind of CremeEntity)
         null=True, blank=True,
     )
-    # entity  = models.ForeignKey(CremeEntity, null=True) ??
     forbidden = models.BooleanField(
         verbose_name=_('Allow or forbid?'),
         default=False,

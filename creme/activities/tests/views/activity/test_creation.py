@@ -346,7 +346,6 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
         act = self._create_activity_by_view(user=user)
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
-        # self.assertEqual(constants.FLOATING, act.floating_type)  # DEPRECATED
         self.assertEqual(Activity.FloatingType.FLOATING, act.floating_type)
 
     def test_floating_time(self):
@@ -362,7 +361,6 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=3, day=30)
         self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
-        # self.assertEqual(constants.FLOATING_TIME, act.floating_type)  # DEPRECATED
         self.assertEqual(Activity.FloatingType.FLOATING_TIME, act.floating_type)
 
     def test_default_duration__day1_floating_time(self):
@@ -1116,7 +1114,6 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
         meeting = self.get_object_or_fail(Activity, type=atype, title=title)
 
         self.assertEqual(status, meeting.status)
-        # self.assertEqual(constants.NARROW, meeting.floating_type)  # Deprecated
         self.assertEqual(Activity.FloatingType.NARROW, meeting.floating_type)
         self.assertEqual(
             self.create_datetime(year=2013, month=4, day=12, hour=10, minute=00),

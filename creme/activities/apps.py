@@ -92,7 +92,6 @@ class ActivitiesConfig(CremeAppConfig):
         register_model(
             models.ActivityType, model_name='activity_type',
         ).brick_class(
-            # bricks.ActivityTypeBrick
             bricks.ActivityTypesBrick
         ).creation(
             form_class=type_forms.ActivityTypeForm,

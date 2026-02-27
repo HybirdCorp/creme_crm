@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -193,20 +193,6 @@ class AbstractReport(CremeEntity):
             f.get_children_fields_flat()
             for f in self.filtered_columns
         )
-
-    # def _post_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Report._post_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     for rfield in source.fields.all():
-    #         rfield.clone(report=self)
-    #
-    #     for graph in source.reportgraph_set.all():
-    #         new_graph = graph.clone()
-    #         new_graph.linked_report = self
-    #         new_graph.save()
 
 
 class Report(AbstractReport):

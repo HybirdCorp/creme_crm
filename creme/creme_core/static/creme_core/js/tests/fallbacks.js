@@ -459,48 +459,6 @@ QUnit.test('fallbacks.Array.isArray', function(assert) {
     assert.equal(Array.isArray({'test': 1}), false);
 });
 
-/*
-QUnit.test('fallbacks.Array.copy', function(assert) {
-    assert.equal(typeof Array.copy, 'function');
-
-    assert.deepEqual([], Array.copy([]));
-    assert.deepEqual(['a', 'b'], Array.copy(['a', 'b']));
-
-    assert.deepEqual(['b', 'c'], Array.copy(['a', 'b', 'c'], 1));
-    assert.deepEqual([], Array.copy(['a', 'b', 'c'], 10));
-
-    assert.deepEqual(['b'], Array.copy(['a', 'b', 'c'], 1, 2));
-    assert.deepEqual([], Array.copy(['a', 'b', 'c'], 1, 1));
-    assert.deepEqual(['b', 'c'], Array.copy(['a', 'b', 'c'], 1, 10));
-});
-
-QUnit.test('fallbacks.Array.copy (arguments)', function(assert) {
-    var f = function() {
-        return Array.copy(arguments);
-    };
-
-    var f_1 = function() {
-        return Array.copy(arguments, 1);
-    };
-
-    var f_1_2 = function() {
-        return Array.copy(arguments, 1, 2);
-    };
-
-    assert.deepEqual([], f());
-    assert.deepEqual(['a', 'b', 'c'], f('a', 'b', 'c'));
-    assert.deepEqual([['a', 'b', 'c']], f(['a', 'b', 'c']));
-
-    assert.deepEqual([], f_1());
-    assert.deepEqual(['b', 'c'], f_1('a', 'b', 'c'));
-    assert.deepEqual([], f_1(['a', 'b', 'c']));
-
-    assert.deepEqual([], f_1_2());
-    assert.deepEqual(['b'], f_1_2('a', 'b', 'c'));
-    assert.deepEqual([], f_1_2(['a', 'b', 'c']));
-});
-*/
-
 QUnit.test('fallbacks.HTMLDocument', function(assert) {
     assert.notEqual(typeof HTMLDocument, 'undefined');
 });

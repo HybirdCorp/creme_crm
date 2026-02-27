@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections.abc import Callable
 
 StatisticsFunc = Callable[[], list]
@@ -112,21 +111,3 @@ class StatisticRegistry:
 
 
 statistic_registry = StatisticRegistry()
-
-
-# def __getattr__(name):
-#     if name == '_StatisticsRegistry':
-#         warnings.warn(
-#             '"_StatisticsRegistry" is deprecated; use "StatisticRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return StatisticRegistry
-#
-#     if name == 'statistics_registry':
-#         warnings.warn(
-#             '"statistics_registry" is deprecated; use "statistic_registry" instead.',
-#             DeprecationWarning,
-#         )
-#         return statistic_registry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

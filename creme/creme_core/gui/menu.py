@@ -231,7 +231,6 @@ class ListviewEntry(FixedURLEntry):
         super().__init__(**kwargs)
         model = self.model
         self.label = model._meta.verbose_name_plural
-        # self.permissions = meta.app_label
         self.permissions = auth.build_list_perm(model)
 
     @property
@@ -575,13 +574,6 @@ class MenuRegistry:
 
             if setdefault(entry_id, entry_cls) is not entry_cls:
                 raise self.RegistrationError(f"Duplicated entry's id: {entry_id}")
-
-            # if hasattr(entry_cls, '_has_perm'):
-            #     logger.critical(
-            #         'The class %s still defines a method "_has_perm()"; '
-            #         'define the new method "check_permissions()" instead.',
-            #         entry_cls,
-            #     )
 
         return self
 

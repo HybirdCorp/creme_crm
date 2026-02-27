@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2010-2025  Hybird
+#    Copyright (C) 2010-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,121 +39,6 @@ from creme.creme_core.models.custom_field import (
 )
 
 
-# class CustomFieldBaseForm(CremeModelForm):
-#     field_type = forms.TypedChoiceField(
-#         label=_('Type of field'), coerce=int,
-#         choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
-#     )
-#     enum_values = forms.CharField(
-#         widget=Textarea(),
-#         label=_('Available choices'),
-#         required=False,
-#         help_text=_(
-#             'Give the possible choices (one per line) '
-#             'if you choose the type "Choice list".'
-#         ),
-#     )
-#
-#     error_messages = {
-#         'empty_list': _(
-#             'The choices list must not be empty '
-#             'if you choose the type "Choice list".'
-#         ),
-#         'duplicated_choice': _('The choice «{}» is duplicated.'),
-#     }
-#
-#     class Meta(CremeModelForm.Meta):
-#         model = CustomField
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self._choices = ()
-#
-#     def clean(self):
-#         cdata = super().clean()
-#
-#         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM):
-#             str_choices = cdata['enum_values'].strip()
-#
-#             if not str_choices:
-#                 raise ValidationError(
-#                     self.error_messages['empty_list'], code='empty_list',
-#                 )
-#
-#             choices = str_choices.splitlines()
-#
-#             max_choice, max_count = Counter(choices).most_common(1)[0]
-#             if max_count > 1:
-#                 self.add_error(
-#                     'enum_values',
-#                     self.error_messages['duplicated_choice'].format(max_choice),
-#                 )
-#
-#             self._choices = choices
-#
-#         return cdata
-#
-#     def save(self):
-#         instance = super().save()
-#         choices = self._choices
-#
-#         if choices:
-#             create_enum_value = partial(
-#                 CustomFieldEnumValue.objects.create, custom_field=instance,
-#             )
-#
-#             for enum_value in choices:
-#                 create_enum_value(value=enum_value)
-#
-#         return instance
-#
-# class FirstCustomFieldCreationForm(CustomFieldBaseForm):
-#     content_type = core_fields.EntityCTypeChoiceField(
-#         label=_('Related resource'),
-#         help_text=_(
-#             'The other custom fields for this type of resource will be chosen '
-#             'by editing the configuration'
-#         ),
-#         widget=DynamicSelect({'autocomplete': True}),
-#     )
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         used_ct_ids = {
-#             *CustomField.objects
-#                         .exclude(is_deleted=True)
-#                         .values_list('content_type_id', flat=True)
-#         }
-#         ct_field = self.fields['content_type']
-#         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
-#
-# class CustomFieldCreationForm(CustomFieldBaseForm):
-#     error_messages = {
-#         **CustomFieldBaseForm.error_messages,
-#         'duplicated_name': _('There is already a custom field with this name.'),
-#     }
-#
-#     class Meta(CustomFieldBaseForm.Meta):
-#         exclude = ('content_type',)
-#
-#     def __init__(self, ctype, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.ct = ctype
-#
-#     def clean_name(self):
-#         name = self.cleaned_data['name']
-#
-#         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-#             raise ValidationError(
-#                 self.error_messages['duplicated_name'], code='duplicated_name',
-#             )
-#
-#         return name
-#
-#     def save(self):
-#         self.instance.content_type = self.ct
-#         return super().save()
 class CustomFieldMainStep(CremeModelForm):
     content_type = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),

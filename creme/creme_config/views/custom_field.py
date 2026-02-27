@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,10 +51,6 @@ from ..forms import custom_field as cf_forms
 from . import base
 
 
-# class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
-#     model = CustomField
-#     form_class = cf_forms.FirstCustomFieldCreationForm
-#     title = _('New custom field configuration')
 class CustomFieldFirstCreationWizard(base.ConfigModelCreationWizard):
     form_list = [
         cf_forms.CustomFieldMainStep,
@@ -75,21 +71,6 @@ class CustomFieldFirstCreationWizard(base.ConfigModelCreationWizard):
         return self.custom_field
 
 
-# class CustomFieldCreation(EntityCTypeRelatedMixin,
-#                           base.ConfigModelCreation):
-#     model = CustomField
-#     form_class = cf_forms.CustomFieldCreationForm
-#
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs['ctype'] = self.get_ctype()
-#
-#         return kwargs
-#
-#     def get_title(self):
-#         return gettext('New custom field for «{model}»').format(
-#             model=self.get_ctype(),
-#         )
 class CustomFieldCreationWizard(EntityCTypeRelatedMixin,
                                 base.ConfigModelCreationWizard):
     form_list = [

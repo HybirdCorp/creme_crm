@@ -11,30 +11,6 @@ from .base import Activity, _ActivitiesTestCase
 
 
 class ActivitiesAppTestCase(_ActivitiesTestCase):
-    # def test_constants(self):  # DEPRECATED
-    #     with self.assertWarnsMessage(
-    #         expected_warning=DeprecationWarning,
-    #         expected_message='"NARROW" is deprecated; use Activity.FloatingType.NARROW instead.'
-    #     ):
-    #         from creme.activities.constants import NARROW
-    #     self.assertEqual(1, NARROW)
-    #
-    #     with self.assertWarnsMessage(
-    #             expected_warning=DeprecationWarning,
-    #             expected_message='"FLOATING_TIME" is deprecated; '
-    #                              'use Activity.FloatingType.FLOATING_TIME instead.',
-    #     ):
-    #         from creme.activities.constants import FLOATING_TIME
-    #     self.assertEqual(2, FLOATING_TIME)
-    #
-    #     with self.assertWarnsMessage(
-    #             expected_warning=DeprecationWarning,
-    #             expected_message='"FLOATING" is deprecated; '
-    #                              'use Activity.FloatingType.FLOATING instead.',
-    #     ):
-    #         from creme.activities.constants import FLOATING
-    #     self.assertEqual(3, FLOATING)
-
     def test_populate__relation_types(self):
         rtypes_pks = [
             constants.REL_SUB_LINKED_2_ACTIVITY,

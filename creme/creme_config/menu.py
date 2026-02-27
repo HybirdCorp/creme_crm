@@ -50,7 +50,6 @@ class CurrentAppConfigEntry(menu.MenuEntry):
     label = _("*Current app's settings*")
 
     config_registry = config_registry
-    # single_instance = True
 
     @staticmethod
     def guess_current_app_label(context):

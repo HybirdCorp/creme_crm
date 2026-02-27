@@ -28,20 +28,10 @@
 {% endblock %}
 
 {% block detail_view_left %}
-{% comment %}
-    {% brick_import app='emails' name='sending' as info_brick %}
-    {% brick_import app='emails' name='sending_html_body' as body_brick %}
-    {% brick_display info_brick %}
-    {% brick_display body_brick %}
-{% endcomment %}
     {% brick_display bricks.left %}
 {% endblock %}
 
 {% block detail_view_right %}
-{% comment %}
-    {% brick_import app='emails' name='mails' as mails_brick %}
-    {% brick_display mails_brick %}
-{% endcomment %}
     {% brick_display bricks.right %}
 {% endblock %}
 

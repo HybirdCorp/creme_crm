@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022-2025  Hybird
+    Copyright (C) 2022-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -45,18 +45,14 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
         };
 
         this._sketch = new creme.D3Sketch().bind(element.find('.brick-d3-content'));
-//        this._sortState = element.find('.graph-controls-sort .graph-control-value').dropdown();
         this._sortState = element.find('.chart-controls-sort .chart-control-value').dropdown();
-//        this._chartState = element.find('.graph-controls-type .graph-control-value').dropdown();
         this._plotState = element.find('.chart-controls-plot .chart-control-value').dropdown();
 
-//        element.on('change', '.graph-controls-type .graph-control-value', function(e) {
         element.on('change', '.chart-controls-plot .chart-control-value', function(e) {
             this.swapChart($(e.target).val()).draw();
             this._updateFetchSettings();
         }.bind(this));
 
-//        element.on('change', '.graph-controls-sort .graph-control-value', function(e) {
         element.on('change', '.chart-controls-sort .chart-control-value', function(e) {
             this.model().reverse();
             this._updateFetchSettings();
@@ -116,12 +112,9 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
     },
 
     state: function() {
-/*        var chart = this._element.find('.graph-controls-type .graph-control-value').val(); */
         var plot = this._element.find('.chart-controls-plot .chart-control-value').val();
-//        var sort = this._element.find('.graph-controls-sort .graph-control-value').val();
         var sort = this._element.find('.chart-controls-sort .chart-control-value').val();
 
-/*        return {chart: chart, sort: sort}; */
         return {plot: plot, sort: sort};
     },
 
@@ -152,7 +145,6 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
     },
 
     _updateFetchSettings: function() {
-//        var url = this._element.find('.graph-controls').data('fetchSettingsUrl');
         var url = this._element.find('.chart-controls').data('fetchSettingsUrl');
 
         _.debounce(function() {
@@ -274,32 +266,22 @@ creme.ReportD3ChartListBrickController = creme.component.Component.sub({
         var props = this.props();
         var swappers = this._swappers = {};
 
-//        brick.element().find('.graph-row:not(.is-empty)').each(function() {
         brick.element().find('.chart-row:not(.is-empty)').each(function() {
-//            swappers[$(this).data('graphId')] = new creme.ReportD3ChartSwapper($(this), {
             swappers[$(this).data('chartId')] = new creme.ReportD3ChartSwapper($(this), {
                 charts: props.charts()  // TODO: use constructors instead!
             });
         });
 
-//        brick.element().on('click', '.graph-accordion-title', function(e) {
         brick.element().on('click', '.chart-accordion-title', function(e) {
-//            var graphId = $(this).data('graphId');
             var chartId = $(this).data('chartId');
 
-//            brick.element().find('.graph-row').filter(function() {
             brick.element().find('.chart-row').filter(function() {
-//                return $(this).data('graphId') === graphId;
                 return $(this).data('chartId') === chartId;
-//            }).toggleClass('graph-row-collapsed');
             }).toggleClass('chart-row-collapsed');
 
-//            $(this).toggleClass('graph-accordion-expanded');
             $(this).toggleClass('chart-accordion-expanded');
 
-//            if ($(this).is('.graph-accordion-expanded')) {
             if ($(this).is('.chart-accordion-expanded')) {
-//                swappers[graphId].draw();
                 swappers[chartId].draw();
             }
         });

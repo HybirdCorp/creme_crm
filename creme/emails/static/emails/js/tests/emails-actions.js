@@ -28,9 +28,7 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendPOST({
             'mock/emails/sync/link': backend.response(200, ''),
-//            'mock/emails/sync/action': backend.response(200, ''),
             'mock/emails/sync/accept': backend.response(200, ''),
-//            'mock/emails/sync/action/fail': backend.response(400, ''),
             'mock/emails/sync/accept/fail': backend.response(400, ''),
             'mock/emails/sync/accept/some_errors': backend.responseJSON(
                 409, {count: 2, errors: ['A conflict error happened.']}

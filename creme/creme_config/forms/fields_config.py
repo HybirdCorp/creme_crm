@@ -142,7 +142,6 @@ class FieldsConfigEditionForm(CremeModelForm):
                     ],
                     initial=(
                         HIDDEN if instance.is_fieldname_hidden(fname) else
-                        # REQUIRED if instance.is_fieldname_required(fname) else
                         REQUIRED if instance.is_fieldname_required(fname, creation=False) else
                         CREATION_REQ if instance.is_fieldname_required(fname, creation=True) else
                         ''

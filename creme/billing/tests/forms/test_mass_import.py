@@ -712,16 +712,6 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
         with self.assertNoException():
             number_f = response1.context['form'].fields['number']
 
-        # if number_help_text:
-        #     self.assertEqual(
-        #         _(
-        #             'If you chose an organisation managed by {software} as source organisation, '
-        #             'a number will be automatically generated for created «{models}».'
-        #         ).format(software='My CRM', models=model._meta.verbose_name_plural),
-        #         number_f.help_text,
-        #     )
-        # else:
-        #     self.assertFalse(number_f.help_text)
         help_start = _(
             'If you chose an organisation managed by {software} as source organisation, '
             'a number will be automatically generated for created «{models}».'
@@ -1000,8 +990,6 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
 
     def _aux_test_csv_import_update(self, *, user, model, status_model,
                                     target_billing_address=True,
-                                    # override_billing_addr=False,
-                                    # override_shipping_addr=False,
                                     ):
         create_orga = partial(Organisation.objects.create, user=user)
 
@@ -1051,8 +1039,6 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
         )
         bdoc.save()
 
-        # addr_count = Address.objects.count()
-
         number = 'B0001'
         doc = self._build_csv_doc(
             [(bdoc.name, number, source2.name, target2.name)],
@@ -1098,9 +1084,6 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
                 'target_persons_organisation_create':    True,
                 'target_persons_contact_colselect':      0,
                 # 'target_persons_contact_create':         True,
-
-                # 'override_billing_addr':  'on' if override_billing_addr else '',
-                # 'override_shipping_addr': 'on' if override_shipping_addr else '',
             },
         )
         self.assertNoFormError(response)
@@ -1123,27 +1106,16 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
         self.assertIsNotNone(s_addr)
         self.assertEqual(bdoc, s_addr.owner)
 
-        # if target_billing_address:
-        #     expected_b_addr = b_addr1 if override_billing_addr else b_addr2
-        #     self.assertEqual(expected_b_addr.address, b_addr.address)
-        #     self.assertEqual(expected_b_addr.city,    b_addr.city)
-        # else:
-        #     self.assertEqual(b_addr2, b_addr)  # No change
         self.assertEqual(b_addr1.address, b_addr.address)
         self.assertEqual(b_addr1.city,    b_addr.city)
 
-        # expected_s_addr = s_addr1 if override_shipping_addr else s_addr2
-        # self.assertEqual(expected_s_addr.address, s_addr.address)
-        # self.assertEqual(expected_s_addr.city,    s_addr.city)
         self.assertEqual(s_addr1.address, s_addr.address)
         self.assertEqual(s_addr1.city,    s_addr.city)
 
         # No new Address should be created
-        # self.assertEqual(addr_count, Address.objects.count())
         self.assertDoesNotExist(b_addr2)
         self.assertDoesNotExist(s_addr2)
 
-    # model, status_model,
     def _aux_test_csv_import_update__emitter_edition(self, *, user, model,
                                                      emitter_edition_ok=True,
                                                      ):
@@ -1257,7 +1229,6 @@ class MassImportInvoiceTestCase(_BaseMassImportTestCase):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user, model=Invoice, status_model=InvoiceStatus,
-            # number_help_text=False,
             creation_number_help_text=False,
         )
 

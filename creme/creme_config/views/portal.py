@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ class Portal(BricksView):
     config_registry = registry.config_registry
 
     def get_bricks(self):
-        # return [*self.config_registry.portal_bricks]
         return {'main': [*self.config_registry.portal_bricks]}
 
     def get_context_data(self, **kwargs):

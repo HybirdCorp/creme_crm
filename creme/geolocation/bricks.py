@@ -66,7 +66,6 @@ class _MapBrick(Brick):
 
         return choices
 
-    # def get_addresses_as_dict(self, entity):
     def get_addresses_as_dicts(self, entity) -> list[dict]:
         return [
             {
@@ -99,7 +98,6 @@ class _DetailMapBrick(_MapBrick):
     def get_template_context(self, context, **extra_kwargs):
         addresses = [
             address
-            # for address in self.get_addresses_as_dict(context['object'])
             for address in self.get_addresses_as_dicts(context['object'])
             if address.get('content')
         ]
@@ -113,19 +111,6 @@ class _DetailMapBrick(_MapBrick):
         )
 
     def detailview_display(self, context):
-        # entity = context['object']
-        # addresses = [
-        #     address
-        #     for address in self.get_addresses_as_dict(entity)
-        #     if address.get('content')
-        # ]
-        #
-        # return self._render(self.get_template_context(
-        #     context,
-        #     addresses=addresses,
-        #     geoaddresses=addresses,
-        #     update_address_url=self.update_address_url,
-        # ))
         return self._render(self.get_template_context(context))
 
 
@@ -169,13 +154,6 @@ class _FilteredMapBrick(_MapBrick):
         )
 
     def home_display(self, context):
-        # return self._render(self.get_template_context(
-        #     context,
-        #     address_filters=self.get_filter_choices(
-        #         context['user'], Contact, Organisation,
-        #     ),
-        #     addresses_url=self.addresses_url,
-        # ))
         return self._render(self.get_template_context(context))
 
 
@@ -225,7 +203,6 @@ class _NeighboursMapBrick(_MapBrick):
 
         return super().get_template_context(
             context,
-            # ref_addresses=self.get_addresses_as_dict(entity),
             ref_addresses=self.get_addresses_as_dicts(entity),
             address_filters=self.get_filter_choices(
                 context['user'], Contact, Organisation,
@@ -237,18 +214,6 @@ class _NeighboursMapBrick(_MapBrick):
         )
 
     def detailview_display(self, context):
-        # entity = context['object']
-        #
-        # return self._render(self.get_template_context(
-        #     context,
-        #     ref_addresses=self.get_addresses_as_dict(entity),
-        #     address_filters=self.get_filter_choices(
-        #         context['user'], Contact, Organisation,
-        #     ),
-        #     radius=get_radius(),
-        #     maps_blockid=self.detail_map.id,
-        #     neighbours_url=self.neighbours_url,
-        # ))
         return self._render(self.get_template_context(context))
 
 

@@ -89,7 +89,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='capital per month of creation',
             plot_name='barchart',
@@ -116,40 +115,10 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         self.assertEqual(chart.plot_name, cloned_chart.plot_name)
 
-    # def test_clone_report__method(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #     report = self._create_simple_organisations_report(user=user)
-    #     rgraph = ReportChart.objects.create(
-    #         user=user, linked_report=report,
-    #         name='capital per month of creation',
-    #         chart='barchart',
-    #         abscissa_cell_value='created', abscissa_type=ReportChart.Group.MONTH,
-    #         ordinate_type=ReportChart.Aggregator.SUM,
-    #         ordinate_cell_key='regular_field-capital',
-    #     )
-    #
-    #     cloned_report = report.clone()
-    #
-    #     cloned_rgraph = self.get_alone_element(
-    #         ReportChart.objects.filter(linked_report=cloned_report)
-    #     )
-    #     self.assertNotEqual(rgraph.id, cloned_rgraph.id)
-    #     self.assertEqual(rgraph.name,  cloned_rgraph.name)
-    #
-    #     self.assertEqual(rgraph.abscissa_cell_value, cloned_rgraph.abscissa_cell_value)
-    #     self.assertEqual(rgraph.abscissa_type,       cloned_rgraph.abscissa_type)
-    #     self.assertEqual(rgraph.abscissa_parameter,  cloned_rgraph.abscissa_parameter)
-    #
-    #     self.assertEqual(rgraph.ordinate_type,     cloned_rgraph.ordinate_type)
-    #     self.assertEqual(rgraph.ordinate_cell_key, cloned_rgraph.ordinate_cell_key)
-    #
-    #     self.assertEqual(rgraph.chart, cloned_rgraph.chart)
-
     def test_abscissa_info(self):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart(
-            # user=user,
             linked_report=report,
             name='Capital per month of creation',
             ordinate_type=ReportChart.Aggregator.SUM,
@@ -189,7 +158,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart(
-            # user=user,
             linked_report=report, name='Capital per month of creation',
         )
         aggr_id1 = ReportChart.Aggregator.MAX
@@ -244,7 +212,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         cell_key = f'regular_field-{hidden_fname}'
         aggr_id = ReportChart.Aggregator.MAX
         chart = ReportChart(
-            # user=user,
             linked_report=report,
             name='Max capital per month of creation',
             ordinate_type=aggr_id,
@@ -260,7 +227,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_documents_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Document count per category',
             abscissa_cell_value='category', abscissa_type=ReportChart.Group.FK,
@@ -304,7 +270,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_contacts_report(user=user, efilter=efilter)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contacts by position',
             abscissa_cell_value='position', abscissa_type=ReportChart.Group.FK,
@@ -374,7 +339,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user, efilter=efilter)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Capital max by sector',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.FK,
@@ -424,7 +388,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.FK,
@@ -454,7 +417,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         "Aggregate ordinate with invalid field."
         user = self.login_as_root_and_get()
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.FK,
@@ -475,7 +437,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         "Aggregate ordinate with invalid aggregate."
         user = self.login_as_root_and_get()
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.FK,
@@ -496,7 +457,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         "Aggregate ordinate with invalid custom field."
         user = self.login_as_root_and_get()
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.FK,
@@ -538,7 +498,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_contacts_report(user=user, efilter=efilter)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contacts count by User',
             abscissa_cell_value='user', abscissa_type=ReportChart.Group.FK,
@@ -560,7 +519,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
             user=user, name='Report on Reports', ct=get_ct(Report),
         )
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Report count by CTypes',
             abscissa_cell_value='ct', abscissa_type=ReportChart.Group.FK,
@@ -578,7 +536,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contact count per address',
             abscissa_cell_value='address', abscissa_type=ReportChart.Group.FK,
@@ -606,7 +563,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = Report.objects.create(user=user, name='Campaigns', ct=FakeEmailCampaign)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Campaigns by type',
             abscissa_cell_value='type', abscissa_type=ReportChart.Group.CHOICES,
@@ -657,7 +613,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contact count per address',
             abscissa_cell_value='sector', abscissa_type=ReportChart.Group.CHOICES,
@@ -680,7 +635,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         def create_chart(days):
             return ReportChart.objects.create(
-                # user=user,
                 linked_report=report,
                 name=f'Number of organisation created / {days} day(s)',
                 abscissa_cell_value='creation_date',
@@ -761,7 +715,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         days = 10
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name=f'Minimum of capital by creation date (period of {days} days)',
             abscissa_cell_value='creation_date',
@@ -809,7 +762,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         def create_chart(days):
             return ReportChart.objects.create(
-                # user=user,
                 linked_report=report,
                 name=f'Number of organisation created / {days} day(s)',
                 abscissa_cell_value='creation_date',
@@ -907,7 +859,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         days = 15
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
             abscissa_cell_value=str(cf.uuid),
@@ -982,7 +933,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         days = 15
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
             abscissa_cell_value=str(cf.uuid),
@@ -1085,7 +1035,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Useless name',
             abscissa_cell_value=str(uuid4()),  # <====
@@ -1101,7 +1050,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of capital by creation date (by day)',
             abscissa_cell_value='creation_date',
@@ -1179,7 +1127,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of capital by 1rst victory (by day)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_DAY,
@@ -1232,7 +1179,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of capital by 1rst victory (by day)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_DAY,
@@ -1285,7 +1231,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of capital by creation date (by day)',
             abscissa_cell_value=str(uuid4()),  # <====
@@ -1308,7 +1253,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of orgas by creation date (period of 1 month)',
             abscissa_cell_value='creation_date', abscissa_type=ReportChart.Group.MONTH,
@@ -1362,7 +1306,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_MONTH,
@@ -1407,7 +1350,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_MONTH,
@@ -1453,7 +1395,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportChart.Group.YEAR,
@@ -1510,7 +1451,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Sum of vine by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportChart.Group.YEAR,
@@ -1534,7 +1474,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
             abscissa_cell_value='invalid',  # <=====
@@ -1587,7 +1526,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart1 = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Sum of gold by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportChart.Group.YEAR,
@@ -1608,7 +1546,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         # ---
         chart2 = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of gold by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportChart.Group.YEAR,
@@ -1649,7 +1586,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Sum of gold by birthday (period of 1 year)',
             abscissa_cell_value=str(cf_x.uuid), abscissa_type=ReportChart.Group.CUSTOM_YEAR,
@@ -1690,7 +1626,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_YEAR,
@@ -1731,14 +1666,12 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_YEAR,
             ordinate_type=ReportChart.Aggregator.COUNT,
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('fr'):
             x_asc, y_asc = chart.fetch(user=user)
 
@@ -1808,7 +1741,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_contacts_report(user=user, efilter=efilter)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of employees',
             abscissa_cell_value=rtype_id,
@@ -1884,7 +1816,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Capital by lords',
             abscissa_cell_value=rtype.id,
@@ -1962,7 +1893,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_contacts_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contacts HP by house',
             abscissa_cell_value=rtype_id, abscissa_type=ReportChart.Group.RELATION,
@@ -1998,7 +1928,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of capital by creation date (by day)',
             abscissa_cell_value='invalidrtype',  # <====
@@ -2021,7 +1950,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contacts by title',
             abscissa_cell_value=str(uuid4()),  # <=========
@@ -2063,7 +1991,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_contacts_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Contacts by title',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_FK,
@@ -2122,7 +2049,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Capital by policy',
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportChart.Group.CUSTOM_FK,
@@ -2190,7 +2116,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         report = self._create_simple_organisations_report(user=user)
         chart1 = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Sum of gold by type',
             abscissa_cell_value=str(cf_enum.uuid), abscissa_type=ReportChart.Group.CUSTOM_FK,
@@ -2214,7 +2139,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
 
         # ---
         chart2 = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Average of gold by type',
             abscissa_cell_value=str(cf_enum.uuid), abscissa_type=ReportChart.Group.CUSTOM_FK,
@@ -2287,7 +2211,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Number of organisation created by day',
             abscissa_cell_value='creation_date',
@@ -2328,7 +2251,6 @@ class ChartTestCase(AxisFieldsMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         chart = ReportChart.objects.create(
-            # user=user,
             linked_report=report,
             name='Sum of capital by creation date (period of 1 days)',
             abscissa_cell_value='creation_date',

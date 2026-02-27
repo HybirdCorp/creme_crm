@@ -8,7 +8,7 @@ from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import EntityFilter, HeaderFilter, UserRole
 
-from .. import constants  # workflow
+from .. import constants
 from ..constants import UUID_FIRST_CONTACT
 from ..models import Sector
 from .base import Contact, Organisation, _PersonsTestCase
@@ -152,32 +152,3 @@ class PersonsAppTestCase(_PersonsTestCase):
             ),
             render_field(instance=forbidden_contact),
         )
-
-    # def test_transform_target_into_prospect(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     source = create_orga(name='Source')
-    #     target = create_orga(name='Target')
-    #
-    #     workflow.transform_target_into_prospect(source, target, user)
-    #     self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
-    #
-    #     # Do not create duplicate
-    #     workflow.transform_target_into_prospect(source, target, user)
-    #     self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
-
-    # def test_transform_target_into_customer(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     source = create_orga(name='Source')
-    #     target = create_orga(name='Target')
-    #
-    #     workflow.transform_target_into_customer(source, target, user)
-    #     type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
-    #     self.assertHaveRelation(subject=target, type=type_id, object=source)
-    #
-    #     # Do not create duplicate
-    #     workflow.transform_target_into_customer(source, target, user)
-    #     self.assertHaveRelation(subject=target, type=type_id, object=source)

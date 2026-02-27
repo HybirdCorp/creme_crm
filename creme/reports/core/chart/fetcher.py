@@ -40,7 +40,6 @@ from creme.creme_core.models import (
 from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 
-# from creme.reports import constants
 if TYPE_CHECKING:
     from django.db.models import Field
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,42 +84,12 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.SMSCampaign     = sms.get_smscampaign_model()
-        # self.MessagingList   = sms.get_messaginglist_model()
-        # self.MessageTemplate = sms.get_messagetemplate_model()
         self.SMSCampaign     = SMSCampaign
         self.MessagingList   = MessagingList
         self.MessageTemplate = MessageTemplate
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_MLIST).exists()
-
-    # def _populate_header_filters(self):
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_MLIST,
-    #         model=self.MessagingList,
-    #         name=_('Messaging list view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
-    #         model=self.SMSCampaign,
-    #         name=_('Campaign view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_MTEMPLATE,
-    #         model=self.MessageTemplate,
-    #         name=_('Message template view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.SMSCampaign,     fields=['name'])
-    #     create_sci(model=self.MessagingList,   fields=['name'])
-    #     create_sci(model=self.MessageTemplate, fields=['name', 'subject', 'body'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

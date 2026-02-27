@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -143,16 +143,6 @@ class Populator(BasePopulator):
             model=EntityEmail, button=buttons.EntityEmailLinkButton, order=1020,
         ),
     ]
-    # SEARCH = {
-    #     'CAMPAIGN': ['name', 'mailing_lists__name'],
-    #     'MAILING_LIST': [
-    #         'name', 'children__name',
-    #         'contacts__first_name', 'contacts__last_name',
-    #         'organisations__name',
-    #     ],
-    #     'TEMPLATE': ['name', 'subject', 'body', 'attachments__title'],
-    #     'EMAIL': ['sender', 'recipient', 'subject'],
-    # }
     SEARCH = [
         SearchConfigItem.objects.builder(
             model=EmailCampaign, fields=['name', 'mailing_lists__name'],
@@ -183,13 +173,6 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.Contact      = persons.get_contact_model()
-        # self.Organisation = persons.get_organisation_model()
-        #
-        # self.EntityEmail   = emails.get_entityemail_model()
-        # self.EmailCampaign = emails.get_emailcampaign_model()
-        # self.EmailTemplate = emails.get_emailtemplate_model()
-        # self.MailingList   = emails.get_mailinglist_model()
         self.Contact      = Contact
         self.Organisation = Organisation
 
@@ -210,78 +193,6 @@ class Populator(BasePopulator):
     def _populate_folder_categories(self):
         self._save_minions(self.FOLDER_CATEGORIES)
 
-    # def _populate_relation_types(self):
-    #     create_rtype = RelationType.objects.smart_update_or_create
-    #     create_rtype(
-    #         (
-    #             constants.REL_SUB_MAIL_RECEIVED,
-    #             _('(email) received by'),
-    #             [self.EntityEmail],
-    #         ),
-    #         (
-    #             constants.REL_OBJ_MAIL_RECEIVED,
-    #             _('received the email'),
-    #             [self.Organisation, self.Contact],
-    #         ),
-    #     )
-    #     create_rtype(
-    #         (
-    #             constants.REL_SUB_MAIL_SENT,
-    #             _('(email) sent by'),
-    #             [self.EntityEmail],
-    #         ),
-    #         (
-    #             constants.REL_OBJ_MAIL_SENT,
-    #             _('sent the email'),
-    #             [self.Organisation, self.Contact],
-    #         ),
-    #     )
-    #     create_rtype(
-    #         (constants.REL_SUB_RELATED_TO, _('(email) related to'),   [self.EntityEmail]),
-    #         (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
-    #     )
-
-    # def _populate_header_filters(self):
-    #     create_hf = HeaderFilter.objects.create_if_needed
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_MAILINGLIST,
-    #         model=self.MailingList,
-    #         name=_('Mailing list view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_CAMPAIGN,
-    #         model=self.EmailCampaign,
-    #         name=_('Campaign view'),
-    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_TEMPLATE,
-    #         model=self.EmailTemplate,
-    #         name=_('Email template view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'name'}),
-    #             (EntityCellRegularField, {'name': 'subject'}),
-    #         ],
-    #     )
-    #     create_hf(
-    #         pk=constants.DEFAULT_HFILTER_EMAIL,
-    #         model=self.EntityEmail,
-    #         name=_('Email view'),
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'sender'}),
-    #             (EntityCellRegularField, {'name': 'recipient'}),
-    #             (EntityCellRegularField, {'name': 'subject'}),
-    #         ],
-    #     )
-
-    # def _populate_search_config(self):
-    #     create_sci = SearchConfigItem.objects.create_if_needed
-    #     create_sci(model=self.EmailCampaign, fields=self.SEARCH['CAMPAIGN'])
-    #     create_sci(model=self.MailingList,   fields=self.SEARCH['MAILING_LIST'])
-    #     create_sci(model=self.EmailTemplate, fields=self.SEARCH['TEMPLATE'])
-    #     create_sci(model=self.EntityEmail,   fields=self.SEARCH['EMAIL'])
-
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -296,13 +207,6 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
         create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
         create_mitem(entry_id=menu.EmailSyncEntry.id,      order=30)
-
-    # def _populate_buttons_config(self):
-    #     ButtonMenuItem.objects.create_if_needed(
-    #         model=self.EntityEmail,
-    #         button=buttons.EntityEmailLinkButton,
-    #         order=1020,
-    #     )
 
     def _populate_bricks_config_for_email(self):
         EntityEmail = self.EntityEmail

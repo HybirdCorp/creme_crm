@@ -32,7 +32,7 @@ from creme.creme_core.gui.menu import (
     creation_menu_registry,
     menu_registry,
 )
-from creme.creme_core.menu import (  # RecentEntitiesEntry,
+from creme.creme_core.menu import (
     CremeEntry,
     EntitiesCreationEntry,
     HomeEntry,
@@ -642,7 +642,6 @@ class MenuTestCase(CremeTestCase):
             '<span class="ui-creme-navigation-text-entry forbidden" title="{}">'
             'Test Contacts'
             '</span>'.format(
-                # _('You are not allowed to access to the app: {}').format(_('Core')),
                 _('You are not allowed to list: {}').format('Test Contact')
             ),
             FakeContactsEntry().render(self._build_context(user=user)),
@@ -1038,63 +1037,6 @@ class MenuTestCase(CremeTestCase):
     def test_creme_entry__other_label(self):
         self.assertEqual('My amazing CRM', CremeEntry().label)
 
-    # def test_recent_entities_entry01(self):
-    #     user = self.get_root_user()
-    #     self.assertTrue(RecentEntitiesEntry.single_instance)
-    #
-    #     contact1 = user.linked_contact
-    #     contact2 = FakeContact.objects.create(
-    #         user=user, first_name='Kirika', last_name='Yumura',
-    #     )
-    #
-    #     ctxt = self._build_context()
-    #     request = ctxt['request']
-    #     LastViewedItem(request, contact1)
-    #     LastViewedItem(request, contact2)
-    #
-    #     entry = RecentEntitiesEntry()
-    #     self.assertEqual(0, entry.level)
-    #
-    #     entry_id = 'creme_core-recent_entities'
-    #     self.assertEqual(entry_id, entry.id)
-    #
-    #     entry_label = _('Recent entities')
-    #     self.assertEqual(entry_label, entry.label)
-    #
-    #     render = entry.render(ctxt)
-    #     self.assertStartsWith(render, entry_label)
-    #     self.assertHTMLEqual(
-    #         f'<ul>'
-    #         f'  <li>'
-    #         f'    <a href="{contact2.get_absolute_url()}">'
-    #         f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
-    #         f'      {contact2}'
-    #         f'    </a>'
-    #         f'  </li>'
-    #         f'  <li>'
-    #         f'    <a href="{contact1.get_absolute_url()}">'
-    #         f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
-    #         f'      {contact1}'
-    #         f'    </a>'
-    #         f'  </li>'
-    #         f'</ul>',
-    #         render.removeprefix(entry_label),
-    #     )
-    #
-    # def test_recent_entities_entry02(self):
-    #     entry = RecentEntitiesEntry()
-    #
-    #     entry_label = _('Recent entities')
-    #     self.assertEqual(entry_label, entry.label)
-    #
-    #     render = entry.render(self._build_context())
-    #     self.assertStartsWith(render, entry_label)
-    #     self.assertHTMLEqual(
-    #         '<ul>'
-    #         '   <li><span class="ui-creme-navigation-text-entry">{}</span></li>'
-    #         '</ul>'.format(escape(_('No recently visited entity'))),
-    #         render.removeprefix(entry_label),
-    #     )
     def test_quick_access_entry__empty(self):
         entry = QuickAccessEntry()
         self.assertTrue(QuickAccessEntry.single_instance)
@@ -1994,34 +1936,28 @@ class MenuTestCase(CremeTestCase):
 
     def test_registry__container_without_children(self):
         "Container does not accept children."
-        # container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
         container_item = MenuConfigItem(id=1, entry_id=QuickAccessEntry.id)
         sub_item = MenuConfigItem(
             id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id,
         )
-        # registry = MenuRegistry().register(RecentEntitiesEntry, FakeContactsEntry)
         registry = MenuRegistry().register(QuickAccessEntry, FakeContactsEntry)
 
         entry = self.get_alone_element(
             registry.get_entries([container_item, sub_item])
         )
-        # self.assertIsInstance(entry, RecentEntitiesEntry)
         self.assertIsInstance(entry, QuickAccessEntry)
         self.assertFalse([*entry.children])
 
     def test_registry_unregister(self):
         registry = MenuRegistry().register(
-            # CremeEntry, RecentEntitiesEntry, FakeContactsEntry,
             CremeEntry, QuickAccessEntry, FakeContactsEntry,
         )
 
-        # registry.unregister(RecentEntitiesEntry, FakeContactsEntry)
         registry.unregister(QuickAccessEntry, FakeContactsEntry)
         entry_classes = {*registry.entry_classes}
         self.assertIn(CremeEntry, entry_classes)
-        # self.assertNotIn(RecentEntitiesEntry, entry_classes)
         self.assertNotIn(QuickAccessEntry, entry_classes)
-        self.assertNotIn(FakeContactsEntry,   entry_classes)
+        self.assertNotIn(FakeContactsEntry, entry_classes)
 
         # ---
         with self.assertRaises(registry.UnRegistrationError) as cm:
@@ -2041,5 +1977,4 @@ class MenuTestCase(CremeTestCase):
         self.assertIn(CremeEntry,            entry_classes)
         self.assertIn(QuickFormsEntries,     entry_classes)
         self.assertIn(EntitiesCreationEntry, entry_classes)
-        # self.assertIn(RecentEntitiesEntry,   entry_classes)
-        self.assertIn(QuickAccessEntry,   entry_classes)
+        self.assertIn(QuickAccessEntry,      entry_classes)

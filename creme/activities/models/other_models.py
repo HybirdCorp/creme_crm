@@ -46,7 +46,6 @@ class ActivityType(MinionModel):
         app_label = 'activities'
         verbose_name = _('Type of activity')
         verbose_name_plural = _('Types of activity')
-        # ordering = ('name',)
         ordering = ('order',)
 
     def __str__(self):
@@ -80,7 +79,6 @@ class ActivitySubType(MinionModel):
         app_label = 'activities'
         verbose_name = _('Sub-type of activity')
         verbose_name_plural = _('Sub-types of activity')
-        # ordering = ('name',)
         ordering = ('order',)
 
     def __str__(self):

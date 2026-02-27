@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
 from heapq import heappop, heappush
@@ -94,19 +93,7 @@ class Button:
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
-        # is_allowed = True
-        #
-        # def _get_is_allowed():
-        #     logger.critical(
-        #         'The template "%s" for the button <%s> is using the variable '
-        #         '"button.is_allowed"; use "button.permission_error" instead.',
-        #         self.template_name, type(self).__name__,
-        #     )
-        #     return is_allowed
-
         ctxt = {
-            # 'is_allowed': _get_is_allowed,
-
             # 'id': self.id, # TODO?
             'verbose_name': self.verbose_name,
             'description': self.description,
@@ -117,7 +104,6 @@ class Button:
             self.check_permissions(entity=entity, request=request)
         except (PermissionDenied, ConflictError) as e:
             ctxt['permission_error'] = str(e)
-            # is_allowed = False
 
         return ctxt
 
@@ -130,12 +116,6 @@ class Button:
         """
         return ()
 
-    # def ok_4_display(self, entity: CremeEntity) -> bool:
-    #     """Can this button be displayed on this entity's detail-view?
-    #     @param entity: CremeEntity which detail-view is displayed.
-    #     @return True if the button can be displayed for 'entity'.
-    #     """
-    #     return True
     def is_displayed(self, *, entity: CremeEntity, request) -> bool:
         """Can this button be displayed on this entity's detail-view?
         @param entity: CremeEntity which detail-view is displayed.
@@ -185,15 +165,6 @@ class ButtonRegistry:
                 raise self.RegistrationError(
                     f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
-
-            # if hasattr(button_cls, 'is_allowed'):
-            #     logger.critical(
-            #         'The button class %s still defines a method "is_allowed()"; '
-            #         'define the new method "check_permissions()" instead, '
-            #         'and update the related template to use the variable '
-            #         '"button.permission_error" instead of "button.is_allowed".',
-            #         button_cls,
-            #     )
 
             # TODO: remove in creme 3.0
             if hasattr(button_cls, 'ok_4_display'):
@@ -303,7 +274,6 @@ class ButtonRegistry:
     # def get_mandatory_button(self, button_id: str, model: type[CremeEntity]):
     #     pass
 
-    # def get_buttons(self, id_list: Iterable[str], entity: CremeEntity) -> Iterator[Button]:
     def get_buttons(self, *,
                     button_ids: Iterable[str],
                     entity: CremeEntity,
@@ -321,7 +291,6 @@ class ButtonRegistry:
         mandatory_classes = self._mandatory_classes
         model = type(entity)
 
-        # for button_id in id_list:
         for button_id in button_ids:
             button_cls = button_classes.get(button_id)
 
@@ -348,11 +317,9 @@ class ButtonRegistry:
                 )
                 continue
 
-            # if button.ok_4_display(entity):
             if button.is_displayed(entity=entity, request=request):
                 yield button
 
-    # def mandatory_buttons(self, entity: CremeEntity) -> Iterator[Button]:
     def mandatory_buttons(self, *, entity: CremeEntity, request) -> Iterator[Button]:
         """Get instances of all mandatory classes corresponding to an entity
         (based of its model).
@@ -370,20 +337,8 @@ class ButtonRegistry:
         while heap:
             button = heappop(heap)[1]()
 
-            # if button.ok_4_display(entity=entity):
             if button.is_displayed(entity=entity, request=request):
                 yield button
 
 
 button_registry = ButtonRegistry()
-
-
-# def __getattr__(name):
-#     if name == 'ButtonsRegistry':
-#         warnings.warn(
-#             '"ButtonsRegistry" is deprecated; use "ButtonRegistry" instead.',
-#             DeprecationWarning,
-#         )
-#         return ButtonRegistry
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

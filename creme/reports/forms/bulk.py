@@ -60,7 +60,6 @@ class ReportFilterOverrider(FieldOverrider):
             empty_label=pgettext_lazy('creme_core-filter', 'All'),
             user=user,
             limit_choices_to=model_field.get_limit_choices_to(),
-            # required=FieldsConfig.objects.get_for_model(model).is_field_required(model_field),
             required=FieldsConfig.objects.get_for_model(model).is_field_required(
                 model_field, creation=False,
             ),

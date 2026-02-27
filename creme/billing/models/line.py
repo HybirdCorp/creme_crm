@@ -17,7 +17,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from functools import partial
 
 from django.core.exceptions import ValidationError
@@ -31,7 +30,6 @@ from creme.creme_core.models.vat import get_default_vat_pk
 from creme.creme_core.utils import round_decimal
 
 from .. import constants
-# from ..utils import round_to_2
 from ..constants import ROUND_POLICY
 
 logger = logging.getLogger(__name__)
@@ -95,15 +93,6 @@ class Line(CremeEntity):
         verbose_name_plural = _('Lines')
         ordering = ('created',)
 
-    # def _pre_save_clone(self, source):
-    #     warnings.warn(
-    #         'The method Line._pre_save_clone() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     self.related_document = source._new_related_document
-    #     self.related_item     = source.related_item
-
     def clean(self):
         match self.discount_unit:
             case self.Discount.PERCENT:
@@ -147,17 +136,6 @@ class Line(CremeEntity):
 
         super().clean()
 
-    # def clone(self, new_related_document=None):
-    #     warnings.warn('The method Line.clone() is deprecated.', DeprecationWarning)
-    #
-    #     # BEWARE: CremeProperty and Relation are not cloned
-    #     #         (excepted our 2 internal relations)
-    #     self._new_related_document = new_related_document or self.related_document
-    #
-    #     return super().clone()
-    #
-    # clone.alters_data = True
-
     def get_absolute_url(self):
         return self.get_related_entity().get_absolute_url()
 
@@ -165,11 +143,9 @@ class Line(CremeEntity):
         total_ht = self.get_price_exclusive_of_tax(document)
         vat_value = self.vat_value
         vat = (total_ht * vat_value.value / 100) if vat_value else 0
-        # return round_to_2(total_ht + vat)
         return round_decimal(total_ht + vat, mode=ROUND_POLICY)
 
     def get_raw_price(self):
-        # return round_to_2(self.quantity * self.unit_price)
         return round_decimal(self.quantity * self.unit_price, mode=ROUND_POLICY)
 
     def get_price_exclusive_of_tax(self, document=None):
@@ -193,7 +169,6 @@ class Line(CremeEntity):
         if doc_discount:
             total_exclusive_of_tax -= total_after_first_discount * doc_discount / 100
 
-        # return round_to_2(total_exclusive_of_tax)
         return round_decimal(total_exclusive_of_tax, mode=ROUND_POLICY)
 
     def get_related_entity(self):  # For generic views & delete
