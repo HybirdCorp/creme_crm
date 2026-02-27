@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
 {% load i18n creme_bricks creme_cells creme_ctype creme_perms creme_widgets %}
-{% load format_amount get_hidden_fields inner_edition_uri print_field from creme_core_tags %}
+{% load format_amount get_hidden_fields inner_edition_uri print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-card-brick{% endblock %}
 
@@ -95,4 +95,13 @@
   {% for summary_ctxt in summaries %}
     {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
   {% endfor %}
+{% endblock %}
+
+{% block card_buttons %}
+    {% if download_button %}
+    <div class='card-action'>
+        {% brick_card_button action='redirect' url='billing__export'|url:object.id label=_('Download') help_text=_('Download as file (PDF/XLS…)') icon='download' %}
+    </div>
+    {% endif %}
+    {{block.super}}
 {% endblock %}
