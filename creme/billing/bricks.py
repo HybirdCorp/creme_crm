@@ -218,6 +218,7 @@ class InvoicesGeneratedFromQuoteSummary(CardSummary):
 class _BillingCardHatBrick(SimpleBrick):
     verbose_name = _('Card header block')
     template_name = 'billing/bricks/billing-hat-card.html'
+    download_button = True
     summaries: list[type[CardSummary]] = []
 
     def __init__(self):
@@ -241,6 +242,7 @@ class _BillingCardHatBrick(SimpleBrick):
 
         return super().get_template_context(
             context,
+            download_button=self.download_button,
             summaries=[
                 summary_cls().get_context(entity=entity, brick_context=context)
                 for summary_cls in self.summaries
