@@ -320,6 +320,7 @@
                - The module 'views.convert' has been renamed "conversion".
             * Commercial :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
+                - The class 'forms.strategy.AddOrganisationForm' has been renamed 'AddOrganisationsForm'.
             * Emails :
                 - These Brick classes are not registered anymore (so they can only be reloaded by their specific view):
                   SendingBrick, SendingHTMLBodyBrick, MailsBrick.
