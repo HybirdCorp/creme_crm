@@ -1,3 +1,21 @@
+== Version 2.6.18 ==
+
+  Users side :
+  ------------
+    # Several issues in the Job scheduler had been fixed:
+        - Disabling then re-activating a Job was not possible;
+          you were obliged to restart the scheduler.
+        - Modifying a Job's configuration during it's execution did not work correctly
+          (new configuration could be lost).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The history rendering has been improved code to manage ContentTypes badly removed.
+
+
 == Version 2.6.17 ==
 
   Users side :
