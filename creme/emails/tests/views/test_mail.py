@@ -628,7 +628,7 @@ better &amp; lighter than the previous one.
             recip_field.initial,
         )
 
-        # POSt ---
+        # POST ---
         response2 = self.assertPOST200(
             url,
             data={

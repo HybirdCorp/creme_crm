@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -813,7 +813,7 @@ class Populator(BasePopulator):
         create_field(name='sales_phase__name', order=4)
         create_field(name=constants.REL_OBJ_EMIT_ORGA, order=5, type=RFT_RELATION)
 
-        # Create 2 graphs ------------------------------------------------------
+        # Create 2 charts ------------------------------------------------------
         # if reports.rgraph_model_is_custom():
         #     logger.info(
         #         'ReportGraph model is custom'
@@ -885,7 +885,7 @@ class Populator(BasePopulator):
             abscissa_parameter='90',
         )
 
-        # Create 2 instance block items for the 2 graphs -----------------------
+        # Create 2 instance-brick-items for the 2 charts -----------------------
         # brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item(
         brick_id1 = SimpleChartFetcher(chart=chart1).create_brick_config_item(
             uuid=UUID_IBRICK_SALES_PER_PHASE,
