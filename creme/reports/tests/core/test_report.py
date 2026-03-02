@@ -61,7 +61,7 @@ from ..base import Report, skipIfCustomReport
 #   - get_value() + sub-report
 @skipIfCustomReport
 class ReportHandTestCase(CremeTestCase):
-    def test_regular_field01(self):
+    def test_regular_field(self):
         user = self.get_root_user()
 
         fname = 'first_name'
@@ -87,8 +87,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_regular_field02(self):
-        "Hidden field."
+    def test_regular_field__hidden_field(self):
         fname = 'capital'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
@@ -102,8 +101,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(_('Capital'), hand.title)
         self.assertIs(hand.hidden, True)
 
-    def test_regular_field_error01(self):
-        "Invalid field."
+    def test_regular_field__invalid_field(self):
         fname = 'invalid'
         rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name=fname)
 
@@ -115,8 +113,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_regular_field_error02(self):
-        "Field too deep."
+    def test_regular_field__field_too_deep(self):
         fname = 'image__user__username'
         rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name=fname)
 
@@ -128,7 +125,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_regular_field_bool(self):
+    def test_regular_field__bool(self):
         user = self.get_root_user()
 
         rfield = Field(
@@ -143,7 +140,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     @override_language('fr')
-    def test_regular_field_datetime(self):
+    def test_regular_field__datetime(self):
         user = self.get_root_user()
 
         rfield = Field(
@@ -157,7 +154,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_regular_field_fk01(self):
+    def test_regular_field__fk(self):
         user = self.get_root_user()
 
         rfield = Field(
@@ -177,8 +174,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_regular_field_fk02(self):
-        "Related to entity."
+    def test_regular_field__fk__related_to_entity(self):
         rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name='image')
         hand = RHForeignKey(rfield)
         self.assertEqual(
@@ -187,7 +183,7 @@ class ReportHandTestCase(CremeTestCase):
         )
         self.assertIs(hand.linked2entity, True)
 
-    def test_regular_field_m2m01(self):
+    def test_regular_field__m2m(self):
         user = self.get_root_user()
 
         rfield = Field(
@@ -206,8 +202,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_regular_field_m2m02(self):
-        "Related to entity."
+    def test_regular_field__m2m__related_to_entity(self):
         rfield = Field(
             report=Report(ct=FakeEmailCampaign),
             type=RFT_FIELD, name='mailing_lists',
@@ -218,7 +213,7 @@ class ReportHandTestCase(CremeTestCase):
             [*hand.get_linkable_ctypes()]
         )
 
-    def test_custom_field01(self):
+    def test_custom_field(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -244,7 +239,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field02(self):
+    def test_custom_field__deleted(self):
         "Deleted custom-field."
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -261,7 +256,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(cfield.name,  hand.title)
         self.assertIs(hand.hidden, True)
 
-    def test_custom_field_bool(self):
+    def test_custom_field__bool(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Uses sword',
@@ -282,7 +277,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field_datetime(self):
+    def test_custom_field__datetime(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Knighting',
@@ -304,7 +299,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field_date(self):
+    def test_custom_field__date(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Knighting',
@@ -326,7 +321,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field_decimal(self):
+    def test_custom_field__decimal(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name="Sword's price",
@@ -348,7 +343,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field_multienum(self):
+    def test_custom_field__multi_enum(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Weapons',
@@ -376,7 +371,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    def test_custom_field_error01(self):
+    def test_custom_field__does_not_exist(self):
         cf_uuid = str(uuid4())
         rfield = Field(report=Report(ct=FakeContact), type=RFT_CUSTOM, name=cf_uuid)
         with self.assertRaises(ReportHand.ValueError) as cm:
@@ -384,7 +379,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(f'Invalid custom field: "{cf_uuid}"', str(cm.exception))
 
-    def test_custom_field_error02(self):
+    def test_custom_field__invalid_uuid(self):
         cf_uuid = 'invalid'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -436,7 +431,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()),
         )
 
-    def test_relation_error(self):
+    def test_relation__error(self):
         rtype_id = 'unknown'
         rfield = Field(
             report=Report(ct=FakeContact),
@@ -479,7 +474,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()).split('/')
         )
 
-    def test_function_field_error(self):
+    def test_function_field__error(self):
         name = 'unknown'
         rfield = Field(
             report=Report(ct=FakeContact),
@@ -493,7 +488,7 @@ class ReportHandTestCase(CremeTestCase):
             f'Invalid function field: "{name}"', str(cm.exception),
         )
 
-    def test_regular_aggregate01(self):
+    def test_regular_aggregate(self):
         user = self.get_root_user()
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -517,7 +512,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=starks, user=user, scope=FakeOrganisation.objects.all()),
         )
 
-    def test_regular_aggregate02(self):
+    def test_regular_aggregate__hidden_field(self):
         "Hidden field."
         fname = 'capital'
         FieldsConfig.objects.create(
@@ -535,7 +530,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(f"{_('Average')} - {_('Capital')}", hand.title)
         self.assertTrue(hand.hidden)
 
-    def test_regular_aggregate_error01(self):
+    def test_regular_aggregate__invalid_field_name(self):
         fname = 'unknown'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -550,7 +545,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_regular_aggregate_error02(self):
+    def test_regular_aggregate__invalid_agg_name(self):
         aggname = 'unknown'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -562,7 +557,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(f'Invalid aggregation: "{aggname}"', str(cm.exception))
 
-    def test_regular_aggregate_error03(self):
+    def test_regular_aggregate__not_number(self):
         fname = 'name'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -577,7 +572,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_custom_aggregate01(self):
+    def test_custom_aggregate(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -607,7 +602,7 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()),
         )
 
-    def test_custom_aggregate02(self):
+    def test_custom_aggregate__deleted(self):
         "Deleted custom-field."
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -624,7 +619,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(f"{_('Average')} - {cfield.name}", hand.title)
         self.assertTrue(hand.hidden)
 
-    def test_custom_aggregate_error01(self):
+    def test_custom_aggregate__invalid_uuid(self):
         cf_uuid = 'invalid'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
@@ -639,7 +634,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_custom_aggregate_error02(self):
+    def test_custom_aggregate__invalid_agg_id(self):
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -657,7 +652,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(f'Invalid aggregation: "{agg_id}"', str(cm.exception))
 
-    def test_custom_aggregate_error03(self):
+    def test_custom_aggregate__not_number(self):
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.STR,
@@ -707,7 +702,7 @@ class ReportHandTestCase(CremeTestCase):
         'title',  # Not ForeignKey
         'unknown',
     ])
-    def test_related_error(self, fname):
+    def test_related__error(self, fname):
         rfield = Field(
             report=Report(ct=FakeReportsFolder),
             type=RFT_RELATED, name=fname,

@@ -38,7 +38,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
 
         self.fail(f'{field_name} not found in cells.')  # pragma: no cover
 
-    def test_regular_fk01(self):
+    def test_regular_fk(self):
         constraint = CHCCRegularFK(model=FakeOrganisation)
 
         build_cell = EntityCellRegularField.build
@@ -64,8 +64,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
         self.find_rfield_cell(cells, 'sector')
         self.find_rfield_cell(cells, 'legal_form')
 
-    def test_regular_fk02(self):
-        "Fields config."
+    def test_regular_fk__fields_config(self):
         constraint = CHCCRegularFK(FakeOrganisation)
         hidden_fname = 'sector'
 
@@ -150,7 +149,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
         self.find_rfield_cell(cells, 'type')
         self.find_rfield_cell(cells, 'status')
 
-    def test_regular_date01(self):
+    def test_regular_date(self):
         constraint = CHCCRegularDate(model=FakeOrganisation)
 
         build_cell = EntityCellRegularField.build
@@ -176,8 +175,7 @@ class ChartHandConstraintsTestCase(CremeTestCase):
         self.find_rfield_cell(cells, 'modified')
         self.find_rfield_cell(cells, 'creation_date')
 
-    def test_regular_date02(self):
-        "Fields config."
+    def test_regular_date__fields_config(self):
         model = FakeContact
         constraint = CHCCRegularDate(model=model)
         hidden_fname = 'birthday'
@@ -376,7 +374,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         self.assertIsNone(registry.get_constraint_by_chart_type(FakeContact, AbscissaGroup.FK))
         self.assertIsNone(registry.get_parameter_validator(AbscissaGroup.FK))
 
-    def test_cell_constraints01(self):
+    def test_cell_constraints(self):
         registry = ChartHandConstraintsRegistry().register_cell_constraint(
             constraint_class=CHCCRegularFK,
             chart_types=[AbscissaGroup.FK],
@@ -393,7 +391,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         # ---
         self.assertListEqual([AbscissaGroup.FK], [*registry.chart_types])
 
-    def test_cell_constraints02(self):
+    def test_cell_constraints__several(self):
         "Several constraints."
         registry = ChartHandConstraintsRegistry(
         ).register_cell_constraint(
@@ -417,7 +415,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
             [*registry.chart_types],
         )
 
-    def test_cell_constraints03(self):
+    def test_cell_constraints__several_types(self):
         "Several constraints (several types at once)."
         registry = ChartHandConstraintsRegistry().register_cell_constraint(
             constraint_class=CHCCRegularDate,
@@ -427,7 +425,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         constraint = self.get_alone_element(registry.cell_constraints(FakeContact))  # Not 2
         self.assertIsInstance(constraint, CHCCRegularDate)
 
-    def test_cell_constraints04(self):
+    def test_cell_constraints__duplicated(self):
         "Duplicated constraints."
         registry = ChartHandConstraintsRegistry().register_cell_constraint(
             constraint_class=CHCCRegularFK,
@@ -450,7 +448,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
                 chart_types=[AbscissaGroup.CUSTOM_RANGE],
             )
 
-    def test_validators01(self):
+    def test_validators(self):
         formfield = forms.IntegerField(label='Number of days')
         registry = ChartHandConstraintsRegistry().register_parameter_validator(
             chart_types=[AbscissaGroup.RANGE, AbscissaGroup.CUSTOM_RANGE],
@@ -466,8 +464,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         self.assertEqual(formfield, get_validator(AbscissaGroup.RANGE))
         self.assertEqual(formfield, get_validator(AbscissaGroup.CUSTOM_RANGE))
 
-    def test_validators02(self):
-        "Duplicates."
+    def test_validators__duplicates(self):
         registry = ChartHandConstraintsRegistry().register_parameter_validator(
             chart_types=[AbscissaGroup.RANGE, AbscissaGroup.CUSTOM_RANGE],
             formfield=forms.IntegerField(label='Number of days'),

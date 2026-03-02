@@ -77,8 +77,8 @@ class ChartFetcherTestCase(CremeTestCase):
         self.assertIsNone(b_fetcher.error)
         self.assertEqual(chart, b_fetcher.chart)
 
-    def test_fk01(self):
-        "ForeignKey ; UUID parameter."
+    def test_fk(self):
+        "ForeignKey; UUID parameter."
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -147,8 +147,7 @@ class ChartFetcherTestCase(CremeTestCase):
         self.assertIsNone(b_fetcher.error)
         self.assertEqual(fname, b_fetcher._field.name)
 
-    def test_fk02(self):
-        "Hidden field."
+    def test_fk__hidden(self):
         hidden_fname = 'image'
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -246,7 +245,7 @@ class ChartFetcherRegistryTestCase(CremeTestCase):
         registry.default_class = OtherSimpleChartFetcher
         self.assertEqual(OtherSimpleChartFetcher, registry.default_class)
 
-    def test_register01(self):
+    def test_register(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart(name='Field Test', linked_report=report)
@@ -302,8 +301,7 @@ class ChartFetcherRegistryTestCase(CremeTestCase):
             logs_manager2.output[0]
         )
 
-    def test_register02(self):
-        "Duplicates."
+    def test_register__duplicates(self):
         registry = ChartFetcherRegistry(SimpleChartFetcher).register(
             RegularFieldLinkedChartFetcher,
             RelationLinkedChartFetcher,
