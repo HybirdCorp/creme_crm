@@ -72,6 +72,10 @@ html aside address#to {
     text-align: right;
 }
 
+html aside address span.target-info-key {
+    color: #a9a;
+}
+
 html dl#information {
     position: absolute;
     right: 0;

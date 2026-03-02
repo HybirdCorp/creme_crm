@@ -267,6 +267,8 @@ class JSONField(fields.CharField):
             #         code='doesnotexist',
             #     ) from e
             ctype = self._clean_ctype(ctype)
+            if ctype is None:
+                return None
 
         entity = None
 

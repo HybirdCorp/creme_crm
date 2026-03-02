@@ -68,7 +68,8 @@ body {
     text-align: right;
 }
 
-.header .doc-info .doc-info-key {
+.header .doc-info .doc-info-key,
+.addresses .address-to .doc-info-key {
     color: {{light_coffee}};
     font-size: 10pt;
 }

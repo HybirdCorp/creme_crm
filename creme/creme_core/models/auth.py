@@ -119,6 +119,7 @@ class UserRole(models.Model):
         app_label = 'creme_core'
         verbose_name = _('Role')
         verbose_name_plural = _('Roles')
+        ordering = ('name',)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

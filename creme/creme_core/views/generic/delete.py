@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core import exceptions as core_exceptions
 from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import (
@@ -208,8 +208,12 @@ class CremeModelDeletion(CremeDeletion):
 
             try:
                 instance.delete()
+            except core_exceptions.SpecificProtectedError as e:
+                raise core_exceptions.ConflictError(
+                    _('This object can not be deleted ({reason})').format(reason=e.args[0]),
+                ) from e
             except ProtectedError as e:
-                raise ConflictError(
+                raise core_exceptions.ConflictError(
                     format_html(
                         '<span>{message}</span>{dependencies}',
                         message=_(

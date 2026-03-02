@@ -1,3 +1,33 @@
+== Version 2.7.6 ==
+
+  Users side :
+  ------------
+    # UserRoles should be ordered by name everywhere.
+    # Several issues in the Job scheduler had been fixed:
+        - Disabling then re-activating a Job was not possible;
+          you were obliged to restart the scheduler.
+        - Modifying a Job's configuration during it's execution did not work correctly
+          (new configuration could be lost).
+    # Apps :
+        * Billing :
+            - The VAT number of the target organisation has been added in exported PDFs ('FR' templates).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The history rendering has been improved code to manage ContentTypes badly removed.
+        # The base class view 'creme_core.views.generic.delete.CremeModelDeletion' now manages
+          exception with type 'creme_core.core.exceptions.SpecificProtectedError'.
+          It will display a better error message if the method 'delete()' of a model raises one.
+        # In 'creme_core.forms' :
+            - An issue in 'workflows.RelationAddingTriggerField' when
+              <required=False> has been fixed. It did not happen in vanilla code.
+            - A crash in 'creme_core.forms.fields.JSONField._clean_entity()' has been fixed.
+              It happened with '0' as ContentType's ID. It did not happen in vanilla code.
+
+
 == Version 2.7.5 ==
 
   Users side :
