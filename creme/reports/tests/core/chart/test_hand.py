@@ -51,7 +51,7 @@ class ReportChartHandTestCase(CremeTestCase):
                 '%d/%m/%Y', _generate_date_format(year=True, month=True, day=True),
             )
 
-    def test_regular_field_day(self):
+    def test_regular_field__day(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -70,7 +70,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsInstance(ordinate, ChartCount)
         self.assertIsNone(ordinate.error)
 
-    def test_regular_field_month(self):
+    def test_regular_field__month(self):
         ordinate_cell = EntityCellRegularField.build(FakeOrganisation, 'capital')
 
         user = self.get_root_user()
@@ -92,7 +92,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsInstance(ordinate, ChartSum)
         self.assertIsNone(ordinate.error)
 
-    def test_regular_field_year(self):
+    def test_regular_field__year(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -106,7 +106,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By years'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_regular_field_date_range(self):
+    def test_regular_field__date_range(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -121,7 +121,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By X days'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_regular_field_fk(self):
+    def test_regular_field__fk(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -135,7 +135,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By values'),       hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_regular_field_choices(self):
+    def test_regular_field__choices(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeEmailCampaign)
         chart = ReportChart.objects.create(
@@ -149,8 +149,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By values'),            hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_regular_field_error01(self):
-        "Invalid field."
+    def test_regular_field__error__invalid_field(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -167,8 +166,7 @@ class ReportChartHandTestCase(CremeTestCase):
         )
         self.assertEqual('??', hand.verbose_abscissa)
 
-    def test_regular_field_error02(self):
-        "Hidden field."
+    def test_regular_field__error__hidden_field(self):
         hidden_fname = 'sector'
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -208,7 +206,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
         self.assertEqual('employs', hand.verbose_abscissa)
 
-    def test_relation_error01(self):
+    def test_relation__error(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         chart = ReportChart.objects.create(
@@ -225,7 +223,7 @@ class ReportChartHandTestCase(CremeTestCase):
         )
         self.assertEqual('??', hand.verbose_abscissa)
 
-    def test_relation_error02(self):
+    def test_relation__disabled(self):
         "The RelationType is disabled."
         user = self.get_root_user()
 
@@ -249,7 +247,7 @@ class ReportChartHandTestCase(CremeTestCase):
         )
         self.assertEqual(rtype.predicate, hand.verbose_abscissa)
 
-    def test_custom_field_day(self):
+    def test_custom_field__day(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.DATETIME,
@@ -271,7 +269,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
         self.assertEqual(cfield.name, hand.verbose_abscissa)
 
-    def test_custom_field_month(self):
+    def test_custom_field__month(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.DATETIME,
@@ -293,7 +291,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
         self.assertEqual(cfield.name, hand.verbose_abscissa)
 
-    def test_custom_field_year(self):
+    def test_custom_field__year(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.DATETIME,
@@ -315,7 +313,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
         self.assertEqual(cfield.name, hand.verbose_abscissa)
 
-    def test_custom_field_date_range(self):
+    def test_custom_field__date_range(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.DATETIME,
@@ -337,7 +335,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By X days'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_custom_field_enum(self):
+    def test_custom_field__enum(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.ENUM,
@@ -358,7 +356,7 @@ class ReportChartHandTestCase(CremeTestCase):
         self.assertEqual(_('By values (of custom choices)'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_custom_field_error01(self):
+    def test_custom_field__invalid(self):
         "Field does not exist."
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
@@ -378,8 +376,7 @@ class ReportChartHandTestCase(CremeTestCase):
         )
         self.assertEqual('??', hand.verbose_abscissa)
 
-    def test_custom_field_error02(self):
-        "Field is marked as deleted."
+    def test_custom_field__marked_as_deleted(self):
         cfield = CustomField.objects.create(
             content_type=FakeContact,
             field_type=CustomField.ENUM,

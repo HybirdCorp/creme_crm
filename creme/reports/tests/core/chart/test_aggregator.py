@@ -37,7 +37,7 @@ from creme.reports.tests.base import Report, skipIfCustomReport
 # TODO: test aggregate() + sum, max, min
 @skipIfCustomReport
 class AggregatorTestCase(CremeTestCase):
-    def test_registry01(self):
+    def test_registry__count(self):
         registry = ReportChartAggregatorRegistry()
         report = Report(ct=FakeOrganisation)
         chart = ReportChart(
@@ -56,7 +56,7 @@ class AggregatorTestCase(CremeTestCase):
         self.assertIsInstance(aggregator2, ChartCount)
         self.assertIsNone(aggregator2.error)
 
-    def test_registry02(self):
+    def test_registry__sum(self):
         registry = ReportChartAggregatorRegistry()
         report = Report(ct=FakeOrganisation)
         chart = ReportChart(
@@ -75,8 +75,7 @@ class AggregatorTestCase(CremeTestCase):
         self.assertIsInstance(aggregator2, ChartSum)
         self.assertIsNone(aggregator2.error)
 
-    def test_registry03(self):
-        "FieldsConfig."
+    def test_registry__fields_config(self):
         hidden_fname = 'capital'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
@@ -109,8 +108,7 @@ class AggregatorTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_average01(self):
-        "Regular field."
+    def test_average__regula_field(self):
         agg = ChartAverage(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
         self.assertIsNone(agg.error)
 
@@ -131,8 +129,7 @@ class AggregatorTestCase(CremeTestCase):
 
         self.assertIn('invalid type of cell', str(cm2.exception))
 
-    def test_average02(self):
-        "Hidden regular field."
+    def test_average__regular_field__hidden(self):
         hidden_fname = 'capital'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
@@ -142,8 +139,7 @@ class AggregatorTestCase(CremeTestCase):
         agg = ChartAverage(cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname))
         self.assertEqual(_('this field should be hidden.'), agg.error)
 
-    def test_average03(self):
-        "Custom field."
+    def test_average__custom_field(self):
         create_cfield = partial(
             CustomField.objects.create,
             content_type=FakeContact,
@@ -169,8 +165,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
             True,
         )
 
-    def test_field_aggregation01(self):
-        "Regular field."
+    def test_field_aggregation__regular_field(self):
         constraint = ACCFieldAggregation(model=FakeOrganisation)
 
         build_cell = EntityCellRegularField.build
@@ -194,8 +189,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
         self.assertEqual(1, len(finfo2))
         self.assertEqual('capital', finfo2[0].name)
 
-    def test_field_aggregation02(self):
-        "Custom field."
+    def test_field_aggregation__custom_field(self):
         create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
         cfield1 = create_cfield(
             name='Hair size',
@@ -255,8 +249,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
             }
         )
 
-    def test_field_aggregation03(self):
-        "Fields config."
+    def test_field_aggregation__fields_config(self):
         constraint = ACCFieldAggregation(model=FakeInvoice)
         hidden_fname = 'total_no_vat'
 
@@ -325,7 +318,7 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
             FakeInvoice, OrdinateAggregator.COUNT,
         ))
 
-    def test_cell_constraints01(self):
+    def test_cell_constraints(self):
         registry = AggregatorConstraintsRegistry(
         ).register_cell_constraints(ACCCount)
 
@@ -340,7 +333,7 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
         )
         self.assertIsNone(get_constraint(FakeInvoice, OrdinateAggregator.SUM))
 
-    def test_cell_constraints02(self):
+    def test_cell_constraints__several(self):
         "Several constraints."
         registry = AggregatorConstraintsRegistry().register_cell_constraints(
             ACCCount,
@@ -359,7 +352,7 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
             ACCFieldAggregation,
         )
 
-    def test_cell_constraints03(self):
+    def test_cell_constraints__duplicated(self):
         "Duplicated constraints."
         registry = AggregatorConstraintsRegistry(
         ).register_cell_constraints(ACCCount)
