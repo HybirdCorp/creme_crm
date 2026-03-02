@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,10 +50,6 @@ UUID_EVENT_TYPE_SHOW       = 'd4928cbc-6afd-40bf-9d07-815b8b920b39'
 UUID_EVENT_TYPE_CONFERENCE = '254fda4f-1a01-47e1-b5aa-a1b2d4ef2890'
 UUID_EVENT_TYPE_BREAKFAST  = 'b520fe79-98f4-4362-8293-b4febd46c9df'
 UUID_EVENT_TYPE_BRUNCH     = '42c72e13-9f47-4ea8-bd9b-0a0764ceea19'
-
-Contact = get_contact_model()
-Opportunity = get_opportunity_model()
-Event = get_event_model()
 
 
 class Populator(BasePopulator):
