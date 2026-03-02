@@ -621,7 +621,7 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(self.client.post(
             url,
             data={
-                'user': user.pk,
+                # 'user': user.pk,
                 'name': name,
                 'plot_name': 'barchart',
 
@@ -667,7 +667,7 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.assertPOST200(
             self._build_add_chart_url(report),
             data={
-                'user': user.pk,
+                # 'user': user.pk,
                 'name': 'My Chart #1',
                 'plot_name': 'barchart',
 
@@ -703,7 +703,7 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         response = self.assertPOST200(
             self._build_add_chart_url(report),
             data={
-                'user': user.pk,
+                # 'user': user.pk,
                 'name': 'My Chart #1',
                 'plot_name': 'barchart',
 
