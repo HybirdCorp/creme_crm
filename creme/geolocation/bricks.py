@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2025  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,8 +66,8 @@ class _MapBrick(Brick):
 
         return choices
 
-    # TODO: rename "get_addresses_as_dictS" ?
-    def get_addresses_as_dict(self, entity):
+    # def get_addresses_as_dict(self, entity):
+    def get_addresses_as_dicts(self, entity) -> list[dict]:
         return [
             {
                 k: (escape(v) if isinstance(v, str) else v)
@@ -99,7 +99,8 @@ class _DetailMapBrick(_MapBrick):
     def get_template_context(self, context, **extra_kwargs):
         addresses = [
             address
-            for address in self.get_addresses_as_dict(context['object'])
+            # for address in self.get_addresses_as_dict(context['object'])
+            for address in self.get_addresses_as_dicts(context['object'])
             if address.get('content')
         ]
 
@@ -224,7 +225,8 @@ class _NeighboursMapBrick(_MapBrick):
 
         return super().get_template_context(
             context,
-            ref_addresses=self.get_addresses_as_dict(entity),
+            # ref_addresses=self.get_addresses_as_dict(entity),
+            ref_addresses=self.get_addresses_as_dicts(entity),
             address_filters=self.get_filter_choices(
                 context['user'], Contact, Organisation,
             ),
