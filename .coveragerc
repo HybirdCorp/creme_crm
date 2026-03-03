@@ -3,11 +3,24 @@ branch = True
 parallel = True
 concurrency=multiprocessing
 data_file=artifacts/coverage
+omit =
+    */migrations/*
+    creme/creme_core/core/job/queue/redis.py
+    creme/creme_core/management/commands/check_swappable_urls.py
+    creme/creme_core/management/commands/creme_job_manager.py
+    creme/creme_core/management/commands/creme_start_project.py
+    creme/creme_core/management/commands/creme_uninstall.py
+    creme/creme_core/management/commands/entity_factory.py
+    creme/creme_core/management/commands/i18n_duplicates.py
+    creme/creme_core/management/commands/i18n_empty.py
+    creme/creme_core/management/commands/i18n_overload.py
+    creme/creme_core/management/commands/i18n_plural_forms.py
 
 [report]
 show_missing = True
 skip_covered = True
-omit = */migrations/*
+exclude_also =
+    raise NotImplementedError
 
 [html]
 directory=artifacts/coverage_html
