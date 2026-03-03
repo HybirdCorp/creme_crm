@@ -414,6 +414,14 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         form3 = response3.context['wizard']['form']
         self.assertFormError(form3, field='columns', errors=_('This field is required.'))
 
+    @override_settings(LOGIN_URL='creme_login')
+    def test_creation__not_logged(self):
+        response = self.assertGET200(self.ADD_URL, follow=True)
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse('creme_login') + f'?next={self.ADD_URL}',
+        )
+
     def test_edition(self):
         user = self.login_as_root_and_get()
         other_user = self.create_user()
