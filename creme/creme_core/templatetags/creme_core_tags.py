@@ -479,7 +479,7 @@ class TemplatizeNode(TemplateNode):
         self.inner_template = Template(template_string)
         self.var_name = var_name
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return '<Templatize node>'
 
     def render(self, context):
@@ -530,6 +530,7 @@ def is_entity(obj):
     return isinstance(obj, CremeEntity)
 
 
+# NB: seems not used anymore
 @register.filter
 def is_relation(obj):
     return isinstance(obj, Relation)

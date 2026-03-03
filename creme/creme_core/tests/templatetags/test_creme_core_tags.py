@@ -267,6 +267,22 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('1#2#3#4#', render2.strip())
 
+    def test_log(self):
+        msg1 = 'Beware to something important'
+        with self.assertLogs(level='INFO') as logs_manager1:
+            Template(
+                '{% load creme_core_tags %}{% log msg %}'
+            ).render(Context({'msg': msg1}))
+        self.assertIn(msg1, logs_manager1.output[0])
+
+        # ---
+        msg2 = 'Beware to something VERY important'
+        with self.assertLogs(level='CRITICAL') as logs_manager2:
+            Template(
+                "{% load creme_core_tags %}{% log msg level='CRITICAL' %}"
+            ).render(Context({'msg': msg2}))
+        self.assertIn(msg2, logs_manager2.output[0])
+
     def test_uca_sort(self):
         with self.assertNoException():
             render1 = Template(
