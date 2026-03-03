@@ -94,7 +94,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.login_as_root()
         self.assertGET403(self.URL)
 
-    def test_register01(self):
+    def test_register(self):
         registry = ExportersRegistry()
         data_id1 = 'exp1'
         data_id2 = 'exp2'
@@ -102,12 +102,12 @@ class ExportingTestCase(TransferBaseTestCase):
         @registry.register(data_id=data_id1)
         class TestExporter01(Exporter):
             def dump_instance(self, instance):
-                return [{'value': 1}]
+                return [{'value': 1}]  # pragma: no cover
 
         @registry.register(data_id=data_id2)
         class TestExporter02(Exporter):
             def dump_instance(self, instance):
-                return [{'value': 2}]
+                return [{'value': 2}]  # pragma: no cover
 
         exporters = [*registry]
         self.assertEqual(2, len(exporters))
@@ -127,13 +127,13 @@ class ExportingTestCase(TransferBaseTestCase):
         @registry.register(data_id=data_id)
         class TestExporter01(Exporter):
             def dump_instance(self, instance):
-                return [{'value': 1}]
+                return [{'value': 1}]  # pragma: no cover
 
         with self.assertRaises(ExportersRegistry.Collision):
             @registry.register(data_id=data_id)
             class TestExporter02(Exporter):
                 def dump_instance(self, instance):
-                    return [{'value': 2}]
+                    return [{'value': 2}]  # pragma: no cover
 
     def test_register__priority__after(self):
         "Priority (stronger after)."
@@ -143,13 +143,13 @@ class ExportingTestCase(TransferBaseTestCase):
         @registry.register(data_id=data_id)
         class TestExporter01(Exporter):
             def dump_instance(self, instance):
-                return [{'value': 1}]
+                return [{'value': 1}]  # pragma: no cover
 
         with self.assertNoException():
             @registry.register(data_id=data_id, priority=2)
             class TestExporter02(Exporter):
                 def dump_instance(self, instance):
-                    return [{'value': 2}]
+                    return [{'value': 2}]  # pragma: no cover
 
         item = self.get_alone_element(registry)
         self.assertEqual(data_id, item[0])
@@ -163,13 +163,13 @@ class ExportingTestCase(TransferBaseTestCase):
         @registry.register(data_id=data_id, priority=3)
         class TestExporter01(Exporter):
             def dump_instance(self, instance):
-                return [{'value': 1}]
+                return [{'value': 1}]  # pragma: no cover
 
         with self.assertNoException():
             @registry.register(data_id=data_id, priority=2)
             class TestExporter02(Exporter):
                 def dump_instance(self, instance):
-                    return [{'value': 2}]
+                    return [{'value': 2}]  # pragma: no cover
 
         item = self.get_alone_element(registry)
         self.assertEqual(data_id, item[0])
@@ -182,11 +182,11 @@ class ExportingTestCase(TransferBaseTestCase):
 
         @registry.register(data_id=data_id1)
         def exporter1():
-            return [{'value': 1}]
+            return [{'value': 1}]  # pragma: no cover
 
         @registry.register(data_id=data_id2)
         def exporter2():
-            return [{'value': 2}]
+            return [{'value': 2}]  # pragma: no cover
 
         registry.unregister(data_id1)
         item = self.get_alone_element(registry)
@@ -201,11 +201,11 @@ class ExportingTestCase(TransferBaseTestCase):
 
         @registry.register(data_id=data_id1)
         def exporter1():
-            return [{'value': 1}]
+            return [{'value': 1}]  # pragma: no cover
 
         @registry.register(data_id=data_id2)
         def exporter2():
-            return [{'value': 2}]
+            return [{'value': 2}]  # pragma: no cover
 
         item = self.get_alone_element(registry)
         self.assertEqual(data_id2, item[0])
