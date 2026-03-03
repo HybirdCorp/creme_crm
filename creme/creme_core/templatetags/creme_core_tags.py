@@ -104,8 +104,10 @@ def get_by_index(sequence, index):
     return sequence[index]
 
 
+# TODO rename (get? get_item?)?
 @register.filter
-def get_value(dic, key, default=''):
+# def get_value(dic, key, default=''):
+def get_value(dic, key):
     """Get a value from its key in a dictionary-like object.
     A default value is used as fallback (like <dict.get()>).
 
@@ -126,10 +128,12 @@ def get_value(dic, key, default=''):
             {% for key in keys %}{{ some_dict|get_value:key }}{% endfor %}
     """
     try:
-        return dic.get(key, default)
-    except Exception as e:  # TODO: really useful ???
+        # return dic.get(key, default)
+        return dic.get(key, '')
+    except Exception as e:
         logger.debug('Exception in get_value(): %s', e)
-        return default
+        # return default
+        return ''
 
 
 # TODO: deprecate? (not used)
