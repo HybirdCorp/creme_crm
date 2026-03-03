@@ -326,6 +326,8 @@
                   SendingBrick, SendingHTMLBodyBrick, MailsBrick.
                 - The class attribute 'views.sending.SendingBricksReloading.allowed_bricks'
                   has been replaced by the new attribute 'bricks'.
+            * Geolocation :
+                - The method 'bricks._MapBrick.get_addresses_as_dict()' has been renamed 'get_addresses_as_dicts()'.
             * Projects :
                 - The attribute 'cloners.ChildTaskClonerM2MCopier.exclude' is now a set.
             * CTI :

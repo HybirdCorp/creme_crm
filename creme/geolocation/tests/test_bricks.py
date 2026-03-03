@@ -83,7 +83,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         address_a = self.create_address(contact)
         address_b = self.create_address(orga)
 
-        self.assertEqual(_MapBrick().get_addresses_as_dict(contact), [{
+        self.assertEqual(_MapBrick().get_addresses_as_dicts(contact), [{
             'id': address_a.pk,
             'content': '27 bis rue du yahourt 13008 Marseille 13',
             'title': '27 bis rue du yahourt',
@@ -101,7 +101,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             'icon': None,
         }])
 
-        self.assertEqual(_MapBrick().get_addresses_as_dict(orga), [{
+        self.assertEqual(_MapBrick().get_addresses_as_dicts(orga), [{
             'id': address_b.pk,
             'content': '27 bis rue du yahourt 13008 Marseille 13',
             'title': '27 bis rue du yahourt',
@@ -120,7 +120,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         }])
 
         with OverrideSettingValueContext(setting_keys.use_entity_icon_key, True):
-            self.assertEqual(_MapBrick().get_addresses_as_dict(contact), [{
+            self.assertEqual(_MapBrick().get_addresses_as_dicts(contact), [{
                 'id': address_a.pk,
                 'content': '27 bis rue du yahourt 13008 Marseille 13',
                 'title': '27 bis rue du yahourt',
@@ -138,7 +138,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
                 'icon': geomarker_icon_registry.icon_for_model(Contact).url,
             }])
 
-            self.assertEqual(_MapBrick().get_addresses_as_dict(orga), [{
+            self.assertEqual(_MapBrick().get_addresses_as_dicts(orga), [{
                 'id': address_b.pk,
                 'content': '27 bis rue du yahourt 13008 Marseille 13',
                 'title': '27 bis rue du yahourt',
