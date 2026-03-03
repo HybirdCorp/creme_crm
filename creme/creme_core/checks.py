@@ -41,7 +41,7 @@ def check_uninstalled_apps(**kwargs):
     if settings.TESTS_ON:
         return warnings
 
-    try:
+    try:  # pragma: no cover
         app_labels = [
             *apps.get_model('contenttypes.ContentType')
                  .objects
@@ -67,7 +67,7 @@ def check_uninstalled_apps(**kwargs):
                     id='creme.E003',
                 ))
 
-    return warnings
+    return warnings  # pragma: no cover
 
 
 @register(CoreTags.models)
@@ -83,7 +83,7 @@ def check_entity_ordering(**kwargs):
         ordering = model._meta.ordering
 
         if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
-            errors.append(Error(
+            errors.append(Error(  # TODO: unit test
                 f'<{model.__name__}> should have a Meta.ordering '
                 f'different from "id" like all CremeEntities',
                 hint='Change the "ordering" attribute in the Meta class of your model.',
@@ -118,7 +118,7 @@ def check_swapped_urls(**kwargs):
     errors = []
 
     for group in swap_manager:
-        for swapped in group.swapped():
+        for swapped in group.swapped():  # pragma: no cover
             name = swapped.pattern.name
 
             try:
@@ -154,7 +154,7 @@ def check_file_field_maxlength(**kwargs):
                 continue
 
             if field.max_length > max_length:
-                warnings.append(Warning(
+                warnings.append(Warning(  # TODO: unit test
                     f'The model <{model.__name__}> contains a FileField "{field.name}" '
                     f'with a max_length which is greater than {max_length}. '
                     f'So it is possible that the automatic creation of FileRef '
@@ -173,7 +173,7 @@ def check_site_domain(**kwargs):
     warnings = []
     domain = settings.SITE_DOMAIN
 
-    if domain == 'http://mydomain':
+    if domain == 'http://mydomain':  # pragma: no cover
         warnings.append(Warning(
             'The settings SITE_DOMAIN must be defined (you left the example value).',
             obj='settings.py',
@@ -233,9 +233,9 @@ def check_portable_keys(**kwargs):
 
             related_model = field.remote_field.model
             if related_model in warned_models:
-                continue
+                continue  # pragma: no cover
 
-            if not hasattr(related_model, 'portable_key'):
+            if not hasattr(related_model, 'portable_key'):  # pragma: no cover
                 warnings.append(Warning(
                     f'The model {model} has a viewable ForeignKey to the '
                     f'model {related_model} which has no method "portable_key()" '
@@ -292,7 +292,7 @@ def check_fk_to_content_type(**kwargs):
                     and field.related_model == ContentType
                     and not isinstance(field, CTypeForeignKey | CTypeOneToOneField)
                 ):
-                    warnings.append(Warning(
+                    warnings.append(Warning(  # pragma: no cover
                         f'The model {model} has a basic ForeignKey "{field.name}" '
                         f'to the model ContentType.',
                         obj='creme.creme_core',
@@ -314,7 +314,7 @@ def check_last_entities(**kwargs):
     try:
         LAST_ENTITIES_SIZE = int(settings.LAST_ENTITIES_SIZE)
         LAST_ENTITIES_MENU_SIZE = int(settings.LAST_ENTITIES_MENU_SIZE)
-    except ValueError:
+    except ValueError:  # pragma: no cover
         errors.append(Error(
             'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
             obj='settings.py',
@@ -322,13 +322,13 @@ def check_last_entities(**kwargs):
         ))
     else:
         if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
-            errors.append(Error(
+            errors.append(Error(  # pragma: no cover
                 'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
                 obj='settings.py',
                 id='creme.E014',
             ))
         elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
-            errors.append(Error(
+            errors.append(Error(  # pragma: no cover
                 'The settings LAST_ENTITIES_MENU_SIZE must be small or equal than '
                 'LAST_ENTITIES_SIZE.',
                 obj='settings.py',

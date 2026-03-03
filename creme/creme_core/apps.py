@@ -122,7 +122,7 @@ class MediaGeneratorConfig(AppConfig):
             ],
         ]
 
-        if settings.FORCE_JS_TESTVIEW:
+        if settings.FORCE_JS_TESTVIEW:  # pragma: no cover
             MEDIA_BUNDLES.append(settings.TEST_CREME_LIB_JS)
             MEDIA_BUNDLES.append([
                 *settings.TEST_CREME_CORE_JS,
@@ -243,7 +243,7 @@ class CremeAppConfig(AppConfig):
             errors = []
             app_name = self.extended_app
 
-            if app_name is not None:
+            if app_name is not None:  # pragma: no cover
                 if not apps.is_installed(app_name):
                     errors.append(checks.Error(
                         f"extends the app '{app_name}' which is not installed.",
@@ -458,13 +458,13 @@ class CremeCoreConfig(CremeAppConfig):
         super().ready()
 
         if self.MIGRATION_MODE:
-            return
+            return  # pragma: no cover
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
 
     def all_apps_ready(self):
         if self.MIGRATION_MODE:
-            return
+            return  # pragma: no cover
 
         self.hook_fk_formfield()
         self.hook_fk_check()
@@ -783,7 +783,7 @@ class CremeCoreConfig(CremeAppConfig):
 
             if issubclass(remote_model, CremeEntity):
                 if remote_model is CremeEntity:
-                    if limit_choices_to is not None:
+                    if limit_choices_to is not None:  # TODO: unit test
                         logger.warning(
                             'GenericEntityField currently does not manage "q_filter".'
                         )
@@ -830,7 +830,7 @@ class CremeCoreConfig(CremeAppConfig):
             errors = original_fk_check(self, **kwargs)
             on_delete = getattr(self.remote_field, 'on_delete', None)
 
-            if on_delete == CREME_REPLACE_NULL and not self.null:
+            if on_delete == CREME_REPLACE_NULL and not self.null:  # TODO: unit test
                 errors.append(
                     checks.Error(
                         'Field specifies on_delete=CREME_REPLACE_NULL, but cannot be null.',
@@ -945,7 +945,7 @@ def extended_app_configs(app_labels):
     for label in app_labels:
         try:
             app_config = get_app_config(label)
-        except LookupError:
+        except LookupError:  # pragma: no cover
             logger.warning('The app "%s" seems not installed.', label)
         else:
             app_configs.add(app_config)
