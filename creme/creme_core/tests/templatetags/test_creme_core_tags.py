@@ -163,6 +163,18 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('2#1', render.strip())
 
+    def test_get_value(self):
+        with self.assertNoException():
+            render = Template(
+                "{% load creme_core_tags %}"
+                "{{d|get_value:'first_name'}}#"
+                "{{d|get_value:'last_name'}}#"
+                "{{d|get_value:'invalid'}}#"
+                "{{True|get_value:'whatever'}}#"
+            ).render(Context({'d': {'first_name': 'John', 'last_name': 'Doe'}}))
+
+        self.assertEqual('John#Doe###', render.strip())
+
     def test_has_attr(self):
         with self.assertNoException():
             render = Template(

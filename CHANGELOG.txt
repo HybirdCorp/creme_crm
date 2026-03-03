@@ -343,6 +343,7 @@
           'get_buttons()' & 'mandatory_buttons()' get keywords arguments only now,
           an get a new mandatory argument "request".
         # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' get a new mandatory argument "request".
+        # The argument 'default' of 'creme_core.templatetags.creme_core_tags.get_value()' has been removed.
         # Apps :
             * Creme_config :
                 - In 'forms.custom_field', these classes have been removed:
