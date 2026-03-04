@@ -23,7 +23,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections.abc import Callable, Iterator
 from functools import partial
 from itertools import chain
@@ -395,6 +395,7 @@ class ModelFieldEnumerator:
 
 # OrderedField -----------------------------------------------------------------
 
+# TODO: make class immutable
 class Order:
     "Represents DB order: ASC or DESC."
     __slots__ = ('asc', )
@@ -446,15 +447,12 @@ class Order:
         """
         return '' if self.asc else '-'
 
-    def reverse(self) -> None:
-        "Reverse the order (in-place)."
-        # TODO: make Order immutable when reverse() ahs been removed;
-        #       then make OrderedField immutable.
-        warnings.warn(
-            'The method Order.reverse() is deprecated; use reversed() instead.',
-            DeprecationWarning,
-        )
-        self.asc = not self.asc
+    # def reverse(self) -> None:
+    #     warnings.warn(
+    #         'The method Order.reverse() is deprecated; use reversed() instead.',
+    #         DeprecationWarning,
+    #     )
+    #     self.asc = not self.asc
 
     def reversed(self) -> Order:
         "Get a reversed instance of Order."

@@ -17,7 +17,7 @@
 ################################################################################
 
 import itertools
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Callable, Collection, Iterable, Iterator
 from copy import deepcopy
@@ -236,14 +236,15 @@ class JSONField(fields.CharField):
     def _clean_ctype(self,
                      ctype_id: int | None,
                      *,
-                     required: bool | None = None,  # TODO: remove None in creme 3.0
+                     # required: bool | None = None,
+                     required: bool,
                      ) -> ContentType | None:
-        if required is None:
-            warnings.warn(
-                'In JSONField._clean_ctype(), using an implicit value for the '
-                'argument "required" is now deprecated.', DeprecationWarning,
-            )
-            required = self.required
+        # if required is None:
+        #     warnings.warn(
+        #         'In JSONField._clean_ctype(), using an implicit value for the '
+        #         'argument "required" is now deprecated.', DeprecationWarning,
+        #     )
+        #     required = self.required
 
         if not ctype_id:
             if required:
@@ -276,7 +277,8 @@ class JSONField(fields.CharField):
                       ctype: ContentType | type[CremeEntity] | int | None,
                       entity_pk: int | None,
                       *,
-                      required: bool | None = None,  # TODO: remove None in creme 3.
+                      # required: bool | None = None,
+                      required: bool,
                       qfilter: Q | None = None,
                       ) -> CremeEntity | None:
         """Get a CremeEntity from its model & its PK.
@@ -286,12 +288,12 @@ class JSONField(fields.CharField):
         @param qfilter: To restrict the allowed entities.
         @raise: ValidationError.
         """
-        if required is None:
-            warnings.warn(
-                'In JSONField._clean_entity(), using an implicit value for the '
-                'argument "required" is now deprecated.', DeprecationWarning,
-            )
-            required = self.required
+        # if required is None:
+        #     warnings.warn(
+        #         'In JSONField._clean_entity(), using an implicit value for the '
+        #         'argument "required" is now deprecated.', DeprecationWarning,
+        #     )
+        #     required = self.required
 
         if ctype is None or not entity_pk:
             if required:
@@ -307,21 +309,24 @@ class JSONField(fields.CharField):
                 raise ValidationError(
                     f'The ContentType with id={ctype.id} has no related model, it is a bug.',
                 )
-        elif isinstance(ctype, type):
-            model = ctype
+        # elif isinstance(ctype, type):
+        #     model = ctype
         else:
-            assert isinstance(ctype, int)
-
-            warnings.warn(
-                'Passing an integer to JSONField._clean_entity() is deprecated; '
-                'pass a ContentType instance or a CremeEntity model instead.',
-                DeprecationWarning,
-            )
-
-            ctype = self._clean_ctype(ctype, required=required)
-            if ctype is None:
-                return None
-            model = ctype.model_class()
+            assert isinstance(ctype, type)
+            model = ctype
+        # else:
+        #     assert isinstance(ctype, int)
+        #
+        #     warnings.warn(
+        #         'Passing an integer to JSONField._clean_entity() is deprecated; '
+        #         'pass a ContentType instance or a CremeEntity model instead.',
+        #         DeprecationWarning,
+        #     )
+        #
+        #     ctype = self._clean_ctype(ctype, required=required)
+        #     if ctype is None:
+        #         return None
+        #     model = ctype.model_class()
 
         if not issubclass(model, CremeEntity):
             raise ValidationError(
@@ -350,39 +355,39 @@ class JSONField(fields.CharField):
 
         return entity
 
-    def _clean_entity_from_model(self,
-                                 model: type[CremeEntity],
-                                 entity_pk: int,
-                                 qfilter: Q | None = None,
-                                 ) -> CremeEntity:
-        """@raise: ValidationError"""
-        warnings.warn(
-            'JSONField._clean_entity_from_model() is deprecated; '
-            'use JSONField._clean_entity() instead.',
-            DeprecationWarning,
-        )
-
-        entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
-        if entity is None:
-            if qfilter:
-                entity = self._entity_queryset(model).filter(pk=entity_pk).first()
-                if entity is not None:
-                    raise ValidationError(
-                        self.error_messages['isexcluded'],
-                        code='isexcluded',
-                        params={'entity': entity.allowed_str(self._user)},
-                    )
-
-            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
-        else:
-            if entity.is_deleted:
-                raise ValidationError(
-                    self.error_messages['isdeleted'],
-                    code='isdeleted',
-                    params={'entity': entity.allowed_str(self._user)},
-                )
-
-            return entity
+    # def _clean_entity_from_model(self,
+    #                              model: type[CremeEntity],
+    #                              entity_pk: int,
+    #                              qfilter: Q | None = None,
+    #                              ) -> CremeEntity:
+    #     """@raise: ValidationError"""
+    #     warnings.warn(
+    #         'JSONField._clean_entity_from_model() is deprecated; '
+    #         'use JSONField._clean_entity() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
+    #     if entity is None:
+    #         if qfilter:
+    #             entity = self._entity_queryset(model).filter(pk=entity_pk).first()
+    #             if entity is not None:
+    #                 raise ValidationError(
+    #                     self.error_messages['isexcluded'],
+    #                     code='isexcluded',
+    #                     params={'entity': entity.allowed_str(self._user)},
+    #                 )
+    #
+    #         raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
+    #     else:
+    #         if entity.is_deleted:
+    #             raise ValidationError(
+    #                 self.error_messages['isdeleted'],
+    #                 code='isdeleted',
+    #                 params={'entity': entity.allowed_str(self._user)},
+    #             )
+    #
+    #         return entity
 
     def _value_from_unjsonfied(self, data):
         "Build the field value from deserialized data."

@@ -19,107 +19,107 @@ from ..base import CremeTestCase
 
 
 class SearchConfigItemManagerTestCase(CremeTestCase):
-    def test_create_if_needed(self):  # DEPRECATED
-        count = SearchConfigItem.objects.count()
-        ct = ContentType.objects.get_for_model(FakeContact)
-        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
-
-        SearchConfigItem.objects.create_if_needed(
-            FakeContact, ['first_name', 'last_name'],
-        )
-        self.assertEqual(count + 1, SearchConfigItem.objects.count())
-
-        sc_item = self.get_alone_element(SearchConfigItem.objects.filter(content_type=ct))
-        self.assertEqual(FakeContact, sc_item.content_type.model_class())
-        self.assertIsNone(sc_item.role)
-        self.assertIs(sc_item.superuser, False)
-        self.assertIs(sc_item.all_fields, False)
-        self.assertIs(sc_item.disabled, False)
-
-        cells = [*sc_item.cells]
-        self.assertListEqual(
-            [
-                EntityCellRegularField.build(FakeContact, 'first_name'),
-                EntityCellRegularField.build(FakeContact, 'last_name'),
-            ],
-            cells,
-        )
-        self.assertListEqual(cells, [*sc_item.refined_cells])
-
-        self.assertEqual(
-            _('Default search configuration for «{model}»').format(model='Test Contact'),
-            str(sc_item),
-        )
-
-        # ---
-        SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
-        self.assertEqual(count + 1, SearchConfigItem.objects.count())
-
-    def test_create_if_needed__role(self):  # DEPRECATED
-        count = SearchConfigItem.objects.count()
-
-        role = self.get_regular_role()
-        sc_item = SearchConfigItem.objects.create_if_needed(
-            FakeOrganisation, ['name'], role=role,
-        )
-        self.assertIsInstance(sc_item, SearchConfigItem)
-
-        self.assertEqual(count + 1, SearchConfigItem.objects.count())
-
-        self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
-        self.assertEqual(role, sc_item.role)
-        self.assertFalse(sc_item.superuser)
-
-        self.assertEqual(
-            _('Search configuration of «{role}» for «{model}»').format(
-                role=role,
-                model='Test Organisation',
-            ),
-            str(sc_item),
-        )
-
-    def test_create_if_needed__super_user(self):  # DEPRECATED
-        sc_item = SearchConfigItem.objects.create_if_needed(
-            FakeOrganisation, ['name'], role='superuser',
-        )
-
-        self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
-        self.assertIsNone(sc_item.role)
-        self.assertTrue(sc_item.superuser)
-
-        self.assertEqual(
-            _('Search configuration of super-users for «{model}»').format(
-                model='Test Organisation',
-            ),
-            str(sc_item),
-        )
-
-    def test_create_if_needed__invalid_field(self):  # DEPRECATED
-        "Invalid fields."
-        sc_item = SearchConfigItem.objects.create_if_needed(
-            FakeContact, ['invalid_field', 'first_name'],
-        )
-        self.assertListEqual(
-            [EntityCellRegularField.build(FakeContact, 'first_name')],
-            [*sc_item.cells],
-        )
-
-    def test_create_if_needed__invalid_subfield(self):  # DEPRECATED
-        "Invalid fields: no subfield."
-        sc_item = SearchConfigItem.objects.create_if_needed(
-            FakeContact, ['last_name__invalid', 'first_name'],
-        )
-        self.assertListEqual(
-            [EntityCellRegularField.build(FakeContact, 'first_name')],
-            [*sc_item.cells],
-        )
-
-    def test_create_if_needed__disabled(self):  # DEPRECATED
-        sc_item = SearchConfigItem.objects.create_if_needed(
-            FakeOrganisation, [], disabled=True,
-        )
-        self.assertTrue(sc_item.disabled)
-        self.assertFalse([*sc_item.cells])
+    # def test_create_if_needed(self):  # DEPRECATED
+    #     count = SearchConfigItem.objects.count()
+    #     ct = ContentType.objects.get_for_model(FakeContact)
+    #     self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
+    #
+    #     SearchConfigItem.objects.create_if_needed(
+    #         FakeContact, ['first_name', 'last_name'],
+    #     )
+    #     self.assertEqual(count + 1, SearchConfigItem.objects.count())
+    #
+    #     sc_item = self.get_alone_element(SearchConfigItem.objects.filter(content_type=ct))
+    #     self.assertEqual(FakeContact, sc_item.content_type.model_class())
+    #     self.assertIsNone(sc_item.role)
+    #     self.assertIs(sc_item.superuser, False)
+    #     self.assertIs(sc_item.all_fields, False)
+    #     self.assertIs(sc_item.disabled, False)
+    #
+    #     cells = [*sc_item.cells]
+    #     self.assertListEqual(
+    #         [
+    #             EntityCellRegularField.build(FakeContact, 'first_name'),
+    #             EntityCellRegularField.build(FakeContact, 'last_name'),
+    #         ],
+    #         cells,
+    #     )
+    #     self.assertListEqual(cells, [*sc_item.refined_cells])
+    #
+    #     self.assertEqual(
+    #         _('Default search configuration for «{model}»').format(model='Test Contact'),
+    #         str(sc_item),
+    #     )
+    #
+    #     # ---
+    #     SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
+    #     self.assertEqual(count + 1, SearchConfigItem.objects.count())
+    #
+    # def test_create_if_needed__role(self):  # DEPRECATED
+    #     count = SearchConfigItem.objects.count()
+    #
+    #     role = self.get_regular_role()
+    #     sc_item = SearchConfigItem.objects.create_if_needed(
+    #         FakeOrganisation, ['name'], role=role,
+    #     )
+    #     self.assertIsInstance(sc_item, SearchConfigItem)
+    #
+    #     self.assertEqual(count + 1, SearchConfigItem.objects.count())
+    #
+    #     self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
+    #     self.assertEqual(role, sc_item.role)
+    #     self.assertFalse(sc_item.superuser)
+    #
+    #     self.assertEqual(
+    #         _('Search configuration of «{role}» for «{model}»').format(
+    #             role=role,
+    #             model='Test Organisation',
+    #         ),
+    #         str(sc_item),
+    #     )
+    #
+    # def test_create_if_needed__super_user(self):  # DEPRECATED
+    #     sc_item = SearchConfigItem.objects.create_if_needed(
+    #         FakeOrganisation, ['name'], role='superuser',
+    #     )
+    #
+    #     self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
+    #     self.assertIsNone(sc_item.role)
+    #     self.assertTrue(sc_item.superuser)
+    #
+    #     self.assertEqual(
+    #         _('Search configuration of super-users for «{model}»').format(
+    #             model='Test Organisation',
+    #         ),
+    #         str(sc_item),
+    #     )
+    #
+    # def test_create_if_needed__invalid_field(self):  # DEPRECATED
+    #     "Invalid fields."
+    #     sc_item = SearchConfigItem.objects.create_if_needed(
+    #         FakeContact, ['invalid_field', 'first_name'],
+    #     )
+    #     self.assertListEqual(
+    #         [EntityCellRegularField.build(FakeContact, 'first_name')],
+    #         [*sc_item.cells],
+    #     )
+    #
+    # def test_create_if_needed__invalid_subfield(self):  # DEPRECATED
+    #     "Invalid fields: no subfield."
+    #     sc_item = SearchConfigItem.objects.create_if_needed(
+    #         FakeContact, ['last_name__invalid', 'first_name'],
+    #     )
+    #     self.assertListEqual(
+    #         [EntityCellRegularField.build(FakeContact, 'first_name')],
+    #         [*sc_item.cells],
+    #     )
+    #
+    # def test_create_if_needed__disabled(self):  # DEPRECATED
+    #     sc_item = SearchConfigItem.objects.create_if_needed(
+    #         FakeOrganisation, [], disabled=True,
+    #     )
+    #     self.assertTrue(sc_item.disabled)
+    #     self.assertFalse([*sc_item.cells])
 
     def test_iter_for_models__no_model(self):
         user = self.get_root_user()

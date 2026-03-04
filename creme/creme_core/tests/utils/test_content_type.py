@@ -2,12 +2,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 
 from creme.creme_core.models import FakeContact, FakeOrganisation, FakeSector
+# from creme.creme_core.utils.content_type import ctype_as_key, ctype_from_key
 from creme.creme_core.utils.content_type import (
     as_ctype,
     as_model,
-    ctype_as_key,
     ctype_choices,
-    ctype_from_key,
     entity_ctypes,
     get_ctype_or_404,
 )
@@ -16,21 +15,21 @@ from ..base import CremeTestCase, skipIfNotInstalled
 
 
 class ContentTypeTestCase(CremeTestCase):
-    def test_ctype_as_key(self):  # DEPRECATED
-        get_ct = ContentType.objects.get_for_model
-        self.assertEqual('creme_core.fakeorganisation', ctype_as_key(get_ct(FakeOrganisation)))
-        self.assertEqual('creme_core.fakecontact', ctype_as_key(get_ct(FakeContact)))
+    # def test_ctype_as_key(self):  # DEPRECATED
+    #     get_ct = ContentType.objects.get_for_model
+    #     self.assertEqual('creme_core.fakeorganisation', ctype_as_key(get_ct(FakeOrganisation)))
+    #     self.assertEqual('creme_core.fakecontact', ctype_as_key(get_ct(FakeContact)))
 
-    def test_ctype_from_key(self):  # DEPRECATED
-        get_ct = ContentType.objects.get_for_model
-        self.assertEqual(get_ct(FakeOrganisation), ctype_from_key('creme_core.fakeorganisation'))
-        self.assertEqual(get_ct(FakeContact), ctype_from_key('creme_core.fakecontact'))
-
-        self.assertRaises(ValueError, ctype_from_key, 'creme_core.fakecontact.whatever')
-        self.assertRaises(ValueError, ctype_from_key, 'creme_core')
-
-        self.assertRaises(ContentType.DoesNotExist, ctype_from_key, 'creme_core.invalid')
-        self.assertRaises(ContentType.DoesNotExist, ctype_from_key, 'invalid.invalid')
+    # def test_ctype_from_key(self):  # DEPRECATED
+    #     get_ct = ContentType.objects.get_for_model
+    #     self.assertEqual(get_ct(FakeOrganisation), ctype_from_key('creme_core.fakeorganisation'))
+    #     self.assertEqual(get_ct(FakeContact), ctype_from_key('creme_core.fakecontact'))
+    #
+    #     self.assertRaises(ValueError, ctype_from_key, 'creme_core.fakecontact.whatever')
+    #     self.assertRaises(ValueError, ctype_from_key, 'creme_core')
+    #
+    #     self.assertRaises(ContentType.DoesNotExist, ctype_from_key, 'creme_core.invalid')
+    #     self.assertRaises(ContentType.DoesNotExist, ctype_from_key, 'invalid.invalid')
 
     def test_as_ctype(self):
         ctype = ContentType.objects.get_for_model(FakeOrganisation)
