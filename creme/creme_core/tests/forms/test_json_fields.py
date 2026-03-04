@@ -297,7 +297,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         clean_entity = field._clean_entity
         self.assertEqual(
             contact,
-            clean_entity(FakeContact, contact.pk, qfilter=Q(pk=contact.pk)),
+            clean_entity(FakeContact, contact.pk, qfilter=Q(pk=contact.pk), required=True),
         )
 
         # ---
@@ -308,7 +308,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(message, _('«%(entity)s» violates the constraints.'))
 
         with self.assertRaises(ValidationError) as cm:
-            clean_entity(FakeContact, contact.pk, qfilter=~Q(pk=contact.pk))
+            clean_entity(FakeContact, contact.pk, qfilter=~Q(pk=contact.pk), required=True)
 
         self.assertValidationError(
             cm.exception,
