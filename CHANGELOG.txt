@@ -6,8 +6,8 @@
       the display of all entities linked by the concerned type, mixing all entity types.
       The detail-view for CremePropertyType has been improved: you can now delete
       properties related to entity types which do no respect the type constraints.
-    # The management of recent entities has been rework. They are now stored in their own table
-      (their were stored in the user's session) & so their are shared between the different
+    # The management of recent entities has been reworked. They are now stored in their own table
+      (they were stored in the user's session) & so they are shared between the different
       sessions of a user. The setting value 'MAX_LAST_ITEMS' has been removed;
       use the new values 'LAST_ENTITIES_SIZE' & 'LAST_ENTITIES_MENU_SIZE' instead.
       A block "Recent entities" is now available for Home; it displays more
@@ -21,7 +21,7 @@
             - The regular Users can now have several roles. Only one role is active (to compute
               the current permissions), but they can switch their current role to another one.
             - The Users store now the date of their deactivation.
-            - The Roles get a new permission: listable models
+            - The Roles get a new permission: <listable models>
               (i.e. it allows you to access the list-views of a model).
               The existing roles are migrated to keep the old behaviour: they get
               list permissions for all models belonging to allowed apps.
@@ -68,11 +68,8 @@
                 - 'JobResultsBrick', 'JobErrorsBrick' & 'EntityJobErrorsBrick' to 'creme_core.gui.job'.
                 - 'MassImportJobErrorsBrick' to 'creme_core.creme_jobs.mass_import'.
                 - 'TrashCleanerJobErrorsBrick' to 'creme_core.creme_jobs.trash_cleaner'.
-            - In 'creme_core.core' :
-                - The class 'enumerators.EntityCTypeForeignKeyEnumerator' is now deprecated;
-                  use 'CTypeForeignKeyEnumerator' (& set the argument 'allowed_models') instead.
-                - The method 'meta.Order.reverse()' is deprecated;
-                  use the method 'reversed()' instead.
+            - The class 'creme_core.core.enumerators.EntityCTypeForeignKeyEnumerator' is now deprecated;
+              use 'CTypeForeignKeyEnumerator' (& set the argument 'allowed_models') instead.
             - In 'creme_core.forms.fields.JSONField' :
                 - The methods '_clean_ctype()' & '_clean_entity()' got an argument "required" which you should fill.
                   Hint: pass <self.required> to keep the same behaviour.
@@ -81,15 +78,17 @@
                   you can use '_clean_entity()' instead with its new argument "qfilter".
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
-                 is deprecated; use the method 'proxy()' instead.
+                  is deprecated; use the method 'proxy()' instead.
                 - The method 'search.SearchConfigItemManager.create_if_needed()'
                   is deprecated; use the method 'builder()' instead.
-            - In 'creme_core.utils.content_type', these functions are now deprecated :
-                - 'ctype_as_key()', use the new method 'Content.portable_key()' instead.
-                - 'ctype_from_key()', use the new method 'ContentType.objects.get_by_portable_key()' instead.
+            - In 'creme_core.utils' :
+                - In 'content_type', these functions are now deprecated :
+                    - 'ctype_as_key()', use the new method 'Content.portable_key()' instead.
+                    - 'ctype_from_key()', use the new method 'ContentType.objects.get_by_portable_key()' instead.
+                - The method 'meta.Order.reverse()' is deprecated; use the method 'reversed()' instead.
             - In 'creme_core.views.entity.EntityDeletionMixin', if the deletion causes an exception
               'SpecificProtectedError' to be raised, the display of the specific message is deprecated;
-              use te related deletor & its method 'check_permissions()' for that.
+              use the related deletor & its method 'check_permissions()' for that.
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' is deprecated; use 'creme_core.utils.round_decimal()' instead.
@@ -101,14 +100,14 @@
              - SEARCH
           Note: you should probably use 'RelationType.objects.builder()' instead of
                 'RelationType.objects.smart_update_or_create()' when it's possible,
-                because the last method will be removed in a futur version.
+                because the last method will be removed in a future version.
         # The models which can be used by EntityFilters (i.e. CremeEntity gets a
           ForeignKey/ManyToManyField to the model) should have a method 'portable_key()',
           & their default manager should have a method 'get_by_portable_key()'.
           See the doc-string of 'CremeEntity.portable_key()' for more details.
-        # In 'creme_core.gui' :
-             - New 'menu.TemplateEntry' that allows usage of Django template for rendering.
-             - New 'menu.ActionEntry' helper entry to build custom action links.
+        # In 'creme_core.gui.menu' :
+             - New 'TemplateEntry' that allows usage of Django template for rendering.
+             - New 'ActionEntry' helper entry to build custom action links.
         # The method 'creme_core.forms.fields.JSONField._clean_entity()' now accepts
           a model class for its argument 'ctype'.
         # In 'creme_core.models' :
@@ -123,19 +122,21 @@
             - The models 'CremeProperty' got a field "created".
             - The models 'CremeUser' got a field "modified".
         # In Javascript :
-             - 'creme.ajax.jqueryAjaxSend' now support the option `{redirect: 'follow'}` : Enables page redirection
-               to the XMLHttpRequest 'responseURL' (if different from the current url).
-             - Add 'creme.menu.MenuActionBuilders' action registry for menu; Use 'setup-menu-actions' to register
-               custom actions.
-             - Add 'goto-selection' action in listview; allows redirections using selected ids like download views.
+             - The function 'creme.ajax.jqueryAjaxSend()' now supports the option `{redirect: 'follow'}` :
+               it enables page redirection to the XMLHttpRequest data "responseURL" (if it's different from the current URL).
+             - The class 'creme.menu.MenuActionBuilders' has been added (action registry for menu);
+               use 'setup-menu-actions' to register custom actions.
+             - A new list-view action has been added: 'goto-selection'.
+               It allows redirections using selected ids (e.g. it's useful for multi-download views).
         # App :
             * Persons :
                 - The model 'Address' got new fields: 'created', 'modified'.
             * Activities :
                 - The model 'Calendar' got new fields: 'uuid', 'created', 'modified'.
-                - The JavaScript component 'creme.ActivityCalendar' has been improved :
-                    - The property 'rendererDelay' (number) has been added; Improve performances by limiting the calls
-                      to the rendering methods. (see https://fullcalendar.io/docs/rerenderDelay)
+                - The JavaScript component 'creme.ActivityCalendar' has been improved.
+                    - The property 'rendererDelay' (number) has been added.
+                    - The performances have been improved by limiting the calls
+                      to the rendering methods (see 'https://fullcalendar.io/docs/rerenderDelay').
             * Assistants :
                 - Some fields 'creation_date' & 'modification_date' have been added in models.
             * Assistants :
@@ -236,7 +237,7 @@
             - The method 'CremeUser.clean()' now raises more errors ("A regular user must have a role.").
             - In the model 'FieldsConfig' :
                 - The methods 'is_field_required()' & 'is_fieldname_required()'
-                  get a new mandatory arguent: "creation".
+                  got a new mandatory argument: "creation".
                 - The method 'update_form_fields()' uses the attribute 'form.instance';
                   it should not break anything because using it on a non-model form would be strange.
         # In many apps, the attributes 'SEARCH' of Populator classes have changed
@@ -255,7 +256,7 @@
             - The attribute 'EntityCredsJSONField.quickforms_registry'
               has been renamed "quickform_registry".
             - In the classes 'EnhancedMultipleChoiceField' & 'EnhancedModelMultipleChoiceField',
-              the attribute 'initial' is not a set anymore (the value you assign is not changed).
+              the attribute 'initial' is not a 'set' anymore (the value you assign is not changed).
             - The attribute of 'GenericEntityField._clean_ctype()' has been renamed "ctype_id"
               to respect the parent signature.
             - In 'CreatorEntityField' & 'MultiCreatorEntityField', it's now always an error to
@@ -274,7 +275,7 @@
               All inheriting views have been modified, & their related templates too
               (typically "{% brick_declare bricks %}" became "{% brick_declare bricks.main %}").
               Notice that reloading views still use a list (because zones have no meaning in reloading context).
-            - In the class 'generic.listview.EntitiesList':
+            - In the class 'generic.listview.EntitiesList' :
                 - the attribute 'actions_registry' has been renamed "action_registry".
                 - the method 'get_actions_registry()' has been renamed "get_action_registry".
             - In the class 'quick_forms.QuickCreation', the attribute
@@ -308,8 +309,8 @@
                   (it now contains 'ButtonMenuItem' instances).
                 - In 'bricks' :
                     - The class 'ActivityTypeBrick' has been renamed "ActivityTypesBrick".
-                    - In the following Brick classes, "is_home" is not injected in the template's context anymore:
-                      FutureActivitiesBrick, PastActivitiesBrick, MyActivitiesCalendarBrick
+                    - In the following Brick classes, "is_home" is not injected in the template's context anymore :
+                      'FutureActivitiesBrick', 'PastActivitiesBrick', 'MyActivitiesCalendarBrick'.
                 - The class attribute 'views.activity.ActivityCreation.default_activity_subtypes' has been removed.
             * Billing :
                - The class 'actions.ExportAction' has been renamed '_ExportAction'.
@@ -322,16 +323,16 @@
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
                 - The class 'forms.strategy.AddOrganisationForm' has been renamed 'AddOrganisationsForm'.
             * Emails :
-                - These Brick classes are not registered anymore (so they can only be reloaded by their specific view):
-                  SendingBrick, SendingHTMLBodyBrick, MailsBrick.
+                - These Brick classes are not registered anymore (so they can only be reloaded by their specific view) :
+                  'SendingBrick', 'SendingHTMLBodyBrick', 'MailsBrick'.
                 - The class attribute 'views.sending.SendingBricksReloading.allowed_bricks'
                   has been replaced by the new attribute 'bricks'.
             * Geolocation :
                 - The method 'bricks._MapBrick.get_addresses_as_dict()' has been renamed 'get_addresses_as_dicts()'.
             * Projects :
-                - The attribute 'cloners.ChildTaskClonerM2MCopier.exclude' is now a set.
+                - The attribute 'cloners.ChildTaskClonerM2MCopier.exclude' is now a 'set'.
             * CTI :
-                - The class bricks.CallersBrick is not registered anymore (so it can only be reloaded by its specific view).
+                - The class 'bricks.CallersBrick' is not registered anymore (so it can only be reloaded by its specific view).
             * SMS :
                 - The class 'bricks.MessagingListsBlock' has been renamed 'MessagingListsBrick'.
 
@@ -342,15 +343,15 @@
         # In the class 'creme_core.gui.button_menu.ButtonRegistry', the methods
           'get_buttons()' & 'mandatory_buttons()' get keywords arguments only now,
           an get a new mandatory argument "request".
-        # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' get a new mandatory argument "request".
+        # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' got a new mandatory argument "request".
         # The argument 'default' of 'creme_core.templatetags.creme_core_tags.get_value()' has been removed.
         # Apps :
             * Creme_config :
                 - In 'forms.custom_field', these classes have been removed:
-                  CustomFieldBaseForm, FirstCustomFieldCreationForm, CustomFieldCreationForm.
+                  'CustomFieldBaseForm', 'FirstCustomFieldCreationForm', 'CustomFieldCreationForm'.
                 - In 'views':
-                    - In 'custom_field' these view-classes have been removed:
-                      FirstCTypeCustomFieldCreation, CustomFieldCreation.
+                    - In 'custom_field' these view-classes have been removed :
+                      'FirstCTypeCustomFieldCreation', 'CustomFieldCreation'.
                     - The method 'generics_views.ModelPortal.fix_orders()' has been removed.
 
 
