@@ -16,31 +16,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
+# from decimal import Decimal, InvalidOperation
 import logging
-import warnings
-from decimal import Decimal, InvalidOperation
 
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
 
+# from .constants import ROUND_POLICY
 from creme.persons import get_address_model
-
-from .constants import ROUND_POLICY
 
 logger = logging.getLogger(__name__)
 
-
-def round_to_2(decimal_instance):
-    warnings.warn(
-        'round_to_2() is deprecated; use creme_core.utils.round_decimal() instead.',
-        DeprecationWarning
-    )
-
-    try:
-        return Decimal(decimal_instance).quantize(Decimal('.01'), rounding=ROUND_POLICY)
-    except InvalidOperation as e:
-        logger.debug('round_to_2: InvalidOperation : %s', e)
-        return Decimal()
+# def round_to_2(decimal_instance):
+#     warnings.warn(
+#         'round_to_2() is deprecated; use creme_core.utils.round_decimal() instead.',
+#         DeprecationWarning
+#     )
+#
+#     try:
+#         return Decimal(decimal_instance).quantize(Decimal('.01'), rounding=ROUND_POLICY)
+#     except InvalidOperation as e:
+#         logger.debug('round_to_2: InvalidOperation : %s', e)
+#         return Decimal()
 
 
 def print_discount(*, value, **kwargs):
