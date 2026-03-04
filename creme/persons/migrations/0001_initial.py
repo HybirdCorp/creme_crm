@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
+from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
@@ -13,8 +14,10 @@ from creme.persons.models import address
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0036_v2_7__organisation_code'),
-    #     ('persons', '0037_v2_7__organisation_eori'),
+    #     ('persons', '0038_v2_8__minions_created_n_modified01'),
+    #     ('persons', '0039_v2_8__minions_created_n_modified02'),
+    #     ('persons', '0040_v2_8__address_created_n_modified01'),
+    #     ('persons', '0041_v2_8__address_created_n_modified02'),
     # ]
     initial = True
     dependencies = [
@@ -28,12 +31,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Civility',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -45,11 +66,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LegalForm',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(max_length=100, verbose_name='Title')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('title', models.CharField(max_length=100, verbose_name='Title')),
             ],
             options={
                 'ordering': ('title',),
@@ -61,11 +100,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Position',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(max_length=100, verbose_name='Title')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('title', models.CharField(max_length=100, verbose_name='Title')),
             ],
             options={
                 'ordering': ('title',),
@@ -77,11 +134,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Sector',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(max_length=100, verbose_name='Title')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('title', models.CharField(max_length=100, verbose_name='Title')),
             ],
             options={
                 'ordering': ('title',),
@@ -93,12 +168,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='StaffSize',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -110,15 +203,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Address',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name', blank=True)),
+
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+
                 ('address', models.TextField(verbose_name='Address', blank=True)),
                 ('po_box', models.CharField(max_length=50, verbose_name='PO box', blank=True)),
-                ('zipcode', address.ZipCodeField(blank=True, max_length=100, verbose_name='Zip code')),
+                (
+                    'zipcode',
+                    address.ZipCodeField(blank=True, max_length=100, verbose_name='Zip code')
+                ),
                 ('city', address.CityField(blank=True, max_length=100, verbose_name='City')),
-                ('department', address.DepartmentField(blank=True, max_length=100, verbose_name='Department')),
+                (
+                    'department',
+                    address.DepartmentField(blank=True, max_length=100, verbose_name='Department')
+                ),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
-                ('country', address.CountryField(blank=True, max_length=40, verbose_name='Country')),
+                (
+                    'country',
+                    address.CountryField(blank=True, max_length=40, verbose_name='Country')
+                ),
+
                 (
                     'object',
                     models.ForeignKey(
@@ -133,6 +251,7 @@ class Migration(migrations.Migration):
                         editable=False, on_delete=CASCADE, related_name='+',
                     )
                 ),
+
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
@@ -162,13 +281,31 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
-                ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
-                ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
-                ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
-                ('skype', models.CharField(max_length=100, verbose_name='Videoconference', blank=True)),
+                (
+                    'first_name',
+                    models.CharField(max_length=100, verbose_name='First name', blank=True)
+                ),
+                (
+                    'phone',
+                    core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)
+                ),
+                (
+                    'mobile',
+                    core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)
+                ),
+                (
+                    'skype',
+                    models.CharField(max_length=100, verbose_name='Videoconference', blank=True)
+                ),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
-                ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
-                ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
+                (
+                    'email',
+                    models.EmailField(max_length=254, verbose_name='Email address', blank=True)
+                ),
+                (
+                    'url_site',
+                    core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)
+                ),
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                 (
                     'billing_address',
@@ -195,7 +332,8 @@ class Migration(migrations.Migration):
                     'is_user',
                     models.ForeignKey(
                         to=settings.AUTH_USER_MODEL, verbose_name='Related user',
-                        related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, null=True,
+                        related_name='related_contact', on_delete=SET_NULL,
+                        blank=True, editable=False, null=True,
                     )
                 ),
                 (
@@ -205,7 +343,10 @@ class Migration(migrations.Migration):
                         on_delete=CREME_REPLACE_NULL, blank=True, null=True
                     )
                 ),
-                ('full_position', models.CharField(max_length=500, verbose_name='Detailed position', blank=True)),
+                (
+                    'full_position',
+                    models.CharField(max_length=500, verbose_name='Detailed position', blank=True)
+                ),
                 (
                     'sector',
                     models.ForeignKey(
@@ -215,7 +356,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'languages',
-                    models.ManyToManyField(verbose_name='Spoken language(s)', to='creme_core.Language', blank=True)
+                    models.ManyToManyField(
+                        to='creme_core.Language', verbose_name='Spoken language(s)', blank=True,
+                    )
                 ),
             ],
             options={
@@ -251,11 +394,23 @@ class Migration(migrations.Migration):
                         default=False, editable=False,
                     )
                 ),
-                ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
+                (
+                    'phone',
+                    core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)
+                ),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
-                ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
-                ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
-                ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
+                (
+                    'email',
+                    models.EmailField(max_length=254, verbose_name='Email address', blank=True)
+                ),
+                (
+                    'url_site',
+                    core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)
+                ),
+                (
+                    'capital',
+                    models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)
+                ),
                 ('siren', models.CharField(max_length=100, verbose_name='SIREN', blank=True)),
                 ('naf', models.CharField(max_length=100, verbose_name='NAF code', blank=True)),
                 ('siret', models.CharField(max_length=100, verbose_name='SIRET', blank=True)),
@@ -270,9 +425,18 @@ class Migration(migrations.Migration):
                         ),
                     ),
                 ),
-                ('tvaintra', models.CharField(max_length=100, verbose_name='VAT number', blank=True)),
-                ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
-                ('annual_revenue', models.CharField(max_length=100, verbose_name='Annual revenue', blank=True)),
+                (
+                    'tvaintra',
+                    models.CharField(max_length=100, verbose_name='VAT number', blank=True)
+                ),
+                (
+                    'subject_to_vat',
+                    models.BooleanField(default=True, verbose_name='Subject to VAT')
+                ),
+                (
+                    'annual_revenue',
+                    models.CharField(max_length=100, verbose_name='Annual revenue', blank=True)
+                ),
                 (
                     'code',
                     models.CharField(
@@ -280,7 +444,12 @@ class Migration(migrations.Migration):
                         help_text='Useful to distinguish your managed organisations',
                     ),
                 ),
-                ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
+                (
+                    'creation_date',
+                    models.DateField(
+                        null=True, verbose_name='Date of creation of the organisation', blank=True,
+                    )
+                ),
                 (
                     'billing_address',
                     models.ForeignKey(

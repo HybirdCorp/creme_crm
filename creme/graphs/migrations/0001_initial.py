@@ -43,7 +43,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RootNode',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 (
                     'entity_ctype',
                     EntityCTypeForeignKey(
@@ -51,7 +56,12 @@ class Migration(migrations.Migration):
                         editable=False, on_delete=CASCADE,
                     )
                 ),
-                ('entity', models.ForeignKey(editable=False, to='creme_core.CremeEntity', on_delete=CASCADE)),
+                (
+                    'entity',
+                    models.ForeignKey(
+                        editable=False, to='creme_core.CremeEntity', on_delete=CASCADE,
+                    )
+                ),
                 (
                     'graph',
                     models.ForeignKey(
@@ -59,10 +69,12 @@ class Migration(migrations.Migration):
                         related_name='roots', editable=False, on_delete=CASCADE,
                     )
                 ),
-                ('relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False)),
+                (
+                    'relation_types',
+                    models.ManyToManyField(to='creme_core.RelationType', editable=False)
+                ),
             ],
-            options={
-            },
+            options={},
             bases=(models.Model,),
         ),
     ]

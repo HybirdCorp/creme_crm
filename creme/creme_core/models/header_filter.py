@@ -420,17 +420,18 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
-    user = core_fields.CremeUserForeignKey(
-        verbose_name=_('Owner user'), blank=True, null=True,
-        help_text=_('If you assign an owner, only the owner can edit or delete the view'),
-    )  # TODO: .set_null_label(_('No owner'))  # must fix the enumerable view
-
     entity_type = core_fields.CTypeForeignKey(editable=False)
+    # TODO: CellsField? (what about auto saving on invalid cells?)
+    json_cells = models.JSONField(editable=False, default=list)
 
     # 'False' means: cannot be deleted (to be sure that a ContentType
     #  has always at least one existing HeaderFilter)
     is_custom = models.BooleanField(blank=False, default=True, editable=False)
 
+    user = core_fields.CremeUserForeignKey(
+        verbose_name=_('Owner user'), blank=True, null=True,
+        help_text=_('If you assign an owner, only the owner can edit or delete the view'),
+    )  # TODO: .set_null_label(_('No owner'))  # must fix the enumerable view
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
     is_private = models.BooleanField(
         pgettext_lazy('creme_core-header_filter', 'Is private?'),
@@ -440,9 +441,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
             '(or the teammates if the owner is a team)'
         ),
     )
-
-    # TODO: CellsField? (what about auto saving on invalid cells?)
-    json_cells = models.JSONField(editable=False, default=list)
 
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
