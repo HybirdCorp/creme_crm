@@ -2,18 +2,13 @@ from uuid import uuid4
 
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
-from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('tickets', '0001_initial'),
-    #     ('tickets', '0016_v2_8__minions_created_n_modified01'),
-    #     ('tickets', '0017_v2_8__minions_created_n_modified02'),
-    # ]
+    # Memo: last migration was "0015_v2_6__fix_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -23,30 +18,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Criticity',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -58,30 +35,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Priority',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -93,29 +52,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Status',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'is_closed',
@@ -135,6 +74,8 @@ class Migration(migrations.Migration):
                         default=core_fields.ColorField.random, max_length=6,
                     )
                 ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -146,12 +87,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TicketNumber',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
             ],
         ),
         migrations.CreateModel(
@@ -164,38 +100,24 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                (
-                    'number',
-                    models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)
-                ),
+                ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 (
                     'closing_date',
-                    models.DateTimeField(
-                        verbose_name='Closing date', null=True, editable=False, blank=True,
-                    )
+                    models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)
                 ),
                 (
                     'criticity',
-                    models.ForeignKey(
-                        to='tickets.Criticity', verbose_name='Criticality',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticality', to='tickets.Criticity')
                 ),
                 (
                     'priority',
-                    models.ForeignKey(
-                        to='tickets.Priority', verbose_name='Priority',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')
                 ),
                 (
                     'status',
-                    models.ForeignKey(
-                        to='tickets.Status', verbose_name='Status',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')
                 ),
             ],
             options={
@@ -220,24 +142,15 @@ class Migration(migrations.Migration):
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 (
                     'criticity',
-                    models.ForeignKey(
-                        to='tickets.Criticity', verbose_name='Criticality',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticality', to='tickets.Criticity')
                 ),
                 (
                     'priority',
-                    models.ForeignKey(
-                        to='tickets.Priority', verbose_name='Priority',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')
                 ),
                 (
                     'status',
-                    models.ForeignKey(
-                        to='tickets.Status', verbose_name='Status',
-                        on_delete=CREME_REPLACE,
-                    )
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')
                 ),
             ],
             options={

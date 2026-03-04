@@ -4,6 +4,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
+from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.billing.models import other_models
@@ -16,17 +17,10 @@ from creme.creme_core.models.vat import get_default_vat_pk
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0036_v2_7__templatebase_status_uuid01'),
-    #     ('billing', '0037_v2_7__templatebase_status_uuid02'),
-    #     ('billing', '0038_v2_7__templatebase_status_uuid03'),
-    #     ('billing', '0039_v2_7__number_generation01'),
-    #     ('billing', '0040_v2_7__number_generation02'),
-    #     ('billing', '0041_v2_7__number_generation03'),
-    #     ('billing', '0042_v2_7__paymentinfo_uuid01'),
-    #     ('billing', '0043_v2_7__paymentinfo_uuid02'),
-    #     ('billing', '0044_v2_7__paymentinfo_uuid03'),
+    #     ('billing', '0045_v2_8__minions_created_n_modified01'),
+    #     ('billing', '0046_v2_8__minions_created_n_modified02'),
+    #     ('billing', '0047_v2_8__payment_information_archived'),
     # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -74,12 +68,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AdditionalInformation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    ),
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -91,14 +103,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PaymentInformation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
-                ('bank_code', models.CharField(max_length=12, verbose_name='Bank code', blank=True)),
-                ('counter_code', models.CharField(max_length=12, verbose_name='Counter code', blank=True)),
-                ('account_number', models.CharField(max_length=12, verbose_name='Account number', blank=True)),
+                (
+                    'bank_code',
+                    models.CharField(max_length=12, verbose_name='Bank code', blank=True)
+                ),
+                (
+                    'counter_code',
+                    models.CharField(max_length=12, verbose_name='Counter code', blank=True)
+                ),
+                (
+                    'account_number',
+                    models.CharField(max_length=12, verbose_name='Account number', blank=True)
+                ),
                 ('rib_key', models.CharField(max_length=12, verbose_name='RIB key', blank=True)),
-                ('banking_domiciliation', models.CharField(max_length=200, verbose_name='Banking domiciliation', blank=True)),
+                (
+                    'banking_domiciliation',
+                    models.CharField(
+                        max_length=200, verbose_name='Banking domiciliation', blank=True,
+                    )
+                ),
                 ('iban', models.CharField(max_length=100, verbose_name='IBAN', blank=True)),
                 ('bic', models.CharField(max_length=100, verbose_name='BIC', blank=True)),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
@@ -109,6 +140,10 @@ class Migration(migrations.Migration):
                         related_name='PaymentInformationOrganisation_set',
                         verbose_name='Target organisation',
                     )
+                ),
+                (
+                    'archived',
+                    models.DateTimeField(editable=False, null=True, verbose_name='Archiving date')
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
@@ -122,12 +157,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PaymentTerms',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Payment terms')),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    ),
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Payment terms')),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -136,29 +189,32 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-        # migrations.CreateModel(
-        #     name='ConfigBillingAlgo',
-        #     fields=[
-        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-        #         ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
-        #         ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
-        #         (
-        #             'organisation',
-        #             models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
-        #         ),
-        #     ],
-        #     options={
-        #     },
-        #     bases=(models.Model,),
-        # ),
         migrations.CreateModel(
             name='SettlementTerms',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
             ],
             options={
                 'ordering': ('name',),
@@ -170,9 +226,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CreditNoteStatus',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    ),
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'color',
                     core_fields.ColorField(
@@ -181,9 +258,6 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('order',),
@@ -205,12 +279,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                (
+                    'issuing_date',
+                    models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                ),
+                (
+                    'expiration_date',
+                    models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                ),
                 (
                     'discount',
                     BillingDiscountField(
-                        default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2,
+                        default=Decimal('0'), verbose_name='Overall discount',
+                        max_digits=10, decimal_places=2,
                     )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
@@ -304,9 +385,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='InvoiceStatus',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    ),
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'color',
                     core_fields.ColorField(
@@ -315,8 +417,6 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('pending_payment', models.BooleanField(default=False, verbose_name='Pending payment')),
                 (
                     'is_validated',
@@ -325,7 +425,6 @@ class Migration(migrations.Migration):
                         help_text='If true, the status is used when an Invoice number is generated.',
                     )
                 ),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('order',),
@@ -347,12 +446,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                (
+                    'issuing_date',
+                    models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                ),
+                (
+                    'expiration_date',
+                    models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                ),
                 (
                     'discount',
                     BillingDiscountField(
-                        default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2,
+                        default=Decimal('0'), verbose_name='Overall discount',
+                        max_digits=10, decimal_places=2,
                     )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
@@ -372,7 +478,13 @@ class Migration(migrations.Migration):
                         blank=True, editable=False,
                     )
                 ),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                (
+                    'additional_info',
+                    models.ForeignKey(
+                        to='billing.AdditionalInformation', verbose_name='Additional Information',
+                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
                 (
                     'currency',
                     models.ForeignKey(
@@ -446,9 +558,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuoteStatus',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'color',
                     core_fields.ColorField(
@@ -457,10 +590,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('order',),
@@ -482,12 +612,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                (
+                    'issuing_date',
+                    models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                ),
+                (
+                    'expiration_date',
+                    models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                ),
                 (
                     'discount',
                     BillingDiscountField(
-                        default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2,
+                        default=Decimal('0'), verbose_name='Overall discount',
+                        max_digits=10, decimal_places=2,
                     )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
@@ -560,7 +697,10 @@ class Migration(migrations.Migration):
                     )
                 ),
 
-                ('acceptation_date', models.DateField(null=True, verbose_name='Acceptation date', blank=True)),
+                (
+                    'acceptation_date',
+                    models.DateField(null=True, verbose_name='Acceptation date', blank=True)
+                ),
                 (
                     'status',
                     models.ForeignKey(
@@ -581,9 +721,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SalesOrderStatus',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'color',
                     core_fields.ColorField(
@@ -592,9 +752,6 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('order',),
@@ -616,12 +773,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                (
+                    'issuing_date',
+                    models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                ),
+                (
+                    'expiration_date',
+                    models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                ),
                 (
                     'discount',
                     BillingDiscountField(
-                        default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2,
+                        default=Decimal('0'), verbose_name='Overall discount',
+                        max_digits=10, decimal_places=2,
                     )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
@@ -712,20 +876,6 @@ class Migration(migrations.Migration):
             },
             bases=('creme_core.cremeentity',),
         ),
-        # migrations.CreateModel(
-        #     name='SimpleBillingAlgo',
-        #     fields=[
-        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-        #         ('last_number', models.IntegerField()),
-        #         ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
-        #         ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
-        #         ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
-        #     ],
-        #     options={
-        #         'unique_together': {('organisation', 'last_number', 'ct')},
-        #     },
-        #     bases=(models.Model,),
-        # ),
         migrations.CreateModel(
             name='TemplateBase',
             fields=[
@@ -738,12 +888,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                (
+                    'issuing_date',
+                    models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                ),
+                (
+                    'expiration_date',
+                    models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                ),
                 (
                     'discount',
                     BillingDiscountField(
-                        default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2,
+                        default=Decimal('0'), verbose_name='Overall discount',
+                        max_digits=10, decimal_places=2,
                     )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
@@ -815,10 +972,7 @@ class Migration(migrations.Migration):
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
                     )
                 ),
-
-                # ('status_id', models.PositiveIntegerField(editable=False)),
                 ('status_uuid', models.UUIDField(editable=False)),
-                # ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
                 (
                     'ct',
                     core_fields.EntityCTypeForeignKey(
@@ -848,7 +1002,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'on_the_fly_item',
-                    models.CharField(max_length=100, blank=True, null=True, verbose_name='On-the-fly line')
+                    models.CharField(
+                        max_length=100, blank=True, null=True, verbose_name='On-the-fly line',
+                    )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
@@ -910,7 +1066,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'on_the_fly_item',
-                    models.CharField(max_length=100, blank=True, null=True, verbose_name='On-the-fly line')
+                    models.CharField(
+                        max_length=100, blank=True, null=True, verbose_name='On-the-fly line',
+                    )
                 ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
@@ -966,7 +1124,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ExporterConfigItem',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 (
                     'content_type',
                     core_fields.CTypeOneToOneField(on_delete=CASCADE, to='contenttypes.ContentType')

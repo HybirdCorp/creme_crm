@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
+from django.utils.timezone import now
 
 from creme.creme_core.models import fields as core_fields
 from creme.documents.models.fields import ImageEntityManyToManyField
@@ -13,12 +14,9 @@ from creme.emails.utils import generate_id
 class Migration(migrations.Migration):
     # replaces = [
     #     ('emails', '0001_initial'),
-    #     ('emails', '0026_v2_7__workflowemail'),
-    #     ('emails', '0027_v2_7__signature_uuid01'),
-    #     ('emails', '0028_v2_7__signature_uuid02'),
-    #     ('emails', '0029_v2_7__signature_uuid03'),
+    #     ('emails', '0030_v2_8__emailsending_created_n_modified01'),
+    #     ('emails', '0031_v2_8__emailsending_created_n_modified02'),
     # ]
-
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -208,6 +206,14 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
                     'config_item',
                     models.ForeignKey(
                         to='emails.emailsendingconfigitem', verbose_name='SMTP server',
@@ -215,6 +221,14 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('sender', models.EmailField(max_length=100, verbose_name='Sender address')),
+                (
+                    'campaign',
+                    models.ForeignKey(
+                        verbose_name='Related campaign', to=settings.EMAILS_CAMPAIGN_MODEL,
+                        related_name='sendings_set', on_delete=CASCADE,
+                        editable=False,
+                    )
+                ),
                 (
                     'type',
                     models.PositiveSmallIntegerField(
@@ -245,25 +259,17 @@ class Migration(migrations.Migration):
                     models.TextField(verbose_name='Body (HTML)', null=True, editable=False)
                 ),
                 (
-                    'attachments',
-                    models.ManyToManyField(
-                        verbose_name='Attachments', to=settings.DOCUMENTS_DOCUMENT_MODEL,
-                        editable=False,
-                    ),
-                ),
-                (
-                    'campaign',
-                    models.ForeignKey(
-                        verbose_name='Related campaign', to=settings.EMAILS_CAMPAIGN_MODEL,
-                        related_name='sendings_set', on_delete=CASCADE,
-                        editable=False,
-                    )
-                ),
-                (
                     'signature',
                     models.ForeignKey(
                         to='emails.EmailSignature', verbose_name='Signature',
                         on_delete=SET_NULL, editable=False,  null=True,
+                    ),
+                ),
+                (
+                    'attachments',
+                    models.ManyToManyField(
+                        verbose_name='Attachments', to=settings.DOCUMENTS_DOCUMENT_MODEL,
+                        editable=False,
                     ),
                 ),
             ],

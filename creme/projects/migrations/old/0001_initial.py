@@ -3,7 +3,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
-from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE
@@ -11,11 +10,7 @@ from creme.creme_core.models.currency import get_default_currency_pk
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('projects', '0001_initial'),
-    #     ('projects', '0029_v2_8__minions_created_n_modified01'),
-    #     ('projects', '0030_v2_8__minions_created_n_modified02'),
-    # ]
+    # Memo: last migration was "0028_v2_6__fix_statuses_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -27,35 +22,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProjectStatus',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                (
-                    'color_code',
-                    core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)
-                ),
+                ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -76,14 +50,8 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the project')),
-                (
-                    'start_date',
-                    models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)
-                ),
-                (
-                    'end_date',
-                    models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)
-                ),
+                ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
+                ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 (
                     'effective_end_date',
                     models.DateTimeField(
@@ -101,6 +69,7 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         related_name='+', on_delete=PROTECT,
+                        # default=1,
                         default=get_default_currency_pk,
                         verbose_name='Currency', to='creme_core.Currency',
                     )
@@ -117,35 +86,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TaskStatus',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                (
-                    'color_code',
-                    core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)
-                ),
+                ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -183,10 +131,7 @@ class Migration(migrations.Migration):
                 ),
                 ('start', models.DateTimeField(verbose_name='Start')),
                 ('end', models.DateTimeField(verbose_name='End')),
-                (
-                    'duration',
-                    models.PositiveIntegerField(default=0, verbose_name='Duration (in hours)')
-                ),
+                ('duration', models.PositiveIntegerField(default=0, verbose_name='Duration (in hours)')),
                 (
                     'tstatus',
                     models.ForeignKey(
@@ -206,16 +151,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Resource',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                (
-                    'hourly_cost',
-                    models.PositiveIntegerField(default=0, verbose_name='Hourly cost')
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('hourly_cost', models.PositiveIntegerField(default=0, verbose_name='Hourly cost')),
                 (
                     'linked_contact',
                     models.ForeignKey(

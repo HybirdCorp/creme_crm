@@ -1,8 +1,7 @@
 from django.db import migrations
 
 import creme.creme_core.models.fields as core_field
-
-from .utils.utils_27 import EPOCH
+from creme.creme_core.migrations.utils.utils_27 import EPOCH
 
 
 class Migration(migrations.Migration):
