@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
+from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.core.entity_filter import EF_REGULAR
@@ -12,10 +13,11 @@ from creme.reports.constants import EF_REPORTS
 class Migration(migrations.Migration):
     # replaces = [
     #     ('reports', '0001_initial'),
-    #     ('reports', '0014_v2_7__portable_report_field'),
-    #     ('reports', '0015_v2_7__portable_graph'),
+    #     ('reports', '0016_v2_8__reportchart01'),
+    #     ('reports', '0017_v2_8__reportchart02'),
+    #     ('reports', '0018_v2_8__reportchart03'),
+    #     ('reports', '0019_v2_8__reportchart04'),
     # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -36,7 +38,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the report')),
                 (
                     'ct',
-                    core_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')
+                    core_fields.EntityCTypeForeignKey(
+                        verbose_name='Entity type', to='contenttypes.ContentType',
+                    )
                 ),
                 (
                     'filter',
@@ -58,18 +62,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Field',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(max_length=100)),
                 ('order', models.PositiveIntegerField()),
                 ('type', models.PositiveSmallIntegerField()),
                 ('selected', models.BooleanField(default=False)),
                 (
                     'report',
-                    models.ForeignKey(related_name='fields', to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)
+                    models.ForeignKey(
+                        related_name='fields', to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE,
+                    )
                 ),
                 (
                     'sub_report',
-                    models.ForeignKey(blank=True, to=settings.REPORTS_REPORT_MODEL, null=True, on_delete=CASCADE)
+                    models.ForeignKey(
+                        blank=True, to=settings.REPORTS_REPORT_MODEL, null=True, on_delete=CASCADE,
+                    )
                 ),
             ],
             options={
@@ -79,68 +92,163 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
+        # migrations.CreateModel(
+        #     name='ReportGraph',
+        #     fields=[
+        #         (
+        #             'cremeentity_ptr',
+        #             models.OneToOneField(
+        #                 parent_link=True, auto_created=True, primary_key=True, serialize=False,
+        #                 to='creme_core.CremeEntity', on_delete=CASCADE,
+        #             )
+        #         ),
+        #         ('name', models.CharField(max_length=100, verbose_name='Name of the chart')),
+        #         (
+        #             'abscissa_cell_value',
+        #             models.CharField(verbose_name='X axis (field)', max_length=100, editable=False)
+        #         ),
+        #         (
+        #             'abscissa_parameter',
+        #             models.TextField(verbose_name='X axis parameter', editable=False, null=True)
+        #         ),
+        #         (
+        #             'ordinate_type',
+        #             models.CharField(
+        #                 verbose_name='Y axis (type)', editable=False, max_length=100, default='',
+        #                 choices=[
+        #                     ('count', 'Count'), ('avg', 'Average'), ('max', 'Maximum'),
+        #                     ('min', 'Minimum'), ('sum', 'Sum'),
+        #                 ],
+        #             )
+        #         ),
+        #         (
+        #             'ordinate_cell_key',
+        #             models.CharField(verbose_name='Y axis (field)', editable=False, max_length=100, default='')
+        #         ),
+        #         (
+        #             'abscissa_type',
+        #             models.PositiveIntegerField(
+        #                 verbose_name='X axis (grouping)', editable=False,
+        #                 choices=[
+        #                     (1, 'By days'), (2, 'By months'), (3, 'By years'), (4, 'By X days'),
+        #                     (5, 'By values (configurable)'),
+        #                     (6, 'By values (of related entities)'),
+        #                     (7, 'By values (not configurable)'),
+        #                     (11, 'By days (custom field)'), (12, 'By months (custom field)'),
+        #                     (13, 'By years (custom field)'), (14, 'By X days (custom field)'),
+        #                     (15, 'By values (of custom choices)'),
+        #                 ],
+        #             )
+        #         ),
+        #         ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
+        #         ('asc', models.BooleanField(default=True, editable=False, verbose_name='ASC order')),
+        #         (
+        #             'linked_report',
+        #             models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)
+        #         ),
+        #     ],
+        #     options={
+        #         'swappable': 'REPORTS_GRAPH_MODEL',
+        #         'ordering': ['name'],
+        #         'verbose_name': 'Report chart',
+        #         'verbose_name_plural': 'Report charts',
+        #     },
+        #     bases=('creme_core.cremeentity',),
+        # ),
         migrations.CreateModel(
-            name='ReportGraph',
+            name='ReportChart',
             fields=[
                 (
-                    'cremeentity_ptr',
-                    models.OneToOneField(
-                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     )
                 ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        to=settings.AUTH_USER_MODEL, default=None, editable=False, null=True,
+                        on_delete=models.SET_NULL,
+                    )
+                ),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(default=now, editable=False, blank=True)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(default=now, editable=False, blank=True)
+                ),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the chart')),
-                (
-                    'abscissa_cell_value',
-                    models.CharField(verbose_name='X axis (field)', max_length=100, editable=False)
-                ),
-                (
-                    'abscissa_parameter',
-                    models.TextField(verbose_name='X axis parameter', editable=False, null=True)
-                ),
-                (
-                    'ordinate_type',
-                    models.CharField(
-                        verbose_name='Y axis (type)', editable=False, max_length=100, default='',
-                        choices=[
-                            ('count', 'Count'), ('avg', 'Average'), ('max', 'Maximum'),
-                            ('min', 'Minimum'), ('sum', 'Sum'),
-                        ],
-                    )
-                ),
-                (
-                    'ordinate_cell_key',
-                    models.CharField(verbose_name='Y axis (field)', editable=False, max_length=100, default='')
-                ),
+                ('description', models.TextField(blank=True, verbose_name='Description')),
                 (
                     'abscissa_type',
                     models.PositiveIntegerField(
-                        verbose_name='X axis (grouping)', editable=False,
+                        editable=False, verbose_name='X axis (grouping)',
                         choices=[
-                            (1, 'By days'), (2, 'By months'), (3, 'By years'), (4, 'By X days'),
+                            (1, 'By days'),
+                            (2, 'By months'),
+                            (3, 'By years'),
+                            (4, 'By X days'),
                             (5, 'By values (configurable)'),
                             (6, 'By values (of related entities)'),
                             (7, 'By values (not configurable)'),
-                            (11, 'By days (custom field)'), (12, 'By months (custom field)'),
-                            (13, 'By years (custom field)'), (14, 'By X days (custom field)'),
+                            (11, 'By days (custom field)'),
+                            (12, 'By months (custom field)'),
+                            (13, 'By years (custom field)'),
+                            (14, 'By X days (custom field)'),
                             (15, 'By values (of custom choices)'),
                         ],
                     )
                 ),
-                ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
-                ('asc', models.BooleanField(default=True, editable=False, verbose_name='ASC order')),
+                (
+                    'abscissa_cell_value',
+                    models.CharField(editable=False, max_length=100, verbose_name='X axis (field)')
+                ),
+                (
+                    'abscissa_parameter',
+                    models.TextField(editable=False, null=True, verbose_name='X axis parameter')
+                ),
+                (
+                    'ordinate_type',
+                    models.CharField(
+                        verbose_name='Y axis (type)',
+                        choices=[
+                            ('count', 'Count'), ('avg', 'Average'),
+                            ('max', 'Maximum'), ('min', 'Minimum'), ('sum', 'Sum'),
+                        ],
+                        default='', editable=False, max_length=100,
+                    )
+                ),
+                (
+                    'ordinate_cell_key',
+                    models.CharField(default='', editable=False, max_length=100,
+                                     verbose_name='Y axis (field)')
+                ),
+                (
+                    'plot_name',
+                    models.CharField(max_length=100, null=True, verbose_name='Plot type')
+                ),
+                (
+                    'asc',
+                    models.BooleanField(default=True, editable=False, verbose_name='ASC order')
+                ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
                 (
                     'linked_report',
-                    models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)
+                    models.ForeignKey(
+                        to=settings.REPORTS_REPORT_MODEL,
+                        editable=False, related_name='charts',
+                        on_delete=models.CASCADE,
+                    )
                 ),
             ],
             options={
-                'swappable': 'REPORTS_GRAPH_MODEL',
-                'ordering': ['name'],
                 'verbose_name': 'Report chart',
                 'verbose_name_plural': 'Report charts',
+                'ordering': ['name'],
             },
-            bases=('creme_core.cremeentity',),
         ),
     ]
 
@@ -175,10 +283,16 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeReportsColorCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
                     ('is_custom', models.BooleanField(default=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     (
                         'color',
@@ -215,8 +329,8 @@ class Migration(migrations.Migration):
                     (
                         'category',
                         models.ForeignKey(
-                            on_delete=PROTECT, verbose_name='Category', to='reports.FakeReportsColorCategory',
-                            null=True,
+                            to='reports.FakeReportsColorCategory',
+                            on_delete=PROTECT, verbose_name='Category', null=True,
                         )
                     ),
                 ],
@@ -233,12 +347,15 @@ class Migration(migrations.Migration):
                     (
                         'cremeentity_ptr',
                         models.OneToOneField(
-                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                            to='creme_core.CremeEntity', on_delete=CASCADE,
+                            to='creme_core.CremeEntity',primary_key=True, auto_created=True,
+                            parent_link=True, serialize=False, on_delete=CASCADE,
                         )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('members', models.ManyToManyField(to='creme_core.FakeContact', verbose_name='Members')),
+                    (
+                        'members',
+                        models.ManyToManyField(to='creme_core.FakeContact', verbose_name='Members')
+                    ),
                 ],
                 options={
                     'ordering': ('name',),

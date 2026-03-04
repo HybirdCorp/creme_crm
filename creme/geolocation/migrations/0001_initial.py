@@ -18,14 +18,23 @@ class Migration(migrations.Migration):
                 (
                     'address',
                     models.OneToOneField(
-                        to=settings.PERSONS_ADDRESS_MODEL, primary_key=True, verbose_name='Address',
+                        to=settings.PERSONS_ADDRESS_MODEL, primary_key=True,
+                        verbose_name='Address',
                         serialize=False, on_delete=CASCADE,
                     )
                 ),
                 ('latitude', models.FloatField(null=True, verbose_name='Latitude', blank=True)),
                 ('longitude', models.FloatField(null=True, verbose_name='Longitude', blank=True)),
-                ('draggable', models.BooleanField(default=True, verbose_name='Is this marker draggable in maps?')),
-                ('geocoded', models.BooleanField(default=False, verbose_name='Geocoded from address?')),
+                (
+                    'draggable',
+                    models.BooleanField(
+                        default=True, verbose_name='Is this marker draggable in maps?',
+                    )
+                ),
+                (
+                    'geocoded',
+                    models.BooleanField(default=False, verbose_name='Geocoded from address?')
+                ),
                 (
                     'status',
                     models.SmallIntegerField(
@@ -49,9 +58,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Town',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the town')),
-                ('slug', models.SlugField(max_length=100, verbose_name='Slugified name of the town')),
+                (
+                    'slug',
+                    models.SlugField(max_length=100, verbose_name='Slugified name of the town')
+                ),
                 ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
                 ('latitude', models.FloatField(verbose_name='Latitude')),

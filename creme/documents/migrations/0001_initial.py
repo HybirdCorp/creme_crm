@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
+from django.utils.timezone import now
 
 from creme.creme_core.models import CREME_REPLACE_NULL
 from creme.creme_core.models import fields as core_fields
@@ -11,11 +12,9 @@ from creme.creme_core.models import fields as core_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('documents', '0001_initial'),
-    #     ('documents', '0023_v2_7__file_size1'),
-    #     ('documents', '0024_v2_7__file_size2'),
-    #     ('documents', '0025_v2_7__file_size3'),
+    #     ('documents', '0026_v2_8__minions_created_n_modified01'),
+    #     ('documents', '0027_v2_8__minions_created_n_modified02'),
     # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -31,10 +30,23 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     ),
                 ),
-                ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+
+                ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
             ],
             options={
                 'ordering': ('name',),
@@ -93,9 +105,21 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
-                ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
             ],
             options={
                 'ordering':            ('name',),

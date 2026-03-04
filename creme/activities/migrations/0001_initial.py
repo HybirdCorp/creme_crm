@@ -4,8 +4,9 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
+from django.utils.timezone import now
 
-import creme.creme_core.models.fields as creme_fields
+import creme.creme_core.models.fields as core_fields
 from creme.activities.models.config import Weekday
 from creme.creme_core.models import CREME_REPLACE_NULL
 
@@ -13,8 +14,16 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('activities', '0001_initial'),
-    #     ('activities', '0029_v2_7__floating_type_choices'),
-    #     ('activities', '0030_v2_7__calendarconfigitem_view_day'),
+    #     ('activities', '0031_v2_8__calendar_uuid1'),
+    #     ('activities', '0032_v2_8__calendar_uuid2'),
+    #     ('activities', '0033_v2_8__calendar_uuid3'),
+    #     ('activities', '0034_v2_8__minions_created_n_modified01'),
+    #     ('activities', '0035_v2_8__minions_created_n_modified02'),
+    #     ('activities', '0036_v2_8__calendar_created_n_modified01'),
+    #     ('activities', '0037_v2_8__calendar_created_n_modified02'),
+    #     ('activities', '0038_v2_8__type_n_subtype_orders1'),
+    #     ('activities', '0039_v2_8__type_n_subtype_orders2'),
+    #     ('activities', '0040_v2_8__type_n_subtype_orders3'),
     # ]
     initial = True
     dependencies = [
@@ -34,20 +43,35 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', core_fields.BasicAutoField(blank=True, editable=False)),
                 (
                     'default_day_duration',
                     models.IntegerField(verbose_name='Default day duration', default=0)
                 ),
                 (
                     'default_hour_duration',
-                    creme_fields.DurationField(max_length=15, verbose_name='Default hour duration')
+                    core_fields.DurationField(max_length=15, verbose_name='Default hour duration')
                 ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
-                'ordering': ('name',),
+                # 'ordering': ('name',),
+                'ordering': ('order',),
                 'verbose_name': 'Type of activity',
                 'verbose_name_plural': 'Types of activity',
             },
@@ -63,7 +87,18 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 (
                     'type',
@@ -73,9 +108,13 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('order', models.PositiveIntegerField(default=None, editable=False)),
             ],
             options={
-                'ordering': ('name',),
+                # 'ordering': ('name',),
+                'ordering': ('order',),
                 'verbose_name': 'Sub-type of activity',
                 'verbose_name_plural': 'Sub-types of activity',
             },
@@ -90,18 +129,31 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('description', models.TextField(verbose_name='Description')),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 (
-                    'color',
-                    creme_fields.ColorField(
-                        default=creme_fields.ColorField.random,
-                        max_length=6, verbose_name='Color',
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
                     )
                 ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ('description', models.TextField(verbose_name='Description')),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        default=core_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
             ],
             options={
                 'ordering': ('name',),
@@ -203,6 +255,15 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'is_default',
@@ -224,15 +285,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'color',
-                    creme_fields.ColorField(
+                    core_fields.ColorField(
                         max_length=6, verbose_name='Color',
                         help_text='It is used on the calendar view to colorize Activities.',
-                        default=creme_fields.ColorField.random,
+                        default=core_fields.ColorField.random,
                     )
                 ),
                 (
                     'user',
-                    creme_fields.CremeUserForeignKey(
+                    core_fields.CremeUserForeignKey(
                         verbose_name='Calendar owner', to=settings.AUTH_USER_MODEL,
                     )
                 ),

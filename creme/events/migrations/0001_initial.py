@@ -2,12 +2,18 @@ import uuid
 
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
+from django.utils.timezone import now
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # Memo: last migration was "0008_v2_6__fix_event_type_uuids.py"
+    # replaces = [
+    #     ('events', '0001_initial'),
+    #     ('events', '0009_v2_8__eventtype_created_n_modified01'),
+    #     ('events', '0010_v2_8__eventtype_created_n_modified02'),
+    # ]
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -17,11 +23,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EventType',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=50, verbose_name='Name')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('name', models.CharField(max_length=50, verbose_name='Name')),
             ],
             options={
                 'ordering': ('name',),
@@ -44,9 +67,27 @@ class Migration(migrations.Migration):
                 ('place', models.CharField(max_length=100, verbose_name='Place', blank=True)),
                 ('start_date', models.DateTimeField(verbose_name='Start date')),
                 ('end_date', models.DateTimeField(null=True, verbose_name='End date', blank=True)),
-                ('budget', models.DecimalField(null=True, verbose_name='Budget (\u20ac)', max_digits=10, decimal_places=2, blank=True)),
-                ('final_cost', models.DecimalField(null=True, verbose_name='Final cost (\u20ac)', max_digits=10, decimal_places=2, blank=True)),
-                ('type', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Type', to='events.EventType')),
+                (
+                    'budget',
+                    models.DecimalField(
+                        null=True, verbose_name='Budget (\u20ac)',
+                        max_digits=10, decimal_places=2, blank=True,
+                    )
+                ),
+                (
+                    'final_cost',
+                    models.DecimalField(
+                        null=True, verbose_name='Final cost (\u20ac)',
+                        max_digits=10, decimal_places=2, blank=True,
+                    )
+                ),
+                (
+                    'type',
+                    models.ForeignKey(
+                        to='events.EventType', verbose_name='Type',
+                        on_delete=CREME_REPLACE,
+                    )
+                ),
             ],
             options={
                 'swappable': 'EVENTS_EVENT_MODEL',

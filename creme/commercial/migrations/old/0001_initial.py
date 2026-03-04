@@ -9,11 +9,7 @@ import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('commercial', '0001_initial'),
-    #     ('commercial', '0023_v2_8__acttype_created_n_modified01'),
-    #     ('commercial', '0024_v2_8__acttype_created_n_modified02'),
-    # ]
+    # Memo: last migration was "0022_v2_6__settingvalue_json.py"
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -26,12 +22,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MarketSegment',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'property_type',
@@ -51,28 +42,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActType',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=75, verbose_name='Title')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('title', models.CharField(max_length=75, verbose_name='Title')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -91,10 +65,7 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                (
-                    'name',
-                    models.CharField(max_length=100, verbose_name='Name of the commercial action')
-                ),
+                ('name', models.CharField(max_length=100, verbose_name='Name of the commercial action')),
                 ('expected_sales', models.PositiveIntegerField(verbose_name='Expected sales')),
                 (
                     'cost',
@@ -112,12 +83,7 @@ class Migration(migrations.Migration):
                         on_delete=PROTECT, verbose_name='Related segment',
                     )
                 ),
-                (
-                    'act_type',
-                    models.ForeignKey(
-                        on_delete=PROTECT, verbose_name='Type', to='commercial.ActType',
-                    )
-                ),
+                ('act_type', models.ForeignKey(on_delete=PROTECT, verbose_name='Type', to='commercial.ActType')),
             ],
             options={
                 'swappable': 'COMMERCIAL_ACT_MODEL',
@@ -130,21 +96,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActObjective',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                (
-                    'counter',
-                    models.PositiveIntegerField(default=0, verbose_name='Counter', editable=False)
-                ),
-                (
-                    'counter_goal',
-                    models.PositiveIntegerField(default=1, verbose_name='Value to reach')
-                ),
+                ('counter', models.PositiveIntegerField(default=0, verbose_name='Counter', editable=False)),
+                ('counter_goal', models.PositiveIntegerField(default=1, verbose_name='Value to reach')),
                 (
                     'act',
                     models.ForeignKey(
@@ -205,12 +160,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActObjectivePatternComponent',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('success_rate', models.PositiveIntegerField(verbose_name='Success rate')),
                 (
@@ -248,12 +198,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CommercialApproach',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
@@ -320,12 +265,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MarketSegmentDescription',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('product',   models.TextField(verbose_name='Product',   blank=True)),
                 ('place',     models.TextField(verbose_name='Place',     blank=True)),
                 ('price',     models.TextField(verbose_name='Price',     blank=True)),
@@ -348,12 +288,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CommercialAsset',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'strategy',
@@ -372,22 +307,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CommercialAssetScore',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', models.PositiveSmallIntegerField()),
                 ('asset', models.ForeignKey(to='commercial.CommercialAsset', on_delete=CASCADE)),
-                (
-                    'organisation',
-                    models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
-                ),
-                (
-                    'segment_desc',
-                    models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)
-                ),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
+                ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -395,25 +319,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MarketSegmentCategory',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('category', models.PositiveSmallIntegerField()),
-                (
-                    'organisation',
-                    models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
-                ),
-                (
-                    'strategy',
-                    models.ForeignKey(to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE)
-                ),
-                (
-                    'segment_desc',
-                    models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)
-                ),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
+                ('strategy', models.ForeignKey(to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE)),
+                ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -421,12 +331,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MarketSegmentCharm',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'strategy',
@@ -445,25 +350,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MarketSegmentCharmScore',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', models.PositiveSmallIntegerField()),
-                (
-                    'charm',
-                    models.ForeignKey(to='commercial.MarketSegmentCharm', on_delete=CASCADE)
-                ),
-                (
-                    'organisation',
-                    models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
-                ),
-                (
-                    'segment_desc',
-                    models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)
-                ),
+                ('charm', models.ForeignKey(to='commercial.MarketSegmentCharm', on_delete=CASCADE)),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
+                ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),

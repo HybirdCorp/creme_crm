@@ -14,20 +14,22 @@ from creme.creme_core.models.currency import get_default_currency_pk
 class Migration(migrations.Migration):
     # replaces = [
     #     ('creme_core', '0001_initial'),
-    #     ('creme_core', '0156_v2_7__fileref_description'),
-    #     ('creme_core', '0157_v2_7__portable_entity_cells'),
-    #     ('creme_core', '0158_v2_7__portable_ctype'),
-    #     ('creme_core', '0159_v2_7__buttonmenuitem_per_role'),
-    #     ('creme_core', '0160_v2_7__customentitytype'),
-    #     ('creme_core', '0161_v2_7__propertytype_description'),
-    #     ('creme_core', '0162_v2_7__cremeuser_uuid01'),
-    #     ('creme_core', '0163_v2_7__cremeuser_uuid02'),
-    #     ('creme_core', '0164_v2_7__cremeuser_uuid03'),
-    #     ('creme_core', '0165_v2_7__fileref_longer_filedata'),
-    #     ('creme_core', '0166_v2_7__workflow'),
-    #     ('creme_core', '0167_v2_7__currency_is_default01'),
-    #     ('creme_core', '0168_v2_7__currency_is_default02'),
-    #     ('creme_core', '0169_v2_7__set_version'),
+    #     ('creme_core', '0170_v2_8__userrole_listable_ctypes'),
+    #     ('creme_core', '0171_v2_8__extra_data_for_ptype_n_rtype'),
+    #     ('creme_core', '0172_v2_8__cremeuser_deactivated_on01'),
+    #     ('creme_core', '0173_v2_8__cremeuser_deactivated_on02'),
+    #     ('creme_core', '0174_v2_8__minions_created_n_modified01'),
+    #     ('creme_core', '0175_v2_8__minions_created_n_modified02'),
+    #     ('creme_core', '0176_v2_8__misc_created_n_modified01'),
+    #     ('creme_core', '0177_v2_8__misc_created_n_modified02'),
+    #     ('creme_core', '0178_v2_8__user_roles01'),
+    #     ('creme_core', '0179_v2_8__user_roles02'),
+    #     ('creme_core', '0180_v2_8__userrole_raw_special_perms'),
+    #     ('creme_core', '0181_v28__userrole_deactivated_on'),
+    #     ('creme_core', '0182_v2_8__last_viewed_entity'),
+    #     ('creme_core', '0183_v2_8__customfield_description'),
+    #     ('creme_core', '0184_v2_8__pinned_entity'),
+    #     ('creme_core', '0185_v2_8__customfield_default_value'),
     # ]
 
     initial = True
@@ -41,34 +43,71 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CaseSensitivity',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('text', models.CharField(max_length=4)),
             ],
         ),
         migrations.CreateModel(
             name='UserRole',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'deactivated_on',
+                    models.DateTimeField(
+                        verbose_name='Deactivated on', default=None, editable=False, null=True,
+                    )
+                ),
+
                 ('raw_allowed_apps', models.TextField(default='')),
                 ('raw_admin_4_apps', models.TextField(default='')),
+                ('raw_special_perms', models.TextField(default='')),
+
                 (
                     'creatable_ctypes',
                     models.ManyToManyField(
-                        related_name='roles_allowing_creation',
-                        verbose_name='Creatable resources',
                         to='contenttypes.ContentType',
+                        verbose_name='Creatable resources',
+                        related_name='roles_allowing_creation',
+                    )
+                ),
+                (
+                    'listable_ctypes',
+                    models.ManyToManyField(
+                        to='contenttypes.contenttype',
+                        verbose_name='Listable resources',
+                        related_name='roles_allowing_list',
                     )
                 ),
                 (
                     'exportable_ctypes',
                     models.ManyToManyField(
-                        related_name='roles_allowing_export',
-                        verbose_name='Exportable resources',
                         to='contenttypes.ContentType',
+                        verbose_name='Exportable resources',
+                        related_name='roles_allowing_export',
                     )
                 ),
+
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
@@ -80,9 +119,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CremeUser',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
+
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 (
                     'username',
@@ -93,9 +138,18 @@ class Migration(migrations.Migration):
                         error_messages={'unique': 'A user with that username already exists.'},
                     )
                 ),
-                ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
-                ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),
-                ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
+                (
+                    'first_name',
+                    models.CharField(max_length=100, verbose_name='First name', blank=True)
+                ),
+                (
+                    'last_name',
+                    models.CharField(max_length=100, verbose_name='Last name', blank=True)
+                ),
+                (
+                    'email',
+                    models.EmailField(max_length=254, verbose_name='Email address', blank=True)
+                ),
                 (
                     'displayed_name',
                     models.CharField(
@@ -106,16 +160,50 @@ class Migration(migrations.Migration):
                         ),
                     )
                 ),
-                ('date_joined', models.DateTimeField(default=now, verbose_name='Date joined', editable=False)),
+
+                (
+                    'date_joined',
+                    models.DateTimeField(default=now, verbose_name='Date joined', editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+
                 ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
-                ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?', editable=False)),
-                ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
+                (
+                    'deactivated_on',
+                    models.DateTimeField(
+                        default=None, null=True, verbose_name='Deactivated on', editable=False,
+                    )
+                ),
+
+                (
+                    'is_staff',
+                    models.BooleanField(default=False, verbose_name='Is staff?', editable=False)
+                ),
+                (
+                    'is_superuser',
+                    models.BooleanField(default=False, editable=False, verbose_name='Is a superuser?')
+                ),
                 ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),
                 (
                     'role',
                     models.ForeignKey(
-                        on_delete=models.PROTECT, verbose_name='Role',
-                        to='creme_core.UserRole', null=True,
+                        to='creme_core.userrole', verbose_name='Role', null=True,
+                        editable=False, on_delete=models.PROTECT,
+                    )
+                ),
+                (
+                    'roles',
+                    models.ManyToManyField(
+                        to='creme_core.userrole', verbose_name='Possible roles',
+                        blank=True, related_name='+',
+                        help_text=(
+                            'A normal user must have at least one role.\n'
+                            ' - A user with no role will be a SUPERUSER.\n'
+                            ' - If you choose several roles, the user will be able to switch between them.'
+                        ),
                     )
                 ),
                 (
@@ -125,6 +213,7 @@ class Migration(migrations.Migration):
                         to=settings.AUTH_USER_MODEL,
                     )
                 ),
+
                 (
                     'theme',
                     models.CharField(
@@ -151,6 +240,7 @@ class Migration(migrations.Migration):
                         ],
                     )
                 ),
+
                 ('json_settings', models.TextField(default='{}', editable=False)),
             ],
             options={
@@ -162,7 +252,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BrickDetailviewLocation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True)
+                ),
                 ('brick_id', models.CharField(max_length=100)),
                 ('order', models.PositiveIntegerField()),
                 ('zone', models.PositiveSmallIntegerField()),
@@ -193,10 +287,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BrickMypageLocation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('brick_id', models.CharField(max_length=100)),
                 ('order', models.PositiveIntegerField()),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE,
+                    )
+                ),
             ],
             options={
                 'ordering': ('order',),
@@ -205,15 +309,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BrickHomeLocation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('brick_id', models.CharField(max_length=100)),
                 (
                     'role',
                     models.ForeignKey(
-                        default=None, null=True, on_delete=models.CASCADE, to='creme_core.UserRole', verbose_name='Related role',
+                        to='creme_core.UserRole', verbose_name='Related role',
+                        default=None, null=True, on_delete=models.CASCADE,
                     )
                 ),
-                ('superuser', models.BooleanField(default=False, editable=False, verbose_name='related to superusers')),
+                (
+                    'superuser',
+                    models.BooleanField(
+                        default=False, editable=False, verbose_name='related to superusers')
+                ),
                 ('order', models.PositiveIntegerField()),
             ],
             options={
@@ -223,7 +337,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BrickState',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('brick_id', models.CharField(max_length=100, verbose_name='Block ID')),
                 ('is_open', models.BooleanField(default=True)),
                 ('show_empty_fields', models.BooleanField(default=True)),
@@ -237,7 +356,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ButtonMenuItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 (
                     'role',
                     models.ForeignKey(
@@ -269,9 +393,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Sandbox',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('type_id', models.CharField(editable=False, max_length=48, verbose_name='Type of sandbox')),
+                (
+                    'type_id',
+                    models.CharField(editable=False, max_length=48, verbose_name='Type of sandbox')
+                ),
                 (
                     'role',
                     models.ForeignKey(
@@ -291,15 +423,44 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CremeEntity',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
-                ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                ('modified', core_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        default=now, verbose_name='Creation date', editable=False, blank=True,
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        default=now, verbose_name='Last modification', editable=False, blank=True,
+                    )
+                ),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
                 ('is_deleted', models.BooleanField(default=False, editable=False)),
-                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                ('user', core_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
-                ('sandbox', models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.Sandbox')),
+                (
+                    'entity_type',
+                    core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')
+                ),
+                (
+                    'user',
+                    core_fields.CremeUserForeignKey(
+                        verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
+                    )
+                ),
+                (
+                    'sandbox',
+                    models.ForeignKey(
+                        to='creme_core.Sandbox',
+                        editable=False, null=True, on_delete=models.PROTECT,
+                    )
+                ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('description', models.TextField(blank=True, verbose_name='Description')),
             ],
@@ -359,6 +520,7 @@ class Migration(migrations.Migration):
                         help_text='No selected type means that all types are accepted',
                     )
                 ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('text',),
@@ -369,7 +531,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CremeProperty',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False),
+                ),
                 (
                     'creme_entity',
                     models.ForeignKey(
@@ -394,13 +565,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Currency',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Currency')),
-                ('local_symbol', models.CharField(max_length=100, verbose_name='Local symbol')),
-                ('international_symbol', models.CharField(max_length=100, verbose_name='International symbol')),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Currency')),
+                ('local_symbol', models.CharField(max_length=100, verbose_name='Local symbol')),
+                (
+                    'international_symbol',
+                    models.CharField(max_length=100, verbose_name='International symbol')
+                ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
             ],
             options={
@@ -412,7 +604,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomBrickConfigItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
                 ('json_cells', models.JSONField(default=list, editable=False)),
@@ -427,16 +624,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomField',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
                 ('name', models.CharField(max_length=100, verbose_name='Field name')),
-                ('field_type', models.PositiveSmallIntegerField(verbose_name='Field type')),
                 (
                     'content_type',
                     core_fields.CTypeForeignKey(
                         verbose_name='Related type', to='contenttypes.ContentType',
                     )
                 ),
+
+                ('field_type', models.PositiveSmallIntegerField(verbose_name='Field type')),
+                ('json_default_value_maker', models.JSONField(default=dict, editable=False)),
+
                 (
                     'is_required',
                     models.BooleanField(
@@ -451,6 +656,13 @@ class Migration(migrations.Migration):
                     'is_deleted',
                     models.BooleanField(default=False, editable=False, verbose_name='Is deleted?')
                 ),
+                (
+                    'description',
+                    models.TextField(
+                        verbose_name='Description', blank=True,
+                        help_text='The description is notably used in forms to help user',
+                    )
+                ),
             ],
             options={
                 'ordering': ('id',),
@@ -462,31 +674,59 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomFieldBoolean',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.BooleanField(default=False)),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldDateTime',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.DateTimeField()),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldEnumValue',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('value', models.CharField(max_length=100)),
                 (
                     'custom_field',
                     models.ForeignKey(
-                        related_name='customfieldenumvalue_set', to='creme_core.CustomField', on_delete=models.CASCADE,
+                        to='creme_core.CustomField',
+                        related_name='customfieldenumvalue_set', on_delete=models.CASCADE,
                     )
                 ),
             ],
@@ -494,73 +734,163 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomFieldEnum',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
-                ('value', models.ForeignKey(to='creme_core.CustomFieldEnumValue', on_delete=models.CASCADE)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'custom_field',
+                    models.ForeignKey(
+                        to='creme_core.CustomField', on_delete=models.CASCADE,
+                    )
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
+                (
+                    'value',
+                    models.ForeignKey(
+                        to='creme_core.CustomFieldEnumValue', on_delete=models.CASCADE,
+                    )
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldFloat',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.DecimalField(max_digits=12, decimal_places=2)),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldInteger',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.IntegerField()),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldMultiEnum',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
                 ('value', models.ManyToManyField(to='creme_core.CustomFieldEnumValue')),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldString',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.CharField(max_length=100)),
-                ('custom_field', models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                (
+                    'custom_field',
+                    models.ForeignKey(to='creme_core.CustomField', on_delete=models.CASCADE)
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldURL',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('value', core_fields.CremeURLField(max_length=200)),
-                ('custom_field', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')),
-                ('entity', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')),
+                (
+                    'custom_field',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldText',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+                ),
                 ('value', models.TextField()),
-                ('custom_field', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')),
-                ('entity', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')),
+                (
+                    'custom_field',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')
+                ),
             ],
         ),
         migrations.CreateModel(
             name='CustomFieldDate',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+                ),
                 ('value', models.DateField()),
-                ('custom_field', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')),
-                ('entity', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')),
+                (
+                    'custom_field',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -568,7 +898,9 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     'id',
-                    models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
                 ),
                 ('name', models.CharField(max_length=50, verbose_name='Name')),
                 ('plural_name', models.CharField(max_length=50, verbose_name='Name (plural)')),
@@ -586,7 +918,9 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     'id',
-                    models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
                 ),
                 (
                     'descriptor_id',
@@ -616,8 +950,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EntityFilter',
             fields=[
-                ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
+                (
+                    'id',
+                    models.CharField(
+                        max_length=100, serialize=False, editable=False, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+
                 (
                     'filter_type',
                     models.CharField(
@@ -629,12 +978,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
+
                 (
-                    'is_private',
-                    models.BooleanField(
-                        default=False, verbose_name='Is private?',
-                        help_text='A private filter can only be used by its owner (or the teammates if the owner is a team)',
-                    ),
+                    'entity_type',
+                    core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')
                 ),
                 (
                     'use_or',
@@ -646,15 +993,23 @@ class Migration(migrations.Migration):
                         ],
                     )
                 ),
-                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+
                 (
                     'user',
                     core_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
                         null=True, blank=True,
-                        help_text='If you assign an owner, only the owner can edit or delete the filter'
+                        help_text='If you assign an owner, only the owner can edit or delete the filter',
                     )
                 ),
+                (
+                    'is_private',
+                    models.BooleanField(
+                        default=False, verbose_name='Is private?',
+                        help_text='A private filter can only be used by its owner (or the teammates if the owner is a team)',
+                    ),
+                ),
+
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
@@ -666,25 +1021,46 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EntityFilterCondition',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('type', models.PositiveSmallIntegerField()),
                 ('name', models.CharField(max_length=100)),
                 ('value', models.JSONField(default=dict)),
                 (
                     'filter',
-                    models.ForeignKey(related_name='conditions', to='creme_core.EntityFilter', on_delete=models.CASCADE)
+                    models.ForeignKey(
+                        to='creme_core.EntityFilter',
+                        related_name='conditions',on_delete=models.CASCADE,
+                    )
                 ),
             ],
         ),
         migrations.CreateModel(
             name='FileRef',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('filedata', models.FileField(verbose_name='Path', max_length=500, upload_to='')),
                 ('basename', models.CharField(max_length=200)),
                 ('created', models.DateTimeField(verbose_name='Created', auto_now_add=True)),
-                ('temporary', models.BooleanField(default=True, verbose_name='To be deleted by the job?')),
-                ('user', core_fields.CremeUserForeignKey(null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user')),
+                (
+                    'temporary',
+                    models.BooleanField(default=True, verbose_name='To be deleted by the job?')
+                ),
+                (
+                    'user',
+                    core_fields.CremeUserForeignKey(
+                        null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user',
+                    )
+                ),
                 ('description', models.TextField(verbose_name='Description')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
@@ -692,25 +1068,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HeaderFilter',
             fields=[
-                ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
+                (
+                    'id',
+                    models.CharField(
+                        max_length=100, serialize=False, editable=False, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the view')),
+
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(blank=True, default=now, editable=False)
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+
+                (
+                    'entity_type',
+                    core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')
+                ),
+                ('json_cells', models.JSONField(default=list, editable=False)),
+
                 ('is_custom', models.BooleanField(default=True, editable=False)),
+
+                (
+                    'user',
+                    core_fields.CremeUserForeignKey(
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name='Owner user', blank=True, null=True,
+                        help_text='If you assign an owner, only the owner can edit or delete the view',
+                    )
+                ),
                 (
                     'is_private',
                     models.BooleanField(
                         default=False, verbose_name='Is private?',
-                        help_text='A private view of list can only be used by its owner (or the teammates if the owner is a team)',
+                        help_text=(
+                            'A private view of list can only be used by its owner '
+                            '(or the teammates if the owner is a team)'
+                        ),
                     )
                 ),
-                ('json_cells', models.JSONField(default=list, editable=False)),
-                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                (
-                    'user',
-                    core_fields.CremeUserForeignKey(
-                        verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True,
-                        help_text='If you assign an owner, only the owner can edit or delete the view',
-                    )
-                ),
+
                 ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
@@ -720,7 +1121,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HistoryLine',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 (
                     'entity',
                     models.ForeignKey(on_delete=models.SET_NULL, to='creme_core.CremeEntity', null=True)
@@ -753,15 +1159,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='InstanceBrickConfigItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('brick_class_id', models.CharField(editable=False, max_length=300, verbose_name='Block class ID')),
+                (
+                    'brick_class_id',
+                    models.CharField(
+                        editable=False, max_length=300, verbose_name='Block class ID',
+                    )
+                ),
                 ('json_extra_data', models.JSONField(default=dict, editable=False)),
                 (
                     'entity',
                     models.ForeignKey(
-                        verbose_name='Block related entity', to='creme_core.CremeEntity', on_delete=models.CASCADE,
-                        editable=False,
+                        to='creme_core.CremeEntity', verbose_name='Block related entity',
+                        on_delete=models.CASCADE, editable=False,
                     )
                 ),
             ],
@@ -772,7 +1188,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Imprint',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('date', models.DateTimeField(auto_now_add=True)),
                 (
                     'entity_ctype',
@@ -784,16 +1205,89 @@ class Migration(migrations.Migration):
                 (
                     'entity',
                     models.ForeignKey(
-                        on_delete=models.CASCADE, related_name='imprints', to='creme_core.CremeEntity',
+                        to='creme_core.CremeEntity',
+                        on_delete=models.CASCADE, related_name='imprints',
                     )
                 ),
                 (
                     'user',
                     models.ForeignKey(
-                        on_delete=models.CASCADE, related_name='imprints', to=settings.AUTH_USER_MODEL,
+                        to=settings.AUTH_USER_MODEL,
+                        on_delete=models.CASCADE, related_name='imprints',
                     )
                 ),
             ],
+        ),
+        migrations.CreateModel(
+            name='LastViewedEntity',
+            fields=[
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
+                (
+                    'entity_ctype',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.contenttype', related_name='+',
+                        on_delete=models.CASCADE,
+                        editable=False,
+                    )
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(
+                        to='creme_core.cremeentity', related_name='+',
+                        null=True, on_delete=models.SET_NULL,
+                        editable=False,
+                    )
+                ),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    'viewed',
+                    core_fields.ModificationDateTimeField(blank=True, default=now, editable=False)
+                ),
+            ],
+            options={
+                'ordering': ('-viewed',),
+            },
+        ),
+        migrations.CreateModel(
+            name='PinnedEntity',
+            fields=[
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        verbose_name='Pinned on', blank=True, default=now, editable=False,
+                    )
+                ),
+                (
+                    'entity',
+                    models.ForeignKey(
+                        to='creme_core.cremeentity', on_delete=models.CASCADE,
+                        related_name='+', editable=False,
+                    )
+                ),
+                (
+                    'entity_ctype',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.contenttype', on_delete=models.CASCADE,
+                        related_name='+', editable=False,
+                    )
+                ),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'ordering': ('id',),
+                'unique_together': {('entity', 'user')},
+            },
         ),
         migrations.CreateModel(
             name='MenuConfigItem',
@@ -836,11 +1330,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Language',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                ('name', models.CharField(max_length=100, verbose_name='Name')),
             ],
             options={
                 'verbose_name': 'Language',
@@ -857,7 +1369,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NotificationChannel',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=48, verbose_name='Name')),
                 ('description', models.TextField(blank=True, verbose_name='Description')),
@@ -883,7 +1400,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NotificationChannelConfigItem',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
                 ('outputs', models.JSONField(default=list, editable=False)),
                 (
                     'channel',
@@ -948,13 +1470,15 @@ class Migration(migrations.Migration):
                 (
                     'subject_ctypes',
                     models.ManyToManyField(
-                        related_name='relationtype_subjects_set', to='contenttypes.ContentType', blank=True,
+                        to='contenttypes.ContentType',
+                        related_name='relationtype_subjects_set', blank=True,
                     )
                 ),
                 (
                     'subject_properties',
                     models.ManyToManyField(
-                        related_name='relationtype_subjects_set', to='creme_core.CremePropertyType', blank=True,
+                        to='creme_core.CremePropertyType',
+                        related_name='relationtype_subjects_set',blank=True,
                     )
                 ),
                 (
@@ -965,8 +1489,15 @@ class Migration(migrations.Migration):
                         blank=True,
                     )
                 ),
-                ('symmetric_type', models.ForeignKey(blank=True, to='creme_core.RelationType', null=True, on_delete=models.CASCADE)),
+                (
+                    'symmetric_type',
+                    models.ForeignKey(
+                        to='creme_core.RelationType',
+                        blank=True, null=True, on_delete=models.CASCADE,
+                    )
+                ),
                 ('minimal_display', models.BooleanField(default=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'verbose_name': 'Type of relationship',
@@ -977,8 +1508,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Relation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        default=now, verbose_name='Creation date', editable=False, blank=True,
+                    )
+                ),
                 (
                     'object_ctype',
                     core_fields.EntityCTypeForeignKey(
@@ -990,18 +1531,33 @@ class Migration(migrations.Migration):
                 (
                     'object_entity',
                     models.ForeignKey(
-                        related_name='relations_where_is_object', on_delete=models.PROTECT, to='creme_core.CremeEntity',
+                        to='creme_core.CremeEntity',
+                        related_name='relations_where_is_object', on_delete=models.PROTECT,
                     ),
                 ),
                 (
                     'subject_entity',
                     models.ForeignKey(
-                        related_name='relations', on_delete=models.PROTECT, to='creme_core.CremeEntity',
+                        to='creme_core.CremeEntity',
+                        related_name='relations', on_delete=models.PROTECT,
                     ),
                 ),
-                ('symmetric_relation', models.ForeignKey(to='creme_core.Relation', null=True, on_delete=models.CASCADE)),
-                ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.PROTECT)),
-                ('user', core_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                (
+                    'symmetric_relation',
+                    models.ForeignKey(
+                        to='creme_core.Relation', null=True, on_delete=models.CASCADE,
+                    )
+                ),
+                (
+                    'type',
+                    models.ForeignKey(to='creme_core.RelationType', on_delete=models.PROTECT)
+                ),
+                (
+                    'user',
+                    core_fields.CremeUserForeignKey(
+                        verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
+                    )
+                ),
             ],
             options={
                 'unique_together': {('type', 'subject_entity', 'object_entity')},
@@ -1012,12 +1568,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RelationBrickItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(unique=True, editable=False, default=uuid4)),
                 (
                     'relation_type',
                     models.OneToOneField(
-                        verbose_name='Related type of relationship', to='creme_core.RelationType', on_delete=models.CASCADE,
+                        to='creme_core.RelationType',
+                        verbose_name='Related type of relationship', on_delete=models.CASCADE,
                     )
                 ),
                 ('json_cells_map', models.JSONField(default=dict, editable=False)),
@@ -1026,11 +1588,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SearchConfigItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('disabled', models.BooleanField(default=False, verbose_name='Disabled?')),
                 (
                     'content_type',
-                    core_fields.EntityCTypeForeignKey(verbose_name='Related resource', to='contenttypes.ContentType')
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.ContentType', verbose_name='Related resource',
+                    )
                 ),
                 (
                     'role',
@@ -1039,7 +1608,12 @@ class Migration(migrations.Migration):
                         null=True, on_delete=models.CASCADE,
                     )
                 ),
-                ('superuser', models.BooleanField(default=False, verbose_name='related to superusers', editable=False)),
+                (
+                    'superuser',
+                    models.BooleanField(
+                        default=False, verbose_name='related to superusers', editable=False,
+                    )
+                ),
                 ('json_cells', models.JSONField(default=list, editable=False)),
             ],
             options={
@@ -1049,8 +1623,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SemiFixedRelationType',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('predicate', models.CharField(unique=True, max_length=100, verbose_name='Predicate')),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'predicate',
+                    models.CharField(unique=True, max_length=100, verbose_name='Predicate')
+                ),
                 (
                     'object_ctype',
                     core_fields.EntityCTypeForeignKey(
@@ -1058,8 +1640,14 @@ class Migration(migrations.Migration):
                         editable=False, on_delete=models.CASCADE,
                     )
                 ),
-                ('object_entity', models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)),
-                ('relation_type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),
+                (
+                    'object_entity',
+                    models.ForeignKey(to='creme_core.CremeEntity', on_delete=models.CASCADE)
+                ),
+                (
+                    'relation_type',
+                    models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)
+                ),
             ],
             options={
                 'ordering': ('predicate',),
@@ -1071,7 +1659,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SetCredentials',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.PositiveSmallIntegerField()),
                 (
                     'set_type',
@@ -1097,7 +1690,13 @@ class Migration(migrations.Migration):
                         verbose_name='Apply to a specific type',
                     )
                 ),
-                ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE, editable=False)),
+                (
+                    'role',
+                    models.ForeignKey(
+                        to='creme_core.UserRole',
+                        related_name='credentials', on_delete=models.CASCADE, editable=False,
+                    )
+                ),
                 (
                     'forbidden',
                     models.BooleanField(
@@ -1108,7 +1707,8 @@ class Migration(migrations.Migration):
                         default=False,
                         help_text=(
                             'Notice that actions which are forbidden & allowed '
-                            'at the same time are considered as forbidden when final permissions are computed.'
+                            'at the same time are considered as forbidden when final'
+                            ' permissions are computed.'
                         ),
                         verbose_name='Allow or forbid?',
                     )
@@ -1116,7 +1716,8 @@ class Migration(migrations.Migration):
                 (
                     'efilter',
                     models.ForeignKey(
-                        editable=False, null=True, on_delete=models.PROTECT, to='creme_core.EntityFilter',
+                        to='creme_core.EntityFilter',
+                        editable=False, null=True, on_delete=models.PROTECT,
                     )
                 ),
             ],
@@ -1124,7 +1725,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SettingValue',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('key_id', models.CharField(max_length=100)),
                 ('json_value', models.JSONField(editable=False, null=True)),
             ],
@@ -1132,24 +1738,51 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HistoryConfigItem',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('relation_type', models.OneToOneField(to='creme_core.RelationType', on_delete=models.CASCADE)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'relation_type',
+                    models.OneToOneField(to='creme_core.RelationType', on_delete=models.CASCADE)
+                ),
             ],
         ),
         migrations.CreateModel(
             name='Vat',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                (
+                    'created',
+                    core_fields.CreationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Creation date',
+                    )
+                ),
+                (
+                    'modified',
+                    core_fields.ModificationDateTimeField(
+                        blank=True, default=now, editable=False, verbose_name='Last modification',
+                    )
+                ),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+
                 (
                     'value',
                     core_fields.DecimalPercentField(
-                        verbose_name='VAT', decimal_places=2, max_digits=4, default=Decimal('20.0'),
+                        verbose_name='VAT',
+                        decimal_places=2, max_digits=4, default=Decimal('20.0'),
                     )
                 ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('value',),
@@ -1160,7 +1793,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Version',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('value', models.TextField()),
             ],
         ),
@@ -1180,13 +1818,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Job',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('type_id', models.CharField(verbose_name='Type of job', max_length=48, editable=False)),
-                ('enabled', models.BooleanField(default=True, verbose_name='Enabled', editable=False)),
-                ('language', models.CharField(verbose_name='Language', max_length=10, editable=False)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
+                (
+                    'type_id',
+                    models.CharField(verbose_name='Type of job', max_length=48, editable=False)
+                ),
+                (
+                    'enabled',
+                    models.BooleanField(default=True, verbose_name='Enabled', editable=False)
+                ),
+                (
+                    'language',
+                    models.CharField(verbose_name='Language', max_length=10, editable=False)
+                ),
                 ('reference_run', models.DateTimeField(verbose_name='Reference run')),
-                ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity')),
-                ('last_run', models.DateTimeField(verbose_name='Last run', null=True, editable=False)),
+                (
+                    'periodicity',
+                    core_fields.DatePeriodField(null=True, verbose_name='Periodicity')
+                ),
+                (
+                    'last_run',
+                    models.DateTimeField(verbose_name='Last run', null=True, editable=False)
+                ),
                 ('ack_errors', models.PositiveIntegerField(default=0, editable=False)),
                 (
                     'status',
@@ -1204,7 +1862,8 @@ class Migration(migrations.Migration):
                 (
                     'user',
                     core_fields.CremeUserForeignKey(
-                        editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='User',
+                        to=settings.AUTH_USER_MODEL,
+                        editable=False, null=True, verbose_name='User',
                     )
                 ),
             ],
@@ -1217,7 +1876,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='JobResult',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('messages', models.JSONField(null=True)),
                 ('job', models.ForeignKey(to='creme_core.Job', on_delete=models.CASCADE)),
             ],
@@ -1226,7 +1890,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EntityJobResult',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('messages', models.JSONField(null=True)),
                 (
                     'entity_ctype',
@@ -1235,7 +1904,12 @@ class Migration(migrations.Migration):
                         null=True, editable=False, on_delete=models.CASCADE,
                     )
                 ),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', null=True, on_delete=models.CASCADE)),
+                (
+                    'entity',
+                    models.ForeignKey(
+                        to='creme_core.CremeEntity', null=True, on_delete=models.CASCADE,
+                    )
+                ),
                 ('job', models.ForeignKey(to='creme_core.Job', on_delete=models.CASCADE)),
             ],
             options={},
@@ -1243,7 +1917,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MassImportJobResult',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('messages', models.JSONField(null=True)),
                 ('line', models.JSONField(default=list)),
                 ('updated', models.BooleanField(default=False)),
@@ -1254,7 +1933,12 @@ class Migration(migrations.Migration):
                         editable=False, null=True, on_delete=models.CASCADE,
                     )
                 ),
-                ('entity', models.ForeignKey(to='creme_core.CremeEntity', null=True, on_delete=models.CASCADE)),
+                (
+                    'entity',
+                    models.ForeignKey(
+                        to='creme_core.CremeEntity', null=True, on_delete=models.CASCADE,
+                    )
+                ),
                 ('job', models.ForeignKey(to='creme_core.Job', on_delete=models.CASCADE)),
             ],
             options={},
@@ -1270,7 +1954,12 @@ class Migration(migrations.Migration):
                         to='contenttypes.ContentType',
                     )
                 ),
-                ('job', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.Job', editable=False)),
+                (
+                    'job',
+                    models.ForeignKey(
+                        on_delete=models.CASCADE, to='creme_core.Job', editable=False,
+                    )
+                ),
                 ('pk_to_delete', models.TextField(editable=False)),
                 ('deleted_repr', models.TextField(editable=False)),
                 ('json_replacers', models.JSONField(default=list, editable=False)),
@@ -1288,7 +1977,12 @@ class Migration(migrations.Migration):
                         serialize=False, to=settings.AUTH_USER_MODEL,
                     )
                 ),
-                ('job', models.ForeignKey(editable=False, on_delete=models.CASCADE, to='creme_core.Job')),
+                (
+                    'job',
+                    models.ForeignKey(
+                        to='creme_core.Job', editable=False, on_delete=models.CASCADE,
+                    )
+                ),
                 ('deleted_count', models.PositiveIntegerField(default=0, editable=False)),
             ],
         ),
@@ -1297,7 +1991,9 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     'id',
-                    models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
                 ),
                 ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
                 ('title', models.CharField(verbose_name='Title', max_length=100)),
@@ -1328,8 +2024,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WorldSettings',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('menu_icon', models.ImageField(upload_to='creme_core', verbose_name='Menu icon', blank=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
+                (
+                    'menu_icon',
+                    models.ImageField(upload_to='creme_core', verbose_name='Menu icon', blank=True)
+                ),
                 (
                     'password_change_enabled',
                     models.BooleanField(
@@ -1369,7 +2073,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeActivityType',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -1401,7 +2110,8 @@ class Migration(migrations.Migration):
                     (
                         'type',
                         models.ForeignKey(
-                            verbose_name='Activity type', to='creme_core.FakeActivityType', on_delete=models.PROTECT,
+                            to='creme_core.FakeActivityType',
+                            verbose_name='Activity type', on_delete=models.PROTECT,
                         )
                     ),
                 ],
@@ -1415,8 +2125,16 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeFolderCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    (
+                        'name',
+                        models.CharField(unique=True, max_length=100, verbose_name='Category name')
+                    ),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1446,8 +2164,9 @@ class Migration(migrations.Migration):
                     (
                         'parent',
                         models.ForeignKey(
-                            related_name='children', verbose_name='Parent folder',
-                            blank=True, to='creme_core.FakeFolder', null=True, on_delete=models.CASCADE,
+                            to='creme_core.FakeFolder', verbose_name='Parent folder',
+                            related_name='children',
+                            blank=True, null=True, on_delete=models.CASCADE,
                         )
                     ),
                 ],
@@ -1461,7 +2180,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeDocumentCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
                 ],
                 options={
@@ -1482,17 +2206,24 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('filedata', models.FileField(upload_to=b'creme_core-tests', max_length=100, verbose_name='File')),
+                    (
+                        'filedata',
+                        models.FileField(
+                            upload_to=b'creme_core-tests', max_length=100, verbose_name='File',
+                        )
+                    ),
                     (
                         'linked_folder',
                         models.ForeignKey(
-                            on_delete=models.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder',
+                            to='creme_core.FakeFolder',
+                            on_delete=models.PROTECT, verbose_name='Folder',
                         ),
                     ),
                     (
                         'categories',
                         models.ManyToManyField(
-                            verbose_name='Categories', to='creme_core.FakeDocumentCategory', blank=True,
+                            to='creme_core.FakeDocumentCategory',
+                            verbose_name='Categories', blank=True,
                         )
                     ),
                 ],
@@ -1506,7 +2237,13 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeFileComponent',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False,
+                            auto_created=True, primary_key=True,
+                        )
+                    ),
                     (
                         'filedata',
                         models.FileField(
@@ -1532,7 +2269,10 @@ class Migration(migrations.Migration):
                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
                         )
                     ),
-                    ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    (
+                        'name',
+                        models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)
+                    ),
                     (
                         'file1',
                         models.ForeignKey(
@@ -1552,7 +2292,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeImageCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -1603,13 +2348,33 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeAddress',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('value', models.TextField(verbose_name='Address', blank=True)),
-                    ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
+                    (
+                        'zipcode',
+                        models.CharField(max_length=100, verbose_name='Zip code', blank=True)
+                    ),
                     ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
-                    ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
-                    ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
-                    ('entity', models.ForeignKey(related_name='+', editable=False, to='creme_core.CremeEntity', on_delete=models.CASCADE)),
+                    (
+                        'department',
+                        models.CharField(max_length=100, verbose_name='Department', blank=True)
+                    ),
+                    (
+                        'country',
+                        models.CharField(max_length=40, verbose_name='Country', blank=True)
+                    ),
+                    (
+                        'entity',
+                        models.ForeignKey(
+                            to='creme_core.CremeEntity',
+                            related_name='+', editable=False, on_delete=models.CASCADE,
+                        )
+                    ),
                 ],
                 options={
                     'verbose_name': 'Test address',
@@ -1620,7 +2385,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeCivility',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -1637,7 +2407,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeCountry',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -1653,7 +2428,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakePosition',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -1669,7 +2449,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeSector',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -1694,19 +2479,44 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
-                    ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
+                    (
+                        'first_name',
+                        models.CharField(max_length=100, verbose_name='First name', blank=True)
+                    ),
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
-                    ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
-                    ('phone', core_fields.PhoneField(max_length=100, null=True, verbose_name='Phone', blank=True)),
-                    ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
-                    ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
-                    ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
+                    (
+                        'loves_comics',
+                        models.BooleanField(
+                            default=None, null=True, blank=True, verbose_name='Loves comics',
+                        )
+                    ),
+                    (
+                        'phone',
+                        core_fields.PhoneField(
+                            max_length=100, null=True, verbose_name='Phone', blank=True,
+                        )
+                    ),
+                    (
+                        'mobile',
+                        core_fields.PhoneField(
+                            max_length=100, verbose_name='Mobile', blank=True,
+                        )
+                    ),
+                    (
+                        'email',
+                        models.EmailField(max_length=100, verbose_name='Email address', blank=True)
+                    ),
+                    (
+                        'url_site',
+                        core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)
+                    ),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                     (
                         'address',
                         models.ForeignKey(
-                            related_name='+', blank=True, editable=False, to='creme_core.FakeAddress',
-                            null=True, verbose_name='Billing address', on_delete=models.SET_NULL,
+                            to='creme_core.FakeAddress', verbose_name='Billing address',
+                            related_name='+', blank=True, editable=False,
+                            null=True,  on_delete=models.SET_NULL,
                         )
                     ),
                     (
@@ -1726,15 +2536,17 @@ class Migration(migrations.Migration):
                     (
                         'sector',
                         models.ForeignKey(
+                            to='creme_core.FakeSector',
                             on_delete=creme_deletion.CREME_REPLACE_NULL,
-                            verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True,
+                            verbose_name='Line of business', blank=True, null=True,
                         )
                     ),
                     (
                         'is_user',
                         models.ForeignKey(
+                            to=settings.AUTH_USER_MODEL,
                             related_name='+', on_delete=models.SET_NULL,
-                            blank=True, editable=False, to=settings.AUTH_USER_MODEL,
+                            blank=True, editable=False,
                             null=True, verbose_name='Related user',
                             help_text='The contact corresponds to a user of Creme',
                         )
@@ -1748,7 +2560,8 @@ class Migration(migrations.Migration):
                     (
                         'preferred_countries',
                         models.ManyToManyField(
-                            to='creme_core.FakeCountry', verbose_name='Preferred countries', blank=True,
+                            to='creme_core.FakeCountry',
+                            verbose_name='Preferred countries', blank=True,
                         )
                     ),
                     (
@@ -1782,7 +2595,10 @@ class Migration(migrations.Migration):
                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
                         )
                     ),
-                    ('name', models.CharField(max_length=80, verbose_name='Name of the mailing list')),
+                    (
+                        'name',
+                        models.CharField(max_length=80, verbose_name='Name of the mailing list')
+                    ),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1797,11 +2613,14 @@ class Migration(migrations.Migration):
                     (
                         'cremeentity_ptr',
                         models.OneToOneField(
-                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                            to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                            to='creme_core.CremeEntity', parent_link=True, auto_created=True,
+                            primary_key=True, serialize=False, on_delete=models.CASCADE,
                         )
                     ),
-                    ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
+                    (
+                        'name',
+                        models.CharField(max_length=100, verbose_name='Name of the campaign')
+                    ),
                     (
                         'type',
                         models.PositiveIntegerField(
@@ -1821,7 +2640,8 @@ class Migration(migrations.Migration):
                     (
                         'mailing_lists',
                         models.ManyToManyField(
-                            to='creme_core.FakeMailingList', verbose_name='Related mailing lists', blank=True,
+                            to='creme_core.FakeMailingList',
+                            verbose_name='Related mailing lists', blank=True,
                         )
                     ),
                 ],
@@ -1844,8 +2664,14 @@ class Migration(migrations.Migration):
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                    ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
-                    ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                    (
+                        'issuing_date',
+                        models.DateField(null=True, verbose_name='Issuing date', blank=True)
+                    ),
+                    (
+                        'expiration_date',
+                        models.DateField(null=True, verbose_name='Expiration date', blank=True)
+                    ),
                     (
                         'currency',
                         models.ForeignKey(
@@ -1854,7 +2680,12 @@ class Migration(migrations.Migration):
                             default=get_default_currency_pk,
                         )
                     ),
-                    ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),
+                    (
+                        'periodicity',
+                        core_fields.DatePeriodField(
+                            null=True, verbose_name='Periodicity of the generation', blank=True,
+                        )
+                    ),
                     (
                         'total_vat',
                         core_fields.MoneyField(
@@ -1887,11 +2718,37 @@ class Migration(migrations.Migration):
                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
                         )
                     ),
-                    ('item', models.CharField(max_length=100, null=True, verbose_name='Item', blank=True)),
-                    ('quantity', models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)),
-                    ('unit_price', models.DecimalField(default=Decimal('0'), verbose_name='Unit price', max_digits=10, decimal_places=2)),
-                    ('discount', models.DecimalField(default=Decimal('0'), verbose_name='Discount', max_digits=10, decimal_places=2)),
-                    ('vat_value', models.ForeignKey(to='creme_core.Vat', blank=True, null=True, on_delete=models.PROTECT)),
+                    (
+                        'item',
+                        models.CharField(max_length=100, null=True, verbose_name='Item', blank=True)
+                    ),
+                    (
+                        'quantity',
+                        models.DecimalField(
+                            default=Decimal('1.00'), verbose_name='Quantity',
+                            max_digits=10, decimal_places=2,
+                        )
+                    ),
+                    (
+                        'unit_price',
+                        models.DecimalField(
+                            verbose_name='Unit price',
+                            default=Decimal('0'), max_digits=10, decimal_places=2,
+                        )
+                    ),
+                    (
+                        'discount',
+                        models.DecimalField(
+                            verbose_name='Discount',
+                            default=Decimal('0'), max_digits=10, decimal_places=2,
+                        )
+                    ),
+                    (
+                        'vat_value',
+                        models.ForeignKey(
+                            to='creme_core.Vat', blank=True, null=True, on_delete=models.PROTECT,
+                        )
+                    ),
                     (
                         'discount_unit',
                         models.PositiveIntegerField(
@@ -1899,7 +2756,10 @@ class Migration(migrations.Migration):
                             blank=True, choices=[(1, 'Percent'), (2, 'Amount')],
                         )
                     ),
-                    ('linked_invoice', models.ForeignKey(to='creme_core.FakeInvoice', on_delete=models.CASCADE)),
+                    (
+                        'linked_invoice',
+                        models.ForeignKey(to='creme_core.FakeInvoice', on_delete=models.CASCADE)
+                    ),
                 ],
                 options={
                     'ordering': ('created',),
@@ -1911,7 +2771,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeLegalForm',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -1935,12 +2800,32 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=200, verbose_name='Name')),
-                    ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
-                    ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
-                    ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
-                    ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
-                    ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
-                    ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
+                    (
+                        'phone',
+                        core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)
+                    ),
+                    (
+                        'email',
+                        models.EmailField(max_length=100, verbose_name='Email address', blank=True)
+                    ),
+                    (
+                        'url_site',
+                        models.URLField(
+                            max_length=500, null=True, verbose_name='Web Site', blank=True,
+                        )
+                    ),
+                    (
+                        'capital',
+                        models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)
+                    ),
+                    (
+                        'subject_to_vat',
+                        models.BooleanField(default=True, verbose_name='Subject to VAT')
+                    ),
+                    (
+                        'creation_date',
+                        models.DateField(null=True, verbose_name='Date of creation', blank=True)
+                    ),
                     (
                         'address',
                         models.ForeignKey(
@@ -1951,14 +2836,16 @@ class Migration(migrations.Migration):
                     (
                         'image',
                         models.ForeignKey(
-                            on_delete=models.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True,
+                            to='creme_core.FakeImage', null=True,
+                            on_delete=models.SET_NULL, verbose_name='Logo', blank=True,
                         )
                     ),
                     (
                         'legal_form',
                         models.ForeignKey(
+                            to='creme_core.FakeLegalForm',
                             related_name='+', on_delete=creme_deletion.CREME_REPLACE_NULL,
-                            verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True,
+                            verbose_name='Legal form', blank=True, null=True,
                         )
                     ),
                     (
@@ -1985,7 +2872,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeProductType',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -2018,7 +2910,9 @@ class Migration(migrations.Migration):
                     ),
                     (
                         'images',
-                        models.ManyToManyField(verbose_name='Images', to='creme_core.FakeImage', blank=True)
+                        models.ManyToManyField(
+                            to='creme_core.FakeImage', verbose_name='Images', blank=True,
+                        )
                     ),
                     (
                         'creation_year',
@@ -2072,7 +2966,12 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('ctype', core_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
+                    (
+                        'ctype',
+                        core_fields.EntityCTypeForeignKey(
+                            to='contenttypes.ContentType', verbose_name='Entity type',
+                        )
+                    ),
                     (
                         'efilter',
                         models.ForeignKey(
@@ -2092,7 +2991,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTicketStatus',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('color', core_fields.ColorField(verbose_name='Color', default='ff0000')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -2109,7 +3013,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTicketPriority',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -2160,7 +3069,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeIngredientGroup',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
@@ -2173,7 +3087,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeIngredient',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     (
                         'group',
@@ -2205,7 +3124,10 @@ class Migration(migrations.Migration):
                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
                         )
                     ),
-                    ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    (
+                        'name',
+                        models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)
+                    ),
                     (
                         'ingredients',
                         models.ManyToManyField(
@@ -2224,7 +3146,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTodoCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
@@ -2237,7 +3164,12 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTodo',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('title', models.CharField(max_length=200, verbose_name='Title')),
                     ('description', models.TextField(verbose_name='Description', blank=True)),
                     (

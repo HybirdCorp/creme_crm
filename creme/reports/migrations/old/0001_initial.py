@@ -10,7 +10,11 @@ from creme.reports.constants import EF_REPORTS
 
 
 class Migration(migrations.Migration):
-    # Memo: last migration was '0013_v2_2__instance_bricks_data'
+    # replaces = [
+    #     ('reports', '0001_initial'),
+    #     ('reports', '0014_v2_7__portable_report_field'),
+    #     ('reports', '0015_v2_7__portable_graph'),
+    # ]
 
     initial = True
     dependencies = [
