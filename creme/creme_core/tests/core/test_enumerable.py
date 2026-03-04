@@ -38,11 +38,11 @@ from creme.creme_core.models.custom_field import (
     CustomField,
     CustomFieldEnumValue,
 )
+# from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
 from creme.creme_core.models.fields import (
     CTypeForeignKey,
     EntityCTypeForeignKey,
 )
-from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
 
 from ..base import CremeTestCase
 
@@ -1077,40 +1077,41 @@ class EnumerableTestCase(CremeTestCase):
             {'label': 'Test Organisation', 'value': get_ct(FakeOrganisation).pk}, choices,
         )
 
-    def test_entity_ctypefk_enumerator(self):  # DEPRECATED
-        user = self.user
-        with self.assertWarns(DeprecationWarning):
-            enum = enumerators.EntityCTypeForeignKeyEnumerator(FakeReport._meta.get_field('ctype'))
-        all_choices = ctype_choices(entity_ctypes())
-
-        get_ct = ContentType.objects.get_for_model
-        contact_ct = get_ct(FakeContact)
-        orga_ct    = get_ct(FakeOrganisation)
-
-        self.assertListEqual(
-            [{'label': label, 'value': ct_id} for ct_id, label in all_choices],
-            enum.choices(user),
-        )
-        self.assertListEqual(
-            [{'label': 'Test Contact', 'value': contact_ct.pk}],
-            enum.choices(user, term='test contact'),
-        )
-        self.assertListEqual(
-            [{'label': label, 'value': ct_id} for ct_id, label in all_choices[:2]],
-            enum.choices(user, limit=2),
-        )
-        self.assertListEqual(
-            [
-                {'label': 'Test Contact', 'value': contact_ct.pk},
-                {'label': 'Test Organisation', 'value': orga_ct.pk},
-            ],
-            enum.choices(user, only=[contact_ct.pk, orga_ct.pk]),
-        )
-
-        # To_python
-        self.assertListEqual(
-            [contact_ct], enum.to_python(user, values=[contact_ct.pk]),
-        )
+    # def test_entity_ctypefk_enumerator(self):  # DEPRECATED
+    #     user = self.user
+    #     with self.assertWarns(DeprecationWarning):
+    #         enum = enumerators.EntityCTypeForeignKeyEnumerator(
+    #           FakeReport._meta.get_field('ctype'))
+    #     all_choices = ctype_choices(entity_ctypes())
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     contact_ct = get_ct(FakeContact)
+    #     orga_ct    = get_ct(FakeOrganisation)
+    #
+    #     self.assertListEqual(
+    #         [{'label': label, 'value': ct_id} for ct_id, label in all_choices],
+    #         enum.choices(user),
+    #     )
+    #     self.assertListEqual(
+    #         [{'label': 'Test Contact', 'value': contact_ct.pk}],
+    #         enum.choices(user, term='test contact'),
+    #     )
+    #     self.assertListEqual(
+    #         [{'label': label, 'value': ct_id} for ct_id, label in all_choices[:2]],
+    #         enum.choices(user, limit=2),
+    #     )
+    #     self.assertListEqual(
+    #         [
+    #             {'label': 'Test Contact', 'value': contact_ct.pk},
+    #             {'label': 'Test Organisation', 'value': orga_ct.pk},
+    #         ],
+    #         enum.choices(user, only=[contact_ct.pk, orga_ct.pk]),
+    #     )
+    #
+    #     # To_python
+    #     self.assertListEqual(
+    #         [contact_ct], enum.to_python(user, values=[contact_ct.pk]),
+    #     )
 
     def test_global_registry(self):
         self.assertIsInstance(

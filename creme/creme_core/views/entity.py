@@ -18,7 +18,7 @@
 
 import json
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from urllib.parse import urlencode
@@ -59,11 +59,8 @@ from ..core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
-from ..core.exceptions import (
-    BadRequestError,
-    ConflictError,
-    SpecificProtectedError,
-)
+# from ..core.exceptions import SpecificProtectedError
+from ..core.exceptions import BadRequestError, ConflictError
 from ..core.paginator import FlowPaginator
 from ..core.workflow import run_workflow_engine
 from ..creme_jobs import trash_cleaner_type
@@ -1261,17 +1258,17 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
         """
         try:
             deletor.perform(entity=entity, user=user)
-        except SpecificProtectedError as e:
-            warnings.warn(
-                f'The deletor of the entity {entity} should raise a ConflictError '
-                f'in its method check_permissions() instead of raising a '
-                f'SpecificProtectedError in the methods delete/trash of the entity.',
-                DeprecationWarning,
-            )
-
-            raise ConflictError(
-                gettext('This entity can not be deleted ({reason})').format(reason=e.args[0]),
-            ) from e
+        # except SpecificProtectedError as e:
+        #     warnings.warn(
+        #         f'The deletor of the entity {entity} should raise a ConflictError '
+        #         f'in its method check_permissions() instead of raising a '
+        #         f'SpecificProtectedError in the methods delete/trash of the entity.',
+        #         DeprecationWarning,
+        #     )
+        #
+        #     raise ConflictError(
+        #         gettext('This entity can not be deleted ({reason})').format(reason=e.args[0]),
+        #     ) from e
         except ProtectedError as e:
             raise ConflictError(
                 format_html(

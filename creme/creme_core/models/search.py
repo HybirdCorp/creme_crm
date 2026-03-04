@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, DefaultDict
@@ -167,49 +167,49 @@ class SearchConfigItemManager(models.Manager):
             model=model, fields=fields, role=role, disabled=disabled,
         )
 
-    def create_if_needed(self,
-                         model: type[CremeEntity],
-                         fields: Iterable[str],
-                         role: UserRole | str | None = None,
-                         disabled: bool = False,
-                         ) -> SearchConfigItem:
-        """Create a config item & its fields if one does not already exist.
-        @param model: Model class the configuration is related to.
-        @param fields: Sequence of strings representing regular field names.
-        @param role: UserRole instance; or 'superuser'; or None, for default configuration.
-        @param disabled: Boolean.
-        """
-        warnings.warn(
-            'SearchConfigItemManager.create_if_needed() is deprecated; '
-            'use the method builder() instead.',
-            DeprecationWarning,
-        )
-
-        from ..core.entity_cell import EntityCellRegularField
-
-        ct = ContentType.objects.get_for_model(model)
-        superuser = False
-
-        if role == 'superuser':
-            superuser = True
-            role = None
-        elif role is not None:
-            assert isinstance(role, UserRole)
-
-        return self.get_or_create(
-            content_type=ct,
-            role=role,
-            superuser=superuser,
-            defaults={
-                'disabled': disabled,
-                'cells': [
-                    EntityCellRegularField.build(model, field_name)
-                    for field_name in fields
-                ],
-            },
-        )[0]
-
-    create_if_needed.alters_data = True
+    # def create_if_needed(self,
+    #                      model: type[CremeEntity],
+    #                      fields: Iterable[str],
+    #                      role: UserRole | str | None = None,
+    #                      disabled: bool = False,
+    #                      ) -> SearchConfigItem:
+    #     """Create a config item & its fields if one does not already exist.
+    #     @param model: Model class the configuration is related to.
+    #     @param fields: Sequence of strings representing regular field names.
+    #     @param role: UserRole instance; or 'superuser'; or None, for default configuration.
+    #     @param disabled: Boolean.
+    #     """
+    #     warnings.warn(
+    #         'SearchConfigItemManager.create_if_needed() is deprecated; '
+    #         'use the method builder() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     from ..core.entity_cell import EntityCellRegularField
+    #
+    #     ct = ContentType.objects.get_for_model(model)
+    #     superuser = False
+    #
+    #     if role == 'superuser':
+    #         superuser = True
+    #         role = None
+    #     elif role is not None:
+    #         assert isinstance(role, UserRole)
+    #
+    #     return self.get_or_create(
+    #         content_type=ct,
+    #         role=role,
+    #         superuser=superuser,
+    #         defaults={
+    #             'disabled': disabled,
+    #             'cells': [
+    #                 EntityCellRegularField.build(model, field_name)
+    #                 for field_name in fields
+    #             ],
+    #         },
+    #     )[0]
+    #
+    # create_if_needed.alters_data = True
 
     def iter_for_models(self,
                         models: Iterable[type[CremeEntity]],

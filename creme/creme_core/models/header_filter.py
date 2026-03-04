@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Iterable
 from copy import deepcopy
 from typing import TYPE_CHECKING
@@ -283,73 +283,74 @@ class HeaderFilterManager(models.Manager):
     def get_by_portable_key(self, key) -> HeaderFilter:
         return self.get(id=key)
 
-    def create_if_needed(
-            self,
-            pk: str,
-            name: str,
-            model: type[CremeEntity],
-            is_custom: bool = False,
-            user: CremeUser | None = None,
-            is_private: bool = _DEFAULT_IS_PRIVATE,
-            cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
-            extra_data: dict | None = None,
-    ) -> HeaderFilter:
-        """Creation helper ; useful for populate.py scripts.
-        @param cells_desc: List of objects where each one can other:
-            - an instance of EntityCell (one of its child class of course).
-            - a tuple (class, args)
-              where 'class' is child class of EntityCell, & 'args' is a dict
-              containing parameters for the build() method of the previous class.
-        """
-        warnings.warn(
-            'HeaderFilterManager.create_if_needed() is deprecated; '
-            'use proxy() instead.',
-            DeprecationWarning,
-        )
-
-        from ..core.entity_cell import EntityCell
-
-        if user and user.is_staff:
-            # Staff users cannot be owner in order to stay 'invisible'.
-            raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
-
-        if is_private:
-            if not user:
-                raise ValueError('HeaderFilter.create(): a private filter must belong to a User.')
-
-            if not is_custom:
-                # It should not be useful to create a private HeaderFilter (so it
-                # belongs to a user) which cannot be deleted.
-                raise ValueError('HeaderFilter.create(): a private filter must be custom.')
-
-        try:
-            hf = self.get(pk=pk)
-        except self.model.DoesNotExist:
-            cells = []
-
-            for cell_desc in cells_desc:
-                if cell_desc is None:
-                    continue
-
-                if isinstance(cell_desc, EntityCell):
-                    cells.append(cell_desc)
-                else:
-                    cell = cell_desc[0].build(model=model, **cell_desc[1])
-
-                    if cell is not None:
-                        cells.append(cell)
-
-            hf = self.create(
-                pk=pk, name=name, user=user,
-                is_custom=is_custom, is_private=is_private,
-                entity_type=model,
-                cells=cells,
-                extra_data=extra_data or {},
-            )
-
-        return hf
-
-    create_if_needed.alters_data = True
+    # def create_if_needed(
+    #         self,
+    #         pk: str,
+    #         name: str,
+    #         model: type[CremeEntity],
+    #         is_custom: bool = False,
+    #         user: CremeUser | None = None,
+    #         is_private: bool = _DEFAULT_IS_PRIVATE,
+    #         cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
+    #         extra_data: dict | None = None,
+    # ) -> HeaderFilter:
+    #     """Creation helper ; useful for populate.py scripts.
+    #     @param cells_desc: List of objects where each one can other:
+    #         - an instance of EntityCell (one of its child class of course).
+    #         - a tuple (class, args)
+    #           where 'class' is child class of EntityCell, & 'args' is a dict
+    #           containing parameters for the build() method of the previous class.
+    #     """
+    #     warnings.warn(
+    #         'HeaderFilterManager.create_if_needed() is deprecated; '
+    #         'use proxy() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     from ..core.entity_cell import EntityCell
+    #
+    #     if user and user.is_staff:
+    #         # Staff users cannot be owner in order to stay 'invisible'.
+    #         raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
+    #
+    #     if is_private:
+    #         if not user:
+    #             raise ValueError(
+    #              'HeaderFilter.create(): a private filter must belong to a User.')
+    #
+    #         if not is_custom:
+    #             # It should not be useful to create a private HeaderFilter (so it
+    #             # belongs to a user) which cannot be deleted.
+    #             raise ValueError('HeaderFilter.create(): a private filter must be custom.')
+    #
+    #     try:
+    #         hf = self.get(pk=pk)
+    #     except self.model.DoesNotExist:
+    #         cells = []
+    #
+    #         for cell_desc in cells_desc:
+    #             if cell_desc is None:
+    #                 continue
+    #
+    #             if isinstance(cell_desc, EntityCell):
+    #                 cells.append(cell_desc)
+    #             else:
+    #                 cell = cell_desc[0].build(model=model, **cell_desc[1])
+    #
+    #                 if cell is not None:
+    #                     cells.append(cell)
+    #
+    #         hf = self.create(
+    #             pk=pk, name=name, user=user,
+    #             is_custom=is_custom, is_private=is_private,
+    #             entity_type=model,
+    #             cells=cells,
+    #             extra_data=extra_data or {},
+    #         )
+    #
+    #     return hf
+    #
+    # create_if_needed.alters_data = True
 
     def proxy(self, *,
               id: str,
