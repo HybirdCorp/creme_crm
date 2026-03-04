@@ -25,17 +25,32 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                ('name', models.CharField(max_length=100, verbose_name='Name of the generator', blank=True)),
-                ('first_generation', models.DateTimeField(verbose_name='Date of the first generation')),
+                (
+                    'name',
+                    models.CharField(
+                        max_length=100, verbose_name='Name of the generator', blank=True,
+                    )
+                ),
+                (
+                    'first_generation',
+                    models.DateTimeField(verbose_name='Date of the first generation')
+                ),
                 (
                     'last_generation',
-                    models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)
+                    models.DateTimeField(
+                        verbose_name='Date of the last generation', null=True, editable=False,
+                    )
                 ),
-                ('periodicity', core_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
-                ('is_working', models.BooleanField(default=True, verbose_name='Active?', editable=False)),
+                (
+                    'periodicity',
+                    core_fields.DatePeriodField(verbose_name='Periodicity of the generation')
+                ),
+                (
+                    'is_working',
+                    models.BooleanField(default=True, verbose_name='Active?', editable=False)
+                ),
                 (
                     'ct',
-                    # core_fields.CTypeForeignKey(
                     core_fields.EntityCTypeForeignKey(
                         to='contenttypes.ContentType',
                         editable=False, verbose_name='Type of the recurrent resource',

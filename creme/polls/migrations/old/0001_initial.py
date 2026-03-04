@@ -3,18 +3,12 @@ import uuid
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
-from django.utils.timezone import now
 
-import creme.creme_core.models.fields as core_fields
 import creme.polls.models.base
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('polls', '0001_initial'),
-    #     ('polls', '0008_v2_8__polltype_created_n_modified01'),
-    #     ('polls', '0009_v2_8__polltype_created_n_modified02'),
-    # ]
+    # Memo: last migration was "0007_v2_6__fix_ptype_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -25,29 +19,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollType',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                (
-                    'created',
-                    core_fields.CreationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Creation date',
-                    )
-                ),
-                (
-                    'modified',
-                    core_fields.ModificationDateTimeField(
-                        blank=True, default=now, editable=False, verbose_name='Last modification',
-                    )
-                ),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=80, verbose_name='Name')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -70,10 +46,7 @@ class Migration(migrations.Migration):
                 ('goal', models.TextField(verbose_name='Goal of the campaign', blank=True)),
                 ('start', models.DateField(null=True, verbose_name='Start', blank=True)),
                 ('due_date', models.DateField(null=True, verbose_name='Due date', blank=True)),
-                (
-                    'expected_count',
-                    models.PositiveIntegerField(default=1, verbose_name='Expected replies number'),
-                ),
+                ('expected_count', models.PositiveIntegerField(default=1, verbose_name='Expected replies number')),
                 (
                     'segment',
                     models.ForeignKey(
@@ -120,21 +93,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollFormSection',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Section body', blank=True)),
-                (
-                    'parent',
-                    models.ForeignKey(
-                        editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE,
-                    )
-                ),
+                ('parent', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE)),
                 (
                     'pform',
                     models.ForeignKey(
@@ -153,21 +116,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollFormLine',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('disabled', models.BooleanField(default=False, editable=False)),
                 ('type', models.PositiveSmallIntegerField(verbose_name='Type')),
                 ('type_args', models.TextField(null=True, editable=False)),
                 (
                     'conds_use_or',
-                    models.BooleanField(
-                        verbose_name='Use OR or AND between conditions', editable=False, null=True,
-                    )
+                    models.BooleanField(verbose_name='Use OR or AND between conditions', editable=False, null=True)
                 ),
                 ('question', models.TextField(verbose_name='Question')),
                 (
@@ -179,9 +135,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'section',
-                    models.ForeignKey(
-                        editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE,
-                    )
+                    models.ForeignKey(editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE)
                 ),
             ],
             options={
@@ -194,12 +148,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollFormLineCondition',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('operator', models.PositiveSmallIntegerField()),
                 ('raw_answer', models.TextField(null=True)),
                 (
@@ -226,10 +175,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
-                (
-                    'is_complete',
-                    models.BooleanField(default=False, verbose_name='Is complete', editable=False)
-                ),
+                ('is_complete', models.BooleanField(default=False, verbose_name='Is complete', editable=False)),
                 (
                     'campaign',
                     models.ForeignKey(
@@ -270,22 +216,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollReplySection',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Section body', blank=True)),
-                (
-                    'parent',
-                    models.ForeignKey(
-                        to='polls.PollReplySection',
-                        editable=False, null=True, on_delete=CASCADE,
-                    )
-                ),
+                ('parent', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True, on_delete=CASCADE)),
                 (
                     'preply',
                     models.ForeignKey(
@@ -304,19 +239,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollReplyLine',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('type', models.PositiveSmallIntegerField(editable=False)),
                 ('type_args', models.TextField(null=True, editable=False)),
-                (
-                    'applicable',
-                    models.BooleanField(default=True, verbose_name='Applicable', editable=False)
-                ),
+                ('applicable', models.BooleanField(default=True, verbose_name='Applicable', editable=False)),
                 (
                     'conds_use_or',
                     models.BooleanField(
@@ -325,10 +252,7 @@ class Migration(migrations.Migration):
                 ),
                 ('question', models.TextField(verbose_name='Question')),
                 ('raw_answer', models.TextField(null=True, verbose_name='Answer')),
-                (
-                    'pform_line',
-                    models.ForeignKey(editable=False, to='polls.PollFormLine', on_delete=CASCADE)
-                ),
+                ('pform_line', models.ForeignKey(editable=False, to='polls.PollFormLine', on_delete=CASCADE)),
                 (
                     'preply',
                     models.ForeignKey(
@@ -352,12 +276,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollReplyLineCondition',
             fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
-                    )
-                ),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('operator', models.PositiveSmallIntegerField()),
                 ('raw_answer', models.TextField(null=True)),
                 (
