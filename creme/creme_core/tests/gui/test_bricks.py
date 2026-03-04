@@ -351,157 +351,161 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(ibrick, FoobarInstanceBrick)
         self.assertEqual((FakeOrganisation, FakeContact), ibrick.dependencies)
 
-    def test_get_compatible_bricks(self):  # DEPRECATED
-        user = self.get_root_user()
-        casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
-
-        class FoobarBrick1(Brick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_1')
-            verbose_name = 'Testing purpose'
-
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
-
-        class FoobarBrick2(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_2')
-            verbose_name = 'Testing purpose'
-            target_ctypes = (FakeContact, FakeOrganisation)
-
-        class FoobarBrick3(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_3')
-            verbose_name = 'Testing purpose'
-            target_ctypes = (FakeOrganisation,)  # Not 'Contact'
-
-        class FoobarBrick4(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_4')
-            verbose_name = 'Testing purpose'
-            configurable = False  # <------
-
-        class FoobarBrick5(Brick):  # No detailview_display() method
-            id = Brick.generate_id('creme_core', 'foobar_brick_5')
-            verbose_name = 'Testing purpose'
-
-            def home_display(self, context):
-                return f'<table id="{self.html_id}"></table>'
-
-        class FakeContactBrick(EntityBrick):
-            verbose_name = 'Fake Contact block'
-
-        class FakeOrganisationBrick(EntityBrick):
-            verbose_name = 'Fake Organisation block'
-
-        class _FoobarInstanceBrick(InstanceBrick):
-            verbose_name = 'Testing purpose'
-
-        class FoobarInstanceBrick1(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
-
-            def detailview_display(self, context):
-                return (
-                    f'<table id="{self.html_id}">'
-                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
-
-        class FoobarInstanceBrick2(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_2')
-            target_ctypes = (FakeContact, FakeOrganisation)  # <-- OK !!
-
-            def detailview_display(self, context):
-                return (
-                    f'<table id="{self.html_id}">'
-                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
-
-        class FoobarInstanceBrick3(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
-            target_ctypes = (FakeOrganisation, FakeImage)  # <-- KO !!
-
-            def detailview_display(self, context):
-                return (
-                    f'<table id="{self.html_id}"><thead><tr>'
-                    f'{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
-
-        class FoobarInstanceBrick4(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_4')
-
-            def home_display(self, context):  # <====== not detailview_display()
-                return (
-                    f'<table id="{self.html_id}">'
-                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
-
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
-        ibci1 = create_ibci(
-            brick_class_id=FoobarInstanceBrick1.id,
-            uuid='575f1df4-5bdc-4696-aa45-a2f49865580e',
-        )
-        ibci2 = create_ibci(
-            brick_class_id=FoobarInstanceBrick2.id,
-            uuid='675f1df4-5bdc-4696-aa45-a2f49865580e',  # After "ibci1.uuid" to facilitate test.
-        )
-        create_ibci(brick_class_id=FoobarInstanceBrick3.id)
-        create_ibci(brick_class_id=FoobarInstanceBrick4.id)
-
-        brick_registry = BrickRegistry()
-
-        rtype1 = RelationType.objects.builder(
-            id='test-subject_loves', predicate='loves',
-        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
-        rbi = RelationBrickItem.objects.create(relation_type=rtype1)
-
-        create_cbci = CustomBrickConfigItem.objects.create
-        cbci = create_cbci(
-            # id='test-contacts01',
-            name='General (contact)',
-            content_type=FakeContact,
-            cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
-        )
-        create_cbci(
-            name='General (orga)',
-            content_type=FakeOrganisation,
-            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
-        )  # Not compatible with Contact
-
-        brick_registry.register(
-            FoobarBrick1,
-            FoobarBrick2,
-            FoobarBrick3,
-            FoobarBrick4,
-            FoobarBrick5,
-        ).register_4_model(
-            FakeContact, FakeContactBrick,
-        ).register_4_model(
-            FakeOrganisation, FakeOrganisationBrick,
-        ).register_4_instance(
-            FoobarInstanceBrick1,
-            FoobarInstanceBrick2,
-            FoobarInstanceBrick3,
-            FoobarInstanceBrick4,
-        )
-
-        bricks = sorted(brick_registry.get_compatible_bricks(FakeContact), key=lambda b: b.id)
-        self.assertEqual(7, len(bricks))
-
-        bricks_by_id = {brick.id: brick for brick in bricks}
-        self.assertIsInstance(bricks_by_id.get(FoobarBrick1.id), FoobarBrick1)
-        self.assertIsInstance(bricks_by_id.get(FoobarBrick2.id), FoobarBrick2)
-
-        self.assertIsInstance(bricks_by_id.get(cbci.brick_id), CustomBrick)
-        self.assertIsInstance(bricks_by_id.get(ibci1.brick_id), FoobarInstanceBrick1)
-        self.assertIsInstance(bricks_by_id.get(ibci2.brick_id), FoobarInstanceBrick2)
-
-        model_brick = bricks_by_id['model']
-        self.assertIsInstance(model_brick, FakeContactBrick)
-        self.assertEqual((FakeContact,), model_brick.dependencies)
-
-        rel_brick = bricks_by_id[rbi.brick_id]
-        self.assertIsInstance(rel_brick, SpecificRelationsBrick)
-        self.assertEqual((rtype1.id,), rel_brick.relation_type_deps)
+    # def test_get_compatible_bricks(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+    #
+    #     class FoobarBrick1(Brick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #         verbose_name = 'Testing purpose'
+    #
+    #         def detailview_display(self, context):
+    #             return self._render(self.get_template_context(context))
+    #
+    #     class FoobarBrick2(SimpleBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_2')
+    #         verbose_name = 'Testing purpose'
+    #         target_ctypes = (FakeContact, FakeOrganisation)
+    #
+    #     class FoobarBrick3(SimpleBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_3')
+    #         verbose_name = 'Testing purpose'
+    #         target_ctypes = (FakeOrganisation,)  # Not 'Contact'
+    #
+    #     class FoobarBrick4(SimpleBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_4')
+    #         verbose_name = 'Testing purpose'
+    #         configurable = False  # <------
+    #
+    #     class FoobarBrick5(Brick):  # No detailview_display() method
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_5')
+    #         verbose_name = 'Testing purpose'
+    #
+    #         def home_display(self, context):
+    #             return f'<table id="{self.html_id}"></table>'
+    #
+    #     class FakeContactBrick(EntityBrick):
+    #         verbose_name = 'Fake Contact block'
+    #
+    #     class FakeOrganisationBrick(EntityBrick):
+    #         verbose_name = 'Fake Organisation block'
+    #
+    #     class _FoobarInstanceBrick(InstanceBrick):
+    #         verbose_name = 'Testing purpose'
+    #
+    #     class FoobarInstanceBrick1(_FoobarInstanceBrick):
+    #         id = InstanceBrickConfigItem.generate_base_id(
+    #         'creme_core', 'foobar_instance_brick_1')
+    #
+    #         def detailview_display(self, context):
+    #             return (
+    #                 f'<table id="{self.html_id}">'
+    #                 f'<thead><tr>{self.config_item.entity}</tr></thead>'
+    #                 f'</table>'
+    #             )
+    #
+    #     class FoobarInstanceBrick2(_FoobarInstanceBrick):
+    #         id = InstanceBrickConfigItem.generate_base_id(
+    #         'creme_core', 'foobar_instance_brick_2')
+    #         target_ctypes = (FakeContact, FakeOrganisation)  # <-- OK !!
+    #
+    #         def detailview_display(self, context):
+    #             return (
+    #                 f'<table id="{self.html_id}">'
+    #                 f'<thead><tr>{self.config_item.entity}</tr></thead>'
+    #                 f'</table>'
+    #             )
+    #
+    #     class FoobarInstanceBrick3(_FoobarInstanceBrick):
+    #         id = InstanceBrickConfigItem.generate_base_id(
+    #         'creme_core', 'foobar_instance_brick_3')
+    #         target_ctypes = (FakeOrganisation, FakeImage)  # <-- KO !!
+    #
+    #         def detailview_display(self, context):
+    #             return (
+    #                 f'<table id="{self.html_id}"><thead><tr>'
+    #                 f'{self.config_item.entity}</tr></thead>'
+    #                 f'</table>'
+    #             )
+    #
+    #     class FoobarInstanceBrick4(_FoobarInstanceBrick):
+    #         id = InstanceBrickConfigItem.generate_base_id(
+    #         'creme_core', 'foobar_instance_brick_4')
+    #
+    #         def home_display(self, context):  # <====== not detailview_display()
+    #             return (
+    #                 f'<table id="{self.html_id}">'
+    #                 f'<thead><tr>{self.config_item.entity}</tr></thead>'
+    #                 f'</table>'
+    #             )
+    #
+    #     create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+    #     ibci1 = create_ibci(
+    #         brick_class_id=FoobarInstanceBrick1.id,
+    #         uuid='575f1df4-5bdc-4696-aa45-a2f49865580e',
+    #     )
+    #     ibci2 = create_ibci(
+    #         brick_class_id=FoobarInstanceBrick2.id,
+    #         uuid='675f1df4-5bdc-4696-aa45-a2f49865580e',
+    #     )
+    #     create_ibci(brick_class_id=FoobarInstanceBrick3.id)
+    #     create_ibci(brick_class_id=FoobarInstanceBrick4.id)
+    #
+    #     brick_registry = BrickRegistry()
+    #
+    #     rtype1 = RelationType.objects.builder(
+    #         id='test-subject_loves', predicate='loves',
+    #     ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
+    #     rbi = RelationBrickItem.objects.create(relation_type=rtype1)
+    #
+    #     create_cbci = CustomBrickConfigItem.objects.create
+    #     cbci = create_cbci(
+    #         # id='test-contacts01',
+    #         name='General (contact)',
+    #         content_type=FakeContact,
+    #         cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
+    #     )
+    #     create_cbci(
+    #         name='General (orga)',
+    #         content_type=FakeOrganisation,
+    #         cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+    #     )  # Not compatible with Contact
+    #
+    #     brick_registry.register(
+    #         FoobarBrick1,
+    #         FoobarBrick2,
+    #         FoobarBrick3,
+    #         FoobarBrick4,
+    #         FoobarBrick5,
+    #     ).register_4_model(
+    #         FakeContact, FakeContactBrick,
+    #     ).register_4_model(
+    #         FakeOrganisation, FakeOrganisationBrick,
+    #     ).register_4_instance(
+    #         FoobarInstanceBrick1,
+    #         FoobarInstanceBrick2,
+    #         FoobarInstanceBrick3,
+    #         FoobarInstanceBrick4,
+    #     )
+    #
+    #     bricks = sorted(brick_registry.get_compatible_bricks(FakeContact), key=lambda b: b.id)
+    #     self.assertEqual(7, len(bricks))
+    #
+    #     bricks_by_id = {brick.id: brick for brick in bricks}
+    #     self.assertIsInstance(bricks_by_id.get(FoobarBrick1.id), FoobarBrick1)
+    #     self.assertIsInstance(bricks_by_id.get(FoobarBrick2.id), FoobarBrick2)
+    #
+    #     self.assertIsInstance(bricks_by_id.get(cbci.brick_id), CustomBrick)
+    #     self.assertIsInstance(bricks_by_id.get(ibci1.brick_id), FoobarInstanceBrick1)
+    #     self.assertIsInstance(bricks_by_id.get(ibci2.brick_id), FoobarInstanceBrick2)
+    #
+    #     model_brick = bricks_by_id['model']
+    #     self.assertIsInstance(model_brick, FakeContactBrick)
+    #     self.assertEqual((FakeContact,), model_brick.dependencies)
+    #
+    #     rel_brick = bricks_by_id[rbi.brick_id]
+    #     self.assertIsInstance(rel_brick, SpecificRelationsBrick)
+    #     self.assertEqual((rtype1.id,), rel_brick.relation_type_deps)
 
     def test_get_compatible_detail_bricks(self):
         user = self.get_root_user()

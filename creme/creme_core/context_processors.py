@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.conf import settings
 from django.utils.timezone import now
 
@@ -99,11 +98,11 @@ def get_world_settings(request):
     return {'world_settings': get_world_settings_model().objects.instance()}
 
 
-def get_entities_deletion_allowed(request):
-    warnings.warn(
-        'The context processor "get_entities_deletion_allowed" is deprecated;'
-        'you should probably use {% get_deletion_info ... %} instead.',
-        DeprecationWarning,
-    )
-
-    return {'ENTITIES_DELETION_ALLOWED': settings.ENTITIES_DELETION_ALLOWED}
+# def get_entities_deletion_allowed(request):
+#     warnings.warn(
+#         'The context processor "get_entities_deletion_allowed" is deprecated;'
+#         'you should probably use {% get_deletion_info ... %} instead.',
+#         DeprecationWarning,
+#     )
+#
+#     return {'ENTITIES_DELETION_ALLOWED': settings.ENTITIES_DELETION_ALLOWED}

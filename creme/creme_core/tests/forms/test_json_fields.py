@@ -155,30 +155,30 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             '123', clean_value(data={'my_field': '123'}, name='my_field', type=str),
         )
 
-    def test_clean_ctype__not_required__legacy(self):  # DEPRECATED
-        clean_type = JSONField(required=False)._clean_ctype
-        ct = ContentType.objects.get_for_model(FakeContact)
+    # def test_clean_ctype__not_required__legacy(self):  # DEPRECATED
+    #     clean_type = JSONField(required=False)._clean_ctype
+    #     ct = ContentType.objects.get_for_model(FakeContact)
+    #
+    #     with self.assertWarns(DeprecationWarning):
+    #         self.assertEqual(ct, clean_type(ct.id))
+    #
+    #     self.assertIsNone(clean_type(0))
+    #     self.assertIsNone(clean_type(None))
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_type(self.UNUSED_PK)
+    #     self.assertEqual('ctypedoesnotexist', cm.exception.code)
 
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(ct, clean_type(ct.id))
-
-        self.assertIsNone(clean_type(0))
-        self.assertIsNone(clean_type(None))
-
-        with self.assertRaises(ValidationError) as cm:
-            clean_type(self.UNUSED_PK)
-        self.assertEqual('ctypedoesnotexist', cm.exception.code)
-
-    def test_clean_ctype__required__legacy(self):  # DEPRECATED
-        clean_type = JSONField(required=True)._clean_ctype
-        ct = ContentType.objects.get_for_model(FakeOrganisation)
-
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(ct, clean_type(ct.id))
-
-        with self.assertRaises(ValidationError) as cm:
-            clean_type(None)
-        self.assertEqual('ctyperequired', cm.exception.code)
+    # def test_clean_ctype__required__legacy(self):  # DEPRECATED
+    #     clean_type = JSONField(required=True)._clean_ctype
+    #     ct = ContentType.objects.get_for_model(FakeOrganisation)
+    #
+    #     with self.assertWarns(DeprecationWarning):
+    #         self.assertEqual(ct, clean_type(ct.id))
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_type(None)
+    #     self.assertEqual('ctyperequired', cm.exception.code)
 
     def test_clean_ctype(self):
         clean_type = JSONField()._clean_ctype
@@ -201,50 +201,50 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_type(self.UNUSED_PK, required=False)
         self.assertEqual('ctypedoesnotexist', cm.exception.code)
 
-    def test_clean_entity__not_required__legacy(self):  # DEPRECATED
-        user = self.get_root_user()
-        clean_entity = JSONField(user=user, required=False)._clean_entity
+    # def test_clean_entity__not_required__legacy(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     clean_entity = JSONField(user=user, required=False)._clean_entity
+    #
+    #     contact = self.create_contact(user=user)
+    #     with self.assertWarns(DeprecationWarning):
+    #         self.assertEqual(
+    #             contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
+    #         )
+    #     self.assertEqual(
+    #         contact, clean_entity(ctype=contact.entity_type_id, entity_pk=contact.id),
+    #     )
+    #
+    #     self.assertIsNone(clean_entity(ctype=0, entity_pk=1))
+    #     self.assertIsNone(clean_entity(ctype=contact.entity_type, entity_pk=0))
+    #
+    #     # ---
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_entity(ctype=contact.entity_type, entity_pk=self.UNUSED_PK)
+    #     self.assertEqual('doesnotexist', cm.exception.code)
+    #
+    #     # Deleted ---
+    #     contact.is_deleted = True
+    #     contact.save()
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_entity(ctype=contact.entity_type, entity_pk=contact.id)
+    #     self.assertEqual('isdeleted', cm.exception.code)
 
-        contact = self.create_contact(user=user)
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(
-                contact, clean_entity(ctype=contact.entity_type, entity_pk=contact.id),
-            )
-        self.assertEqual(
-            contact, clean_entity(ctype=contact.entity_type_id, entity_pk=contact.id),
-        )
-
-        self.assertIsNone(clean_entity(ctype=0, entity_pk=1))
-        self.assertIsNone(clean_entity(ctype=contact.entity_type, entity_pk=0))
-
-        # ---
-        with self.assertRaises(ValidationError) as cm:
-            clean_entity(ctype=contact.entity_type, entity_pk=self.UNUSED_PK)
-        self.assertEqual('doesnotexist', cm.exception.code)
-
-        # Deleted ---
-        contact.is_deleted = True
-        contact.save()
-
-        with self.assertRaises(ValidationError) as cm:
-            clean_entity(ctype=contact.entity_type, entity_pk=contact.id)
-        self.assertEqual('isdeleted', cm.exception.code)
-
-    def test_clean_entity__required__legacy(self):  # DEPRECATED
-        clean_entity = JSONField(required=True)._clean_entity
-
-        with self.assertRaises(ValidationError) as cm:
-            clean_entity(ctype=0, entity_pk=1)
-        self.assertEqual('ctyperequired', cm.exception.code)
-
-        # ---
-        with self.assertRaises(ValidationError) as cm:
-            clean_entity(
-                ctype=ContentType.objects.get_for_model(FakeContact),
-                entity_pk=0,
-            )
-        # self.assertEqual('required', cm.exception.code)
-        self.assertEqual('entityrequired', cm.exception.code)
+    # def test_clean_entity__required__legacy(self):  # DEPRECATED
+    #     clean_entity = JSONField(required=True)._clean_entity
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_entity(ctype=0, entity_pk=1)
+    #     self.assertEqual('ctyperequired', cm.exception.code)
+    #
+    #     # ---
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean_entity(
+    #             ctype=ContentType.objects.get_for_model(FakeContact),
+    #             entity_pk=0,
+    #         )
+    #     # self.assertEqual('required', cm.exception.code)
+    #     self.assertEqual('entityrequired', cm.exception.code)
 
     def test_clean_entity(self):
         user = self.get_root_user()
@@ -265,11 +265,11 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             clean_entity(ctype=FakeContact, entity_pk=contact.id, required=True),
         )
 
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(
-                contact,
-                clean_entity(ctype=ctype.id, entity_pk=contact.id, required=True),
-            )
+        # with self.assertWarns(DeprecationWarning):
+        #     self.assertEqual(
+        #         contact,
+        #         clean_entity(ctype=ctype.id, entity_pk=contact.id, required=True),
+        #     )
 
         # Empty ---
         self.assertIsNone(clean_entity(ctype=None, entity_pk=contact.id, required=False))
@@ -442,72 +442,72 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             JSONField().from_python(val),
         )
 
-    def test_clean_entity_from_model(self):  # DEPRECATED
-        user = self.get_root_user()
-        contact = self.create_contact(user=user)
-        field = JSONField(required=True)
-
-        clean_entity = field._clean_entity_from_model
-        self.assertEqual(contact, clean_entity(FakeContact, contact.pk))
-
-        # ---
-        with self.assertNoException():
-            message = field.default_error_messages['doesnotexist']
-        self.assertEqual(_('This entity does not exist.'), message)
-
-        with self.assertRaises(ValidationError) as cm1:
-            clean_entity(FakeOrganisation, contact.pk)
-        self.assertValidationError(cm1.exception, messages=message, codes='doesnotexist')
-
-        # ---
-        with self.assertRaises(ValidationError) as cm2:
-            clean_entity(FakeContact, self.UNUSED_PK)
-        self.assertValidationError(cm2.exception, messages=message, codes='doesnotexist')
-
-    def test_clean_entity_from_model__filtered(self):  # DEPRECATED
-        user = self.get_root_user()
-        contact = self.create_contact(user=user)
-        field = JSONField(required=True, user=user)
-
-        clean = field._clean_entity_from_model
-        self.assertEqual(contact, clean(FakeContact, contact.pk, qfilter=Q(pk=contact.pk)))
-        # ---
-        code = 'isexcluded'
-
-        with self.assertNoException():
-            message = field.default_error_messages[code]
-
-        self.assertEqual(message, _('«%(entity)s» violates the constraints.'))
-
-        with self.assertRaises(ValidationError) as cm:
-            clean(FakeContact, contact.pk, ~Q(pk=contact.pk))
-
-        self.assertValidationError(
-            cm.exception,
-            messages=message % {'entity': str(contact)},
-            codes=code,
-        )
-
-    def test_clean_entity_from_model__deleted(self):  # DEPRECATED
-        user = self.get_root_user()
-        contact = self.create_contact(user=user, is_deleted=True)
-        field = JSONField(user=user)
-
-        # ---
-        code = 'isdeleted'
-
-        with self.assertNoException():
-            message = field.default_error_messages[code]
-        self.assertEqual(message, _('«%(entity)s» is in the trash.'))
-
-        with self.assertRaises(ValidationError) as cm:
-            field._clean_entity_from_model(FakeContact, contact.pk, Q(pk=contact.pk))
-
-        self.assertValidationError(
-            cm.exception,
-            messages=message % {'entity': str(contact)},
-            codes=code,
-        )
+    # def test_clean_entity_from_model(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     contact = self.create_contact(user=user)
+    #     field = JSONField(required=True)
+    #
+    #     clean_entity = field._clean_entity_from_model
+    #     self.assertEqual(contact, clean_entity(FakeContact, contact.pk))
+    #
+    #     # ---
+    #     with self.assertNoException():
+    #         message = field.default_error_messages['doesnotexist']
+    #     self.assertEqual(_('This entity does not exist.'), message)
+    #
+    #     with self.assertRaises(ValidationError) as cm1:
+    #         clean_entity(FakeOrganisation, contact.pk)
+    #     self.assertValidationError(cm1.exception, messages=message, codes='doesnotexist')
+    #
+    #     # ---
+    #     with self.assertRaises(ValidationError) as cm2:
+    #         clean_entity(FakeContact, self.UNUSED_PK)
+    #     self.assertValidationError(cm2.exception, messages=message, codes='doesnotexist')
+    #
+    # def test_clean_entity_from_model__filtered(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     contact = self.create_contact(user=user)
+    #     field = JSONField(required=True, user=user)
+    #
+    #     clean = field._clean_entity_from_model
+    #     self.assertEqual(contact, clean(FakeContact, contact.pk, qfilter=Q(pk=contact.pk)))
+    #     # ---
+    #     code = 'isexcluded'
+    #
+    #     with self.assertNoException():
+    #         message = field.default_error_messages[code]
+    #
+    #     self.assertEqual(message, _('«%(entity)s» violates the constraints.'))
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         clean(FakeContact, contact.pk, ~Q(pk=contact.pk))
+    #
+    #     self.assertValidationError(
+    #         cm.exception,
+    #         messages=message % {'entity': str(contact)},
+    #         codes=code,
+    #     )
+    #
+    # def test_clean_entity_from_model__deleted(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     contact = self.create_contact(user=user, is_deleted=True)
+    #     field = JSONField(user=user)
+    #
+    #     # ---
+    #     code = 'isdeleted'
+    #
+    #     with self.assertNoException():
+    #         message = field.default_error_messages[code]
+    #     self.assertEqual(message, _('«%(entity)s» is in the trash.'))
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         field._clean_entity_from_model(FakeContact, contact.pk, Q(pk=contact.pk))
+    #
+    #     self.assertValidationError(
+    #         cm.exception,
+    #         messages=message % {'entity': str(contact)},
+    #         codes=code,
+    #     )
 
 
 class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):

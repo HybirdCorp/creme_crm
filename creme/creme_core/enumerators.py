@@ -16,8 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -30,7 +30,8 @@ from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
 )
-from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
+# from creme.creme_core.utils.content_type import entity_ctypes
+from creme.creme_core.utils.content_type import ctype_choices
 from creme.creme_core.utils.unicode_collation import collator
 
 logger = logging.getLogger(__name__)
@@ -177,31 +178,31 @@ class CTypeForeignKeyEnumerator(enumerable.Enumerator):
         return [ct for ct_id in values if (ct := allowed_ct_ids.get(ct_id))]
 
 
-class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
-    def __init__(self, field):
-        super().__init__(field)
-        warnings.warn(
-            'EntityCTypeForeignKeyEnumerator is deprecated; '
-            'use CTypeForeignKeyEnumerator (& set allowed_models) instead.',
-            DeprecationWarning
-        )
-
-    def choices(self, user, *, term=None, only=None, limit=None):
-        choices = ctype_choices(entity_ctypes())
-
-        if only:
-            choices = [c for c in choices if c[0] in only]
-        elif term:
-            term = term.lower()
-            choices = [c for c in choices if term in c[1].lower()]
-
-        return [
-            {'value': ct_id, 'label': label}
-            for ct_id, label in (choices[:limit] if limit else choices)
-        ]
-
-    def to_python(self, user, values):
-        return [c for c in entity_ctypes() if c.id in values]
+# class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
+#     def __init__(self, field):
+#         super().__init__(field)
+#         warnings.warn(
+#             'EntityCTypeForeignKeyEnumerator is deprecated; '
+#             'use CTypeForeignKeyEnumerator (& set allowed_models) instead.',
+#             DeprecationWarning
+#         )
+#
+#     def choices(self, user, *, term=None, only=None, limit=None):
+#         choices = ctype_choices(entity_ctypes())
+#
+#         if only:
+#             choices = [c for c in choices if c[0] in only]
+#         elif term:
+#             term = term.lower()
+#             choices = [c for c in choices if term in c[1].lower()]
+#
+#         return [
+#             {'value': ct_id, 'label': label}
+#             for ct_id, label in (choices[:limit] if limit else choices)
+#         ]
+#
+#     def to_python(self, user, values):
+#         return [c for c in entity_ctypes() if c.id in values]
 
 
 class VatEnumerator(enumerable.QSEnumerator):
