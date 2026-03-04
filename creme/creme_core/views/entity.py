@@ -347,7 +347,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_paginator(self, *, queryset, ordering: Iterable[str]) -> FlowPaginator:
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
-        #  it retrieves the value of the key field, & it takes cares about
+        #  It retrieves the value of the key field, & it takes cares about
         #  duplicates (like Organisation with the same name) by adding an OFFSET
         #  but only when it's need.
         #  Maybe, we could recode this to retrieve only 2 entities, but it does
@@ -355,7 +355,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
             # key=ordering[0],
-            per_page=2,  # NB: cannot
+            per_page=2,  # NB: cannot set 1
         )
 
     def get_index_n_page_info(self) -> tuple[int, dict | None]:

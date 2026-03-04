@@ -111,6 +111,26 @@ class HeaderFilterManagerTestCase(CremeTestCase):
             hf.cells,
         )
 
+    def test_create_if_needed__errors(self):  # DEPRECATED
+        user = self.get_root_user()
+
+        # Private + no user => error
+        with self.assertRaises(ValueError):
+            HeaderFilter.objects.create_if_needed(
+                pk='tests-hf_contact', name='Contact view edited',
+                model=FakeContact, is_private=True,
+                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+            )
+
+        # Private + not is_custom => error
+        with self.assertRaises(ValueError):
+            HeaderFilter.objects.create_if_needed(
+                pk='tests-hf_contact', name='Contact view edited',
+                user=user, model=FakeContact,
+                is_private=True, is_custom=False,
+                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+            )
+
     def test_filter_by_user(self):
         user = self.login_as_standard()
         other_user = self.get_root_user()
@@ -163,26 +183,6 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         filtered2 = [*HeaderFilter.objects.filter_by_user(staff)]
         for hf in hfilters:
             self.assertIn(hf, filtered2)
-
-    def test_create_if_needed__errors(self):  # DEPRECATED
-        user = self.get_root_user()
-
-        # Private + no user => error
-        with self.assertRaises(ValueError):
-            HeaderFilter.objects.create_if_needed(
-                pk='tests-hf_contact', name='Contact view edited',
-                model=FakeContact, is_private=True,
-                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-            )
-
-        # Private + not is_custom => error
-        with self.assertRaises(ValueError):
-            HeaderFilter.objects.create_if_needed(
-                pk='tests-hf_contact', name='Contact view edited',
-                user=user, model=FakeContact,
-                is_private=True, is_custom=False,
-                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-            )
 
     def test_proxy__get_or_create__minimal(self):
         count = HeaderFilter.objects.count()
