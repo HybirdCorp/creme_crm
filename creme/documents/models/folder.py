@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -163,7 +163,9 @@ class AbstractFolder(CremeEntity):
 
         return parents
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self,  *args,
+             force_insert=False, force_update=False, using=None, update_fields=None,
+             ):
         if not self.category and self.parent_folder:
             self.category = self.parent_folder.category
             if update_fields is not None:

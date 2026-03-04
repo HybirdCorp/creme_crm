@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -199,7 +199,9 @@ class Calendar(CremeModel):
         """See CremeEntity.portable_key()."""
         return str(self.uuid)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args,
+             force_insert=False, force_update=False, using=None, update_fields=None,
+             ):
         mngr = type(self).objects
         check = self._enable_default_checking
 
@@ -217,6 +219,7 @@ class Calendar(CremeModel):
             self.is_public = True
 
         super().save(
+            *args,
             force_insert=force_insert,
             force_update=force_update,
             using=using,

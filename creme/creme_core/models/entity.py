@@ -418,7 +418,9 @@ class CremeEntity(CremeModel):
         """
         return str(self.uuid)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args,
+             force_insert=False, force_update=False, using=None, update_fields=None,
+             ):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
         if update_fields is not None:
@@ -429,6 +431,7 @@ class CremeEntity(CremeModel):
             }
 
         super().save(
+            *args,
             force_insert=force_insert,
             force_update=force_update,
             using=using,
