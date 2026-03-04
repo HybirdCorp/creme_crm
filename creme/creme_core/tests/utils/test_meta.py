@@ -799,14 +799,14 @@ class OrderTestCase(CremeTestCase):
         order2 = Order.from_string(None, required=False)
         self.assertEqual('ASC', str(order2))
 
-    def test_reverse(self):  # DEPRECATED
-        order1 = Order(True)
-        order1.reverse()
-        self.assertFalse(order1.asc)
-
-        order2 = Order(False)
-        order2.reverse()
-        self.assertTrue(order2.asc)
+    # def test_reverse(self):  # DEPRECATED
+    #     order1 = Order(True)
+    #     order1.reverse()
+    #     self.assertFalse(order1.asc)
+    #
+    #     order2 = Order(False)
+    #     order2.reverse()
+    #     self.assertTrue(order2.asc)
 
     def test_reversed(self):
         order1 = Order(True)

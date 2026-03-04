@@ -1,5 +1,28 @@
 == Version 3.0 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - The context processor "creme_core.context_processors.get_entities_deletion_allowed" has been removed.
+            - These classes cannot be imported from 'creme_core.bricks' :
+              'JobResultsBrick', 'JobErrorsBrick', 'EntityJobErrorsBrick',
+              'MassImportJobErrorsBrick', 'TrashCleanerJobErrorsBrick'.
+            - The class 'creme_core.core.enumerators.EntityCTypeForeignKeyEnumerator' has been removed.
+            - The method 'creme_core.utils.meta.Order.reverse()' has been removed.
+            - In 'creme_core.forms.fields.JSONField' :
+                - In the methods '_clean_ctype()' & '_clean_entity()' the argument "required" is now mandatory.
+                - Passing an integer as 'ctype' argument to the method '_clean_entity()' is not supported anymore.
+                - The method '_clean_entity_from_model()' has been removed.
+            - In 'creme_core.models' :
+                - The method 'header_filter.HeaderFilterManager.create_if_needed() has been removed.
+                - The method 'search.SearchConfigItemManager.create_if_needed()' has been removed.
+            - In 'creme_core.utils.content_type', these functions has been removed :
+              'ctype_as_key()' & 'ctype_from_key()'.
+
+
 == Version 2.8 Work in progress (not released -- this is a draft) ==
 
   Users side :

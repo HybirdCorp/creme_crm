@@ -29,107 +29,107 @@ from ..base import CremeTestCase
 
 
 class HeaderFilterManagerTestCase(CremeTestCase):
-    def test_create_if_needed(self):  # DEPRECATED
-        name = 'Contact view'
-        pk   = 'tests-hf_contact'
-        hf = HeaderFilter.objects.create_if_needed(
-            pk=pk, name=name, model=FakeContact, is_custom=True,
-        )
-        self.assertEqual(pk,   hf.pk)
-        self.assertEqual(name, hf.name)
-        self.assertIsNone(hf.user)
-        self.assertEqual(
-            ContentType.objects.get_for_model(FakeContact), hf.entity_type,
-        )
-        self.assertIs(hf.is_custom, True)
-        self.assertIs(hf.is_private, False)
-        self.assertDictEqual({}, hf.extra_data)
-        self.assertListEqual([], hf.json_cells)
-        self.assertFalse(hf.cells)
-        self.assertListEqual([], hf.filtered_cells)
+    # def test_create_if_needed(self):  # DEPRECATED
+    #     name = 'Contact view'
+    #     pk   = 'tests-hf_contact'
+    #     hf = HeaderFilter.objects.create_if_needed(
+    #         pk=pk, name=name, model=FakeContact, is_custom=True,
+    #     )
+    #     self.assertEqual(pk,   hf.pk)
+    #     self.assertEqual(name, hf.name)
+    #     self.assertIsNone(hf.user)
+    #     self.assertEqual(
+    #         ContentType.objects.get_for_model(FakeContact), hf.entity_type,
+    #     )
+    #     self.assertIs(hf.is_custom, True)
+    #     self.assertIs(hf.is_private, False)
+    #     self.assertDictEqual({}, hf.extra_data)
+    #     self.assertListEqual([], hf.json_cells)
+    #     self.assertFalse(hf.cells)
+    #     self.assertListEqual([], hf.filtered_cells)
 
-    def test_create_if_needed__cells_n_extra(self):  # DEPRECATED
-        "With cells & extra_data."
-        user = self.get_root_user()
+    # def test_create_if_needed__cells_n_extra(self):  # DEPRECATED
+    #     "With cells & extra_data."
+    #     user = self.get_root_user()
+    #
+    #     loves = RelationType.objects.builder(
+    #         id='test-subject_love', predicate='Is loving',
+    #     ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+    #     likes = RelationType.objects.builder(
+    #         id='test-subject_like', predicate='Is liking',
+    #     ).symmetric(id='test-object_like', predicate='Is liked by').get_or_create()[0]
+    #
+    #     extra_data = {'my_key': 'my_value'}
+    #     hf = HeaderFilter.objects.create_if_needed(
+    #         pk='tests-hf_contact', name='Contact view',
+    #         model=FakeContact, is_custom=True, is_private=True,
+    #         user=user,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'last_name'}),
+    #             EntityCellRelation(model=FakeContact, rtype=loves),
+    #             (EntityCellRelation, {'name': likes.id}),
+    #             None,
+    #         ],
+    #         extra_data=extra_data,
+    #     )
+    #
+    #     hf = self.refresh(hf)
+    #     self.assertEqual(user, hf.user)
+    #     self.assertTrue(hf.is_private)
+    #     self.assertListEqual(
+    #         [
+    #             EntityCellRegularField.build(model=FakeContact, name='last_name'),
+    #             EntityCellRelation(model=FakeContact, rtype=loves),
+    #             EntityCellRelation(model=FakeContact, rtype=likes),
+    #         ],
+    #         hf.cells,
+    #     )
+    #     self.assertDictEqual(extra_data, hf.extra_data)
 
-        loves = RelationType.objects.builder(
-            id='test-subject_love', predicate='Is loving',
-        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
-        likes = RelationType.objects.builder(
-            id='test-subject_like', predicate='Is liking',
-        ).symmetric(id='test-object_like', predicate='Is liked by').get_or_create()[0]
+    # def test_create_if_needed__already_exists(self):  # DEPRECATED
+    #     "Do not modify if it already exists."
+    #     pk = 'tests-hf_contact'
+    #     name = 'Contact view'
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=pk, name=name,
+    #         model=FakeContact, is_custom=False,
+    #         cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+    #     )
+    #
+    #     hf = HeaderFilter.objects.create_if_needed(
+    #         pk=pk, name='Contact view edited', user=self.get_root_user(),
+    #         model=FakeContact, is_custom=False,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'first_name'}),
+    #             (EntityCellRegularField, {'name': 'last_name'}),
+    #         ],
+    #     )
+    #     self.assertEqual(name, hf.name)
+    #     self.assertIsNone(hf.user)
+    #     self.assertListEqual(
+    #         [EntityCellRegularField.build(model=FakeContact, name='last_name')],
+    #         hf.cells,
+    #     )
 
-        extra_data = {'my_key': 'my_value'}
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, is_private=True,
-            user=user,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                EntityCellRelation(model=FakeContact, rtype=loves),
-                (EntityCellRelation, {'name': likes.id}),
-                None,
-            ],
-            extra_data=extra_data,
-        )
-
-        hf = self.refresh(hf)
-        self.assertEqual(user, hf.user)
-        self.assertTrue(hf.is_private)
-        self.assertListEqual(
-            [
-                EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                EntityCellRelation(model=FakeContact, rtype=loves),
-                EntityCellRelation(model=FakeContact, rtype=likes),
-            ],
-            hf.cells,
-        )
-        self.assertDictEqual(extra_data, hf.extra_data)
-
-    def test_create_if_needed__already_exists(self):  # DEPRECATED
-        "Do not modify if it already exists."
-        pk = 'tests-hf_contact'
-        name = 'Contact view'
-        HeaderFilter.objects.create_if_needed(
-            pk=pk, name=name,
-            model=FakeContact, is_custom=False,
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-        )
-
-        hf = HeaderFilter.objects.create_if_needed(
-            pk=pk, name='Contact view edited', user=self.get_root_user(),
-            model=FakeContact, is_custom=False,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'first_name'}),
-                (EntityCellRegularField, {'name': 'last_name'}),
-            ],
-        )
-        self.assertEqual(name, hf.name)
-        self.assertIsNone(hf.user)
-        self.assertListEqual(
-            [EntityCellRegularField.build(model=FakeContact, name='last_name')],
-            hf.cells,
-        )
-
-    def test_create_if_needed__errors(self):  # DEPRECATED
-        user = self.get_root_user()
-
-        # Private + no user => error
-        with self.assertRaises(ValueError):
-            HeaderFilter.objects.create_if_needed(
-                pk='tests-hf_contact', name='Contact view edited',
-                model=FakeContact, is_private=True,
-                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-            )
-
-        # Private + not is_custom => error
-        with self.assertRaises(ValueError):
-            HeaderFilter.objects.create_if_needed(
-                pk='tests-hf_contact', name='Contact view edited',
-                user=user, model=FakeContact,
-                is_private=True, is_custom=False,
-                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-            )
+    # def test_create_if_needed__errors(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #
+    #     # Private + no user => error
+    #     with self.assertRaises(ValueError):
+    #         HeaderFilter.objects.create_if_needed(
+    #             pk='tests-hf_contact', name='Contact view edited',
+    #             model=FakeContact, is_private=True,
+    #             cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+    #         )
+    #
+    #     # Private + not is_custom => error
+    #     with self.assertRaises(ValueError):
+    #         HeaderFilter.objects.create_if_needed(
+    #             pk='tests-hf_contact', name='Contact view edited',
+    #             user=user, model=FakeContact,
+    #             is_private=True, is_custom=False,
+    #             cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+    #         )
 
     def test_filter_by_user(self):
         user = self.login_as_standard()

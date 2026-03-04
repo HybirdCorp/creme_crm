@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 
 from django.conf import settings
@@ -571,55 +571,55 @@ class NotificationsBrick(QuerysetBrick):
         return self._render(btc)
 
 
-def __getattr__(name):
-    if name == 'JobResultsBrick':
-        warnings.warn(
-            '"JobResultsBrick" has moved to <creme_core.gui.job>; '
-            'fix your import statement.',
-            DeprecationWarning,
-        )
-        from .gui.job import JobResultsBrick
-
-        return JobResultsBrick
-
-    if name == 'JobErrorsBrick':
-        warnings.warn(
-            '"JobErrorsBrick" has moved to <creme_core.gui.job>; '
-            'fix your import statement.',
-            DeprecationWarning,
-        )
-        from .gui.job import JobErrorsBrick
-
-        return JobErrorsBrick
-
-    if name == 'EntityJobErrorsBrick':
-        warnings.warn(
-            '"EntityJobErrorsBrick" has moved to <creme_core.gui.job>; '
-            'fix your import statement.',
-            DeprecationWarning,
-        )
-        from .gui.job import EntityJobErrorsBrick
-
-        return EntityJobErrorsBrick
-
-    if name == 'MassImportJobErrorsBrick':
-        warnings.warn(
-            '"MassImportJobErrorsBrick" has moved to <creme_core.creme_jobs.mass_import>; '
-            'fix your import statement.',
-            DeprecationWarning,
-        )
-        from .creme_jobs.mass_import import MassImportJobErrorsBrick
-
-        return MassImportJobErrorsBrick
-
-    if name == 'TrashCleanerJobErrorsBrick':
-        warnings.warn(
-            '"TrashCleanerJobErrorsBrick" has moved to <creme_core.creme_jobs.trash_cleaner>; '
-            'fix your import statement.',
-            DeprecationWarning,
-        )
-        from .creme_jobs.trash_cleaner import TrashCleanerJobErrorsBrick
-
-        return TrashCleanerJobErrorsBrick
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'JobResultsBrick':
+#         warnings.warn(
+#             '"JobResultsBrick" has moved to <creme_core.gui.job>; '
+#             'fix your import statement.',
+#             DeprecationWarning,
+#         )
+#         from .gui.job import JobResultsBrick
+#
+#         return JobResultsBrick
+#
+#     if name == 'JobErrorsBrick':
+#         warnings.warn(
+#             '"JobErrorsBrick" has moved to <creme_core.gui.job>; '
+#             'fix your import statement.',
+#             DeprecationWarning,
+#         )
+#         from .gui.job import JobErrorsBrick
+#
+#         return JobErrorsBrick
+#
+#     if name == 'EntityJobErrorsBrick':
+#         warnings.warn(
+#             '"EntityJobErrorsBrick" has moved to <creme_core.gui.job>; '
+#             'fix your import statement.',
+#             DeprecationWarning,
+#         )
+#         from .gui.job import EntityJobErrorsBrick
+#
+#         return EntityJobErrorsBrick
+#
+#     if name == 'MassImportJobErrorsBrick':
+#         warnings.warn(
+#             '"MassImportJobErrorsBrick" has moved to <creme_core.creme_jobs.mass_import>; '
+#             'fix your import statement.',
+#             DeprecationWarning,
+#         )
+#         from .creme_jobs.mass_import import MassImportJobErrorsBrick
+#
+#         return MassImportJobErrorsBrick
+#
+#     if name == 'TrashCleanerJobErrorsBrick':
+#         warnings.warn(
+#             '"TrashCleanerJobErrorsBrick" has moved to <creme_core.creme_jobs.trash_cleaner>; '
+#             'fix your import statement.',
+#             DeprecationWarning,
+#         )
+#         from .creme_jobs.trash_cleaner import TrashCleanerJobErrorsBrick
+#
+#         return TrashCleanerJobErrorsBrick
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
