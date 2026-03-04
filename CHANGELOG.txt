@@ -21,6 +21,10 @@
                 - The method 'search.SearchConfigItemManager.create_if_needed()' has been removed.
             - In 'creme_core.utils.content_type', these functions has been removed :
               'ctype_as_key()' & 'ctype_from_key()'.
+            - Apps :
+                * Billing :
+                    - The function 'utils.round_to_2()' has been removed.
+
 
 
 == Version 2.8 Work in progress (not released -- this is a draft) ==
