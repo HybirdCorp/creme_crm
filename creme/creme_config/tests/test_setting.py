@@ -7,7 +7,7 @@ from creme.creme_core.models import SettingValue
 from creme.creme_core.tests.base import CremeTestCase
 
 
-# TODO: clean registry in teardDown...
+# TODO: clean registry in tearDown...
 class SettingTestCase(CremeTestCase):
     @staticmethod
     def _build_edit_url(setting_value):
