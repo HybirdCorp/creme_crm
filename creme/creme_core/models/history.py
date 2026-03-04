@@ -985,7 +985,9 @@ class HistoryLine(Model):
 
         return cls.objects.create(**kwargs)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args,
+             force_insert=False, force_update=False, using=None, update_fields=None,
+             ):
         if update_fields is not None:
             raise ValueError('Argument "update_fields" not managed.')
 
@@ -999,6 +1001,7 @@ class HistoryLine(Model):
             self.by_wf_engine = WorkflowEngine.get_current().is_executing_actions
 
             super().save(
+                *args,
                 force_insert=force_insert,
                 force_update=force_update,
                 using=using,

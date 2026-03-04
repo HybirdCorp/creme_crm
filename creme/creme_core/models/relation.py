@@ -1055,7 +1055,9 @@ class Relation(CremeModel):
         )
         sym_relation.clean_subject_entity()
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self,  *args,
+             force_insert=False, force_update=False, using=None, update_fields=None,
+             ):
         """See django.db.models.Model.save().
         Notice that Relation instances should only be created, not updated.
 
@@ -1087,6 +1089,7 @@ class Relation(CremeModel):
 
             self.symmetric_relation = sym_relation
             super().save(
+                *args,
                 using=using, force_insert=False,
                 update_fields=['symmetric_relation'],
             )
