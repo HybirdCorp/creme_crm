@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-10 17:38+0200\n"
+"POT-Creation-Date: 2026-03-05 14:18+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -222,10 +222,6 @@ msgstr "OU"
 msgid "Conditions"
 msgstr "Conditions"
 
-# Already in creme_core
-msgid "User"
-msgstr ""
-
 msgid "Name"
 msgstr "Nom"
 
@@ -372,15 +368,6 @@ msgstr "Type de sondage"
 msgid "Types of poll"
 msgstr "Types de sondage"
 
-msgid "Survey"
-msgstr "Enquête"
-
-msgid "Monitoring"
-msgstr "Suivi"
-
-msgid "Assessment"
-msgstr "Contrôle des connaissances"
-
 msgid "Form view"
 msgstr "Vue de Formulaire"
 
@@ -389,6 +376,15 @@ msgstr "Vue de Réponse"
 
 msgid "Campaign view"
 msgstr "Vue de Campagne"
+
+msgid "Survey"
+msgstr "Enquête"
+
+msgid "Monitoring"
+msgstr "Suivi"
+
+msgid "Assessment"
+msgstr "Contrôle des connaissances"
 
 #, python-brace-format
 msgid "{count} Filled form reply"

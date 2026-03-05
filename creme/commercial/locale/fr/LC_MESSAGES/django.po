@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-15 10:28+0200\n"
+"POT-Creation-Date: 2026-03-05 14:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -389,18 +389,6 @@ msgstr "Attrait de segment"
 msgid "is a salesman"
 msgstr "est un commercial"
 
-msgid "Phone calls"
-msgstr "Appels téléphoniques"
-
-msgid "Show"
-msgstr "Salon"
-
-msgid "Demo"
-msgstr "Démo"
-
-msgid "All the organisations"
-msgstr "Toutes les sociétés"
-
 msgid "has sold"
 msgstr "a vendu"
 
@@ -421,6 +409,18 @@ msgstr "Vue de stratégie"
 
 msgid "Objective pattern view"
 msgstr "Vue de Modèle d'objectif"
+
+msgid "Phone calls"
+msgstr "Appels téléphoniques"
+
+msgid "Show"
+msgstr "Salon"
+
+msgid "Demo"
+msgstr "Démo"
+
+msgid "All the organisations"
+msgstr "Toutes les sociétés"
 
 msgid "+ Creation"
 msgstr ""

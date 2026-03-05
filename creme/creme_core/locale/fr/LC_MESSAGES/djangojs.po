@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-02 14:52+0100\n"
+"POT-Creation-Date: 2026-03-05 14:18+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,6 +93,9 @@ msgstr "Sélectionnez le format d'export"
 msgid "Export"
 msgstr "Export"
 
+msgid "Please select at least one entity."
+msgstr "Veuillez sélectionner au moins une fiche."
+
 #, javascript-format
 msgid "%d entity has been deleted."
 msgid_plural "%d entities have been deleted."
@@ -104,9 +107,6 @@ msgid " %d entity cannot be deleted."
 msgid_plural " %d entities cannot be deleted."
 msgstr[0] "%d entité n'a pu être supprimée."
 msgstr[1] "%d entités n'ont pu être supprimées."
-
-msgid "Please select at least one entity."
-msgstr "Veuillez sélectionner au moins une fiche."
 
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectionner 2 fiches."
