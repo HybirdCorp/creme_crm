@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-05 10:49+0100\n"
+"POT-Creation-Date: 2026-03-05 14:18+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -782,12 +782,12 @@ msgid "Other"
 msgstr "Autre"
 
 msgctxt "activities-phonecall"
-msgid "Incoming"
-msgstr "Entrant"
-
-msgctxt "activities-phonecall"
 msgid "Outgoing"
 msgstr "Sortant"
+
+msgctxt "activities-phonecall"
+msgid "Incoming"
+msgstr "Entrant"
 
 msgctxt "activities-phonecall"
 msgid "Conference"
@@ -938,6 +938,9 @@ msgstr "Sous-types d'activité dans ce type"
 msgid "Actions"
 msgstr "Actions"
 
+msgid "Drag and drop to re-order this sub-type"
+msgstr "Glissez-déposez pour ré-ordonner ce sous-type"
+
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -951,6 +954,10 @@ msgstr "{count} Sous-type d'activité"
 #, python-brace-format
 msgid "{count} Sub-types of activity"
 msgstr "{count} Sous-types d'activité"
+
+# Already in creme_core
+msgid "Action"
+msgstr ""
 
 #, python-format
 msgid "Configure the %(count)s sub-type"
@@ -1002,9 +1009,6 @@ msgstr "Journées de travail"
 
 msgid "Business Hours"
 msgstr "Heures de travail"
-
-msgid "Action"
-msgstr ""
 
 msgid "Default configuration"
 msgstr "Configuration par défaut"
