@@ -16,7 +16,7 @@
       see 'settings.PINNED_ENTITIES_SIZE'). Pinned entities are displayed in the new
       menu entry "Quick access" which displayed the recent entities too.
       A block "Pinned entities" is now available for Home.
-    # The wyswyg editor 'TinyMCE' has been upgraded to the latest version (8.3.2).
+    # The WYSWYG editor 'TinyMCE' has been upgraded to the latest version (8.3.2).
     # Apps :
         * Creme_config :
             - The regular Users can now have several roles. Only one role is active (to compute
@@ -129,8 +129,10 @@
                use 'setup-menu-actions' to register custom actions.
              - A new list-view action has been added: 'goto-selection'.
                It allows redirections using selected ids (e.g. it's useful for multi-download views).
-             - Add '_.formDataEntriesAll'; completes the standard FormData.entries() using FormData.getAll() to retrieve all the data of a key.
-             - The '_.assignFormData' function now accepts multiple arguments like Object.assign() and also support FormData objects.
+             - A function '_.formDataEntriesAll()' has been added; it completes the standard
+               'FormData.entries()' using 'FormData.getAll()' to retrieve all the data of a key.
+             - The function '_.assignFormData()' now accepts multiple arguments
+               like 'Object.assign()' and also supports 'FormData' objects.
         # App :
             * Persons :
                 - The model 'Address' got new fields: 'created', 'modified'.
@@ -289,7 +291,8 @@
             - Beware if you have overridden 'creme_core/bricks/frags/hat-card-title-indicators.html'
               because the new "Pinned" indicator has been added in it.
         # In Javascript :
-            - 'creme.widget.Editor' widget ('ui-creme-editor' in html) is replaced by 'creme.widget.TinyMCEditor' ('ui-creme-tinymceditor' in html)
+            - The class 'creme.widget.Editor' ('ui-creme-editor' in HTML) has been
+              replaced by 'creme.widget.TinyMCEditor' ('ui-creme-tinymceditor' in HTML).
         # Apps :
             * Reports :
                 - The entity model 'ReportGraph' has been replaced by the new simple model 'ReportChart'
