@@ -138,7 +138,7 @@ for a basic installation with the minimal information you must fill.
 
 For an upgrade from the previous version of Creme :
  - See the section "UPGRADE NOTE" corresponding to the new version in the file CHANGELOG.txt.
- - Do not remove apps in INSTALLED_APPS during the upgrade (because they are installed in your DB) ;
+ - Do not remove apps in INSTALLED_APPS during the upgrade (because they are installed in your DB);
    complete your installation & then uninstall apps you do not want anymore (see below).
 
 
@@ -184,14 +184,20 @@ To run it, use this command (in a production environment a watch dog is advised)
 
 ### Uninstall apps
 
-When you have a working installation, & want to remove an (optional) app, use the command 'creme_uninstall' which will
-clean the DB. When it's done, you can comment the app in local_settings.py
+Note: the UI can be deeply configured from the configuration pages, so
+uninstalling an app should not be often useful (because you can just remove the
+blocks/buttons/menu-entries/... you do not want anymore).
+
+When you have a working installation, & REALLY want to remove an (optional) app,
+use the command 'creme_uninstall' which will clean the DB. When it's done, you
+can comment the app in 'local_settings.py'.
 
 
 ### Contributing
 
-The repository is using CircleCI and launch some linting tests. To check them locally before any commit or push you can
-use the hooks in '.githooks'. There are two ways to configure them:
+The repository is using CircleCI and launch some linting tests. To check them 
+locally before any commit or push you can use the hooks in '.githooks'. There
+are two ways to configure them:
 
 Simply change git configuration
 ```sh
@@ -204,8 +210,9 @@ Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
 >> ln -s ../../.githooks/pre-push .git/hooks/pre-push
 ```
 
-In order to run the JavaScript linter locally, you can install a NodeJS environment within your virtualenv thanks to the
-Python package nodeenv. In your virtualenv (named "mycremeenv"):
+In order to run the JavaScript linter locally, you can install a NodeJS 
+environment within your virtualenv thanks to the Python package nodeenv.
+In your virtualenv (named "mycremeenv"):
 ```sh
 >> pip install nodeenv
 >> nodeenv -n 14.20.0 -p    # to install nodejs 14.20.0 with "mycremeenv"
