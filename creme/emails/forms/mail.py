@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ import creme.creme_core.forms.base as core_forms
 import creme.creme_core.forms.fields as core_fields
 from creme import emails, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.widgets import CremeTextarea
+from creme.creme_core.forms.widgets import CremeTextarea, TinyMCEEditor
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
@@ -96,7 +96,7 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
         )
         widgets = {
             'body': CremeTextarea(attrs={'rows': 8}),
-            'body_html': CremeTextarea(attrs={'rows': 8}),
+            'body_html': TinyMCEEditor(attrs={'rows': 20}),
         }
 
     def __init__(self, entity, *args, **kwargs):

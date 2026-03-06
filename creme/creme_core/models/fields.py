@@ -127,7 +127,9 @@ class PositiveIntegerMoneyField(models.PositiveIntegerField):
 
 
 class UnsafeHTMLField(models.TextField):
-    pass
+    def formfield(self, **kwargs):
+        from ..forms.widgets import TinyMCEEditor
+        return super().formfield(**{'widget': TinyMCEEditor, **kwargs})
 
 
 class CremeURLField(models.CharField):

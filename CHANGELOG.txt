@@ -16,6 +16,7 @@
       see 'settings.PINNED_ENTITIES_SIZE'). Pinned entities are displayed in the new
       menu entry "Quick access" which displayed the recent entities too.
       A block "Pinned entities" is now available for Home.
+    # The wyswyg editor 'TinyMCE' has been upgraded to the latest version (8.3.2).
     # Apps :
         * Creme_config :
             - The regular Users can now have several roles. Only one role is active (to compute
