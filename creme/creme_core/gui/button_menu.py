@@ -166,13 +166,12 @@ class ButtonRegistry:
                     f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
 
-            # TODO: remove in creme 3.0
-            if hasattr(button_cls, 'ok_4_display'):
-                logger.critical(
-                    'The button class %s still defines a method "ok_4_display()"; '
-                    'define the new method "is_displayed()" instead.',
-                    button_cls,
-                )
+            # if hasattr(button_cls, 'ok_4_display'):
+            #     logger.critical(
+            #         'The button class %s still defines a method "ok_4_display()"; '
+            #         'define the new method "is_displayed()" instead.',
+            #         button_cls,
+            #     )
 
         return self
 
@@ -200,13 +199,12 @@ class ButtonRegistry:
                 f'Button class with empty ID: {button_class}'
             )
 
-        # TODO: remove in creme 3.0
-        if hasattr(button_class, 'ok_4_display'):
-            logger.critical(
-                'The button class %s still defines a method "ok_4_display()"; '
-                'define the new method "is_displayed()" instead.',
-                button_class,
-            )
+        # if hasattr(button_class, 'ok_4_display'):
+        #     logger.critical(
+        #         'The button class %s still defines a method "ok_4_display()"; '
+        #         'define the new method "is_displayed()" instead.',
+        #         button_class,
+        #     )
 
         classes = self._mandatory_classes
         models: Iterable[type[CremeEntity] | None] = button_class().get_ctypes() or [None]
