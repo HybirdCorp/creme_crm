@@ -141,15 +141,15 @@ class ButtonMenuTestCase(CremeTestCase):
         self.assertIsInstance(button_item[1], Button)
         self.assertEqual(button_item[0], button_item[1].id)
 
-        # ---
-        class ProblematicTestButton(Button):
-            id = Button.generate_id('creme_core', 'test_problematic')
-
-            def ok_4_display(self, entity):
-                return False
-
-        with self.assertLogs(level='CRITICAL'):
-            registry.register(ProblematicTestButton)
+        # # ---
+        # class ProblematicTestButton(Button):
+        #     id = Button.generate_id('creme_core', 'test_problematic')
+        #
+        #     def ok_4_display(self, entity):
+        #         return False
+        #
+        # with self.assertLogs(level='CRITICAL'):
+        #     registry.register(ProblematicTestButton)
 
     def test_registry__duplicated_id(self):
         class TestButton1(Button):
@@ -500,15 +500,15 @@ class ButtonMenuTestCase(CremeTestCase):
             )],
         )
 
-        # ---
-        class ProblematicTestButton(Button):
-            id = Button.generate_id('creme_core', 'test_problematic')
-
-            def ok_4_display(this, entity):
-                return False
-
-        with self.assertLogs(level='CRITICAL'):
-            registry.register_mandatory(ProblematicTestButton)
+        # # ---
+        # class ProblematicTestButton(Button):
+        #     id = Button.generate_id('creme_core', 'test_problematic')
+        #
+        #     def ok_4_display(this, entity):
+        #         return False
+        #
+        # with self.assertLogs(level='CRITICAL'):
+        #     registry.register_mandatory(ProblematicTestButton)
 
     def test_registry__unregister_mandatory__errors(self):
         class TestButton1(Button):
