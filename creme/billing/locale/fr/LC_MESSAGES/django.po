@@ -5,9 +5,9 @@
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Billing 2.8\n"
+"Project-Id-Version: Creme Billing 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 12:58+0100\n"
+"POT-Creation-Date: 2026-04-09 14:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -398,11 +398,15 @@ msgstr "Entrez un nombre entre 0 et 100 (c'est un pourcentage)."
 msgid "Quantity"
 msgstr "Quantité"
 
-msgid "Discount"
-msgstr "Remise"
+msgid "Force a discount?"
+msgstr "Forcer une remise ?"
 
-msgid "Percentage applied on the unit price"
-msgstr "Pourcentage appliqué sur le prix unitaire"
+msgid ""
+"By default the default discount of the Products/Services is used; you can "
+"force a discount (percentage applied on the unit prices)"
+msgstr ""
+"Normalement la remise par défaut des Produits/Services est utilisée ; vous "
+"pouvez forcer une remise (pourcentage appliqué sur les prix unitaires)"
 
 msgid "Vat"
 msgstr "TVA"
@@ -623,9 +627,6 @@ msgstr "Total des Devis remportés cette année"
 msgid "Total won Quotes last Year"
 msgstr "Total des Devis remportés l'année dernière"
 
-msgid "CN"
-msgstr "AV"
-
 msgid "Name"
 msgstr "Nom"
 
@@ -727,6 +728,9 @@ msgstr "Prix Unitaire"
 
 msgid "Unit"
 msgstr "Unité"
+
+msgid "Discount"
+msgstr "Remise"
 
 msgid "Discount Unit"
 msgstr "Unité de remise"
@@ -1007,6 +1011,9 @@ msgstr "DE"
 
 msgid "ORD"
 msgstr "BC"
+
+msgid "CN"
+msgstr "AV"
 
 msgid "issued by"
 msgstr "a été émis(e) par"
@@ -1629,6 +1636,9 @@ msgstr "Créer un devis pour «{entity}»"
 #, python-brace-format
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
+
+#~ msgid "Percentage applied on the unit price"
+#~ msgstr "Pourcentage appliqué sur le prix unitaire"
 
 #~ msgid "You are not allowed to create: «%(model)s»"
 #~ msgstr "Vous n'avez pas la permission de créer : «%(model)s»"

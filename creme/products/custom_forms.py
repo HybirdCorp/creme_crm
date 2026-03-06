@@ -27,6 +27,7 @@ class ProductCreationFormDefault(_BaseFormDefault):
         'unit_price',
         'unit',
         'quantity_per_unit',
+        'default_discount',
         'weight',
         'stock',
         'web_site',
@@ -43,6 +44,7 @@ class ProductEditionFormDefault(_BaseFormDefault):
         'unit_price',
         'unit',
         'quantity_per_unit',
+        'default_discount',
         'weight',
         'stock',
         'web_site',
@@ -80,6 +82,7 @@ class ServiceCreationFormDefault(_BaseFormDefault):
         'unit',
         'quantity_per_unit',
         'unit_price',
+        'default_discount',
         'web_site',
     ]
 
@@ -94,6 +97,7 @@ class ServiceEditionFormDefault(_BaseFormDefault):
         'unit',
         'quantity_per_unit',
         'unit_price',
+        'default_discount',
         'web_site',
     ]
 

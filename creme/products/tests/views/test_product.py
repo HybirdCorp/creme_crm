@@ -47,7 +47,14 @@ class ProductViewsTestCase(_ProductsTestCase):
         self.assertEqual(0, Product.objects.count())
 
         url = reverse('products__create_product')
-        self.assertGET200(url)
+        ctxt1 = self.assertGET200(url).context
+        self.assertEqual(_('Create a product'), ctxt1.get('title'))
+        self.assertEqual(_('Save the product'), ctxt1.get('submit_label'))
+
+        with self.assertNoException():
+            default_discount_f = ctxt1['form'].fields['default_discount']
+        self.assertTrue(default_discount_f.required)
+        self.assertEqual(Decimal('0.00'), default_discount_f.initial)
 
         # ----
         name = 'Eva00'
@@ -56,6 +63,7 @@ class ProductViewsTestCase(_ProductsTestCase):
         cat = sub_cat.category
         description = 'A fake god'
         unit_price = '1.23'
+        discount = Decimal('10')
         data = {
             'user': user.pk,
             'name': name,
@@ -63,6 +71,7 @@ class ProductViewsTestCase(_ProductsTestCase):
             'description': description,
             'unit_price': unit_price,
             'unit': 'anything',
+            'default_discount': discount,
         }
         response2 = self.assertPOST200(
             url,
@@ -95,13 +104,14 @@ class ProductViewsTestCase(_ProductsTestCase):
         self.assertEqual(code,                product.code)
         self.assertEqual(description,         product.description)
         self.assertEqual(Decimal(unit_price), product.unit_price)
+        self.assertEqual(discount,            product.default_discount)
         self.assertEqual(cat,                 product.category)
         self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertRedirects(response3, product.get_absolute_url())
 
     def test_creation__images(self):
-        "Images + credentials."
+        "Images + credentials + discount."
         user = self.login_as_basic_user(Product)
 
         create_image = partial(
@@ -122,13 +132,17 @@ class ProductViewsTestCase(_ProductsTestCase):
             return self.client.post(
                 reverse('products__create_product'), follow=True,
                 data={
-                    'user':        user.pk,
-                    'name':        name,
-                    'code':        42,
+                    'user': user.pk,
+                    'name': name,
+                    'code': 42,
+
                     'description': 'A fake god',
-                    'unit_price':  '1.23',
-                    'unit':        'anything',
-                    'images':      self.formfield_value_multi_creator_entity(*images),
+
+                    'unit_price':       '1.23',
+                    'unit':             'anything',
+                    'default_discount': '10.5',
+
+                    'images': self.formfield_value_multi_creator_entity(*images),
 
                     self.EXTRA_CATEGORY_KEY: str(sub_cat.id),
                 },
@@ -148,6 +162,7 @@ class ProductViewsTestCase(_ProductsTestCase):
 
         product = self.get_object_or_fail(Product, name=name)
         self.assertCountEqual([img_1, img_2], product.images.all())
+        self.assertEqual(Decimal('10.5'), product.default_discount)
 
     def test_edition(self):
         user = self.login_as_root_and_get()
@@ -173,16 +188,20 @@ class ProductViewsTestCase(_ProductsTestCase):
 
         name += '_edited'
         unit_price = '4.53'
+        discount = '5.00'
         response = self.client.post(
             url,
             follow=True,
             data={
-                'user':         user.pk,
-                'name':         name,
-                'code':         product.code,
-                'description':  product.description,
-                'unit_price':   unit_price,
-                'unit':         'anything',
+                'user': user.pk,
+                'name': name,
+                'code': product.code,
+
+                'description': product.description,
+
+                'unit_price':       unit_price,
+                'unit':             'anything',
+                'default_discount': discount,
 
                 self.EXTRA_CATEGORY_KEY: str(product.sub_category.pk),
             },
@@ -192,6 +211,7 @@ class ProductViewsTestCase(_ProductsTestCase):
         product = self.refresh(product)
         self.assertEqual(name,                product.name)
         self.assertEqual(Decimal(unit_price), product.unit_price)
+        self.assertEqual(Decimal(discount),   product.default_discount)
 
     def test_listview(self):
         user = self.login_as_root_and_get()

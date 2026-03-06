@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import timedelta
+from decimal import Decimal
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -23,6 +24,7 @@ from creme.creme_core.forms.fields import (
     CTypeChoiceField,
     DatePeriodField,
     DateRangeField,
+    DecimalPercentField,
     DurationField,
     EnhancedChoiceIterator,
     EnhancedModelChoiceIterator,
@@ -32,6 +34,7 @@ from creme.creme_core.forms.fields import (
     MultiCTypeChoiceField,
     MultiEntityCTypeChoiceField,
     OptionalChoiceField,
+    OptionalDecimalPercentField,
     OptionalField,
     OrderedChoiceIterator,
     OrderedMultipleChoiceField,
@@ -602,6 +605,107 @@ class OptionalChoiceFieldTestCase(CremeTestCase):
         field.disabled = False
         self.assertFalse(field.disabled)
         self.assertFalse(field.fields[0].disabled)
+
+
+class OptionalDecimalPercentFieldTestCase(CremeTestCase):
+    def test_sub_fields(self):
+        field = OptionalDecimalPercentField()
+        self.assertFalse(field.required)
+
+        sub_fields = field.fields
+        self.assertIsTuple(sub_fields, length=2)
+
+        sub_field1 = sub_fields[0]
+        self.assertIsInstance(sub_field1, BooleanField)
+        self.assertFalse(sub_field1.required)
+        self.assertFalse(sub_field1.disabled)
+
+        sub_field2 = sub_fields[1]
+        self.assertIsInstance(sub_field2, DecimalPercentField)
+        self.assertFalse(sub_field2.required)
+        self.assertFalse(sub_field2.disabled)
+        self.assertIsNone(sub_field2.max_value)
+        self.assertIsNone(sub_field2.min_value)
+        self.assertIsNone(sub_field2.max_digits)
+        self.assertIsNone(sub_field2.decimal_places)
+
+    def test_ok(self):
+        field = OptionalDecimalPercentField()
+        self.assertEqual(
+            OptionalDecimalPercentField.Option(is_set=True, data=Decimal('56')),
+            field.clean([True, '56']),
+        )
+
+    def test_not_required(self):
+        field = OptionalDecimalPercentField(required=False)
+        expected = OptionalDecimalPercentField.Option(is_set=False, data=None)
+        self.assertEqual(expected, field.clean([False, '']))
+        self.assertEqual(expected, field.clean(['', '']))
+        self.assertEqual(expected, field.clean([False, 1]))
+        self.assertEqual(expected, field.clean([False, None]))
+        self.assertEqual(expected, field.clean([False]))
+        self.assertEqual(expected, field.clean([]))
+
+        self.assertFormfieldError(
+            field=field, value=['on', None],
+            messages=_('Enter a value if you check the box.'),
+            codes='subfield_required',
+        )
+
+    def test_required(self):
+        field = OptionalDecimalPercentField(required=True)
+
+        expected = OptionalChoiceField.Option(is_set=False, data=None)
+        self.assertEqual(expected, field.clean([False, None]))
+        self.assertEqual(expected, field.clean(['', None]))
+        self.assertEqual(expected, field.clean([False]))
+        self.assertEqual(expected, field.clean([]))
+
+        msg = _('Enter a value if you check the box.')
+        code = 'subfield_required'
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[True, None])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=['on', None])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[True])
+
+    def test_disabled(self):
+        field = OptionalDecimalPercentField(disabled=True)
+        self.assertTrue(field.disabled)
+
+        sub_fields = field.fields
+        self.assertTrue(sub_fields[0].disabled)
+        self.assertTrue(sub_fields[1].disabled)
+
+        # ---
+        field.disabled = False
+        self.assertFalse(field.disabled)
+        self.assertFalse(field.fields[0].disabled)
+
+    def test_invalid(self):
+        field = OptionalDecimalPercentField(
+            max_value=Decimal('50'), min_value=Decimal('25'),
+        )
+        self.assertFormfieldError(
+            field=field,
+            value=[False, 'not_number'],
+            messages=_('Enter a number.'),
+            codes='invalid',
+        )
+        self.assertFormfieldError(
+            field=field,
+            value=[False, '60.00'],
+            messages=_(
+                'Ensure this value is less than or equal to %(limit_value)s.'
+            ) % {'limit_value': 50},
+            codes='max_value',
+        )
+        self.assertFormfieldError(
+            field=field,
+            value=[False, '20.00'],
+            messages=_(
+                'Ensure this value is greater than or equal to %(limit_value)s.'
+            ) % {'limit_value': 25},
+            codes='min_value',
+        )
 
 
 class TestUnionField(UnionField):

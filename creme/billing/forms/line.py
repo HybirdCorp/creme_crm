@@ -48,13 +48,24 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         initial=constants.DEFAULT_QUANTITY,
         decimal_places=2,
     )
-    discount_value = core_fields.DecimalPercentField(
-        label=_('Discount'),
-        min_value=constants.DEFAULT_DECIMAL,
+    # discount_value = core_fields.DecimalPercentField(
+    #     label=_('Discount'),
+    #     min_value=constants.DEFAULT_DECIMAL,
+    #     max_value=Decimal('100'),
+    #     initial=constants.DEFAULT_DECIMAL,
+    #     decimal_places=2,
+    #     help_text=_('Percentage applied on the unit price'),
+    # )
+    discount = core_fields.OptionalDecimalPercentField(
+        label=_('Force a discount?'),
+        min_value=Decimal('0'),
         max_value=Decimal('100'),
-        initial=constants.DEFAULT_DECIMAL,
+        initial=(False, Decimal('10')),
         decimal_places=2,
-        help_text=_('Percentage applied on the unit price'),
+        help_text=_(
+            'By default the default discount of the Products/Services is used; '
+            'you can force a discount (percentage applied on the unit prices)'
+        ),
     )
     # TODO: use CreatorEnumerableModelChoiceField?
     vat = forms.ModelChoiceField(
@@ -72,12 +83,13 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
     def save(self):
         cdata = self.cleaned_data
+        forced_discount = cdata.get('discount')
         line_class = self._get_line_class()
         create_item = partial(
             line_class.objects.create,
             related_document=self.billing_document,
             quantity=cdata['quantity'],
-            discount=cdata['discount_value'],
+            # discount=cdata['discount_value'],
             vat_value=cdata['vat'],
         )
 
@@ -88,7 +100,12 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
         for order, item in enumerate(cdata['items'], order_start):
             create_item(
-                related_item=item, unit_price=item.unit_price, unit=item.unit, order=order
+                related_item=item,
+                unit_price=item.unit_price, unit=item.unit,
+                discount=(
+                    forced_discount.data if forced_discount.is_set else item.default_discount
+                ),
+                order=order,
             )
 
 
@@ -105,7 +122,8 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
         }, {
             'id': 'additional',
             'label': _('Optional global information applied to your selected products'),
-            'fields': ['quantity', 'vat', 'discount_value'],
+            # 'fields': ['quantity', 'vat', 'discount_value'],
+            'fields': ['quantity', 'vat', 'discount'],
         },
     )
 
@@ -126,7 +144,8 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
         }, {
             'id': 'additional',
             'label': _('Optional global information applied to your selected services'),
-            'fields': ['quantity', 'vat', 'discount_value'],
+            # 'fields': ['quantity', 'vat', 'discount_value'],
+            'fields': ['quantity', 'vat', 'discount'],
         },
     )
 

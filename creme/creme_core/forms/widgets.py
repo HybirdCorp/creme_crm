@@ -1003,7 +1003,10 @@ class CalendarWidget(DatePickerMixin, widgets.TextInput):
 class OptionalWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/optional.html'
 
-    def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
+    def __init__(self,
+                 sub_widget: widgets.Widget | type[widgets.Widget] = widgets.TextInput,
+                 attrs=None, sub_label='',
+                 ):
         super().__init__(
             widgets=(
                 widgets.CheckboxInput(attrs={'class': 'optional-toggle'}),
@@ -1039,6 +1042,11 @@ class OptionalWidget(widgets.MultiWidget):
 class OptionalSelect(OptionalWidget):
     def __init__(self, choices=(), *args, **kwargs):
         super().__init__(PrettySelect(choices=choices), *args, **kwargs)
+
+
+class OptionalDecimalPercentInput(OptionalWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(PercentInput, *args, **kwargs)
 
 
 class UnionWidget(widgets.Widget):

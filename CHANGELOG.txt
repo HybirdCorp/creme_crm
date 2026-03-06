@@ -7,6 +7,9 @@
             - A new action for the workflows is available: sending a notification.
               You can now create customised notification channels, which are the
               only ones which can be used by the new action.
+        * Products :
+            - A new field has been added to the models Product & Service: default_discount.
+              It's used by the app 'billing' when adding lines from Products or Services.
 
   Developers side :
   -----------------
@@ -58,6 +61,11 @@
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.
                 - The ContentType for the old model 'ReportGraph' has been removed.
+            * Products :
+                - The new fields 'Product.default_discount' & 'Service.default_discount' are required.
+            * Billing :
+                - The class 'forms.line._LineMultipleAddForm' has changed ;
+                  the field 'discount_value' has been replaced by the field 'discount'.
 
     Internal breaking changes :
     ---------------------------
