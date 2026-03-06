@@ -263,7 +263,8 @@ creme.TinyMCEditor = creme.component.Component.sub({
             isReadOnly: element.prop('readonly'),
             baseURL: element.data('baseUrl') || '/tiny_mce/8.3.2/',
             allowCrossOrigin: false,
-            allowResize: element.data('resize') || 'no'
+            allowResize: element.data('resize') || 'no',
+            language: element.data('lang') || _.djangoLanguageCode()
         }, options || {});
 
         Assert.not(element.is('.creme-tinymce-hidden'), 'TinyMCE instance is already active');
@@ -393,8 +394,11 @@ creme.TinyMCEditor = creme.component.Component.sub({
             readonly: options.isReadOnly,
             disabled: options.isDisabled,
             placeholder: options.placeholder,
-            icons: 'creme'
+            icons: 'creme',
+            language: options.language
         };
+
+        console.log(editorOptions);
 
         if (_.isFunction(options.allowCrossOrigin)) {
             editorOptions.crossorigin = options.allowCrossOrigin;

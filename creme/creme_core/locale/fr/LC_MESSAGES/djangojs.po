@@ -326,6 +326,12 @@ msgstr "Dé-sélectionner"
 msgid "Delete"
 msgstr "Supprimer"
 
+msgid "Heading"
+msgstr "Titre"
+
+msgid "Table"
+msgstr "Tableau"
+
 #~ msgid "Canvas image"
 #~ msgstr "Capture du graphique"
 

@@ -888,6 +888,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/faker.js',
     'creme_core/js/lib/browser.js',
     'creme_core/js/lib/url.js',
+    'creme_core/js/lib/l10n.js',
 
     # Legacy tools
     'creme_core/js/creme.js',

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals BrowserVersion FunctionFaker DateFaker */
+/* globals BrowserVersion FunctionFaker DateFaker PropertyFaker */
 
 (function($) {
     "use strict";
@@ -240,6 +240,12 @@
 
         withFrozenTime: function(date, block) {
             return new DateFaker(date).with(block.bind(this));
+        },
+
+        withLanguageCode: function(lang, block) {
+            return new PropertyFaker({
+                instance: window, props: {LANGUAGE_CODE: lang}
+            }).with(block.bind(this));
         },
 
         awaits: function(target, func) {
