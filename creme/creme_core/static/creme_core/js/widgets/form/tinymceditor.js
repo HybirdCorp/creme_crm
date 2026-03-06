@@ -271,8 +271,23 @@ creme.TinyMCEditor = creme.component.Component.sub({
         var self = this;
         var editorOptions = this._editorOptions(element, options);
 
-        if (Object.isEmpty(element.attr('id'))) {
-            element.attr('id', _.uniqueId('creme-tinymce__'));
+        var id = element.attr('id') || '';
+
+        if (Object.isEmpty(id)) {
+            id = _.uniqueId('creme-tinymce__');
+            element.attr('id', id);
+        } else if ($('[id="' + id + '"]').length > 1) {
+            // HACK : TinyMCE uses ONLY the id from the element (or force it) and DO NOT ALLOW duplicates.
+            // TODO : Add tests for this usecase
+            var prevId = id;
+            id = _.uniqueId(id + '__');
+            console.warn('Duplicate id "${prevId}" will cause issues with TinyMCE. Replaced by "${id}". Please fix it !'.template({
+                id: id,
+                prevId: prevId
+            }));
+
+            element.attr('data-id', id);
+            element.attr('id', id);
         }
 
         this._onPreValidate = function() {
