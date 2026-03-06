@@ -15,15 +15,37 @@
         }
     };
 
+    backend.GET = {
+        'mock/form': function(url, data, options) {
+            return backend.response(200, $('#tinymce_popup_content').text());
+        }
+    };
+
     $(document).ready(function() {
         creme.ajax.defaultBackend(backend);
+
+        $(document).on('click', '#tinymce_popup', function(e) {
+            creme.dialogs.url('mock/form', {
+                title: 'Tiny MCE'
+            }).open();
+        });
     });
 }(jQuery));
 </script>
+
+<script type="text/html" id="tinymce_popup_content">
+<textarea id="edit-full" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
+          data-upload-url="mock/upload" data-toolbar="full" data-editor-min-height="fit-rows" rows="30" data-resizable="height">
+</textarea>
+</script>
+
 {% endblock %}
 
 {% block test_content %}
     <ul>
+        <li>
+            <h4>Tiny MCE (popup)</h4>
+            <button id="tinymce_popup">Open</button>
         <li>
             <h4>Tiny MCE (Full)</h4>
             <textarea id="edit-full" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
