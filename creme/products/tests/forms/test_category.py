@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+# from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from creme.creme_config.registry import config_registry
@@ -23,7 +23,10 @@ class SubCategoryFormTestCase(CremeTestCase):
             context.get('title'),
         )
         # self.assertEqual(_('Save'), context.get('submit_label'))
-        self.assertEqual(_('Save the sub-category'), context.get('submit_label'))
+        self.assertEqual(
+            pgettext('products', 'Save the sub-category'),
+            context.get('submit_label'),
+        )
 
         # ---
         response2 = self.client.post(
