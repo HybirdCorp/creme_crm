@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,8 +88,7 @@ class EmailsConfig(CremeAppConfig):
         register = bulk_update_registry.register
         register(self.EmailCampaign).exclude('mailing_lists')
         register(self.MailingList).exclude('mailing_lists')
-        # TODO: inner-form for body_html when RichTextEditor is ok in inner-popup
-        register(self.EmailTemplate).exclude('body_html')
+        register(self.EmailTemplate)
         # TODO: idem
         register(self.EntityEmail).exclude(
             'sender', 'recipient',
