@@ -31,6 +31,7 @@
       # The detail-view of relationship type now displays :
         - the filters which use this type.
         - the worklows which use this type (in trigger or actions).
+      # Add french language support for the WYSWYG editor 'TinyMCE'.
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status") can now be disabled;
@@ -187,6 +188,12 @@
              `img_node = self.get_html_node_or_fail(node, 'div.with-icon img')`
           All test code has been reworked to use the new API, & so you may encounter some breaking
           which you have to fix in a way explained above.
+        # In Javascript:
+          - Add language support for the WYSWYG editor 'TinyMCE'.
+          - Add i18n tools :
+             - A function '_.getBrowserLanguageCode()' has been added; it returns the browser language.
+             - A function '_.getDjangoLanguageCode()' has been added; it returns the user language from the server
+               through the global variable 'LANGUAGE_CODE'. If empty or invalid, the browser language is returned.
 
     Breaking changes :
     ------------------
