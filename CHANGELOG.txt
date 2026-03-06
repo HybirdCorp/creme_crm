@@ -12,6 +12,19 @@
             - Remove image upload in quickmenu.
             - Add external image selection & position in main menu.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # In Javascript :
+          - Add language support for the WYSWYG editor 'TinyMCE'.
+          - Add i18n tools :
+             - A function '_.getBrowserLanguageCode()' has been added; it returns the browser language.
+             - A function '_.getDjangoLanguageCode()' has been added; it returns the user language from the server
+               through the global variable 'LANGUAGE_CODE'. If empty or invalid, the browser language is returned.
+
+
 == Version 2.8.6 ==
 
   Users side :
