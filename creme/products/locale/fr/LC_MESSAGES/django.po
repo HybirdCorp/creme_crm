@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 2.8\n"
+"Project-Id-Version: Creme Products 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-12 10:40+0100\n"
+"POT-Creation-Date: 2026-04-09 14:04+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -126,6 +126,14 @@ msgstr "Unité"
 
 msgid "Quantity/Unit"
 msgstr "Conditionnement"
+
+msgid "Default discount"
+msgstr "Remise par défaut"
+
+msgid "This value is used when creating lines for Invoices/Quotes/…"
+msgstr ""
+"Cette valeur est utilisée lors de la création de lignes pour les "
+"Factures/Devis/…"
 
 msgid "Weight"
 msgstr "Poids"

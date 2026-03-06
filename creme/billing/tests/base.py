@@ -236,7 +236,7 @@ class _BillingTestCaseMixin:
 
         return cat, subcat
 
-    def create_product(self, *, user, name='Red eye', unit_price=None):
+    def create_product(self, *, user, name='Red eye', unit_price=None, **kwargs):
         cat, subcat = self.create_cat_n_subcat()
 
         return Product.objects.create(
@@ -244,15 +244,17 @@ class _BillingTestCaseMixin:
             unit_price=unit_price or Decimal('1.0'),
             description='Drug',
             category=cat, sub_category=subcat,
+            **kwargs
         )
 
-    def create_service(self, user):
+    def create_service(self, user, unit_price=None, **kwargs):
         cat, subcat = self.create_cat_n_subcat()
 
         return Service.objects.create(
             user=user, name='Mushroom hunting',
-            unit_price=Decimal('6'),
+            unit_price=unit_price or Decimal('6'),
             category=cat, sub_category=subcat,
+            **kwargs
         )
 
     def create_salesorder(self, *, user, name, source, target, currency=None, status=None):

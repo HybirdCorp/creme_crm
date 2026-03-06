@@ -23,6 +23,7 @@ from collections.abc import Callable, Collection, Iterable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta
+from decimal import Decimal
 from functools import partial
 from json import loads as json_load
 from typing import Any
@@ -76,6 +77,18 @@ __all__ = (
     'EnhancedMultipleChoiceField', 'EnhancedModelMultipleChoiceField',
     'ReadonlyMessageField',
 )
+
+
+class IntegerPercentField(fields.IntegerField):
+    widget = core_widgets.PercentInput
+
+
+class DecimalPercentField(fields.DecimalField):
+    widget = core_widgets.PercentInput
+
+
+class YearField(fields.IntegerField):
+    widget = core_widgets.YearInput
 
 
 class CremeUserEnumerableField(enum_fields.EnumerableModelChoiceField):
@@ -1343,6 +1356,44 @@ class OptionalModelChoiceField(OptionalChoiceField):
     sub_field = mforms.ModelChoiceField
 
 
+class OptionalDecimalPercentField(OptionalField):
+    sub_field = DecimalPercentField
+    widget = core_widgets.OptionalDecimalPercentInput
+
+    def __init__(self, *,
+                 max_value: Decimal | None = None,
+                 min_value: Decimal | None = None,
+                 max_digits: int | None = None,
+                 decimal_places: int | None = None,
+                 **kwargs):
+        self.max_value = max_value
+        self.min_value = min_value
+        self.max_digits = max_digits
+        self.decimal_places = decimal_places
+        super().__init__(
+            max_value=max_value, min_value=min_value,
+            max_digits=max_digits, decimal_places=decimal_places,
+            **kwargs
+        )
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+
+        if self.min_value is not None:
+            attrs['min'] = self.min_value
+        if self.max_value is not None:
+            attrs['max'] = self.max_value
+
+        # See Django's DecimalField.widget_attrs()
+        dec_places = self.decimal_places
+        attrs.setdefault(
+            'step',
+            'any' if dec_places is None else str(Decimal(1).scaleb(-dec_places)).lower()
+        )
+
+        return attrs
+
+
 class UnionField(fields.Field):
     """Base class for fields which are a union of other subfields, ie the user
     has to pick one subfield among several ones (of potentially different types).
@@ -1751,18 +1802,6 @@ class DateRangeField(fields.MultiValueField):
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
-
-
-class IntegerPercentField(fields.IntegerField):
-    widget = core_widgets.PercentInput
-
-
-class DecimalPercentField(fields.DecimalField):
-    widget = core_widgets.PercentInput
-
-
-class YearField(fields.IntegerField):
-    widget = core_widgets.YearInput
 
 
 class ColorField(fields.CharField):

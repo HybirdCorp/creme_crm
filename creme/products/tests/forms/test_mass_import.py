@@ -59,6 +59,9 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             'stock_colselect': 0,
             'web_site_colselect': 0,
 
+            'default_discount_colselect': 0,
+            'default_discount_defval': '0',
+
             # 'property_types',
             # 'fixed_relations',
             # 'dyn_relations',
@@ -96,6 +99,8 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             self.assertEqual(descriptions[i],    product.description)
             self.assertEqual(Decimal(prices[i]), product.unit_price)
             self.assertEqual(codes[i],           product.code)
+
+            self.assertEqual(Decimal('0'), product.default_discount)
 
             self.assertIsNone(product.stock)
 
@@ -161,6 +166,9 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             'categories_subcat_colselect': 3,
             'categories_subcat_defval': sub_cat11.pk,
 
+            'default_discount_colselect': 0,
+            'default_discount_defval': '10',
+
             'unit_colselect': 0,
             'quantity_per_unit_colselect': 0,
             'weight_colselect': 0,
@@ -196,6 +204,8 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             self.assertEqual(description,    product.description)
             self.assertEqual(Decimal(price), product.unit_price)
             self.assertEqual(code,           product.code)
+
+            self.assertEqual(Decimal('10'), product.default_discount)
 
             self.assertIsNone(product.stock)
 
@@ -312,6 +322,9 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
                 'stock_colselect': 0,
                 'web_site_colselect': 0,
 
+                'default_discount_colselect': 0,
+                'default_discount_defval': '0',
+
                 # 'property_types',
                 # 'fixed_relations',
                 # 'dyn_relations',
@@ -401,6 +414,9 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             'categories_subcat_colselect': 3,
             'categories_subcat_defval': sub_cat11.pk,
 
+            'default_discount_colselect': 0,
+            'default_discount_defval': '0',
+
             'unit_colselect': 0,
             'quantity_per_unit_colselect': 0,
             'weight_colselect': 0,
@@ -482,6 +498,9 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
                 'categories_subcat_colselect': 3,
                 'categories_subcat_defval': sub_cat11.pk,
                 'categories_create': 'on',  # <==
+
+                'default_discount_colselect': 0,
+                'default_discount_defval': '0',
 
                 'unit_colselect': 0,
                 'quantity_per_unit_colselect': 0,
