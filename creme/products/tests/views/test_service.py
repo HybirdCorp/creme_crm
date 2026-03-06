@@ -30,8 +30,16 @@ class ServiceViewsTestCase(_ProductsTestCase):
         self.assertEqual(0, Service.objects.count())
 
         url = reverse('products__create_service')
-        self.assertGET200(url)
+        ctxt1 = self.assertGET200(url).context
+        self.assertEqual(_('Create a service'), ctxt1.get('title'))
+        self.assertEqual(_('Save the service'), ctxt1.get('submit_label'))
 
+        with self.assertNoException():
+            default_discount_f = ctxt1['form'].fields['default_discount']
+        self.assertFalse(default_discount_f.required)
+        self.assertEqual(Decimal('0.00'), default_discount_f.initial)
+
+        # ----
         name = 'Eva washing'
         description = 'Your Eva is washed by pretty girls'
         reference = '42'
@@ -39,16 +47,20 @@ class ServiceViewsTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.filter(category=cat)[0]
         unit = 'A wash'
         unit_price = '1.23'
+        discount = '5.5'
         response = self.client.post(
             url,
             follow=True,
             data={
-                'user':         user.pk,
-                'name':         name,
-                'reference':    reference,
+                'user':      user.pk,
+                'name':      name,
+                'reference': reference,
+
                 'description':  description,
-                'unit':         unit,
-                'unit_price':   unit_price,
+
+                'unit':             unit,
+                'unit_price':       unit_price,
+                'default_discount': discount,
 
                 self.EXTRA_CATEGORY_KEY: str(sub_cat.pk),
             },
@@ -61,6 +73,7 @@ class ServiceViewsTestCase(_ProductsTestCase):
         self.assertEqual(description,         service.description)
         self.assertEqual(unit,                service.unit)
         self.assertEqual(Decimal(unit_price), service.unit_price)
+        self.assertEqual(Decimal(discount),   service.default_discount)
         self.assertEqual(cat,                 service.category)
         self.assertEqual(sub_cat,             service.sub_category)
 
@@ -83,25 +96,29 @@ class ServiceViewsTestCase(_ProductsTestCase):
 
         name += '_edited'
         unit_price = '4.53'
-        response = self.client.post(
+        discount = '10.2'
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
-                'user':         user.pk,
-                'name':         name,
-                'reference':    service.reference,
-                'description':  service.description,
-                'unit_price':   unit_price,
-                'unit':         service.unit,
+                'user': user.pk,
+                'name': name,
+
+                'reference':   service.reference,
+                'description': service.description,
+
+                'unit_price':       unit_price,
+                'unit':             service.unit,
+                'default_discount': discount,
 
                 self.EXTRA_CATEGORY_KEY: str(sub_cat.pk),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         service = self.refresh(service)
         self.assertEqual(name,                service.name)
         self.assertEqual(Decimal(unit_price), service.unit_price)
+        self.assertEqual(Decimal(discount),   service.default_discount)
 
     def test_listview(self):
         user = self.login_as_root_and_get()

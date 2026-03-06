@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,10 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from decimal import Decimal
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeEntity
 from creme.documents.models.fields import ImageEntityManyToManyField
 
@@ -44,6 +47,11 @@ class AbstractService(CremeEntity):
         _('Quantity/Unit'), blank=True, null=True,
     ).set_tags(optional=True)
     unit_price = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+    default_discount = core_fields.DecimalPercentField(
+        _('Default discount'),
+        blank=True, default=Decimal('0.00'),
+        help_text=_('This value is used when creating lines for Invoices/Quotes/…'),
+    )
 
     web_site = models.CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
     images = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,33 @@ ServiceLine = billing.get_service_line_model()
 Product = products.get_product_model()
 
 
+# TODO: to core? rename?
+class OptionalDecimalPercentInput(core_widgets.OptionalWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            core_widgets.PercentInput(
+                attrs={
+                    'min': constants.DEFAULT_DECIMAL,   # TODO: compute from field??
+                    'max': Decimal('100'),
+                    'step': '0.01',
+                },
+            ),
+            *args, **kwargs
+        )
+
+
+class OptionalDecimalPercentField(core_fields.OptionalField):
+    sub_field = partial(
+        core_fields.DecimalPercentField,
+        min_value=constants.DEFAULT_DECIMAL,  # TODO: test
+        max_value=Decimal('100'),  # TODO: test
+        decimal_places=2,
+        # initial=constants.DEFAULT_DECIMAL,  TODO: fix
+    )
+    widget = OptionalDecimalPercentInput
+###############
+
+
 class _LineMultipleAddForm(core_forms.CremeForm):
     quantity = forms.DecimalField(
         label=_('Quantity'),
@@ -48,13 +75,25 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         initial=constants.DEFAULT_QUANTITY,
         decimal_places=2,
     )
-    discount_value = core_fields.DecimalPercentField(
-        label=_('Discount'),
-        min_value=constants.DEFAULT_DECIMAL,
-        max_value=Decimal('100'),
-        initial=constants.DEFAULT_DECIMAL,
-        decimal_places=2,
-        help_text=_('Percentage applied on the unit price'),
+    # discount_value = core_fields.DecimalPercentField(
+    #     label=_('Discount'),
+    #     min_value=constants.DEFAULT_DECIMAL,
+    #     max_value=Decimal('100'),
+    #     initial=constants.DEFAULT_DECIMAL,
+    #     decimal_places=2,
+    #     help_text=_('Percentage applied on the unit price'),
+    # )
+    discount = OptionalDecimalPercentField(
+        label=_('Force a discount?'),
+        # TODO
+        # min_value=constants.DEFAULT_DECIMAL,
+        # max_value=Decimal('100'),  # TODO
+        # initial=constants.DEFAULT_DECIMAL,
+        # decimal_places=2,
+        help_text=_(
+            'By default the default discount of the Products/Services is used; '
+            'you can force a discount (percentage applied on the unit prices'
+        ),
     )
     # TODO: use CreatorEnumerableModelChoiceField?
     vat = forms.ModelChoiceField(
@@ -72,12 +111,13 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
     def save(self):
         cdata = self.cleaned_data
+        forced_discount = cdata.get('discount')
         line_class = self._get_line_class()
         create_item = partial(
             line_class.objects.create,
             related_document=self.billing_document,
             quantity=cdata['quantity'],
-            discount=cdata['discount_value'],
+            # discount=cdata['discount_value'],
             vat_value=cdata['vat'],
         )
 
@@ -88,7 +128,12 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
         for order, item in enumerate(cdata['items'], order_start):
             create_item(
-                related_item=item, unit_price=item.unit_price, unit=item.unit, order=order
+                related_item=item,
+                unit_price=item.unit_price, unit=item.unit,
+                discount=(
+                    forced_discount.data if forced_discount.is_set else item.default_discount
+                ),
+                order=order,
             )
 
 
@@ -105,7 +150,8 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
         }, {
             'id': 'additional',
             'label': _('Optional global information applied to your selected products'),
-            'fields': ['quantity', 'vat', 'discount_value'],
+            # 'fields': ['quantity', 'vat', 'discount_value'],
+            'fields': ['quantity', 'vat', 'discount'],
         },
     )
 
@@ -126,7 +172,8 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
         }, {
             'id': 'additional',
             'label': _('Optional global information applied to your selected services'),
-            'fields': ['quantity', 'vat', 'discount_value'],
+            # 'fields': ['quantity', 'vat', 'discount_value'],
+            'fields': ['quantity', 'vat', 'discount'],
         },
     )
 

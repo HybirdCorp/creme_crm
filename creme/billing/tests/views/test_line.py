@@ -151,6 +151,7 @@ class MiscLineViewsTestCase(base.BrickTestCaseMixin,
 class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProduct
     def test_product(self):
+        "Use default discounts."
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
@@ -168,17 +169,23 @@ class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
         # ---
         self.assertFalse(invoice.get_lines(ServiceLine))
 
-        product1 = self.create_product(user=user)
-        product2 = self.create_product(user=user)
+        # product1 = self.create_product(user=user, default_discount=Decimal('20'))
+        product1 = self.create_product(
+            user=user, unit_price=Decimal('5'), default_discount=Decimal('20'),
+        )
+        # product2 = self.create_product(user=user)
+        product2 = self.create_product(
+            user=user, unit_price=Decimal('8.50'), default_discount=Decimal('10'),
+        )
         vat = Vat.objects.get_or_create(value=Decimal('5.5'))[0]
         quantity = 2
         self.assertNoFormError(self.client.post(
             url,
             data={
                 'items': self.formfield_value_multi_creator_entity(product1, product2),
-                'quantity':       quantity,
-                'discount_value': Decimal('20'),
-                'vat':            vat.id,
+                'quantity': quantity,
+                'vat': vat.id,
+                # 'discount_value': Decimal('20'),
             },
         ))
 
@@ -186,22 +193,33 @@ class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
         lines = invoice.get_lines(ProductLine)
         self.assertEqual(2, len(lines))
 
-        line0, line1 = lines
-        self.assertEqual(quantity, line0.quantity)
+        line1, line2 = lines
         self.assertEqual(quantity, line1.quantity)
-        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line0)
+        self.assertEqual(quantity, line2.quantity)
+        self.assertEqual(product1.unit_price, line1.unit_price)
+        self.assertEqual(product2.unit_price, line2.unit_price)
+        # self.assertEqual(Decimal('20'), line1.discount)
+        self.assertEqual(product1.default_discount, line1.discount)
+        # self.assertEqual(Decimal('20'), line2.discount)
+        self.assertEqual(product2.default_discount, line2.discount)
+        self.assertEqual(ProductLine.Discount.PERCENT, line1.discount_unit)
+        self.assertEqual(ProductLine.Discount.PERCENT, line2.discount_unit)
         self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line1)
-        self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=product1)
-        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=product2)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line2)
+        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=product1)
+        self.assertHaveRelation(subject=line2,   type=REL_SUB_LINE_RELATED_ITEM, object=product2)
 
-        self.assertEqual(Decimal('3.2'),  invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
-        self.assertEqual(Decimal('3.38'), invoice.total_vat)  # 3.2 * 1.07 = 3.38
+        # self.assertEqual(Decimal('3.2'),  invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
+        # 2 * 5.0 * (1.0 - 0.2) + 2 * 8.50 * (1.0 - 0.1)
+        self.assertEqual(Decimal('23.30'), invoice.total_no_vat)
+        # self.assertEqual(Decimal('3.38'), invoice.total_vat)  # 3.2 * 1.055
+        self.assertEqual(Decimal('24.58'), invoice.total_vat)  # 23.30 * 1.055
 
-        self.assertEqual(Product, line0.related_item_class())
+        self.assertEqual(Product, line1.related_item_class())
 
         # ---
         detail_url = invoice.get_absolute_url()
-        self.assertEqual(detail_url, line0.get_absolute_url())
+        self.assertEqual(detail_url, line1.get_absolute_url())
 
         response3 = self.assertGET200(detail_url)
         brick_node = self.get_brick_node(
@@ -215,6 +233,7 @@ class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomService
     def test_service(self):
+        "Force discount"
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
@@ -234,17 +253,27 @@ class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
         with self.assertRaises(AssertionError):
             invoice.get_lines(Service)
 
-        service1 = self.create_service(user=user)
-        service2 = self.create_service(user=user)
+        # service1 = self.create_service(user=user)
+        # service2 = self.create_service(user=user)
+        service1 = self.create_service(
+            user=user, unit_price=Decimal('4.30'), default_discount=Decimal('20'),
+        )
+        service2 = self.create_service(
+            user=user, unit_price=Decimal('7.50'), default_discount=Decimal('15'),
+        )
+
         vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
         quantity = 2
         self.assertNoFormError(self.client.post(
             url,
             data={
                 'items': self.formfield_value_multi_creator_entity(service1, service2),
-                'quantity':       quantity,
-                'discount_value': Decimal('10'),
-                'vat':            vat.id,
+                'quantity': quantity,
+                'vat': vat.id,
+
+                # 'discount_value': Decimal('10'),
+                'discount_0': True,
+                'discount_1': Decimal('10'),
             },
         ))
 
@@ -261,8 +290,11 @@ class LinesCreationTestCase(base.BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=service1)
         self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=service2)
 
-        self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
-        self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
+        # self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
+        # (2 * 4.30 + 2 * 7.50) * (1.0 - 0.1)
+        self.assertEqual(Decimal('21.24'),  invoice.total_no_vat)
+        # self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196
+        self.assertEqual(Decimal('25.41'), invoice.total_vat)  # 21.24 * 1.196
 
         self.assertEqual(Service, line0.related_item_class())
 
