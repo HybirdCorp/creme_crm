@@ -1,5 +1,11 @@
 == Version 2.7.7 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  ------------
+    # An exception in 'CreatorEnumerableChoiceField' has been fixed (when the ForeignKey model
+      is declared as a string). The code 'fk.related_field.model' should return a 'Model' but in
+      some cases it is not resolved and return a string.
+
 
 == Version 2.7.6 ==
 
