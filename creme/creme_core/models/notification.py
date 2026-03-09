@@ -105,6 +105,15 @@ class NotificationChannel(models.Model):
     def __str__(self):
         return self.final_name
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'uuid="{self.uuid}", '
+            f'name="{self.name}", '
+            f'type_id="{self.type_id}"'
+            f')'
+        )
+
     @property
     def final_name(self):
         chan_type = self.type

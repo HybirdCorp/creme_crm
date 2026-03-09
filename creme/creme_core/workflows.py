@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -29,6 +29,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from .core.notification import OneEntityTemplateStringContent
 from .core.workflow import (
     EntityCreated,
     EntityEdited,
@@ -37,21 +38,30 @@ from .core.workflow import (
     RelationAdded,
     WorkflowAction,
     WorkflowBrokenData,
+    WorkflowRegistry,
     WorkflowSource,
     WorkflowTrigger,
     _EntityEvent,
     model_as_key,
     model_from_key,
+    workflow_registry,
 )
 from .models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    CremeUser,
+    Notification,
+    NotificationChannel,
     Relation,
     RelationType,
 )
 from .models.utils import model_verbose_name
 from .templatetags.creme_widgets import widget_entity_hyperlink
+
+if TYPE_CHECKING:
+    from django.forms import Field as FormField
+
 
 logger = logging.getLogger(__name__)
 
@@ -851,6 +861,366 @@ class FirstRelatedEntitySource(WorkflowSource):
         return self._subject_source
 
 
+# User Sources------------------------------------------------------------------
+
+class UserSource:
+    """Base class to represent a user which can be used by an action.
+    The user may be extracted from the Workflow's context.
+    Example: used by the action which send notifications (<NotificationSendingAction>).
+    """
+    type_id: str = ''
+    verbose_name = '??'
+
+    @classmethod
+    def config_formfield(cls,
+                         user: CremeUser,
+                         entity_source: WorkflowSource | None = None,
+                         ) -> FormField:
+        """Returns a form field which can be used in the configuration form of a
+        WorkflowAction.
+        @return A field with a 'clean()' method which returns an instance of
+                'UserSource'.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def config_formfield_kind_id(cls,
+                                 wf_source: WorkflowSource | None = None
+                                 ) -> str:
+        """Generate an ID for the related configuration form-field.
+        This ID is used by 'UserSourceField' to distinguish the different kinds
+        of sources.
+        Hint: you probably don't have to override this method in child classes.
+        @parameter wf_source: Should the same WorkflowSource instance used by
+                   the form-field itself.
+        """
+        return (
+            cls.type_id
+            if wf_source is None else
+            f'{wf_source.config_formfield_kind_id()}|{cls.type_id}'
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict, registry: WorkflowRegistry) -> UserSource:
+        """Build an instance from a dictionary (produced by the method <to_dict()>)."""
+        raise NotImplementedError
+
+    def to_dict(self) -> dict:
+        """Serialize to a JSON friendly dictionary
+        Hint: see the method 'from_dict()' too.
+        """
+        return {'type': self.type_id}
+
+    def render(self, user: CremeUser) -> str:
+        """Render as HTML to describe in the configuration UI."""
+        raise NotImplementedError
+
+    def extract(self, context: dict) -> CremeUser | None:
+        """Extract the user instance from the Workflow's context.
+        @return None if the source did not manage to extract a user.
+        """
+        raise NotImplementedError
+
+    @property
+    def wf_source(self) -> WorkflowSource | None:
+        """Some user-source classes extract their entities from a WorkflowSource.
+        This property returns the source which is used.
+        E.g.: UserFKSource
+        @return: The source, or 'None' if no source is used.
+        """
+        return None
+
+
+class FixedUserSource(UserSource):
+    """This source just returns a CremeUser with a fixed UUID."""
+    type_id = 'fixed_user'
+    verbose_name = _('Fixed user')
+
+    # TODO: accept UUID too?
+    def __init__(self, *, user):
+        if isinstance(user, str):
+            self._user_uuid = UUID(user)
+            self._user = None
+        else:
+            assert isinstance(user, CremeUser)
+            self._user_uuid = user.uuid
+            self._user = user
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.user == other.user
+
+    def __repr__(self):
+        return f'{type(self).__name__}(user={self.user!r})'
+
+    @classmethod
+    def config_formfield(cls, user, entity_source=None):
+        from .forms.workflows import FixedUserSourceField
+
+        return FixedUserSourceField(
+            label=cls.verbose_name,
+        )  if entity_source is None else None
+
+    def extract(self, context):
+        try:
+            user = self.user
+        except WorkflowBrokenData:
+            return None
+
+        return user if user.is_active else None
+
+    @property
+    def user(self):
+        user = self._user
+        if user is None:
+            self._user = user = CremeUser.objects.filter(uuid=self._user_uuid).first() or False
+
+        if user is False:
+            raise WorkflowBrokenData(
+                gettext('The user does not exist anymore')
+            )
+
+        return user
+
+    @classmethod
+    def from_dict(cls, data, registry):
+        return cls(user=data['user'])
+
+    def to_dict(self):
+        d = super().to_dict()
+        d['user'] = str(self._user_uuid)
+
+        return d
+
+    def render(self, user):
+        try:
+            user = self.user
+        except WorkflowBrokenData as e:
+            return format_html(
+                '{label}<p class="errorlist">{error}</p>',
+                label=gettext('Notify a fixed user'), error=e,
+            )
+
+        if not user.is_active:
+            return format_html(
+                '{label}<span class="warninglist">{warning}</span>',
+                label=gettext('Notify:'),
+                warning=gettext(
+                    'The user «{username}» is disabled (no action will be performed)'
+                ).format(username=user.username),
+            )
+
+        # TODO: link <a> to user/contact?
+        return gettext('Notify: {user}').format(user=user)
+
+
+# TODO: factorise with EntityFKSource?
+class UserFKSource(UserSource):
+    """A user with is read from a ForeignKey (to <User> of course)."""
+    type_id = 'user_fk'
+    verbose_name = _('User field')
+
+    def __init__(self, *, entity_source, field_name):
+        model = entity_source.model  # NB: can raise exception on BrokenSource
+        try:
+            field = model._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            raise WorkflowBrokenData(
+                gettext('The field «{field}» is invalid in model «{model}»').format(
+                    field=field_name, model=model_verbose_name(model),
+                )
+            )
+
+        if not isinstance(field, ForeignKey):
+            raise WorkflowBrokenData(f'The field "{field_name}" is not a ForeignKey')
+        if not issubclass(field.related_model, CremeUser):
+            raise WorkflowBrokenData(
+                f'The field "{field_name}" is not a ForeignKey to User'
+            )
+
+        self._entity_source = entity_source
+        self._field_name = field_name
+        self._field = field
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, type(self))
+            and self._entity_source == other._entity_source
+            and self._field_name == other._field_name
+        )
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'entity_source={self._entity_source!r}), '
+            f'field_name="{self._field_name}"'
+            f')'
+        )
+
+    @property
+    def wf_source(self):
+        return self._entity_source
+
+    @property
+    def field_name(self):
+        return self._field_name
+
+    @classmethod
+    def config_formfield(cls, user, entity_source=None):
+        from .forms.workflows import UserFKSourceField
+
+        return None if entity_source is None else UserFKSourceField(
+            label=gettext('Field to a user of: {source}').format(
+                source=entity_source.render(user=user, mode=entity_source.RenderMode.HTML),
+            ),
+            entity_source=entity_source,
+        )
+
+    def extract(self, context):
+        # TODO: errors
+        instance = self._entity_source.extract(context=context)
+        user = getattr(instance, self._field_name)
+
+        return user if user and user.is_active else None
+
+    @classmethod
+    def from_dict(cls, data, registry):
+        return cls(
+            entity_source=registry.build_source(data['entity']),
+            field_name=data['field'],
+        )
+
+    def to_dict(self):
+        d = super().to_dict()
+        d['entity'] = self._entity_source.to_dict()
+        d['field'] = self._field_name
+
+        return d
+
+    def render(self, user):
+        source = self._entity_source
+
+        return gettext('Notify the user «{field}» of: {source}').format(
+            field=self._field.verbose_name,
+            source=source.render(user=user, mode=source.RenderMode.HTML),
+        )
+
+
+class BrokenUserSource(UserSource):
+    """Represents a UserSource with an invalid configuration.
+    It's useful to display errors in the UI.
+    """
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
+
+    def render(self, user):
+        return format_html(
+            '<p class="errorlist">{message}</p>',
+            message=self._message,
+        )
+
+    def extract(self, context):
+        return None
+
+
+class UserSourceRegistry:
+    type_id_re = WorkflowRegistry.type_id_re
+
+    class RegistrationError(Exception):
+        pass
+
+    class UnRegistrationError(RegistrationError):
+        pass
+
+    _user_source_classes: dict[str, type[UserSource]]
+
+    def __init__(self, wf_registry=workflow_registry):
+        self._user_source_classes = {}
+        self._workflow_registry = wf_registry
+
+    @property
+    def user_source_classes(self):
+        yield from self._user_source_classes.values()
+
+    @classmethod
+    def checked_type_id(cls, user_source_class):
+        type_id = user_source_class.type_id
+
+        if not type_id:
+            raise cls.RegistrationError(
+                f'This user-source class has an empty ID: {user_source_class}'
+            )
+
+        if cls.type_id_re.fullmatch(type_id) is None:
+            raise cls.RegistrationError(
+                f'This user-source class uses has an ID with invalid chars: '
+                f'{user_source_class}'
+            )
+
+        return type_id
+
+    def register(self,
+                 *user_source_classes: type[UserSource],
+                 ) -> UserSourceRegistry:
+        set_cls = self._user_source_classes.setdefault
+
+        for user_src_cls in user_source_classes:
+            if set_cls(self.checked_type_id(user_src_cls), user_src_cls) is not user_src_cls:
+                raise self.RegistrationError(
+                    f'This user-source class uses an ID already used: {user_src_cls}'
+                )
+
+        return self
+
+    def unregister(self,
+                   *user_source_classes: type[UserSource],
+                   ) -> UserSourceRegistry:
+        for user_src_cls in user_source_classes:
+            try:
+                del self._user_source_classes[user_src_cls.type_id]
+            except KeyError as e:
+                raise self.UnRegistrationError(
+                    f'This class is not registered: {user_src_cls}'
+                ) from e
+
+        return self
+
+    def build_user_source(self, data: dict) -> UserSource:
+        """Build any type of (registered) user-source from serialized data.
+        @param See 'UserSource.to_dict()'.
+        """
+        type_id = data['type']
+        user_src_cls = self._user_source_classes.get(type_id)
+        if user_src_cls is None:
+            return BrokenUserSource(
+                message=gettext(
+                    'The type of user-source «{type}» is invalid (uninstalled app?)'
+                ).format(type=type_id),
+            )
+
+        try:
+            user_source = user_src_cls.from_dict(
+                data=data, registry=self._workflow_registry,
+            )
+        except WorkflowBrokenData as e:
+            return BrokenUserSource(
+                message=_(
+                    'The user-source «{name}» is broken (original error: {error})'
+                ).format(name=user_src_cls.verbose_name, error=e)
+            )
+
+        return user_source
+
+
+user_source_registry = UserSourceRegistry().register(
+    FixedUserSource,
+    UserFKSource,
+)
+
+
 # Actions ----------------------------------------------------------------------
 class PropertyAddingAction(WorkflowAction):
     """Action which adds a CremeProperty to the chosen source."""
@@ -1124,4 +1494,129 @@ class RelationAddingAction(WorkflowAction):
                     'The source type is not compatible with this relationship type'
                 ),
             ),
+        )
+
+
+class NotificationSendingAction(WorkflowAction):
+    """Action which sends a Notification from given subject/body
+    The body can use a template variable {{entity}} (which corresponds to its
+    WorkflowSource 'entity_source').
+    """
+    type_id = 'creme_core-notification_sending'
+    verbose_name = _('Sending a notification')
+
+    def __init__(self, *,
+                 channel: NotificationChannel,
+                 user_source: UserSource,
+                 entity_source: WorkflowSource,
+                 subject: str,
+                 body: str,
+                 ):
+        self._channel = channel
+        self._user_source = user_source
+        self._entity_source = entity_source
+        self._subject = subject
+        self._body = body
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, type(self))
+            and self._channel == other._channel
+            and self._user_source == other._user_source
+            and self._entity_source == other._entity_source
+            and self._subject == other._subject
+            and self._body == other._body
+        )
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'channel={self._channel!r}, '
+            f'user_source={self._user_source!r}, '
+            f'entity_source={self._entity_source!r}, '
+            f'subject="{self._subject}", '
+            f'body="{self._body}"'
+            f')'
+        )
+
+    @classmethod
+    def config_form_class(cls):
+        from .forms.workflows import NotificationSendingActionForm
+        return NotificationSendingActionForm
+
+    @property
+    def body(self) -> str:
+        return self._body
+
+    @property
+    def channel(self) -> NotificationChannel:
+        return self._channel
+
+    @property
+    def entity_source(self) -> WorkflowSource:
+        return self._entity_source
+
+    @property
+    def user_source(self) -> UserSource:
+        return self._user_source
+
+    @property
+    def subject(self) -> str:
+        return self._subject
+
+    def execute(self, context, user=None):
+        user = self._user_source.extract(context)
+        if not user:
+            return
+
+        entity = self._entity_source.extract(context)
+        if entity is None:
+            return None
+
+        Notification.objects.send(
+            channel=self._channel,
+            users=[user],
+            content=OneEntityTemplateStringContent.from_entity(
+                subject=self._subject, body=self._body, entity=entity,
+            ),
+        )
+
+    def to_dict(self):
+        d = super().to_dict()
+        d['channel'] = str(self._channel.uuid)
+        d['user'] = self._user_source.to_dict()
+        d['entity'] = self._entity_source.to_dict()
+        d['subject'] = self._subject
+        d['body'] = self._body
+
+        return d
+
+    @classmethod
+    def from_dict(cls, data, registry):
+        return cls(
+            # TODO: localized error message
+            channel=NotificationChannel.objects.get(uuid=data['channel']),
+            user_source=user_source_registry.build_user_source(data['user']),
+            entity_source=registry.build_source(data['entity']),
+            subject=data['subject'],
+            body=data['body'],
+        )
+
+    def render(self, user):
+        return format_html(
+            '<div>'
+            '{label}'
+            ' <ul>'
+            '  <li>{channel}</li>'
+            '  <li>{user}</li>'
+            '  <li>{subject}</li>'
+            '  <li>{body_label}<br><p>{body}</p></li>'
+            ' </ul>'
+            '</div>',
+            label=gettext('Sending a notification:'),
+            channel=gettext('On channel: {channel}').format(channel=self._channel),
+            user=self._user_source.render(user=user),
+            subject=gettext('Subject: {subject}').format(subject=self._subject),
+            body_label=gettext('Body:'),
+            body=self._body,
         )

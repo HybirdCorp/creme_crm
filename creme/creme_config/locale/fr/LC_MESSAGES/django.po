@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 2.8\n"
+"Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-05 15:07+0100\n"
+"POT-Creation-Date: 2026-04-08 23:05+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1677,6 +1677,9 @@ msgstr "Pas de sortie"
 msgid "Configure this channel"
 msgstr "Configurer ce canal"
 
+msgid "New channel"
+msgstr "Nouveau canal"
+
 msgid ""
 "The notifications are sent on a channel which defines where the "
 "notifications will appear (currently: in-app and/or emails) by default.\n"
@@ -3181,9 +3184,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "The password can’t be entirely numeric."
 #~ msgstr "Le mot de passe ne peut pas être entièrement numérique."
-
-#~ msgid "New channel"
-#~ msgstr "Nouveau canal"
 
 #~ msgid "Text"
 #~ msgstr "Texte"

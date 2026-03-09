@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-07 16:36+0200\n"
+"POT-Creation-Date: 2026-04-09 08:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -670,6 +670,9 @@ msgstr "Queue Redis"
 msgid "Socket queue"
 msgstr "Queue par 'socket'"
 
+msgid "«deleted entity»"
+msgstr "«fiche supprimée»"
+
 msgid "Notification (type cannot be determined)"
 msgstr "Notification (type inconnu)"
 
@@ -685,6 +688,13 @@ msgstr "Valeur"
 
 msgid "Enter a valid HTML color."
 msgstr "Saisissez une couleur HTML valide."
+
+#, python-format
+msgid "The following variables are invalid: %(vars)s"
+msgstr "Les variables suivantes sont invalides: %(vars)s"
+
+msgid "You can use variables: {}"
+msgstr "Vous pouvez utiliser les variables : {}"
 
 msgid "Yes"
 msgstr "Oui"
@@ -716,7 +726,7 @@ msgstr "Pas de condition sur «{source}»"
 
 #, python-brace-format
 msgid "The type of action «{type}» is invalid (uninstalled app?)"
-msgstr "Le type d'action «{type}» est invalide (app désinstallée ?)"
+msgstr "Le type d'action «{type}» est invalide (app désinstallée ?)"
 
 #, python-brace-format
 msgid "The action «{name}» is broken (original error: {error})"
@@ -724,7 +734,7 @@ msgstr "L'action «{name}» est cassée (erreur originale : {error})"
 
 #, python-brace-format
 msgid "The type of source «{type}» is invalid (uninstalled app?)"
-msgstr "Le type de source «{type}» est invalide (app désinstallée ?)"
+msgstr "Le type de source «{type}» est invalide (app désinstallée ?)"
 
 #, python-brace-format
 msgid "The source «{name}» is broken (original error: {error})"
@@ -732,7 +742,7 @@ msgstr "La source «{name}» est cassée (erreur originale : {error})"
 
 #, python-brace-format
 msgid "The type of trigger «{type}» is invalid (uninstalled app?)"
-msgstr "Le type de déclenchement «{type}» est invalide (app désinstallée ?)"
+msgstr "Le type de déclenchement «{type}» est invalide (app désinstallée ?)"
 
 #, python-brace-format
 msgid "The trigger «{name}» is broken (original error: {error})"
@@ -1622,6 +1632,45 @@ msgstr "Ce type de relation n'est pas compatible avec le type de sujet choisi."
 msgid ""
 "This relationship type is not compatible with the chosen type of object."
 msgstr "Ce type de relation n'est pas compatible avec le type d'objet choisi."
+
+msgid "Channel"
+msgstr "Canal"
+
+msgid ""
+"Only customised channels can be used (hint: create them in the configuration "
+"of notifications)"
+msgstr ""
+"Seul les canaux personalisés peuvent être utilisés (astuce : créez les dans "
+"la configuration des notifications)"
+
+msgid "User to notify"
+msgstr "Utilisateur à notifier"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Entity which is used as template variable"
+msgstr "Fiche utilisée comme variable dans le patron"
+
+msgid "Body"
+msgstr "Corps"
+
+#. Translators: do not translate "{{entity}}"
+msgid "You can use the variable {{entity}} to display the entity chosen above"
+msgstr ""
+"Vous pouvez utiliser la variable {{entity}} pour afficher la fiche choisie "
+"au dessus"
+
+msgctxt "creme_core-notification"
+msgid "Target"
+msgstr "Cible"
+
+msgctxt "creme_core-notification"
+msgid "Content"
+msgstr "Contenu"
+
+msgid "The tags like {% … %} are forbidden"
+msgstr "Les balises comme {% … %} sont interdites"
 
 msgid "* no property *"
 msgstr "* pas de propriété *"
@@ -2849,9 +2898,6 @@ msgctxt "creme_core-notif"
 msgid "High"
 msgstr "Haut"
 
-msgid "Channel"
-msgstr "Canal"
-
 msgid "Level"
 msgstr "Niveau"
 
@@ -3481,12 +3527,6 @@ msgstr "{count} Notification"
 #, python-brace-format
 msgid "{count} Notifications"
 msgstr "{count} Notifications"
-
-msgid "Subject"
-msgstr "Sujet"
-
-msgid "Body"
-msgstr "Corps"
 
 msgid "Discard this notification"
 msgstr "Défausser cette notification"
@@ -4909,6 +4949,47 @@ msgstr "{error} (première fiche reliée)"
 msgid "First related «{type}» by «{predicate}» to: {source}"
 msgstr "Première fiche «{type}» reliée par «{predicate}» à : {source}"
 
+msgid "Fixed user"
+msgstr "Utilisateur fixe"
+
+msgid "The user does not exist anymore"
+msgstr "L'utilisateur n'existe plus"
+
+msgid "Notify a fixed user"
+msgstr "Notifier un utilsateur fixe"
+
+msgid "Notify:"
+msgstr "Notifier :"
+
+#, python-brace-format
+msgid "The user «{username}» is disabled (no action will be performed)"
+msgstr ""
+"L'utilisateur «{username}» est désactivé (aucune action ne sera effectuée)"
+
+#, python-brace-format
+msgid "Notify: {user}"
+msgstr "Notifier: {user}"
+
+msgid "User field"
+msgstr "Champ utilisateur"
+
+#, python-brace-format
+msgid "Field to a user of: {source}"
+msgstr "Champ vers un utilisateur de : {source}"
+
+#, python-brace-format
+msgid "Notify the user «{field}» of: {source}"
+msgstr "Notifier l'utilisateur «{field}» de : {source}"
+
+#, python-brace-format
+msgid "The type of user-source «{type}» is invalid (uninstalled app?)"
+msgstr ""
+"Le type de source-utilisateur «{type}» est invalide (app désinstallée ?)"
+
+#, python-brace-format
+msgid "The user-source «{name}» is broken (original error: {error})"
+msgstr "La source-utilisateur «{name}» est cassée (erreur originale : {error})"
+
 #, python-brace-format
 msgid "Adding the property «{property}» to: {source}"
 msgstr "Ajouter la propriété «{property}» à : {source}"
@@ -4922,6 +5003,23 @@ msgstr "Ajouter la relation «{predicate}» entre :"
 
 msgid "The source type is not compatible with this relationship type"
 msgstr "Le type de source n'est pas compatible avec ce type de relation"
+
+msgid "Sending a notification"
+msgstr "Envoyer une notification"
+
+msgid "Sending a notification:"
+msgstr "Envoyer une notification :"
+
+#, python-brace-format
+msgid "On channel: {channel}"
+msgstr "Sur le canal : {channel}"
+
+#, python-brace-format
+msgid "Subject: {subject}"
+msgstr "Sujet : {subject}"
+
+msgid "Body:"
+msgstr "Corps :"
 
 #~ msgid "You are not allowed to delete this filter (you are not the owner)"
 #~ msgstr ""
@@ -5143,9 +5241,6 @@ msgstr "Le type de source n'est pas compatible avec ce type de relation"
 
 #~ msgid "Inner update"
 #~ msgstr "Modification rapide"
-
-#~ msgid "Search field"
-#~ msgstr "Champ de recherche"
 
 #~ msgid "Block state"
 #~ msgstr "Etat de bloc"

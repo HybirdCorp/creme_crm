@@ -138,6 +138,24 @@ class NotificationChannelTestCase(CremeTestCase):
         channel.type = None
         self.assertIsNone(channel.type)
 
+    def test_repr(self):
+        name = 'My_channel'
+        description = 'Very useful'
+        channel = NotificationChannel.objects.create(
+            name=name, description=description, default_outputs=[OUTPUT_WEB],
+        )
+        self.assertEqual(
+            f'NotificationChannel(uuid="{channel.uuid}", name="{name}", type_id="")',
+            repr(channel),
+        )
+
+        channel.type = SystemChannelType
+        self.assertEqual(
+            f'NotificationChannel(uuid="{channel.uuid}", name="{name}", '
+            f'type_id="{SystemChannelType.id}")',
+            repr(channel),
+        )
+
 
 class NotificationChannelConfigItemManagerTestCase(CremeTestCase):
     def test_create__no_output(self):
