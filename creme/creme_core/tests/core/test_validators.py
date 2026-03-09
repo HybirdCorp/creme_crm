@@ -1,11 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
+from creme.creme_core.core.validators import TemplateVariablesValidator
 from creme.creme_core.tests.base import CremeTestCase
-from creme.emails.core.validators import TemplateVariablesValidator
 
 
-class ValidatorsTestCase(CremeTestCase):
+class TemplateVariablesValidatorTestCase(CremeTestCase):
     def test_template_variables(self):
         v = TemplateVariablesValidator(['first_name', 'last_name'])
 

@@ -658,6 +658,8 @@ class CremeCoreConfig(CremeAppConfig):
         ).register_content(
             content_cls=notification.SimpleNotifContent,
         ).register_content(
+            content_cls=notification.OneEntityTemplateStringContent,
+        ).register_content(
             content_cls=core_notif.UpgradeAnnouncement,
         ).register_content(
             content_cls=core_notif.MassImportDoneContent,
@@ -748,6 +750,7 @@ class CremeCoreConfig(CremeAppConfig):
         ).register_actions(
             workflows.PropertyAddingAction,
             workflows.RelationAddingAction,
+            workflows.NotificationSendingAction,
         )
 
     # TODO: set Meta.formfield_callback for Creme(Model)Form instead?

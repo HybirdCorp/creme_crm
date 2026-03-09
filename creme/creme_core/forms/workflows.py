@@ -17,15 +17,20 @@
 ################################################################################
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey
+from django.forms import Textarea
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core import workflows as core_workflows
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.core.validators import TemplateVariablesValidator
 from creme.creme_core.core.workflow import (
     WorkflowAction,
     WorkflowSource,
@@ -36,10 +41,12 @@ from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
+    NotificationChannel,
     RelationType,
     Workflow,
 )
 from creme.creme_core.utils.url import TemplateURLBuilder
+from creme.creme_core.workflows import UserSource, user_source_registry
 
 
 # Widgets ----------------------------------------------------------------------
@@ -403,6 +410,118 @@ class SourceField(core_fields.UnionField):
             return selected_kind_id, {selected_kind_id: field.prepare_value(value)}
 
 
+class FixedUserSourceField(forms.ModelChoiceField):
+    def __init__(self, **kwargs):
+        super().__init__(
+            queryset=get_user_model().objects.filter(
+                is_active=True, is_team=False, is_staff=False,
+            ),
+            empty_label=None,
+            **kwargs
+        )
+
+    def clean(self, value):
+        user = super().clean(value)
+
+        return core_workflows.FixedUserSource(user=user)  if user else None
+
+    def prepare_value(self, value):
+        return value.id if isinstance(value, get_user_model()) else value.user.id
+
+
+class UserFKSourceField(forms.ChoiceField):
+    def __init__(self, entity_source, **kwargs):
+        User = get_user_model()
+        super().__init__(**{
+            **kwargs,
+            # TODO: ignore hidden fields
+            'choices': [
+                (model_field.name, model_field.verbose_name)
+                for model_field in entity_source.model._meta.fields
+                if isinstance(model_field, ForeignKey)
+                and issubclass(model_field.related_model, User)
+                and model_field.get_tag(FieldTag.VIEWABLE)  # TODO: test
+            ],
+        })
+        self.entity_source = entity_source
+
+    def clean(self, value):
+        field_name = super().clean(value)
+
+        return core_workflows.UserFKSource(
+            entity_source=self.entity_source, field_name=field_name,
+        )  if field_name else None
+
+    def prepare_value(self, value):
+        return value.field_name
+
+
+class UserSourceField(core_fields.UnionField):
+    def __init__(self,
+                 trigger=None,
+                 user=None,
+                 registry=user_source_registry,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.user_source_registry = registry
+        self._user = user
+        self.trigger = trigger
+
+    def _update_sub_fields(self):
+        user    = self._user
+        trigger = self._trigger
+
+        fields_choices = []
+
+        if trigger and user:
+            for user_src_cls in self.user_source_registry.user_source_classes:
+                field = user_src_cls.config_formfield(user=user, entity_source=None)
+                if field is not None:
+                    fields_choices.append(
+                        (user_src_cls.config_formfield_kind_id(), field)
+                    )
+
+            for source in trigger.root_sources():
+                for user_src_cls in self.user_source_registry.user_source_classes:
+                    field = user_src_cls.config_formfield(user=user, entity_source=source)
+                    if field is not None:
+                        fields_choices.append(
+                            (user_src_cls.config_formfield_kind_id(wf_source=source), field)
+                        )
+
+        self.fields_choices = fields_choices
+
+    @property
+    def trigger(self):
+        return self._trigger
+
+    @trigger.setter
+    def trigger(self, trigger):
+        self._trigger = trigger
+        self._update_sub_fields()
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self._update_sub_fields()
+
+    def prepare_value(self, value):
+        if value:
+            assert isinstance(value, UserSource)
+            selected_kind_id = value.config_formfield_kind_id(wf_source=value.wf_source)
+            field = next(
+                field
+                for kind_id, field in self.fields_choices
+                if kind_id == selected_kind_id
+            )
+
+            return selected_kind_id, {selected_kind_id: field.prepare_value(value)}
+
+
 # Forms ------------------------------------------------------------------------
 class BaseWorkflowActionForm(core_forms.CremeModelForm):
     class Meta:
@@ -557,3 +676,72 @@ class RelationAddingActionForm(BaseWorkflowActionForm):
             )
 
         return None
+
+
+class NotificationSendingActionForm(BaseWorkflowActionForm):
+    channel = forms.ModelChoiceField(
+        label=_('Channel'),
+        queryset=NotificationChannel.objects.filter(type_id=''),
+        help_text=_(
+            'Only customised channels can be used '
+            '(hint: create them in the configuration of notifications)'
+        )
+    )
+    user = UserSourceField(label=_('User to notify'))
+    subject = forms.CharField(label=_('Subject'), max_length=80)
+    source = SourceField(label=_('Entity which is used as template variable'))
+    body = forms.CharField(
+        label=_('Body'),
+        widget=Textarea,
+        validators=[TemplateVariablesValidator(allowed_variables=['entity'])],
+        # Translators: do not translate "{{entity}}"
+        help_text=_('You can use the variable {{entity}} to display the entity chosen above'),
+    )
+
+    blocks = core_forms.FieldBlockManager(
+        {
+            'id': 'target',
+            'label': pgettext_lazy('creme_core-notification', 'Target'),
+            'fields': '*',
+        },
+        {'id': 'subject', 'label': 'Subject', 'fields': ('subject',)},
+        {
+            'id': 'content',
+            'label': pgettext_lazy('creme_core-notification', 'Content'),
+            'fields': ('source', 'body'),
+        },
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = self.fields
+        user_src_f = fields['user']
+        source_f = fields['source']
+        user_src_f.trigger = source_f.trigger = self.instance.trigger
+
+        action = self.action
+        if action is not None:
+            fields['channel'].initial = action.channel.id
+            user_src_f.initial = action.user_source
+            fields['subject'].initial = action.subject
+            source_f.initial = action.entity_source
+            fields['body'].initial = action.body
+
+    def clean_body(self):
+        body = self.cleaned_data['body']
+
+        # TODO: standalone validator?
+        if '{%' in body and '%}' in body:
+            raise ValidationError(gettext('The tags like {% … %} are forbidden'))
+
+        return body
+
+    def _build_action(self, cleaned_data):
+        return core_workflows.NotificationSendingAction(
+            channel=cleaned_data['channel'],
+            # [0] == recipient kind ID
+            user_source=cleaned_data['user'][1],
+            entity_source=cleaned_data['source'][1],
+            subject=cleaned_data['subject'],
+            body=cleaned_data['body'],
+        )

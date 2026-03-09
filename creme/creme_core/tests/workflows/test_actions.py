@@ -5,25 +5,36 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_OBJ_HAS
+from creme.creme_core.core.notification import (
+    OUTPUT_WEB,
+    OneEntityTemplateStringContent,
+)
 from creme.creme_core.core.workflow import (
     WorkflowBrokenData,
     workflow_registry,
 )
+from creme.creme_core.forms.workflows import NotificationSendingActionForm
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     FakeContact,
     FakeOrganisation,
     FakeProduct,
+    Notification,
+    NotificationChannel,
     RelationType,
 )
 from creme.creme_core.workflows import (
     CreatedEntitySource,
+    EditedEntitySource,
     FixedEntitySource,
+    FixedUserSource,
+    NotificationSendingAction,
     ObjectEntitySource,
     PropertyAddingAction,
     RelationAddingAction,
     SubjectEntitySource,
+    UserFKSource,
 )
 
 from ..base import CremeTestCase
@@ -618,3 +629,250 @@ class RelationAddingActionTestCase(CremeTestCase):
             },
             self.get_alone_element(log_cm2.output),
         )
+
+
+class NotificationSendingActionTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.channel = NotificationChannel.objects.create(
+            name='Workflow', default_outputs=[OUTPUT_WEB],
+            description='Notification for Workflow',
+        )
+
+    def test_fixed_user(self):
+        "One user, no template for subject/body."
+        user = self.get_root_user()
+
+        type_id = 'creme_core-notification_sending'
+        self.assertEqual(type_id, NotificationSendingAction.type_id)
+        self.assertEqual(
+            _('Sending a notification'), NotificationSendingAction.verbose_name,
+        )
+
+        # Instance ---
+        channel = self.channel
+        user_source = FixedUserSource(user=user)
+        subject = 'This is important'
+        body = 'A Contact has been created.'
+        source = CreatedEntitySource(model=FakeContact)
+        action = NotificationSendingAction(
+            channel=channel,
+            user_source=user_source,
+            entity_source=source,
+            subject=subject, body=body,
+        )
+        self.assertEqual(channel,     action.channel)
+        self.assertEqual(user_source, action.user_source)
+        self.assertEqual(subject,     action.subject)
+        self.assertEqual(body,        action.body)
+        self.assertEqual(source,      action.entity_source)
+
+        self.maxDiff = None
+        self.assertEqual(
+            f'NotificationSendingAction('
+            f'channel=NotificationChannel(uuid="{channel.uuid}", name="Workflow", type_id=""), '
+            f'user_source=FixedUserSource(user=CremeUser(username="root")), '
+            f'entity_source=CreatedEntitySource(model=FakeContact), '
+            f'subject="{subject}", body="{body}"'
+            f')',
+            repr(action),
+        )
+
+        serialized = {
+            'type': type_id,
+            'channel': str(self.channel.uuid),
+            'user': user_source.to_dict(),
+            'entity': source.to_dict(),
+            'subject': subject,
+            'body': body,
+        }
+        self.assertDictEqual(serialized, action.to_dict())
+        self.assertHTMLEqual(
+            '<div>'
+            '{label}'
+            ' <ul>'
+            '  <li>{channel}</li>'
+            '  <li>{user}</li>'
+            '  <li>{subject}</li>'
+            '  <li>{body_label}<br><p>{body}</p></li>'
+            ' </ul>'
+            '</div>'.format(
+                label=_('Sending a notification:'),
+                channel=_('On channel: {channel}').format(channel=self.channel),
+                user=user_source.render(user=user),
+                subject=_('Subject: {subject}').format(subject=subject),
+                body_label=_('Body:'), body=body,
+            ),
+            action.render(user=user),
+        )
+
+        # De-serialisation ---
+        deserialized = NotificationSendingAction.from_dict(
+            data=serialized, registry=workflow_registry,
+        )
+        self.assertIsInstance(deserialized, NotificationSendingAction)
+        self.assertEqual(user_source, deserialized.user_source)
+        self.assertEqual(source,      deserialized.entity_source)
+        self.assertEqual(subject,     deserialized.subject)
+        self.assertEqual(body,        deserialized.body)
+
+        # Execution ---
+        notif_old_count = Notification.objects.count()
+        entity = FakeContact.objects.create(user=user, last_name='Spiegel')
+        deserialized.execute(context={CreatedEntitySource.type_id: entity})
+        self.assertEqual(notif_old_count + 1, Notification.objects.count())
+
+        notif = self.get_object_or_fail(
+            Notification, user=user, channel__uuid=self.channel.uuid,
+        )
+        self.assertEqual(OneEntityTemplateStringContent.id, notif.content_id)
+        exp_data = {
+            'subject': subject, 'body': body,
+            'ctype': entity.entity_type_id, 'entity': entity.id,
+        }
+        self.assertDictEqual(exp_data, notif.content_data)
+        self.assertIsNone(notif.discarded)
+        self.assertEqual(Notification.Level.NORMAL, notif.level)
+        self.assertEqual(OUTPUT_WEB,                notif.output)
+        self.assertDictEqual({}, notif.extra_data)
+        self.assertEqual(body, notif.content.get_body(user))
+
+        # Configuration ---
+        self.assertEqual(
+            NotificationSendingAction.config_form_class(),
+            NotificationSendingActionForm,
+        )
+
+    def test_user_fk(self):
+        user = self.get_root_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='John', last_name='Doe',
+        )
+        user_source = UserFKSource(
+            entity_source=EditedEntitySource(model=FakeContact),
+            field_name='user',
+        )
+        action = NotificationSendingAction(
+            channel=self.channel,
+            user_source=user_source,
+            entity_source=EditedEntitySource(model=FakeContact),
+            subject='Modification!!',
+            body='A Contact has been modified: {{entity}}',
+        )
+        action.execute(context={EditedEntitySource.type_id: contact})
+
+        notif = Notification.objects.order_by('-id')[0]
+        self.assertEqual(self.channel, notif.channel)
+        self.assertEqual(user,         notif.user)
+        self.assertEqual(
+            f'A Contact has been modified: {contact}',
+            notif.content.get_body(user),
+        )
+
+    def test_no_user(self):
+        user = self.get_root_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='John', last_name='Doe',
+        )
+        user_source = UserFKSource(
+            entity_source=EditedEntitySource(model=FakeContact),
+            field_name='is_user',
+        )
+        action = NotificationSendingAction(
+            channel=self.channel,
+            user_source=user_source,
+            entity_source=EditedEntitySource(model=FakeContact),
+            subject='Modification!!',
+            body='A Contact has been modified: {{entity}}',
+        )
+
+        # <is_user==None> => No notification sent
+        action.execute(context={EditedEntitySource.type_id: contact})
+        self.assertFalse(Notification.objects.all())
+
+    def test_empty_source(self):
+        action = NotificationSendingAction(
+            channel=self.channel,
+            user_source=FixedUserSource(user=self.get_root_user()),
+            entity_source=EditedEntitySource(model=FakeContact),
+            subject='Modification!!',
+            body='A Contact has been modified: {{entity}}',
+        )
+
+        action.execute(context={EditedEntitySource.type_id: None})
+        self.assertFalse(Notification.objects.all())
+
+    def test_eq(self):
+        user = self.get_root_user()
+        subject = 'Modification!!'
+        body = 'A Contact has been modified: {{entity}}'
+        channel = self.channel
+        action1 = NotificationSendingAction(
+            channel=channel,
+            user_source=FixedUserSource(user=user),
+            entity_source=EditedEntitySource(model=FakeContact),
+            subject=subject, body=body,
+        )
+        self.assertEqual(
+            NotificationSendingAction(
+                channel=channel,
+                user_source=FixedUserSource(user=user),
+                entity_source=EditedEntitySource(model=FakeContact),
+                subject=subject, body=body,
+            ),
+            action1,
+        )
+        self.assertNotEqual(None, action1)
+        self.assertNotEqual(
+            NotificationSendingAction(
+                channel=NotificationChannel.objects.create(
+                    name='Other channel', default_outputs=[OUTPUT_WEB],
+                ),  # <==
+                user_source=FixedUserSource(user=user),
+                entity_source=EditedEntitySource(model=FakeContact),
+                subject=subject, body=body,
+            ),
+            action1,
+        )
+        self.assertNotEqual(
+            NotificationSendingAction(
+                channel=channel,
+                user_source=FixedUserSource(user=self.create_user()),  # <==
+                entity_source=EditedEntitySource(model=FakeContact),
+                subject=subject, body=body,
+            ),
+            action1,
+        )
+        self.assertNotEqual(
+            NotificationSendingAction(
+                channel=channel,
+                user_source=FixedUserSource(user=user),
+                entity_source=EditedEntitySource(model=FakeOrganisation),  # <==
+                subject=subject, body=body,
+            ),
+            action1,
+        )
+        self.assertNotEqual(
+            NotificationSendingAction(
+                channel=channel,
+                user_source=FixedUserSource(user=user),
+                entity_source=EditedEntitySource(model=FakeContact),
+                subject='Other subject',
+                body=body,
+            ),
+            action1,
+        )
+        self.assertNotEqual(
+            NotificationSendingAction(
+                channel=channel,
+                user_source=FixedUserSource(user=user),
+                entity_source=EditedEntitySource(model=FakeContact),
+                subject=subject,
+                body='Other body',
+            ),
+            action1,
+        )
+
+    def test_registry__global(self):
+        self.assertIn(NotificationSendingAction, workflow_registry.action_classes)

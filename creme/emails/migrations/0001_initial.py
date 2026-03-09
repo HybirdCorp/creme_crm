@@ -5,9 +5,9 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.utils.timezone import now
 
+from creme.creme_core.core.validators import TemplateVariablesValidator
 from creme.creme_core.models import fields as core_fields
 from creme.documents.models.fields import ImageEntityManyToManyField
-from creme.emails.core.validators import TemplateVariablesValidator
 from creme.emails.utils import generate_id
 
 

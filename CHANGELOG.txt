@@ -1,5 +1,13 @@
 == Version 3.0 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+      # Apps :
+        * Creme_config :
+            - A new action for the workflows is available: sending a notification.
+              You can now create customised notification channels, which are the
+              only ones which can be used by the new action.
+
   Developers side :
   -----------------
 
@@ -11,6 +19,10 @@
                   use the methods 'check_*()' instead.
                 - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
+            - Apps :
+                * Emails :
+                    - The class 'core.validators.TemplateVariablesValidator' is deprecated;
+                      import it from 'creme_core.core.validators' instead'.
 
     Breaking changes :
     ------------------
