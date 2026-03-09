@@ -1,9 +1,11 @@
+from contextlib import contextmanager
 from copy import copy, deepcopy
 from functools import partial
 from json import dumps as json_dump
 
 from django import forms
 # from django.core.exceptions import ValidationError
+from django.db import models
 from django.forms.fields import CallableChoiceIterator, InvalidJSONInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -27,6 +29,7 @@ from creme.creme_core.models import (  # UserRole
     FakeSector,
 )
 # from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.models.base import CremeModel
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_menu import (
     FakeContactCreationEntry,
@@ -58,6 +61,22 @@ class _ConfigFieldTestCase(CremeTestCase):
                 admin_4_apps=['creme_core'],
             ),
         )
+
+    @contextmanager
+    def registered_model(self, app_label, model):
+        """
+        HACK : allows to temporarly register a fake model.
+        """
+        assert issubclass(model, models.Model)
+
+        from django.apps import apps
+
+        try:
+            apps.register_model(app_label, model)
+            yield
+        finally:
+            apps.all_models[app_label].pop(model._meta.model_name)
+            apps.clear_cache()
 
 
 class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
@@ -377,6 +396,29 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
         # field.user = create_user()
         field.user = self.admin
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+
+    def test_creation_url_n_allowed__unresolved_model(self):
+        class FakeRelatedModel(CremeModel):
+            name = models.CharField()
+
+        class FakeModel(CremeModel):
+            related = models.ForeignKey(
+                "creme_core.FakeRelatedModel", verbose_name=_('Related'),
+                blank=True, null=True, related_name='fakes',
+                on_delete=models.CASCADE,
+            )
+
+        with self.registered_model("creme_core", FakeRelatedModel):
+            self.assertEqual(
+                FakeModel._meta.get_field('related').remote_field.model,
+                "creme_core.FakeRelatedModel"
+            )
+
+            field = CreatorEnumerableModelChoiceField(model=FakeModel, field_name='related')
+            field.user = self.admin
+
+            # Do not raise AttributeError '_meta'
+            self.assertTupleEqual((None, False), field.creation_url_n_allowed)
 
     def test_creation_not_allowed(self):
         field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')

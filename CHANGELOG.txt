@@ -1,5 +1,10 @@
 == Version 2.6.19  Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  ------------
+    # A exception in the CreatorEnumerableChoiceField when the ForeignKey model is declared as a string has been fixed :
+      The fk.related_field.model should return a Model but in some case it is not resolved and give a string.
+
 == Version 2.6.18 ==
 
   Users side :
