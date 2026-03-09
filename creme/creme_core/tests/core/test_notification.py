@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.notification import (
@@ -7,6 +8,7 @@ from creme.creme_core.core.notification import (
     NotificationChannelType,
     NotificationContent,
     NotificationRegistry,
+    OneEntityTemplateStringContent,
     Output,
     RelatedToModelBaseContent,
     SimpleNotifContent,
@@ -302,20 +304,6 @@ class NotificationTestCase(CremeTestCase):
         self.assertEqual(msg, content.get_body(user=user))
         self.assertEqual(msg, content.get_html_body(user=user))
 
-    def test_global_registry(self):
-        self.assertIs(
-            SimpleNotifContent,
-            notification_registry.get_content_class(
-                output=OUTPUT_WEB, content_id=SimpleNotifContent.id,
-            ),
-        )
-        self.assertIs(
-            SimpleNotifContent,
-            notification_registry.get_content_class(
-                output=OUTPUT_EMAIL, content_id=SimpleNotifContent.id,
-            ),
-        )
-
     def test_related_to_model_content__creme_entity(self):
         class RelatedToOrganisation(RelatedToModelBaseContent):
             model = CremeEntity
@@ -412,3 +400,127 @@ class NotificationTestCase(CremeTestCase):
 
         with self.assertNumQueries(0):
             self.assertEqual('??', content2.get_subject(user))
+
+    @override_settings(SITE_DOMAIN='https://creme.domain')
+    def test_one_entity_template_string_content(self):
+        ContentType.objects.get_for_model(FakeOrganisation)  # NB: fill cache
+
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        subject = 'An entity have been created'
+        body = 'The entity is: {{entity}}'
+        # TODO: Entity => Instance???
+        content1 = OneEntityTemplateStringContent.from_entity(
+            entity=orga, subject=subject, body=body,
+        )
+        self.assertIsInstance(content1, OneEntityTemplateStringContent)
+
+        expected_data = {
+            'subject': subject, 'body': body,
+            'ctype': orga.entity_type_id,
+            'entity': orga.id,
+        }
+        data = content1.as_dict()
+        self.assertDictEqual(expected_data, data)
+        self.assertEqual(subject, content1.get_subject(user))
+
+        expected_body = body.replace('{{entity}}', str(orga))
+        with self.assertNumQueries(0):
+            self.assertEqual(expected_body, content1.get_body(user))
+
+        expected_html_body = body.replace(
+            '{{entity}}',
+            f'<a href="https://creme.domain{orga.get_absolute_url()}">{orga}</a>',
+        )
+        with self.assertNumQueries(0):
+            self.assertHTMLEqual(expected_html_body, content1.get_html_body(user))
+
+        # ---
+        with self.assertNumQueries(0):
+            content2 = OneEntityTemplateStringContent.from_dict(data)
+        self.assertIsInstance(content2, OneEntityTemplateStringContent)
+
+        with self.assertNumQueries(0):
+            self.assertDictEqual(expected_data, content2.as_dict())
+
+        self.assertEqual(subject, content2.get_subject(user))
+
+        with self.assertNumQueries(1):
+            self.assertEqual(expected_body, content2.get_body(user))
+
+        with self.assertNumQueries(0):
+            content2.get_body(user)
+
+        self.assertHTMLEqual(expected_html_body, content2.get_html_body(user))
+
+    def test_one_entity_template_string_content__invalid_ids(self):
+        user = self.get_root_user()
+        body = 'The body for {{entity}}'
+        data = {
+            'subject': 'The subject', 'body': body,
+            'ctype': self.UNUSED_PK,
+            'entity': self.UNUSED_PK,
+        }
+        with self.assertNoException():
+            content1 = OneEntityTemplateStringContent.from_dict(data)
+
+        expected_body = body.replace('{{entity}}', _('«deleted entity»'))
+        self.assertEqual(expected_body, content1.get_body(user))
+        self.assertEqual(expected_body, content1.get_html_body(user))
+
+        # ---
+        data['ctype'] = ContentType.objects.get_for_model(FakeOrganisation).id
+        with self.assertNoException():
+            content2 = OneEntityTemplateStringContent.from_dict(data)
+        self.assertEqual(expected_body, content2.get_body(user))
+        self.assertEqual(expected_body, content2.get_html_body(user))
+
+        # ---
+        with self.assertRaises(NotificationContent.DeserializationError):
+            OneEntityTemplateStringContent.from_dict({**data, 'ctype': 'not_int'})
+        with self.assertRaises(NotificationContent.DeserializationError):
+            OneEntityTemplateStringContent.from_dict({**data, 'entity': 'not_int'})
+
+        del data['entity']
+        with self.assertRaises(NotificationContent.DeserializationError):
+            OneEntityTemplateStringContent.from_dict(data)
+
+    def test_one_entity_template_string_content__broken_ctype(self):
+        user = self.get_root_user()
+        ctype = ContentType.objects.create(app_label='creme_core', model='i_m_broken')
+        body = 'The body for {{entity}}'
+        with self.assertNoException():
+            content = OneEntityTemplateStringContent.from_dict({
+                'subject': 'The subject', 'body': body,
+                'ctype': ctype.id,
+                'entity': self.UNUSED_PK,
+            })
+
+        expected_body = body.replace('{{entity}}', _('«deleted entity»'))
+        self.assertEqual(expected_body, content.get_body(user))
+        self.assertEqual(expected_body, content.get_html_body(user))
+
+        # Cleanup
+        ctype.delete()
+        ContentType.objects.clear_cache()
+
+    def test_global_registry(self):
+        self.assertIs(
+            SimpleNotifContent,
+            notification_registry.get_content_class(
+                output=OUTPUT_WEB, content_id=SimpleNotifContent.id,
+            ),
+        )
+        self.assertIs(
+            SimpleNotifContent,
+            notification_registry.get_content_class(
+                output=OUTPUT_EMAIL, content_id=SimpleNotifContent.id,
+            ),
+        )
+        self.assertIs(
+            OneEntityTemplateStringContent,
+            notification_registry.get_content_class(
+                output=OUTPUT_WEB, content_id=OneEntityTemplateStringContent.id,
+            ),
+        )

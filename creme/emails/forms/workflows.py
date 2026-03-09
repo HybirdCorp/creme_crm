@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,13 +29,13 @@ from django.utils.translation import pgettext_lazy
 from creme import persons
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.core.validators import TemplateVariablesValidator
 from creme.creme_core.forms import FieldBlockManager
 from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms import workflows as core_wf_forms
 from creme.emails import get_emailtemplate_model
 from creme.emails import workflows as emails_wf
 from creme.emails.constants import SUBJECT_LENGTH
-from creme.emails.core.validators import TemplateVariablesValidator
 from creme.emails.workflows import ActionRecipient
 
 
@@ -183,6 +183,7 @@ class ActionRecipientField(core_fields.UnionField):
             return selected_kind_id, {selected_kind_id: field.prepare_value(value)}
 
 
+# TODO: factorise with NotificationSendingActionForm
 class EmailSendingActionForm(core_wf_forms.BaseWorkflowActionForm):
     recipient = ActionRecipientField(label=_('Recipient'))
     subject = forms.CharField(label=_('Subject'), max_length=SUBJECT_LENGTH)
@@ -191,7 +192,9 @@ class EmailSendingActionForm(core_wf_forms.BaseWorkflowActionForm):
         label=_('Body'), widget=Textarea,
         validators=[TemplateVariablesValidator(allowed_variables=['entity'])],
         # Translators: do not translate "{{entity}}"
-        help_text=_('You can use the variable {{entity}} to display the entity chosen above')
+        help_text=_(
+            'You can use the variable {{entity}} to display the entity chosen above'
+        ),
     )
 
     blocks = FieldBlockManager(

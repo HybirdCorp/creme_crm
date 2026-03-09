@@ -21,10 +21,17 @@ from __future__ import annotations
 import logging
 from typing import NewType
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
+from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.functional import cached_property
+from django.utils.html import format_html
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.models import CremeEntity
 
 logger = logging.getLogger(__name__)
 
@@ -215,6 +222,10 @@ class _LazyModelRef:
 
         return instance
 
+    @property
+    def model(self):
+        return self._model
+
 
 class RelatedToModelBaseContent(TemplateBaseContent):
     """Base class of content.
@@ -230,7 +241,7 @@ class RelatedToModelBaseContent(TemplateBaseContent):
     def __init__(self, instance: Model | int):
         self.ref = _LazyModelRef(model=self.model, instance=instance)
 
-    def as_dict(self) -> dict:
+    def as_dict(self):
         return {'instance': self.ref.instance_id}
 
     def get_context(self, user):
@@ -238,6 +249,90 @@ class RelatedToModelBaseContent(TemplateBaseContent):
         ctxt['object'] = self.ref.instance
 
         return ctxt
+
+
+# TODO: factorise better?
+class OneEntityTemplateStringContent(SimpleNotifContent):
+    """This Content stores the subject/body strings in its context, & one entity.
+    The body is a Django template which can interpolate a variable "{{entity}}".
+
+    This class is useful when the body is filled by the user (because if the body
+    never changes, you should probably declare a content class inheriting
+    <TemplateBaseContent>.
+    """
+    id = NotificationContent.generate_id('creme_core', 'one_entity_tstring')
+
+    # TODO: 'body_html' too? currently the idea is that the body is filled by a
+    #       user, who probably does not want to fill a HTML body too :think:
+    def __init__(self, *,
+                 model: type[CremeEntity], entity: CremeEntity | int,
+                 subject: str, body: str,
+                 ):
+        super().__init__(subject=subject, body=body)
+        self.ref = _LazyModelRef(model=model, instance=entity)
+
+    def as_dict(self):
+        d = super().as_dict()
+
+        ref = self.ref
+        d['ctype'] = ContentType.objects.get_for_model(ref.model).id
+        d['entity'] = ref.instance_id
+
+        return d
+
+    @classmethod
+    def from_dict(cls, data):
+        try:
+            ctype_id = int(data['ctype'])
+            entity_id = int(data['entity'])
+        except (ValueError, KeyError) as e:
+            raise cls.DeserializationError(f'{cls.__name__}.from_dict(): {e}')
+
+        try:
+            ctype = ContentType.objects.get_fresh_for_id(ctype_id)
+        except ContentType.DoesNotExist:
+            model = CremeEntity
+        else:
+            model = ctype.model_class()
+
+        return cls(
+            subject=data['subject'], body=data['body'],
+            model=model, entity=entity_id,
+        )
+
+    @classmethod
+    def from_entity(cls, *,
+                    entity: CremeEntity,
+                    subject: str, body: str,
+                    ) -> OneEntityTemplateStringContent:
+        return cls(
+            subject=subject, body=body,
+            model=entity.entity_type.model_class(), entity=entity,
+        )
+
+    def _body_context(self, user):
+        # TODO: use credentials? (is it relevant to sent notification to
+        #       user without permissions?)
+        entity = self.ref.instance
+        return {'entity': str(entity) if entity else gettext('«deleted entity»')}
+
+    def _body_html_context(self, user) -> dict:
+        entity = self.ref.instance
+        return {
+            'entity': format_html(
+                # NB: we build an absolute URL because this HTML can be used by emails
+                '<a href="{domain}{url}">{label}</a>',
+                domain=settings.SITE_DOMAIN,
+                url=entity.get_absolute_url(),
+                label=entity,
+            ) if entity else gettext('«deleted entity»'),
+        }
+
+    def get_body(self, user):
+        return Template(self.body).render(Context(self._body_context(user=user)))
+
+    def get_html_body(self, user):
+        return Template(self.body).render(Context(self._body_html_context(user=user)))
 
 
 # Registry ---------------------------------------------------------------------

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2021 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,15 @@
 
 from re import compile as compile_re
 
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.template.base import Template, VariableNode
+from django.utils.deconstruct import deconstructible
+from django.utils.functional import lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.utils.collections import OrderedSet
 
 color_validator = RegexValidator(
     compile_re(r'^([0-9a-fA-F]){6}$'),
@@ -36,3 +43,61 @@ color_validator = RegexValidator(
 
 def validate_color(value: str) -> None:
     return color_validator(value)
+
+
+@deconstructible
+class TemplateVariablesValidator:
+    message = _('The following variables are invalid: %(vars)s')
+    code = 'invalid_vars'
+
+    def __init__(self, allowed_variables=(), message=None, code=None):
+        self.allowed_variables = OrderedSet(allowed_variables)
+
+        if message is not None:
+            self.message = message
+
+        if code is not None:
+            self.code = code
+
+        self._help_text = lazy(
+            (lambda: gettext('You can use variables: {}').format(
+                ' '.join('{{%s}}' % var for var in self._allowed_variables),
+            )),
+            str
+        )()
+
+    def __call__(self, value):
+        """
+        Validate that the input contains only valid variables.
+        """
+        allowed = self._allowed_variables
+        invalid_vars = [
+            var_name
+            for var_node in Template(value).nodelist.get_nodes_by_type(VariableNode)
+            if (var_name := var_node.filter_expression.var.var) not in allowed
+        ]
+
+        if invalid_vars:
+            raise ValidationError(
+                self.message,
+                params={'vars': ', '.join(invalid_vars)},
+                code=self.code,
+            )
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, TemplateVariablesValidator)
+            and self._allowed_variables == other._allowed_variables
+        )
+
+    @property
+    def allowed_variables(self):
+        yield from self._allowed_variables
+
+    @allowed_variables.setter
+    def allowed_variables(self, variables):
+        self._allowed_variables = OrderedSet(variables)
+
+    @property
+    def help_text(self):
+        return self._help_text

@@ -6,7 +6,8 @@ from django.forms import Field, ModelChoiceField
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.constants import REL_SUB_HAS, UUID_CHANNEL_ADMIN
+from creme.creme_core.core.notification import OUTPUT_WEB
 from creme.creme_core.core.workflow import WorkflowRegistry
 from creme.creme_core.forms.workflows import (
     CreatedEntitySourceField,
@@ -16,6 +17,8 @@ from creme.creme_core.forms.workflows import (
     EntityFKSourceField,
     FirstRelatedEntitySourceField,
     FixedEntitySourceField,
+    FixedUserSourceField,
+    NotificationSendingActionForm,
     ObjectEntitySourceField,
     PropertyAddingActionForm,
     PropertyAddingTriggerField,
@@ -24,6 +27,8 @@ from creme.creme_core.forms.workflows import (
     SourceField,
     SubjectEntitySourceField,
     TaggedEntitySourceField,
+    UserFKSourceField,
+    UserSourceField,
 )
 from creme.creme_core.models import (
     CremePropertyType,
@@ -32,6 +37,7 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeImage,
     FakeOrganisation,
+    NotificationChannel,
     RelationType,
     Workflow,
 )
@@ -44,6 +50,8 @@ from creme.creme_core.workflows import (
     EntityFKSource,
     FirstRelatedEntitySource,
     FixedEntitySource,
+    FixedUserSource,
+    NotificationSendingAction,
     ObjectEntitySource,
     PropertyAddingAction,
     PropertyAddingTrigger,
@@ -51,6 +59,7 @@ from creme.creme_core.workflows import (
     RelationAddingTrigger,
     SubjectEntitySource,
     TaggedEntitySource,
+    UserFKSource,
 )
 
 
@@ -899,6 +908,146 @@ class SourceFieldTestCase(CremeTestCase):
         )
 
 
+class FixedUserSourceFieldTestCase(CremeTestCase):
+    def test_ok(self):
+        user = self.get_root_user()
+        field = FixedUserSourceField()
+        user_src = FixedUserSource(user=user)
+        self.assertEqual(user_src, field.clean(user.id))
+        self.assertEqual(user.id, field.prepare_value(user_src))
+
+    def test_choices(self):
+        user1 = self.get_root_user()
+        disabled = self.create_user(index=0, is_active=False)
+        team = self.create_team('Crew')
+        staff = self.create_user(index=1, is_staff=True)
+
+        choices = FixedUserSourceField().choices
+        self.assertInChoices(
+            value=user1.id, label=str(user1), choices=choices,
+        )
+        self.assertNotInChoices(value=disabled.id, choices=choices)
+        self.assertNotInChoices(value=team.id,     choices=choices)
+        self.assertNotInChoices(value=staff.id,    choices=choices)
+
+    def test_empty__required(self):
+        field = FixedUserSourceField()
+        self.assertTrue(field.required)
+        self.assertFormfieldError(
+            field=field,
+            value='',
+            messages=_('This field is required.'),
+            codes='required',
+        )
+
+    def test_empty__not_required(self):
+        field = FixedUserSourceField(required=False)
+        self.assertFalse(field.required)
+        self.assertIsNone(field.clean(''))
+
+
+class UserFKSourceFieldTestCase(CremeTestCase):
+    def test_ok(self):
+        field_name = 'user'
+        source = CreatedEntitySource(model=FakeOrganisation)
+        user_src = UserFKSource(entity_source=source, field_name=field_name)
+        field = UserFKSourceField(entity_source=source)
+        self.assertEqual(user_src, field.clean(field_name))
+        self.assertEqual(field_name, field.prepare_value(user_src))
+
+    def test_choices(self):
+        self.assertListEqual(
+            [('user', _('Owner user'))],
+            [*UserFKSourceField(
+                entity_source=CreatedEntitySource(model=FakeOrganisation),
+            ).choices],
+        )
+        self.assertListEqual(
+            [
+                ('user',    _('Owner user')),
+                ('is_user', _('Related user')),
+            ],
+            [*UserFKSourceField(
+                entity_source=EditedEntitySource(model=FakeContact),
+            ).choices],
+        )
+
+    def test_empty__required(self):
+        field = UserFKSourceField(
+            entity_source=EditedEntitySource(model=FakeContact),
+        )
+        self.assertTrue(field.required)
+        self.assertFormfieldError(
+            field=field,
+            value='',
+            messages=_('This field is required.'),
+            codes='required',
+        )
+
+    def test_empty__not_required(self):
+        field = UserFKSourceField(
+            entity_source=EditedEntitySource(model=FakeContact), required=False,
+        )
+        self.assertFalse(field.required)
+        self.assertIsNone(field.clean(''))
+
+
+class UserSourceFieldTestCase(CremeTestCase):
+    def test_fields_choices__empty(self):
+        field = UserSourceField()
+        self.assertIsNone(field.trigger)
+        self.assertListEqual([], field.fields_choices)
+
+    def test_fields_choices(self):
+        model = FakeContact
+        field = UserSourceField()
+        field.user = self.get_root_user()
+        field.trigger = EntityCreationTrigger(model=model)
+
+        choices = field.fields_choices
+        self.assertIsList(choices, length=2)
+
+        kind_id1, field1 = choices[0]
+        self.assertEqual('fixed_user', kind_id1)
+        self.assertIsInstance(field1, FixedUserSourceField)
+
+        kind_id2, field2 = choices[1]
+        self.assertEqual('created_entity|user_fk', kind_id2)
+        self.assertIsInstance(field2, UserFKSourceField)
+        self.assertEqual(CreatedEntitySource(model=model), field2.entity_source)
+
+    def test_ok(self):
+        user = self.get_root_user()
+        model = FakeContact
+        field = UserSourceField(
+            trigger=EntityCreationTrigger(model=model), user=user,
+        )
+        self.assertTrue(field.required)
+
+        fixed_kind = 'fixed_user'
+        fixed_user = self.create_user()
+        fk_kind = 'created_entity|user_fk'
+        fk_fname = 'user'
+        sub_values = {fixed_kind: fixed_user.id, fk_kind: fk_fname}
+        self.assertTupleEqual(
+            (fixed_kind, FixedUserSource(user=fixed_user)),
+            field.clean((fixed_kind, sub_values)),
+        )
+
+        source = CreatedEntitySource(model=model)
+        self.assertTupleEqual(
+            (fk_kind, UserFKSource(entity_source=source, field_name=fk_fname)),
+            field.clean((fk_kind, sub_values)),
+        )
+
+        # Prepare value ---
+        self.assertIsNone(field.prepare_value(None))
+        self.assertTupleEqual(
+            (fixed_kind, {fixed_kind: fixed_user.id}),
+            field.prepare_value(FixedUserSource(user=fixed_user)),
+        )
+
+
 class PropertyAddingActionFormTestCase(CremeTestCase):
     def test_init(self):
         form = PropertyAddingActionForm(
@@ -1283,5 +1432,163 @@ class RelationAddingActionFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form, ('__all__', _('You cannot use the same subject & object.')),
+        )
+        self.assertFalse(wf.actions)
+
+
+class NotificationSendingActionFormTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.channel = NotificationChannel.objects.create(
+            name='Workflow', default_outputs=[OUTPUT_WEB],
+            description='Notification for Workflow',
+        )
+
+    def test_fields(self):
+        trigger = EntityCreationTrigger(model=FakeOrganisation)
+        form = NotificationSendingActionForm(
+            user=self.get_root_user(),
+            instance=Workflow(title='My WF', trigger=trigger),
+        )
+        self.assertCountEqual(
+            ['channel', 'user', 'source', 'subject', 'body'], form.fields.keys(),
+        )
+
+        user_source_f = form.fields['user']
+        self.assertIsInstance(user_source_f, UserSourceField)
+        self.assertTrue(user_source_f.required)
+        self.assertEqual(trigger, user_source_f.trigger)
+
+        source_f = form.fields.get('source')
+        self.assertIsInstance(source_f, SourceField)
+        self.assertTrue(source_f.required)
+        self.assertEqual(trigger, source_f.trigger)
+
+        channel_f = form.fields.get('channel')
+        self.assertIsInstance(channel_f, ModelChoiceField)
+        self.assertTrue(channel_f.required)
+        self.assertEqual(NotificationChannel, channel_f.queryset.model)
+
+        channel_choices = channel_f.choices
+        my_channel = self.channel
+        self.assertInChoices(value=my_channel.id, label=my_channel.name, choices=channel_choices)
+        self.assertNotInChoices(
+            value=NotificationChannel.objects.get(uuid=UUID_CHANNEL_ADMIN).id,
+            choices=channel_choices,
+        )
+
+    def test_clean(self):
+        user = self.get_root_user()
+        model = FakeOrganisation
+        subject = 'Hi'
+        body = 'An Organisation has been created: {{entity}}'
+        wf = Workflow(title='My WF', trigger=EntityCreationTrigger(model=model))
+        form = NotificationSendingActionForm(
+            user=self.get_root_user(),
+            instance=wf,
+            data={
+                'channel': self.channel.id,
+
+                'user': 'fixed_user',
+                'user_fixed_user': user.id,
+
+                'source': 'created_entity',
+                'source_created_entity': '',
+
+                'subject': subject,
+                'body': body,
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertListEqual(
+            [
+                NotificationSendingAction(
+                    channel=self.channel,
+                    user_source=FixedUserSource(user=user),
+                    entity_source=CreatedEntitySource(model=model),
+                    subject=subject,
+                    body=body,
+                ).to_dict(),
+            ],
+            wf.json_actions,
+        )
+
+    def test_initial__empty(self):
+        fields = NotificationSendingActionForm(
+            user=self.get_root_user(),
+            instance=Workflow(
+                title='My WF', trigger=EntityCreationTrigger(model=FakeOrganisation),
+            ),
+        ).fields
+        self.assertIsNone(fields['channel'].initial)
+        self.assertIsNone(fields['user'].initial)
+        self.assertIsNone(fields['source'].initial)
+        self.assertIsNone(fields['body'].initial)
+        self.assertIsNone(fields['subject'].initial)
+
+    def test_initial__edition(self):
+        user = self.get_root_user()
+        channel = self.channel
+        user_source = FixedUserSource(user=user)
+        model = FakeOrganisation
+        subject = 'Hi'
+        body = 'An Organisation has been created: {{entity}}'
+        source = CreatedEntitySource(model=model)
+        wf = Workflow.objects.create(
+            title='My WF',
+            content_type=model,
+            trigger=EntityCreationTrigger(model=model),
+            actions=[
+                NotificationSendingAction(
+                    channel=channel,
+                    user_source=user_source, entity_source=source,
+                    subject=subject, body=body,
+                ),
+            ],
+        )
+        fields = NotificationSendingActionForm(
+            user=user, instance=wf, action_index=0,
+        ).fields
+        self.assertEqual(channel.id,  fields['channel'].initial)
+        self.assertEqual(user_source, fields['user'].initial)
+        self.assertEqual(body,        fields['body'].initial)
+        self.assertEqual(subject,     fields['subject'].initial)
+        self.assertEqual(source,      fields['source'].initial)
+
+    def test_body_errors(self):
+        user = self.get_root_user()
+        wf = Workflow(
+            title='My WF', trigger=EntityCreationTrigger(model=FakeOrganisation),
+        )
+
+        def build_form(body):
+            return NotificationSendingActionForm(
+                user=user,
+                instance=wf,
+                data={
+                    'channel': self.channel.id,
+
+                    'user': 'fixed_user',
+                    'user_fixed_user': user.id,
+
+                    'source': 'created_entity',
+                    'source_created_entity': '',
+
+                    'subject': 'Hi',
+                    'body': body,
+                },
+            )
+
+        self.assertFormInstanceErrors(
+            build_form('The content is very important {{unknown}}'),
+            (
+                'body',
+                _('The following variables are invalid: %(vars)s') % {'vars': 'unknown'},
+            ),
+        )
+        self.assertFormInstanceErrors(
+            build_form('{% load creme_core_tags %}The content is very important'),
+            ('body', _('The tags like {% … %} are forbidden')),
         )
         self.assertFalse(wf.actions)

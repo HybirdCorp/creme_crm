@@ -91,7 +91,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         chan = self.get_object_or_fail(NotificationChannel, name=name)
         self.assertEqual(description, chan.description)
         self.assertTrue(chan.required)
-        self.assertFalse(chan.type_id)
+        self.assertEqual('', chan.type_id)
         self.assertFalse(chan.deleted)
         self.assertTrue(chan.uuid)
         self.assertListEqual([OUTPUT_WEB], chan.default_outputs)
