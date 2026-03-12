@@ -45,27 +45,47 @@ class NotificationTestCase(CremeTestCase):
         user = self.get_root_user()
         subject = 'Alert!'
         body = 'Your meeting is about to start.'
-        snc = SimpleNotifContent(subject=subject, body=body)
-        self.assertEqual('creme_core-simple', snc.id)
-        self.assertEqual(subject,   snc.get_subject(user))
-        self.assertEqual(body,      snc.get_body(user))
-        self.assertEqual('',        snc.get_html_body(user))
-        self.assertDictEqual({'subject': subject, 'body': body}, snc.as_dict())
+        snc1 = SimpleNotifContent(subject=subject, body=body)
+        self.assertEqual('creme_core-simple', snc1.id)
+        self.assertEqual(subject, snc1.get_subject(user))
+        self.assertEqual(body,    snc1.get_body(user))
+        self.assertEqual('',      snc1.get_html_body(user))
+
+        serialized = {'subject': subject, 'body': body}
+        self.assertDictEqual(serialized, snc1.as_dict())
+
+        # ---
+        snc2 = SimpleNotifContent.from_dict(serialized)
+        self.assertIsInstance(snc2, SimpleNotifContent)
+        self.assertEqual(subject, snc2.get_subject(user))
+        self.assertEqual(body,    snc2.get_body(user))
+        self.assertEqual('',      snc2.get_html_body(user))
+
+        # ---
+        with self.assertRaises(NotificationContent.DeserializationError) as cm:
+            SimpleNotifContent.from_dict({})
+        self.assertStartsWith(str(cm.exception), 'DeserializationError:')
 
     def test_content_simple02(self):
         user = self.get_root_user()
         subject = 'Alert!'
         body = 'Your meeting is about to start.'
         html_body = 'Your meeting is <strong>about to start</strong>.'
-        snc = SimpleNotifContent(subject=subject, body=body, html_body=html_body)
-        self.assertEqual('creme_core-simple', snc.id)
-        self.assertEqual(subject,   snc.get_subject(user))
-        self.assertEqual(body,      snc.get_body(user))
-        self.assertEqual(html_body, snc.get_html_body(user))
-        self.assertDictEqual(
-            {'subject': subject, 'body': body, 'html_body': html_body},
-            snc.as_dict(),
-        )
+        snc1 = SimpleNotifContent(subject=subject, body=body, html_body=html_body)
+        self.assertEqual('creme_core-simple', snc1.id)
+        self.assertEqual(subject,   snc1.get_subject(user))
+        self.assertEqual(body,      snc1.get_body(user))
+        self.assertEqual(html_body, snc1.get_html_body(user))
+
+        serialized = {'subject': subject, 'body': body, 'html_body': html_body}
+        self.assertDictEqual(serialized, snc1.as_dict())
+
+        # ---
+        snc2 = SimpleNotifContent.from_dict(serialized)
+        self.assertIsInstance(snc2, SimpleNotifContent)
+        self.assertEqual(subject,   snc2.get_subject(user))
+        self.assertEqual(body,      snc2.get_body(user))
+        self.assertEqual(html_body, snc2.get_html_body(user))
 
     def test_content_eq(self):
         subject = 'Beware!'
