@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,11 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import MODELBRICK_ID
-from ..core.entity_cell import EntityCell, EntityCellRegularField
+from ..core.entity_cell import (
+    EntityCell,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
 from ..core.field_tags import FieldTag
 from ..core.sorter import cell_sorter_registry
 from ..models import (
@@ -54,6 +58,7 @@ from ..models import (
     Relation,
     RelationBrickItem,
 )
+from ..utils.collections import OrderedSet
 from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
@@ -669,24 +674,25 @@ class CustomBrick(Brick):
     def __init__(self, id_: str, custombrick_conf_item: CustomBrickConfigItem):
         super().__init__()
         self.id = id_
-        # TODO: related models (by FK/M2M/...) ?
-        self.dependencies = deps = [custombrick_conf_item.content_type.model_class()]
 
-        rtype_ids: list[str] = [
-            rtype.id
-            for rtype in filter(
-                None,
-                (
-                    getattr(cell, 'relation_type', None)
-                    for cell in custombrick_conf_item.cells
-                ),
-            )
-        ]
+        deps = OrderedSet()
+        deps.add(custombrick_conf_item.content_type.model_class())
+
+        rtype_ids: list[str] = []
+
+        for cell in custombrick_conf_item.cells:
+            if isinstance(cell, EntityCellRegularField):
+                for field in cell.field_info:
+                    if field.is_relation:
+                        deps.add(field.remote_field.model)
+            elif isinstance(cell, EntityCellRelation):
+                rtype_ids.append(cell.relation_type.id)
 
         if rtype_ids:
-            deps.append(Relation)
+            deps.add(Relation)
             self.relation_type_deps = rtype_ids
 
+        self.dependencies = [*deps]
         self.verbose_name = custombrick_conf_item.name
         self.config_item = custombrick_conf_item
 
