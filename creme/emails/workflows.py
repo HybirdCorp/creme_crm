@@ -90,7 +90,7 @@ class ActionRecipient:
         This ID is used by 'emails.forms.workflows.ActionRecipientField' to
         distinguish the different kinds of recipients.
         Hint: you probably don't have to override this method in child classes.
-        @parameter sub_source: Should the same sub-source used by the field itself.
+        @parameter sub_source: Should be the same sub-source used by the field itself.
         """
         return (
             cls.type_id
@@ -100,7 +100,7 @@ class ActionRecipient:
 
     @classmethod
     def from_dict(cls, data: dict, registry: WorkflowRegistry) -> ActionRecipient:
-        """Build an instance from a dictionary (produced by the method to_dict()."""
+        """Build an instance from a dictionary (produced by the method 'to_dict()')."""
         raise NotImplementedError
 
     def to_dict(self) -> dict:
