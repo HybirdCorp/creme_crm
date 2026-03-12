@@ -204,7 +204,7 @@ class FixedUserRecipient(ActionRecipient):
         from .forms.workflows import FixedUserRecipientField
 
         return FixedUserRecipientField(
-            label=_('Fixed user'),
+            label=cls.verbose_name,
         ) if entity_source is None else None
 
     def extract(self, context):

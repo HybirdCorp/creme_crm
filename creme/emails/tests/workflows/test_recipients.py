@@ -656,7 +656,7 @@ class ActionRecipientsRegistryTestCase(_EmailsTestCase):
         type_id = 'uninstalled_app-my_recipient'
         registry = ActionRecipientsRegistry()
         recipient = registry.build_recipient({
-            'type': 'uninstalled_app-my_recipient',
+            'type': type_id,
             # ...
         })
         self.assertIsInstance(recipient, BrokenActionRecipient)
