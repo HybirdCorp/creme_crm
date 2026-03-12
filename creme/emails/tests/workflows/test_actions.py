@@ -39,7 +39,7 @@ test_sender = 'creme@mydomain.org'
 @override_settings(EMAIL_SENDER=test_sender)
 class EmailSendingActionTestCase(_EmailsTestCase):
     def test_simple(self):
-        "Literal sender, no template for subject/body."
+        "Literal recipient, no template for subject/body."
         user = self.get_root_user()
         type_id = 'emails-email_sending'
         self.assertEqual(type_id, EmailSendingAction.type_id)

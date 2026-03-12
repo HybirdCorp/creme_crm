@@ -350,7 +350,7 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_entity__broken_ctype(self):
         field = JSONField(user=self.get_root_user())
-        ctype = ContentType.objects.create(app_label='creme_core', model='broke')
+        ctype = ContentType.objects.create(app_label='creme_core', model='broken')
 
         with self.assertRaises(ValidationError) as cm1:
             field._clean_entity(
