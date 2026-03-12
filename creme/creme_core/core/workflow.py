@@ -371,7 +371,7 @@ class WorkflowSource:
         This ID is used by 'creme_core.forms.workflows.SourceField' to
         distinguish the different kinds of source.
         Hint: you probably don't have to override this method in child classes.
-        @parameter sub_source: Should the same sub-source used by the field itself.
+        @parameter sub_source: Should be the same sub-source used by the field itself.
         """
         return (
             cls.type_id
