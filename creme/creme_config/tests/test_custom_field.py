@@ -231,21 +231,38 @@ class CustomFieldFirstCreationTestCase(CremeTestCase):
 
         with self.assertNoException():
             fields2 = response2.context['form'].fields
-            is_required_f = fields2['is_required']
+            # is_required_f = fields2['is_required']
+            requirement_mode_f = fields2['requirement_mode']
+            mode_choices = requirement_mode_f.choices
 
-        self.assertFalse(is_required_f.initial)
-        self.assertCountEqual(['is_required', 'default_value'], fields2.keys())
+        # self.assertFalse(is_required_f.initial)
+        self.assertInChoices(value=1, label=_('Not required'),         choices=mode_choices)
+        self.assertInChoices(value=2, label=_('Required'),             choices=mode_choices)
+        self.assertInChoices(value=3, label=_('Required at creation'), choices=mode_choices)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, requirement_mode_f.initial,
+        )
+
+        # self.assertCountEqual(['is_required', 'default_value'], fields2.keys())
+        self.assertCountEqual(['requirement_mode', 'default_value'], fields2.keys())
         self.assertNotIn('enum_values', fields2)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1'},  # '1-default_value': ''
+            url, data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                # '1-default_value': ''
+            },
         ))
 
         cfield = self.get_alone_element(CustomField.objects.filter(content_type=ct))
         self.assertEqual(name,       cfield.name)
         self.assertEqual(field_type, cfield.field_type)
         self.assertEqual('',         cfield.description)
-        self.assertIs(cfield.is_required, False)
+        # self.assertIs(cfield.is_required, False)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield.requirement_mode,
+        )
         self.assertIs(cfield.is_deleted, False)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
 
@@ -298,14 +315,16 @@ class CustomFieldFirstCreationTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(
             url, data={
                 step_key: '1',
-                '1-is_required': 'on',
+                # '1-is_required': 'on',
+                '1-requirement_mode': CustomField.RequirementMode.REQUIRED,
                 '1-default_value': def_val,
             },
         ))
 
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
         self.assertEqual(description, cfield.description)
-        self.assertIs(cfield.is_required, True)
+        # self.assertIs(cfield.is_required, True)
+        self.assertEqual(CustomField.RequirementMode.REQUIRED, cfield.requirement_mode)
         self.assertEqual(IntegerMaker(def_val), cfield.default_value_maker)
 
     def test_enum(self):
@@ -343,7 +362,11 @@ class CustomFieldFirstCreationTestCase(CremeTestCase):
         self.assertTrue(enum_values_f.required)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva03'},
+            url, data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': 'Eva01\nEva02\nEva03',
+            },
         ))
 
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
@@ -402,7 +425,11 @@ class CustomFieldFirstCreationTestCase(CremeTestCase):
 
         # Step 2
         response2 = self.assertPOST200(
-            url, data={step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva01'},
+            url, data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': 'Eva01\nEva02\nEva01',
+            },
         )
         self.assertFormError(
             self.get_form_or_fail(response2),
@@ -478,14 +505,22 @@ class CustomFieldCreationTestCase(CremeTestCase):
 
         with self.assertNoException():
             fields2 = response2.context['form'].fields
-            is_required_f = fields2['is_required']
+            # is_required_f = fields2['is_required']
+            requirement_mode_f = fields2['requirement_mode']
 
-        self.assertFalse(is_required_f.initial)
-        self.assertCountEqual(['is_required', 'default_value'], fields2.keys())
+        # self.assertFalse(is_required_f.initial)
+        NOT_REQUIRED = CustomField.RequirementMode.NOT_REQUIRED
+        self.assertEqual(NOT_REQUIRED, requirement_mode_f.initial)
+        # self.assertCountEqual(['is_required', 'default_value'], fields2.keys())
+        self.assertCountEqual(['requirement_mode', 'default_value'], fields2.keys())
         self.assertNotIn('enum_values', fields2)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1'},  # '1-default_value': ''
+            url, data={
+                step_key: '1',
+                '1-requirement_mode': NOT_REQUIRED,
+                # '1-default_value': ''
+            },
         ))
 
         cfields = CustomField.objects.filter(content_type=contact_ct).order_by('id')
@@ -493,7 +528,8 @@ class CustomFieldCreationTestCase(CremeTestCase):
 
         cfield = cfields[1]
         self.assertEqual(name, cfield.name)
-        self.assertFalse(cfield.is_required)
+        # self.assertFalse(cfield.is_required)
+        self.assertEqual(NOT_REQUIRED, cfield.requirement_mode)
         self.assertFalse(cfield.description)
         self.assertEqual(field_type, cfield.field_type)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
@@ -534,18 +570,21 @@ class CustomFieldCreationTestCase(CremeTestCase):
         self.assertFalse(def_val_f.required)
 
         def_val = 42
+        REQUIRED = CustomField.RequirementMode.REQUIRED
         self.assertNoFormError(self.client.post(
             url,
             data={
                 step_key: '1',
-                '1-is_required': 'on',
+                # '1-is_required': 'on',
+                '1-requirement_mode': REQUIRED,
                 '1-default_value': def_val,
             },
         ))
 
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
         self.assertEqual(description, cfield.description)
-        self.assertTrue(cfield.is_required)
+        # self.assertTrue(cfield.is_required)
+        self.assertEqual(REQUIRED, cfield.requirement_mode)
         self.assertEqual(IntegerMaker(def_val), cfield.default_value_maker)
 
     def test_decimal(self):
@@ -603,6 +642,7 @@ class CustomFieldCreationTestCase(CremeTestCase):
             data={
                 step_key: '1',
                 '1-default_value': 'true',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
             },
         ))
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
@@ -682,7 +722,11 @@ class CustomFieldCreationTestCase(CremeTestCase):
         self.assertIsInstance(def_val_f, maker_fields.DateMakerField)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1'},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+            },
         ))
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
@@ -715,7 +759,11 @@ class CustomFieldCreationTestCase(CremeTestCase):
         self.assertIsInstance(def_val_f, maker_fields.DateTimeMakerField)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1'},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+            },
         ))
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
@@ -751,7 +799,12 @@ class CustomFieldCreationTestCase(CremeTestCase):
         self.assertTrue(enum_values_f.required)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva03'},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': 'Eva01\nEva02\nEva03',
+            },
         ))
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
@@ -813,7 +866,12 @@ class CustomFieldCreationTestCase(CremeTestCase):
 
         # Step 2
         response2 = self.assertPOST200(
-            url, data={step_key: '1', '1-enum_values': ' \n \n '},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': ' \n \n ',  # <==
+            },
         )
         self.assertFormError(
             self.get_form_or_fail(response2),
@@ -840,7 +898,12 @@ class CustomFieldCreationTestCase(CremeTestCase):
 
         # Step 2
         response2 = self.assertPOST200(
-            url, data={step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva01'},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': 'Eva01\nEva02\nEva01',  # <==
+            },
         )
         self.assertFormError(
             self.get_form_or_fail(response2),
@@ -876,7 +939,12 @@ class CustomFieldCreationTestCase(CremeTestCase):
         self.assertEqual(_('Available choices'), enum_values_f.label)
 
         self.assertNoFormError(self.client.post(
-            url, data={step_key: '1', '1-enum_values': 'Progressive knife\nRifle'},
+            url,
+            data={
+                step_key: '1',
+                '1-requirement_mode': CustomField.RequirementMode.NOT_REQUIRED,
+                '1-enum_values': 'Progressive knife\nRifle',
+            },
         ))
 
         cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
@@ -913,7 +981,7 @@ class CustomFieldCreationTestCase(CremeTestCase):
 
 class CustomFieldEditionTestCase(CremeTestCase):
     def test_str(self):
-        "Fields: name, is_required, description."
+        "Fields: name, requirement_mode, description."
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         name = 'nickname'
@@ -922,7 +990,10 @@ class CustomFieldEditionTestCase(CremeTestCase):
             name=name,
             field_type=CustomField.STR,
         )
-        self.assertFalse(cfield.is_required)
+        # self.assertFalse(cfield.is_required)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield.requirement_mode,
+        )
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
@@ -932,16 +1003,23 @@ class CustomFieldEditionTestCase(CremeTestCase):
             response.context.get('title'),
         )
 
-        # Set name & is_required ---
+        # Set name & requirement_mode ---
         name = name.title()
+        REQUIRED = CustomField.RequirementMode.REQUIRED
         self.assertNoFormError(self.client.post(
-            url, data={'name': name, 'is_required': 'on'},
+            url,
+            data={
+                'name': name,
+                # 'is_required': 'on',
+                'requirement_mode': REQUIRED,
+            },
         ))
 
         cfield = self.refresh(cfield)
         self.assertEqual(name, cfield.name)
         self.assertFalse(cfield.description)
-        self.assertTrue(cfield.is_required)
+        # self.assertTrue(cfield.is_required)
+        self.assertEqual(REQUIRED, cfield.requirement_mode)
         self.assertIsInstance(cfield.default_value_maker, NoneMaker)
 
         # Set description ---
@@ -950,7 +1028,8 @@ class CustomFieldEditionTestCase(CremeTestCase):
             url,
             data={
                 'name': cfield.name,
-                'is_required': cfield.is_required,
+                # 'is_required': cfield.is_required,
+                'requirement_mode': cfield.requirement_mode,
                 'description': description,
             },
         ))
@@ -965,7 +1044,7 @@ class CustomFieldEditionTestCase(CremeTestCase):
             name=name,
             field_type=CustomField.STR,
         )
-        self.assertFalse(cfield.is_required)
+        # self.assertFalse(cfield.is_required)
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
 
@@ -986,6 +1065,7 @@ class CustomFieldEditionTestCase(CremeTestCase):
             url,
             data={
                 'name': cfield.name,
+                'requirement_mode': cfield.requirement_mode,
                 'default_value': def_value,
             },
         ))
@@ -1015,7 +1095,7 @@ class CustomFieldEditionTestCase(CremeTestCase):
 
         # POST ---
         self.assertNoFormError(self.client.post(
-            url, data={'name': cfield.name},
+            url, data={'name': cfield.name, 'requirement_mode': cfield.requirement_mode},
         ))
         self.assertIsInstance(self.refresh(cfield).default_value_maker, NoneMaker)
 
@@ -1038,7 +1118,7 @@ class CustomFieldEditionTestCase(CremeTestCase):
 
         # POST ---
         self.assertNoFormError(self.client.post(
-            url, data={'name': cfield.name},
+            url, data={'name': cfield.name, 'requirement_mode': cfield.requirement_mode},
         ))
         self.assertIsInstance(self.refresh(cfield).default_value_maker, NoneMaker)
 

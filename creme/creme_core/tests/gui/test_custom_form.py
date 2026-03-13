@@ -967,7 +967,11 @@ class FieldGroupListTestCase(CremeTestCase):
         user = self.get_root_user()
 
         create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
-        cfield1 = create_cfield(name='IQ',       field_type=CustomField.INT, is_required=True)
+        cfield1 = create_cfield(
+            name='IQ', field_type=CustomField.INT,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
         cfield2 = create_cfield(name='Strength', field_type=CustomField.FLOAT)
         cfield3 = create_cfield(name='Unused',   field_type=CustomField.STR)
 
@@ -1060,14 +1064,22 @@ class FieldGroupListTestCase(CremeTestCase):
         "Missing required fields."
         user = self.get_root_user()
 
+        REQUIRED = CustomField.RequirementMode.REQUIRED
         create_cfield = partial(
             CustomField.objects.create,
             content_type=FakeContact, field_type=CustomField.INT,
         )
-        cfield1 = create_cfield(name='IQ', is_required=True)
+        # cfield1 = create_cfield(name='IQ', is_required=True)
+        cfield1 = create_cfield(name='IQ', requirement_mode=REQUIRED)
         cfield2 = create_cfield(name='Strength', field_type=CustomField.FLOAT)
         cfield3 = create_cfield(name='Unused', field_type=CustomField.STR)
-        cfield4 = create_cfield(name='Costs', content_type=FakeOrganisation, is_required=True)
+        cfield4 = create_cfield(
+            name='Charism', requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
+        # cfield5 = create_cfield(name='Costs', content_type=FakeOrganisation, is_required=True)
+        cfield5 = create_cfield(
+            name='Costs', content_type=FakeOrganisation, requirement_mode=REQUIRED,
+        )
 
         fields_groups = FieldGroupList.from_cells(
             model=FakeContact,
@@ -1085,30 +1097,47 @@ class FieldGroupListTestCase(CremeTestCase):
                         # EntityCellCustomField(cfield1),
                         EntityCellCustomField(cfield2),
                         # EntityCellCustomField(cfield3),
+                        # EntityCellCustomField(cfield4),
                     ],
                 },
             ],
         )
 
-        form = fields_groups.form_class()(user=user)
+        # Edition ---
+        edition_form = fields_groups.form_class(creation=False)(user=user)
 
-        fields = form.fields
-        self.assertNotIn(f'custom_field-{cfield3.id}', fields)
-        self.assertIn(f'custom_field-{cfield2.id}', fields)
-        self.assertIn(f'custom_field-{cfield1.id}', fields)
-        self.assertNotIn(f'custom_field-{cfield4.id}', fields)
+        edition_fields = edition_form.fields
+        self.assertNotIn(f'custom_field-{cfield3.id}', edition_fields)
+        self.assertIn(f'custom_field-{cfield2.id}', edition_fields)
+        self.assertIn(f'custom_field-{cfield1.id}', edition_fields)
+        self.assertNotIn(f'custom_field-{cfield4.id}', edition_fields)
+        self.assertNotIn(f'custom_field-{cfield5.id}', edition_fields)
 
-        blocks = [*form.get_blocks()]
-        self.assertEqual(3, len(blocks))  # There's a special block for missing required
+        edition_blocks = [*edition_form.get_blocks()]
+        self.assertEqual(3, len(edition_blocks))  # There's a special block for missing required
 
-        block = blocks[2]
+        edition_error_block = edition_blocks[2]
         self.assertEqual(
             _('Missing required custom fields (update your configuration)'),
-            block.label,
+            edition_error_block.label,
         )
         self.assertListEqual(
             [f'custom_field-{cfield1.id}'],
-            [bfield.name for bfield in block.bound_fields],
+            [bfield.name for bfield in edition_error_block.bound_fields],
+        )
+
+        # Creation ---
+        creation_form = fields_groups.form_class(creation=True)(user=user)
+
+        creation_fields = creation_form.fields
+        self.assertIn(f'custom_field-{cfield2.id}', creation_fields)
+        self.assertIn(f'custom_field-{cfield1.id}', creation_fields)
+        self.assertIn(f'custom_field-{cfield4.id}', creation_fields)
+
+        creation_blocks = [*creation_form.get_blocks()]
+        self.assertListEqual(
+            [f'custom_field-{cfield1.id}', f'custom_field-{cfield4.id}'],
+            [bfield.name for bfield in creation_blocks[2].bound_fields],
         )
 
     def test_form__custom_fields__deleted(self):
@@ -1166,7 +1195,11 @@ class FieldGroupListTestCase(CremeTestCase):
             CustomField.objects.create,
             content_type=FakeContact, field_type=CustomField.INT,
         )
-        cfield1 = create_cfield(name='IQ', is_required=True, is_deleted=True)
+        # cfield1 = create_cfield(name='IQ', is_required=True, is_deleted=True)
+        cfield1 = create_cfield(
+            name='IQ', is_deleted=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
         cfield2 = create_cfield(name='Strength')
 
         group_name1 = 'Regular fields'
@@ -1300,7 +1333,8 @@ class FieldGroupListTestCase(CremeTestCase):
         create_cfield = partial(
             CustomField.objects.create, content_type=FakeContact, field_type=CustomField.INT,
         )
-        cfield1 = create_cfield(name='IQ', is_required=True)
+        # cfield1 = create_cfield(name='IQ', is_required=True)
+        cfield1 = create_cfield(name='IQ', requirement_mode=CustomField.RequirementMode.REQUIRED)
         cfield2 = create_cfield(name='Strength', field_type=CustomField.FLOAT)
         cfield3 = create_cfield(name='Nickname', field_type=CustomField.STR)
         create_cfield(name='Deleted', is_deleted=True)  # Should not be used

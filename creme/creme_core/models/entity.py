@@ -368,7 +368,14 @@ class CremeEntity(CremeModel):
         )
 
         if only_required:
-            cfields = cfields.filter(is_required=True)
+            # cfields = cfields.filter(is_required=True)
+            cfields = cfields.filter(
+                requirement_mode__in=(
+                    CustomField.RequirementMode.REQUIRED,
+                    # TODO: "creation" parameter?
+                    CustomField.RequirementMode.REQUIRED_AT_CREATION,
+                ),
+            )
 
         self.populate_custom_values([self], cfields)
 

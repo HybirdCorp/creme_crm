@@ -345,7 +345,8 @@ class CremeEntityFormTestCase(CremeTestCase):
             name='Size',
             content_type=FakeContact,
             field_type=CustomField.INT,
-            is_required=True,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
         )
 
         fields = FakeContactForm(user=user).fields
@@ -363,7 +364,8 @@ class CremeEntityFormTestCase(CremeTestCase):
             name='Cursed?',
             content_type=FakeContact,
             field_type=CustomField.BOOL,
-            is_required=True,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
         )
 
         fields = FakeContactForm(user=user).fields
@@ -374,6 +376,29 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIsInstance(cfield_f, forms.BooleanField)
         self.assertNotIsInstance(cfield_f, forms.NullBooleanField)
         self.assertFalse(cfield_f.required)
+
+    def test_custom_fields__required_at_creation(self):
+        user = self.get_root_user()
+        cfield = CustomField.objects.create(
+            name='Size',
+            content_type=FakeContact,
+            field_type=CustomField.INT,
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
+
+        fields1 = FakeContactForm(user=user).fields
+        with self.assertNoException():
+            cfield_f1 = fields1[f'custom_field-{cfield.id}']
+        self.assertIsInstance(cfield_f1, forms.IntegerField)
+        self.assertTrue(cfield_f1.required)
+
+        # ---
+        contact = FakeContact.objects.create(user=user, last_name='Doe')
+        fields2 = FakeContactForm(user=user, instance=contact).fields
+        with self.assertNoException():
+            cfield_f2 = fields2[f'custom_field-{cfield.id}']
+        self.assertIsInstance(cfield_f2, forms.IntegerField)
+        self.assertFalse(cfield_f2.required)
 
     def test_custom_fields__default_value(self):
         user = self.get_root_user()

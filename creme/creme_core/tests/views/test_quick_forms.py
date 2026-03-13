@@ -105,7 +105,15 @@ class QuickFormTestCase(CremeTestCase):
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
         cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
-        cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+        cf2 = create_cf(
+            field_type=CustomField.INT, name='Eva number',
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
+        cf3 = create_cf(
+            field_type=CustomField.STR, name='Eva color',
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
 
         url = self._build_quickform_url(FakeContact)
         response = self.assertGET200(url)
@@ -119,16 +127,22 @@ class QuickFormTestCase(CremeTestCase):
         self.assertIsInstance(cf2_f, IntegerField)
         self.assertTrue(cf2_f.required)
 
+        cf3_f = fields.get(f'custom_field-{cf3.id}')
+        self.assertTrue(cf3_f.required)
+
         # ---
         first_name = 'Rei'
         last_name = 'Ayanami'
         response = self.client.post(
             url,
             data={
+                'user': user.id,
+
                 'last_name':  last_name,
                 'first_name': first_name,
-                'user':       user.id,
+
                 f'custom_field-{cf2.id}': 3,
+                f'custom_field-{cf3.id}': 'Violet',
             },
         )
         self.assertNoFormError(response)
@@ -138,11 +152,15 @@ class QuickFormTestCase(CremeTestCase):
         )
 
         with self.assertNoException():
-            cf_value = cf2.value_class.objects.get(
+            cf_value2 = cf2.value_class.objects.get(
                 custom_field=cf2, entity=contact,
             ).value
+            cf_value3 = cf3.value_class.objects.get(
+                custom_field=cf3, entity=contact,
+            ).value
 
-        self.assertEqual(3, cf_value)
+        self.assertEqual(3, cf_value2)
+        self.assertEqual('Violet', cf_value3)
 
     @parameterized.expand([
         FieldsConfig.REQUIRED,

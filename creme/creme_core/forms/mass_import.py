@@ -1151,7 +1151,9 @@ class CustomfieldExtractorField(forms.Field):
         )
 
         self._custom_field = custom_field
-        formfield = custom_field.get_formfield(custom_value=None)
+        # formfield = custom_field.get_formfield(custom_value=None)
+        # NB: see comment in ImportForm._build_required_fields()
+        formfield = custom_field.get_formfield(custom_value=None, creation=False)
         self.required = formfield.required
         self.user = user
 

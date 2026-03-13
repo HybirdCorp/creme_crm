@@ -1577,6 +1577,128 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ).format(file=doc.filedata.name),
         )
 
+    def test_custom_fields__required_at_creation(self):
+        user = self.login_as_root_and_get()
+
+        # create_cf = partial(
+        #     CustomField.objects.create, content_type=self.ct, field_type=CustomField.INT,
+        # )
+        # cf_req = create_cf(
+        #     name='Size (cm)', requirement_mode=CustomField.RequirementMode.REQUIRED,
+        # )
+        # cf_rac = create_cf(
+        #     name='Weight', requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        # )
+        cf = CustomField.objects.create(
+            content_type=self.ct, field_type=CustomField.STR, name='martial art',
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
+
+        lines = [
+            ('First name', 'Last name', cf.name),
+            ('Unchô',      'Kan-u',     'Kung-fu'),  # Updated
+            ('Gentoku',    'Ryûbi',     'Karate'),   # Created
+            ('Hakufu',     'Sonsaku',   ''),         # Created (error)
+            # ('Shimei',     'Ryomou',    '48'),
+        ]
+
+        kanu = FakeContact.objects.create(
+            user=user,
+            first_name=lines[1][0],
+            last_name=lines[1][1],
+        )
+        # cf_int.value_class(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
+        # cf_str.value_class(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
+        cf.value_class(custom_field=cf, entity=kanu).set_value_n_save('Ju-jitsu')
+
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
+
+        doc = self._build_csv_doc(lines, user=user)
+        url = self._build_import_url(FakeContact)
+
+        response1 = self.client.post(
+            url, data={'step': 0, 'document': doc.id, 'has_header': True},
+        )
+        self.assertNoFormError(response1)
+
+        # with self.assertNoException():
+        #     fields = response1.context['form'].fields
+        #     int_f = fields[f'custom_field-{cf_int.id}']
+        #     dec_f = fields[f'custom_field-{cf_dec.id}']
+        #
+        # self.assertDictEqual(
+        #     {'selected_column': 0, 'default_value': int_def_value},
+        #     int_f.initial,
+        # )
+        # self.assertDictEqual(
+        #     {'selected_column': 4, 'default_value': None},
+        #     dec_f.initial,
+        # )
+
+        # ---
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+                'key_fields': ['first_name', 'last_name'],
+
+                # f'custom_field-{cf_int.id}_colselect': 3,
+                # f'custom_field-{cf_str.id}_colselect': 0,
+                # f'custom_field-{cf_dec.id}_colselect': 4,
+                f'custom_field-{cf.id}_colselect': 3,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        job = self._execute_job(response2)
+        self.assertEqual(
+            len(lines) - 2,  # 2 = 1 header + 1 update  # TODO: -1 error
+            FakeContact.objects.exclude(id__in=contact_ids).count()
+        )
+
+        def get_contact(line_index):
+            line = lines[line_index]
+            return self.get_object_or_fail(FakeContact, first_name=line[0], last_name=line[1])
+
+        get_cf_values = self._get_cf_values
+        # self.assertEqual(180, get_cf_values(cf_int, kanu).value)
+        # self.assertEqual(Decimal('55'), get_cf_values(cf_dec, kanu).value)
+        # self.assertEqual('Kan', get_cf_values(cf_str, kanu).value)
+        self.assertEqual(lines[1][2], get_cf_values(cf, kanu).value)
+
+        ryubi = get_contact(2)
+        # self.assertEqual(155, get_cf_values(cf_int, ryubi).value)
+        # self.assertFalse(cf_dec.value_class.objects.filter(entity=ryubi))
+        self.assertEqual(lines[2][2], get_cf_values(cf, ryubi).value)
+
+        # sonsaku = get_contact(3)
+        # self.assertFalse(cf_int.value_class.objects.filter(entity=sonsaku))
+        # self.assertEqual(Decimal('50.2'), get_cf_values(cf_dec, sonsaku).value)
+        #
+        # ryomou = get_contact(4)
+        # self.assertFalse(cf_int.value_class.objects.filter(entity=ryomou))
+        # self.assertEqual(Decimal('48'), get_cf_values(cf_dec, ryomou).value)
+        #
+        results = self._get_job_results(job)
+        # self.assertEqual(4, len(results))
+        self.assertEqual(3, len(results))
+
+        jr_error = self.get_alone_element(r for r in results if r.messages)
+        # self.assertEqual([*lines[4]], jr_error.line)
+        self.assertEqual([*lines[3]], jr_error.line)
+        # TODO: complete (entity not created?)
+        # self.assertListEqual(
+        #     [_('Enter a whole number.')],
+        #     jr_error.messages,
+        # )
+        # self.assertEqual(ryomou.entity_type, jr_error.entity_ctype)
+        # self.assertEqual(ryomou, jr_error.entity.get_real_entity())
+        # self.assertEqual(ryomou, jr_error.real_entity)
+
     def test_error__default_value_validation(self):
         user = self.login_as_root_and_get()
 
@@ -1636,7 +1758,15 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
         cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
-        cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+        cf2 = create_cf(
+            field_type=CustomField.INT, name='Eva number',
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
+        cf3 = create_cf(
+            field_type=CustomField.STR, name='Eva color',
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
 
         lines = [('Ayanami', )]
         doc = self._build_csv_doc(lines, separator=';', user=user)
@@ -1651,6 +1781,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
                 f'custom_field-{cf2.id}_colselect': 0,
                 # f'custom_field-{cf2.id}_defval': 1,
+
+                f'custom_field-{cf3.id}_colselect': 0,
+                # f'custom_field-{cf3.id}_defval': 1,
             },
         )
         form = self.get_form_or_fail(response)
@@ -1660,6 +1793,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             errors=_('This field is required.'),
         )
         self.assertNotIn(f'custom_field-{cf1.id}', form.errors)
+        self.assertNotIn(f'custom_field-{cf3.id}', form.errors)
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_error__max_jobs(self):

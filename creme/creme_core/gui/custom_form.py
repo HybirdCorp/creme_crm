@@ -575,10 +575,20 @@ class FieldGroupList:
             forced_cfields = []
         else:
             remaining_cfields = []
+            required_modes = {
+                CustomField.RequirementMode.REQUIRED,
+                CustomField.RequirementMode.REQUIRED_AT_CREATION,
+            } if creation else {CustomField.RequirementMode.REQUIRED}
             forced_cfields = [
                 cfield
                 for cfield in CustomField.objects.get_for_model(model).values()
-                if cfield.is_required and not cfield.is_deleted and cfield not in cfields
+                # if cfield.is_required and not cfield.is_deleted and cfield not in cfields
+                if (
+                    # TODO: method 'is_required()' ?
+                    cfield.requirement_mode in required_modes
+                    and not cfield.is_deleted
+                    and cfield not in cfields
+                )
             ]
 
         use_properties = use_relations = False

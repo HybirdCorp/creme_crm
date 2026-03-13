@@ -79,6 +79,11 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
+    class RequirementMode(models.IntegerChoices):
+        NOT_REQUIRED         = 1, _('Not required')
+        REQUIRED             = 2, _('Required')
+        REQUIRED_AT_CREATION = 3, _('Required (at creation only)')
+
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
@@ -87,9 +92,18 @@ class CustomField(CremeModel):
     # NB: use the getter/setter "default_value_maker" instead of using this field directly
     json_default_value_maker = models.JSONField(default=dict, editable=False)
 
-    is_required = models.BooleanField(
-        _('Is required?'), default=False,
+    # is_required = models.BooleanField(
+    #     _('Is required?'), default=False,
+    #     help_text=_(
+    #         'A required custom-field must be filled when a new entity is created; '
+    #         'existing entities are not immediately impacted.'
+    #     ),
+    # )
+    requirement_mode = models.PositiveSmallIntegerField(
+        _('Is required?'),
+        choices=RequirementMode, default=RequirementMode.NOT_REQUIRED,
         help_text=_(
+            # TODO: complete
             'A required custom-field must be filled when a new entity is created; '
             'existing entities are not immediately impacted.'
         ),
@@ -139,8 +153,13 @@ class CustomField(CremeModel):
     def default_value_maker(self, value: ValueMaker) -> None:
         self.json_default_value_maker = value.to_dict()
 
-    def get_formfield(self, custom_value, user=None):
-        return self.value_class.get_formfield(self, custom_value, user=user)
+    # def get_formfield(self, custom_value, user=None):
+    #     return self.value_class.get_formfield(self, custom_value, user=user)
+    # TODO: CHANGELOG => keyword+creation arg
+    def get_formfield(self, *, custom_value, user=None, creation: bool):
+        return self.value_class.get_formfield(
+            custom_field=self, custom_value=custom_value, user=user, creation=creation,
+        )
 
     @staticmethod
     def get_custom_values_map(entities: Iterable[CremeEntity],
@@ -201,14 +220,32 @@ class CustomFieldValue(CremeModel):
         raise NotImplementedError
 
     @classmethod
-    def get_formfield(cls,
+    # def get_formfield(cls,
+    #                   custom_field: CustomField,
+    #                   custom_value,
+    #                   user=None,
+    #                   ) -> forms.Field:
+    # TODO: CHANGELOG => keyword+creation
+    def get_formfield(cls, *,
                       custom_field: CustomField,
                       custom_value,
                       user=None,
+                      creation: bool,
                       ) -> forms.Field:
+        match custom_field.requirement_mode:
+            case CustomField.RequirementMode.REQUIRED:
+                required = True
+            case CustomField.RequirementMode.REQUIRED_AT_CREATION:
+                required = creation
+            case _:  # CustomField.RequirementMode.NOT_REQUIRED:
+                required = False
+
         field = cls._get_formfield(
             label=custom_field.name,
-            required=custom_field.is_required,
+            # required=custom_field.is_required,
+            # TODO: complete for REQUIRED_AT_CREATION
+            # required=custom_field.requirement_mode == CustomField.RequirementMode.REQUIRED,
+            required=required,
             help_text=custom_field.description,
         )
         cls._build_formfield(custom_field, field, user)
