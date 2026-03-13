@@ -1960,7 +1960,8 @@ class ChoiceOrCharField(fields.MultiValueField):
 
 class CTypeChoiceField(fields.Field):
     "A ChoiceField whose choices are a ContentType instances."
-    widget = widgets.Select
+    # widget = widgets.Select
+    widget = core_widgets.DynamicSelect(attrs={'autocomplete': True})
     default_error_messages = {
         'invalid_choice': _(
             'Select a valid choice. That choice is not one of the available choices.'

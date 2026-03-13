@@ -252,6 +252,7 @@ class EntityFKSourceField(forms.ChoiceField):
     def __init__(self, entity_source, **kwargs):
         self.entity_source = entity_source
         super().__init__(**{
+            'widget': core_widgets.DynamicSelect(attrs={'autocomplete': True}),
             **kwargs,
             'choices': [
                 (model_field.name, model_field.verbose_name)

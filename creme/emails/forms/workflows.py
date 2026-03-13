@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.forms import FieldBlockManager
 from creme.creme_core.forms import fields as core_fields
+from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.forms import workflows as core_wf_forms
 from creme.emails import get_emailtemplate_model
 from creme.emails import workflows as emails_wf
@@ -56,6 +57,7 @@ class FixedUserRecipientField(forms.ModelChoiceField):
                 is_active=True, is_team=False, is_staff=False,
             ),
             empty_label=None,
+            widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
             **kwargs
         )
 
@@ -72,6 +74,7 @@ class UserFKRecipientField(forms.ChoiceField):
     def __init__(self, entity_source, **kwargs):
         User = get_user_model()
         super().__init__(**{
+            'widget': core_widgets.DynamicSelect(attrs={'autocomplete': True}),
             **kwargs,
             # TODO: ignore hidden fields
             'choices': [
@@ -99,6 +102,7 @@ class UserFKRecipientField(forms.ChoiceField):
 class RegularEmailFieldRecipientField(forms.ChoiceField):
     def __init__(self, entity_source, **kwargs):
         super().__init__(**{
+            'widget': core_widgets.DynamicSelect(attrs={'autocomplete': True}),
             **kwargs,
             # TODO: ignore hidden fields
             'choices': [
