@@ -138,7 +138,10 @@ class CustomFieldTestCase(CremeTestCase):
             cfield.content_type,
         )
         self.assertTrue(cfield.uuid)
-        self.assertIs(cfield.is_required, False)
+        # self.assertIs(cfield.is_required, False)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield.requirement_mode,
+        )
         self.assertIs(cfield.is_deleted, False)
         self.assertEqual(name, str(cfield))
         self.assertEqual('', cfield.description)
@@ -224,7 +227,8 @@ class CustomFieldTestCase(CremeTestCase):
             name='Length of ship',
             field_type=CustomField.STR,
             content_type=FakeOrganisation,
-            is_required=True,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
             description='Metric system bro',
         )
         self.assertEqual(CustomFieldString, cfield.value_class)
@@ -479,7 +483,11 @@ by a man named Tochiro.
         self.assertEqual(value, formfield.initial)
 
         # ---
-        cfield2 = create_cfield(name='Pirates?', is_required=True)
+        # cfield2 = create_cfield(name='Pirates?', is_required=True)
+        cfield2 = create_cfield(
+            name='Pirates?',
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
         formfield = cfield2.get_formfield(custom_value=None, user=orga.user)
         self.assertIsInstance(formfield, forms.BooleanField)
         self.assertFalse(formfield.required)

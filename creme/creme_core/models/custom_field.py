@@ -79,6 +79,11 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
+    class RequirementMode(models.IntegerChoices):
+        NOT_REQUIRED         = 1, _('Not required')
+        REQUIRED             = 2, _('Required')
+        REQUIRED_AT_CREATION = 3, _('Required at creation')
+
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
@@ -87,9 +92,18 @@ class CustomField(CremeModel):
     # NB: use the getter/setter "default_value_maker" instead of using this field directly
     json_default_value_maker = models.JSONField(default=dict, editable=False)
 
-    is_required = models.BooleanField(
-        _('Is required?'), default=False,
+    # is_required = models.BooleanField(
+    #     _('Is required?'), default=False,
+    #     help_text=_(
+    #         'A required custom-field must be filled when a new entity is created; '
+    #         'existing entities are not immediately impacted.'
+    #     ),
+    # )
+    requirement_mode = models.PositiveSmallIntegerField(
+        _('Is required?'),
+        choices=RequirementMode, default=RequirementMode.NOT_REQUIRED,
         help_text=_(
+            # TODO: complete
             'A required custom-field must be filled when a new entity is created; '
             'existing entities are not immediately impacted.'
         ),
@@ -208,7 +222,9 @@ class CustomFieldValue(CremeModel):
                       ) -> forms.Field:
         field = cls._get_formfield(
             label=custom_field.name,
-            required=custom_field.is_required,
+            # required=custom_field.is_required,
+            # TODO: complete for REQUIRED_AT_CREATION
+            required=custom_field.requirement_mode == CustomField.RequirementMode.REQUIRED,
             help_text=custom_field.description,
         )
         cls._build_formfield(custom_field, field, user)
