@@ -27,10 +27,12 @@ class CloningTestCase(CremeTestCase):
     def test_registry(self):
         registry = EntityClonerRegistry()
         self.assertIsNone(registry.get(FakeOrganisation))
+        self.assertFalse([*registry.models])
 
         registry.register(FakeOrganisation)
         self.assertIsInstance(registry.get(FakeOrganisation), EntityCloner)
         self.assertIsNone(registry.get(FakeContact))
+        self.assertListEqual([FakeOrganisation], [*registry.models])
 
         registry.register(FakeContact).unregister(FakeOrganisation)
         self.assertIsNone(registry.get(FakeOrganisation))

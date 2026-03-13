@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025 Hybird
+#    Copyright (C) 2024-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 ################################################################################
 
 from __future__ import annotations
+
+from collections.abc import Iterator
 
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
@@ -107,10 +109,9 @@ class EntityClonerRegistry:
 
     # TODO: 'def clone(instance):' ?
 
-    # TODO?
-    # @property
-    # def models(self) -> Iterator[type[CremeEntity]]:
-    #     yield from self._cloner_classes.keys()
+    @property
+    def models(self) -> Iterator[type[CremeEntity]]:
+        yield from self._cloner_classes.keys()
 
     def get(self, model: type[CremeEntity]) -> EntityCloner | None:
         """Hint: if None is returned, you should not clone the instances of

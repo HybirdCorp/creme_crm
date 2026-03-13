@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,17 +20,29 @@ import logging
 
 from django.db.models import UUIDField
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models.fields import CTypeForeignKey
+# from creme.creme_core.models.fields import CTypeForeignKey
+from creme.creme_core.models.fields import EntityCTypeForeignKey
 
 from .base import Base
 
 logger = logging.getLogger(__name__)
 
 
+def _spawnable_models():
+    from creme.billing.core.spawning import spawner_registry
+    yield from spawner_registry.models
+
+
 class AbstractTemplateBase(Base):
-    ct = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    # ct = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    ct = EntityCTypeForeignKey(
+        verbose_name=_('Type of generated document'),
+        editable=False,
+        allowed_models=_spawnable_models,
+    )
     # TODO: avoid deletion of status
     status_uuid = UUIDField(editable=False).set_tags(viewable=False)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 16:16+0100\n"
+"POT-Creation-Date: 2026-03-13 12:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -955,6 +955,9 @@ msgstr "Service à la volée «{}»"
 
 msgid "Related to service «{}»"
 msgstr "Relatif au service «{}»"
+
+msgid "Type of generated document"
+msgstr "Type de document généré"
 
 msgctxt "billing"
 msgid "Create a template"
