@@ -156,7 +156,11 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         name = 'HP'
         create_cf = partial(CustomField.objects.create, content_type=Contact)
         cfield1 = create_cf(field_type=CustomField.STR, name='Special attacks')
-        cfield2 = create_cf(field_type=CustomField.INT, name=name, is_required=True)
+        cfield2 = create_cf(
+            field_type=CustomField.INT, name=name,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
 
         url = self.CREATE_CONTACT_URL
         response = self.assertGET200(url)
@@ -279,7 +283,11 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         cf_name = 'Prize'
         create_cf = partial(CustomField.objects.create, content_type=Organisation)
         cfield1 = create_cf(field_type=CustomField.STR, name='Baseline')
-        cfield2 = create_cf(field_type=CustomField.INT, name=cf_name, is_required=True)
+        cfield2 = create_cf(
+            field_type=CustomField.INT, name=cf_name,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
 
         url = self.CREATE_ORGA_URL
         response = self.assertGET200(url)

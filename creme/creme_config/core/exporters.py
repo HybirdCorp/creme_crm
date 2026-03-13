@@ -526,8 +526,14 @@ class CustomFieldExporter(Exporter):
             'type': cf_type,
         }
 
-        if instance.is_required:
-            data['is_required'] = True
+        # if instance.is_required:
+        #     data['is_required'] = True
+        match instance.requirement_mode:
+            case models.CustomField.RequirementMode.REQUIRED:
+                data['requirement_mode'] = 'REQUIRED'
+
+            case models.CustomField.RequirementMode.REQUIRED_AT_CREATION:
+                data['requirement_mode'] = 'REQUIRED_AT_CREATION'
 
         if cf_type in self.enum_types:
             data['choices'] = [

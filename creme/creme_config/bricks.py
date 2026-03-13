@@ -345,7 +345,8 @@ class CustomFieldsBrick(Brick):
                 self.ctype = ctype
                 self.cfields = cfields
 
-        cfields = core_models.CustomField.objects.order_by('id').annotate(
+        CustomField = core_models.CustomField
+        cfields = CustomField.objects.order_by('id').annotate(
             enum_count=Count('customfieldenumvalue_set'),
         )
 
@@ -356,10 +357,7 @@ class CustomFieldsBrick(Brick):
         if hide_deleted:
             cfields = cfields.exclude(is_deleted=True)
 
-        enums_types = {
-            core_models.CustomField.ENUM,
-            core_models.CustomField.MULTI_ENUM,
-        }
+        enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
         for cfield in cfields:
             cfield.is_enum = (cfield.field_type in enums_types)   # TODO: templatetag instead ?
 
@@ -380,6 +378,8 @@ class CustomFieldsBrick(Brick):
             context,
             ctypes=ctypes,
             hide_deleted=hide_deleted,
+            REQUIRED=CustomField.RequirementMode.REQUIRED,
+            REQUIRED_AT_CREATION=CustomField.RequirementMode.REQUIRED_AT_CREATION,
             **extra_kwargs
         )
 

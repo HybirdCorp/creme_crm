@@ -202,7 +202,12 @@ class RelatedContactCreationTestCase(OpportunitiesBaseTestCase):
             content_type=ContentType.objects.get_for_model(Contact),
         )
         cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
-        cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+        # cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+        cf2 = create_cf(
+            field_type=CustomField.INT, name='Eva number',
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
 
         opp, target, emitter = self._create_opportunity_n_organisations(user=user)
 

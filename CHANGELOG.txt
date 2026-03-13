@@ -9,6 +9,7 @@
           ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
       # Apps :
         * Creme_config :
+            - The custom-fields can now be configured to be required only at creation.
             - A new action for the workflows is available: sending a notification.
               You can now create customised notification channels, which are the
               only ones which can be used by the new action.
@@ -95,6 +96,8 @@
                     - The attribute '_related_form' has been removed.
                 - The class 'RelationExtractorField' has been replaced by 'MultiRelationsExtractorField';
                   the related widget & template have been heavily reworked too.
+                - The method 'ImportForm4CremeEntity._pre_instance_save()' is not empty anymore :
+                  you must call this super method when you override it now.
         # In 'creme_core.gui.bricks' :
             - The method 'Brick._simple_detailview_display()' has been removed.
             - In the class 'BrickRegistry':
@@ -106,6 +109,13 @@
                 - The methods 'get_bricks()' & 'get_brick_4_instance' take now their arguments
                   as keyword only now, & a new mandatory argument "tag" has been added.
                 - The method '__getitem__' has been removed.
+        # In 'creme_core.models.custom_field' :
+            - In the class 'CustomField' :
+                - The field 'is_required' has been replaced by a field 'requirement_mode'.
+                - The method 'get_formfield()' takes now its arguments as keywords only,
+                  & the new argument 'creation' is mandatory.
+            - The method 'CustomFieldValue.get_formfield()' takes now its arguments
+              as keywords only, & the new argument 'creation' is mandatory.
         # In 'creme_core.utils' :
             - In 'meta', the classes 'Order' & 'OrderedField' are now "immutable"
               (you should not write the internal attributes).

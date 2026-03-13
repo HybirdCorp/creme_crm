@@ -2695,14 +2695,21 @@ END:VCARD"""
         "Required custom-fields on Contact must be used."
         user = self.login_as_root_and_get()
 
+        REQUIRED = CustomField.RequirementMode.REQUIRED
         create_cfield = partial(
             CustomField.objects.create,
             field_type=CustomField.STR, content_type=Contact,
         )
-        cfield1 = create_cfield(name='Nickname', is_required=True)
+        # cfield1 = create_cfield(name='Nickname', is_required=True)
+        cfield1 = create_cfield(name='Nickname', requirement_mode=REQUIRED)
         cfield2 = create_cfield(name='Punch line')
-        cfield3 = create_cfield(name='ID', is_required=True, content_type=Document)
-        cfield4 = create_cfield(name='Deleted', is_required=True, is_deleted=True)
+        # cfield3 = create_cfield(name='ID', is_required=True, content_type=Document)
+        cfield3 = create_cfield(name='ID', requirement_mode=REQUIRED, content_type=Document)
+        # cfield4 = create_cfield(name='Deleted', is_required=True, is_deleted=True)
+        cfield4 = create_cfield(name='Deleted', requirement_mode=REQUIRED, is_deleted=True)
+        cfield5 = create_cfield(
+            name='Goal', requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
 
         content = """BEGIN:VCARD
 FN:Asuna Kagurazaka
@@ -2720,6 +2727,11 @@ END:VCARD"""
         self.assertIsNotNone(cf_formfield1)
         self.assertTrue(cf_formfield1.required)
 
+        cf_name5 = f'custom_field-{cfield5.id}'
+        cf_formfield5 = fields.get(cf_name5)
+        self.assertIsNotNone(cf_formfield5)
+        self.assertTrue(cf_formfield5.required)
+
         first_name = fields['first_name'].initial
         last_name = fields['last_name'].initial
         data = {
@@ -2729,22 +2741,30 @@ END:VCARD"""
             'last_name': last_name,
         }
         response1 = self._post_step1(data=data, errors=True)
-        self.assertFormError(
-            response1.context['form'],
-            field=cf_name1, errors=_('This field is required.'),
-        )
+        form1 = response1.context['form']
+        err_msg = _('This field is required.')
+        self.assertFormError(form1, field=cf_name1, errors=err_msg)
+        self.assertFormError(form1, field=cf_name5, errors=err_msg)
 
         # ---
         nickname = 'Asu'
-        self._post_step1(data={**data, cf_name1: nickname})
+        goal = 'Beat the evil'
+        # self._post_step1(data={**data, cf_name1: nickname})
+        self._post_step1(data={**data, cf_name1: nickname, cf_name5: goal})
 
         asuna = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        cf_value = self.get_object_or_fail(
+
+        cf_value1 = self.get_object_or_fail(
             cfield1.value_class, custom_field=cfield1.id, entity=asuna.id,
         )
-        self.assertEqual(nickname, cf_value.value)
+        self.assertEqual(nickname, cf_value1.value)
+
+        cf_value5 = self.get_object_or_fail(
+            cfield5.value_class, custom_field=cfield5.id, entity=asuna.id,
+        )
+        self.assertEqual(goal, cf_value5.value)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -2752,13 +2772,20 @@ END:VCARD"""
         "Required custom-fields on Organisations must be used."
         user = self.login_as_root_and_get()
 
+        REQUIRED = CustomField.RequirementMode.REQUIRED
         create_cfield = partial(
             CustomField.objects.create,
             field_type=CustomField.STR, content_type=Organisation,
         )
-        cfield1 = create_cfield(name='Main country', is_required=True)
+        # cfield1 = create_cfield(name='Main country', is_required=True)
+        cfield1 = create_cfield(name='Main country', requirement_mode=REQUIRED)
         cfield2 = create_cfield(name='Base line')
-        cfield3 = create_cfield(name='EXIF', is_required=True, content_type=Document)
+        # cfield3 = create_cfield(name='EXIF', is_required=True, content_type=Document)
+        cfield3 = create_cfield(name='EXIF', requirement_mode=REQUIRED, content_type=Document)
+        cfield4 = create_cfield(
+            name='Siege',
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
 
         content = """BEGIN:VCARD
 FN:Asuna Kagurazaka
@@ -2776,6 +2803,11 @@ END:VCARD"""
         self.assertTrue(cf_formfield1.required)
         self.assertIsNone(cf_formfield1.initial)
 
+        cf_name4 = f'custom_field-{cfield4.id}'
+        cf_formfield4 = fields.get(cf_name4)
+        self.assertIsNotNone(cf_formfield4)
+        self.assertFalse(cf_formfield4.required)
+
         first_name = fields['first_name'].initial
         last_name = fields['last_name'].initial
         work_name = fields['work_name'].initial
@@ -2792,12 +2824,23 @@ END:VCARD"""
         response1 = self._post_step1(data=data, errors=True)
         self.assertFormError(
             response1.context['form'],
-            field=cf_name1, errors=_('This field is required.'),
+            field=cf_name1,
+            errors=_('This field is required.'),
         )
 
         # ---
         country = 'Japan'
-        self._post_step1(data={**data, cf_name1: country})
+        response2 = self._post_step1(data={**data, cf_name1: country}, errors=True)
+        self.assertFormError(
+            response2.context['form'],
+            field=cf_name4,
+            errors=_('Required, if you want to create organisation'),
+        )
+
+        # ---
+        goal = 'Entertain people'
+        # self._post_step1(data={**data, cf_name1: country})
+        self._post_step1(data={**data, cf_name1: country, cf_name4: goal})
 
         asuna = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
@@ -2805,10 +2848,16 @@ END:VCARD"""
         self.assertFalse(cfield1.value_class.objects.filter(entity=asuna.id))
 
         orga = self.get_object_or_fail(Organisation, name=work_name)
-        cf_value = self.get_object_or_fail(
+
+        cf_value1 = self.get_object_or_fail(
             cfield1.value_class, custom_field=cfield1.id, entity=orga.id,
         )
-        self.assertEqual(country, cf_value.value)
+        self.assertEqual(country, cf_value1.value)
+
+        cf_value4 = self.get_object_or_fail(
+            cfield4.value_class, custom_field=cfield4.id, entity=orga.id,
+        )
+        self.assertEqual(goal, cf_value4.value)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -2820,7 +2869,8 @@ END:VCARD"""
             field_type=CustomField.STR,
             content_type=Organisation,
             name='Main country',
-            is_required=True,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
         )
 
         orga = Organisation.objects.create(user=user, name='SAO')

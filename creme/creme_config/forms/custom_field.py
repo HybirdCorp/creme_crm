@@ -59,7 +59,8 @@ class CustomFieldMainStep(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = CustomField
-        exclude = ('is_required',)
+        # exclude = ('is_required',)
+        exclude = ('requirement_mode',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,7 +95,8 @@ class CustomFieldMainStep(CremeModelForm):
 class CustomFieldConstraintsStep(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = CustomField
-        fields = ('is_required',)
+        # fields = ('is_required',)
+        fields = ('requirement_mode',)
 
     error_messages = {
         'duplicated_choice': _('The choice «{}» is duplicated.'),
@@ -171,7 +173,8 @@ class CustomFieldEditionForm(CremeModelForm):
 
     class Meta:
         model = CustomField
-        fields = ('name', 'is_required', 'description')
+        # fields = ('name', 'is_required', 'description')
+        fields = ('name', 'requirement_mode', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

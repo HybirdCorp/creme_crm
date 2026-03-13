@@ -185,7 +185,8 @@ class MergeEntitiesBaseForm(CremeForm):
         ]
 
         for cfield, cvalue1, cvalue2 in customs:
-            formfield1 = cfield.get_formfield(cvalue1)
+            # formfield1 = cfield.get_formfield(cvalue1)
+            formfield1 = cfield.get_formfield(custom_value=cvalue1, creation=False)
             fields[_CUSTOM_NAME.format(cfield.id)] = merge_field = MergeField(
                 modelform_field=formfield1,
                 model_field=None,
@@ -195,7 +196,8 @@ class MergeEntitiesBaseForm(CremeForm):
 
             initial = [
                 formfield1.initial,
-                cfield.get_formfield(cvalue2).initial,
+                # cfield.get_formfield(cvalue2).initial,
+                cfield.get_formfield(custom_value=cvalue2, creation=False).initial,
             ]
             initial.append(initial[initial_index] or initial[1 - initial_index])
             merge_field.initial = initial

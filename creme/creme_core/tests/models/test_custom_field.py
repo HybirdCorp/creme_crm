@@ -138,7 +138,10 @@ class CustomFieldTestCase(CremeTestCase):
             cfield.content_type,
         )
         self.assertTrue(cfield.uuid)
-        self.assertIs(cfield.is_required, False)
+        # self.assertIs(cfield.is_required, False)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield.requirement_mode,
+        )
         self.assertIs(cfield.is_deleted, False)
         self.assertEqual(name, str(cfield))
         self.assertEqual('', cfield.description)
@@ -153,13 +156,14 @@ class CustomFieldTestCase(CremeTestCase):
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
-        formfield1 = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield1 = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield1 = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield1, forms.IntegerField)
         self.assertFalse(formfield1.required)
         self.assertFalse(formfield1.help_text)
         self.assertEqual(value, formfield1.initial)
 
-        formfield2 = cfield.get_formfield(custom_value=None, user=orga.user)
+        formfield2 = cfield.get_formfield(custom_value=None, user=orga.user, creation=False)
         self.assertIsInstance(formfield2, forms.IntegerField)
         self.assertIsNone(formfield2.initial)
 
@@ -224,7 +228,8 @@ class CustomFieldTestCase(CremeTestCase):
             name='Length of ship',
             field_type=CustomField.STR,
             content_type=FakeOrganisation,
-            is_required=True,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
             description='Metric system bro',
         )
         self.assertEqual(CustomFieldString, cfield.value_class)
@@ -236,7 +241,8 @@ class CustomFieldTestCase(CremeTestCase):
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.CharField)
         self.assertTrue(formfield.required)
         self.assertEqual(value, formfield.initial)
@@ -278,6 +284,7 @@ class CustomFieldTestCase(CremeTestCase):
             name='History',
             field_type=CustomField.TEXT,
             content_type=FakeOrganisation,
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
         )
         self.assertEqual(CustomFieldText, cfield.value_class)
         self.assertEqual(_('Long text'), CustomFieldText.verbose_name)
@@ -291,9 +298,20 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
-        self.assertIsInstance(formfield,        forms.CharField)
-        self.assertIsInstance(formfield.widget, forms.Textarea)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # self.assertIsInstance(formfield,        forms.CharField)
+        # self.assertIsInstance(formfield.widget, forms.Textarea)
+        formfield1 = cfield.get_formfield(
+            custom_value=cf_value, user=orga.user, creation=False,
+        )
+        self.assertIsInstance(formfield1,        forms.CharField)
+        self.assertIsInstance(formfield1.widget, forms.Textarea)
+        self.assertFalse(formfield1.required)
+
+        formfield2 = cfield.get_formfield(
+            custom_value=cf_value, user=orga.user, creation=True,
+        )
+        self.assertTrue(formfield2.required)
 
     def test_text__value_class(self):
         self.assertEqual(_('Long text'), CustomFieldText.verbose_name)
@@ -331,7 +349,8 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.CharField)
         self.assertEqual(200, formfield.max_length)
 
@@ -355,7 +374,8 @@ by a man named Tochiro.
         cf_value.save()
         self.assertValueEqual(cfield=cfield, entity=orga, value=value2)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.DecimalField)
 
     def test_decimal__value_class(self):
@@ -395,7 +415,8 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.DateField)
 
     def test_date__value_class(self):
@@ -433,7 +454,8 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=dt)
 
-        formfield = cfield.get_formfield(custom_value=None, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=None, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=None, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.DateTimeField)
 
     def test_datetime__value_class(self):
@@ -473,14 +495,20 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield1, entity=orga, value=value)
 
-        formfield = cfield1.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield1.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield1.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.NullBooleanField)
         self.assertFalse(formfield.required)
         self.assertEqual(value, formfield.initial)
 
         # ---
-        cfield2 = create_cfield(name='Pirates?', is_required=True)
-        formfield = cfield2.get_formfield(custom_value=None, user=orga.user)
+        # cfield2 = create_cfield(name='Pirates?', is_required=True)
+        cfield2 = create_cfield(
+            name='Pirates?',
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
+        # formfield = cfield2.get_formfield(custom_value=None, user=orga.user)
+        formfield = cfield2.get_formfield(custom_value=None, user=orga.user, creation=False)
         self.assertIsInstance(formfield, forms.BooleanField)
         self.assertFalse(formfield.required)
 
@@ -556,7 +584,8 @@ by a man named Tochiro.
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=enum_value)
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, CreatorCustomEnumerableChoiceField)
         self.assertEqual(orga.user, formfield.user)
         self.assertEqual(cfield,    formfield.custom_field)
@@ -622,7 +651,8 @@ by a man named Tochiro.
             self.refresh(cf_value).value.all(),
         )
 
-        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        # formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user, creation=False)
         self.assertIsInstance(formfield, CustomMultiEnumChoiceField)
         self.assertEqual(orga.user, formfield.user)
         self.assertEqual(cfield,    formfield.custom_field)

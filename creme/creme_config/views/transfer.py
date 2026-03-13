@@ -67,6 +67,7 @@ class ConfigExport(generic.CheckedView):
         #      (instead of 'username').
         # 3.0: 1.7
         #    - In EntityFilterCondition, the type & the operator ID are now strings.
+        #    - In CustomField, the field 'is_required' is replaced by 'requirement_mode'.
         info[ID_VERSION] = '1.7'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 

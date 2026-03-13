@@ -1391,11 +1391,13 @@ class ImportingTestCase(TransferBaseTestCase):
             }, {
                 'uuid': str(uuid_02), 'ctype': ct_str_o, 'name': 'OS',
                 'type': CustomField.BOOL,
-                'is_required': False,
+                # 'is_required': False,
+                'requirement_mode': 'NOT_REQUIRED',
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages',
                 'type': CustomField.ENUM,
-                'is_required': True,
+                # 'is_required': True,
+                'requirement_mode': 'REQUIRED',
                 'choices': [
                     {
                         'uuid': str(uuid_enum11),
@@ -1408,6 +1410,7 @@ class ImportingTestCase(TransferBaseTestCase):
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Hobbies',
                 'type': CustomField.MULTI_ENUM,
+                'requirement_mode': 'REQUIRED_AT_CREATION',
                 'choices': [
                     {
                         'uuid': str(uuid_enum21),
@@ -1431,18 +1434,27 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(get_ct(FakeContact), cfield1.content_type)
         self.assertEqual(cfield_data1['name'], cfield1.name)
         self.assertEqual(cfield_data1['type'], cfield1.field_type)
-        self.assertFalse(cfield1.is_required)
+        # self.assertFalse(cfield1.is_required)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield1.requirement_mode,
+        )
 
         cfield_data2 = cfields_data[1]
         cfield2 = self.get_object_or_fail(CustomField, uuid=cfield_data2['uuid'])
         self.assertEqual(get_ct(FakeOrganisation), cfield2.content_type)
         self.assertEqual(cfield_data2['name'], cfield2.name)
         self.assertEqual(cfield_data2['type'], cfield2.field_type)
-        self.assertFalse(cfield2.is_required)
+        # self.assertFalse(cfield2.is_required)
+        self.assertEqual(
+            CustomField.RequirementMode.NOT_REQUIRED, cfield2.requirement_mode,
+        )
 
         cfield_data3 = cfields_data[2]
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data3['name'])
-        self.assertTrue(cfield3.is_required)
+        # self.assertTrue(cfield3.is_required)
+        self.assertEqual(
+            CustomField.RequirementMode.REQUIRED, cfield3.requirement_mode,
+        )
         self.assertCountEqual(
             cfield_data3['choices'],
             [
@@ -1455,6 +1467,10 @@ class ImportingTestCase(TransferBaseTestCase):
 
         cfield_data4 = cfields_data[3]
         cfield4 = self.get_object_or_fail(CustomField, name=cfield_data4['name'])
+        self.assertEqual(
+            CustomField.RequirementMode.REQUIRED_AT_CREATION,
+            cfield4.requirement_mode,
+        )
         self.assertCountEqual(
             cfield_data4['choices'],
             [

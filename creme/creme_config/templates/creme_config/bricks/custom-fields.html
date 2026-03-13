@@ -36,7 +36,13 @@
                     <tr {% if cfield.is_deleted %}class="cfields-config-deleted"{% endif %}>
                         <td class="cfields-config-name" title="{% translate 'Name' %}">{{cfield.name}}</td>
                         <td class="cfields-config-type" title="{% translate 'Type' %}">
-                            {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% translate '(required)' %}</span>{% endif %}
+{#                            {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% translate '(required)' %}</span>{% endif %} #}
+                            {{cfield.value_class.verbose_name}}
+                            {% if cfield.requirement_mode == REQUIRED %}
+                                <span class="cfields-config-required">{% translate '(required)' %}</span>
+                            {% elif cfield.requirement_mode == REQUIRED_AT_CREATION %}
+                                <span class="cfields-config-required">{% translate '(required at creation)' %}</span>
+                            {% endif %}
                             {% if cfield.is_enum %}
                               {% if cfield.is_deleted %}
                                {% blocktranslate with count=cfield.enum_count asvar enums_label %}See the choices (currently {{count}}){% endblocktranslate %}

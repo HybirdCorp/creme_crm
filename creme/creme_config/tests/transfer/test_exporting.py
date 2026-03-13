@@ -1414,10 +1414,16 @@ class ExportingTestCase(TransferBaseTestCase):
         ct_orga    = get_ct(FakeOrganisation)
 
         create_cf = partial(CustomField.objects.create, content_type=ct_contact)
-        cfield1 = create_cf(name='Rating',    field_type=CustomField.INT)
-        cfield2 = create_cf(name='OS',        field_type=CustomField.BOOL, content_type=ct_orga)
-        cfield3 = create_cf(name='Languages', field_type=CustomField.ENUM, is_required=True)
-        cfield4 = create_cf(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
+        cfield1 = create_cf(name='Rating', field_type=CustomField.INT)
+        cfield2 = create_cf(name='OS',     field_type=CustomField.BOOL, content_type=ct_orga)
+        cfield3 = create_cf(
+            name='Languages', field_type=CustomField.ENUM,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
+        cfield4 = create_cf(
+            name='Hobbies', field_type=CustomField.MULTI_ENUM,
+            requirement_mode=CustomField.RequirementMode.REQUIRED_AT_CREATION,
+        )
 
         create_evalue = CustomFieldEnumValue.objects.create
         eval1 = create_evalue(custom_field=cfield3, value='C')
@@ -1442,7 +1448,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield3.uuid), 'ctype': ct_str1,
                     'name': cfield3.name, 'type': cfield3.field_type,
-                    'is_required': True,
+                    # 'is_required': True,
+                    'requirement_mode': 'REQUIRED',
                     'choices': [
                         {
                             'uuid': str(eval1.uuid),
@@ -1455,6 +1462,7 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield4.uuid), 'ctype': ct_str1,
                     'name': cfield4.name, 'type': cfield4.field_type,
+                    'requirement_mode': 'REQUIRED_AT_CREATION',
                     'choices': [
                         {
                             'uuid': str(eval3.uuid),

@@ -869,8 +869,12 @@ class CustomFieldsImporter(Importer):
             'name': name,
             'field_type': field_type,
             'content_type': ctype,
-            'is_required': cfield_info.get('is_required', False),
+            # 'is_required': cfield_info.get('is_required', False),
         }
+
+        req_mode_str = cfield_info.get('requirement_mode')
+        if req_mode_str:
+            data['requirement_mode'] = CustomField.RequirementMode[req_mode_str]
 
         if field_type in self.ENUM_TYPES:
             data['choices'] = [
