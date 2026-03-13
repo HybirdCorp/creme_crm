@@ -49,6 +49,7 @@
             - In list-views, the columns for "Total with VAT" & "Total without VAT" display the
               Sum & Average values for these fields (on all entities related to the list).
             - Payment information can now be archived (to avoid them to be used in new billing documents).
+            - The type of generated document (Invoice, Quote ...) is now viewable for template entity.
         * Opportunities :
             - In list-views, the columns for "Estimated sales" & "Made sales" display the
               Sum & Average values for these fields (on all entities related to the list).

@@ -818,7 +818,15 @@ class Migration(migrations.Migration):
 
                 # ('status_id', models.PositiveIntegerField(editable=False)),
                 ('status_uuid', models.UUIDField(editable=False)),
-                ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                # ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                (
+                    'ct',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.contenttype',
+                        verbose_name='Type of generated document',
+                        editable=False, on_delete=CASCADE,
+                    )
+                ),
             ],
             options={
                 'swappable': 'BILLING_TEMPLATE_BASE_MODEL',

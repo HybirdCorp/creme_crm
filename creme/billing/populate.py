@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -270,6 +270,7 @@ class Populator(BasePopulator):
             model=TemplateBase,
             cells=[
                 (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'ct'),
                 (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
                 (EntityCellRegularField, 'number'),
                 # (EntityCellRegularField, 'status'),  TODO: function field?
@@ -1134,6 +1135,7 @@ class Populator(BasePopulator):
             uuid=UUID_CBRICK_TEMPLATE,
             name=pgettext('billing', 'Template information'),
             extra_cells=(
+                EntityCellRegularField.build(TemplateBase, 'ct'),
                 EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
             ),
         )
