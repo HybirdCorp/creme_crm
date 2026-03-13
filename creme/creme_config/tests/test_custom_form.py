@@ -1707,7 +1707,9 @@ class CustomFormsBrickTestCase(CremeTestCase):
     def test_brick(self):
         customfield = CustomField.objects.create(
             content_type=FakeOrganisation,
-            name='Rate', field_type=CustomField.INT, is_required=True,
+            name='Rate', field_type=CustomField.INT,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
         )
 
         desc1 = CustomFormDescriptor(
@@ -1917,7 +1919,9 @@ class CustomFormsBrickTestCase(CremeTestCase):
     def test_brick__missing_required_custom_field(self):
         customfield = CustomField.objects.create(
             content_type=FakeOrganisation,
-            name='Rate', field_type=CustomField.INT, is_required=True,
+            name='Rate', field_type=CustomField.INT,
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
         )
 
         desc = CustomFormDescriptor(

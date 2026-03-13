@@ -22,7 +22,7 @@ import logging
 from functools import partial
 from itertools import zip_longest
 from os.path import splitext
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator, override
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -1439,7 +1439,9 @@ class CustomfieldExtractorField(forms.Field):
         )
 
         self._custom_field = custom_field
-        formfield = custom_field.get_formfield(custom_value=None)
+        # formfield = custom_field.get_formfield(custom_value=None)
+        # NB: see comment in ImportForm._build_required_fields()
+        formfield = custom_field.get_formfield(custom_value=None, creation=False)
         self.required = formfield.required
         self.user = user
 
@@ -1874,11 +1876,16 @@ class ImportForm4CremeEntity(ImportForm):
             perm=EntityCredentials.VIEW | EntityCredentials.CHANGE,
         )
 
-    def _post_instance_creation(self, instance, line, updated):
+    @override
+    def _pre_instance_save(self, instance, line):
         cdata = self.cleaned_data
         user = instance.user
 
-        # Custom Fields -------
+        # Custom Fields ---
+        # TODO: better instance data system?
+        instance._custom_values_to_save = custom_values_to_save = []
+        REQUIRED_AT_CREATION = CustomField.RequirementMode.REQUIRED_AT_CREATION
+
         for cfield_id, cfield in self.cfields.items():
             value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(
                 line=line, user=user,
@@ -1886,8 +1893,33 @@ class ImportForm4CremeEntity(ImportForm):
 
             if err_msg is not None:
                 self.append_error(err_msg)
-            elif value is not None and value != '':
-                CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+            elif value in EMPTY_VALUES:
+                if instance.pk is None and cfield.requirement_mode == REQUIRED_AT_CREATION:
+                    # NB: ValidationError 'printing' is ugly when forging job error
+                    raise ValueError(
+                        gettext('The custom field «{}» is required at creation.').format(cfield)
+                    )
+            else:
+                custom_values_to_save.append((cfield, value))
+
+    @override
+    def _post_instance_creation(self, instance, line, updated):
+        cdata = self.cleaned_data
+        user = instance.user
+
+        # Custom Fields -------
+        # for cfield_id, cfield in self.cfields.items():
+        #     value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(
+        #         line=line, user=user,
+        #     )
+        #
+        #     if err_msg is not None:
+        #         self.append_error(err_msg)
+        #     elif value is not None and value != '':
+        #         CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+        # NB: see _pre_instance_save()
+        for cfield, cvalue in instance._custom_values_to_save:
+            CustomFieldValue.save_values_for_entities(cfield, [instance], cvalue)
 
         # Properties -----
         create_prop = partial(

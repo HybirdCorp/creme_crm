@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-11 15:22+0200\n"
+"POT-Creation-Date: 2026-05-29 16:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -187,8 +187,8 @@ msgstr "Vue de liste id=\"{id}\""
 
 #, python-brace-format
 msgid ""
-"The condition on sub-filter=\"{subfilter}\" is invalid in the filter id="
-"\"{id}\"."
+"The condition on sub-filter=\"{subfilter}\" is invalid in the filter "
+"id=\"{id}\"."
 msgstr ""
 "La condition sur le sous-filtre=\"{subfilter}\" est invalide dans le filtre "
 "avec id=\"{id}\"."
@@ -198,16 +198,16 @@ msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
 "uuid={uuid})."
 msgstr ""
-"La condition sur type de relation est invalide dans le filtre id="
-"\"{id}\" (uuid={uuid} inconnu)."
+"La condition sur type de relation est invalide dans le filtre "
+"id=\"{id}\" (uuid={uuid} inconnu)."
 
 #, python-brace-format
 msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
 "relation-type={rtype})."
 msgstr ""
-"La condition sur type de relation= est invalide dans le filtre id="
-"\"{id}\"(type-de-relation={rtype} inconnu)."
+"La condition sur type de relation= est invalide dans le filtre "
+"id=\"{id}\"(type-de-relation={rtype} inconnu)."
 
 #, python-brace-format
 msgid ""
@@ -227,16 +227,16 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"The condition on property-type=\"{ptype}\" is invalid in the filter id="
-"\"{id}\"."
+"The condition on property-type=\"{ptype}\" is invalid in the filter "
+"id=\"{id}\"."
 msgstr ""
 "La condition sur le type de propriété=\"{ptype}\" est invalide dans le "
 "filtre id=\"{id}\"."
 
 #, python-brace-format
 msgid ""
-"The condition on custom-field=\"{cfield}\" is invalid in the filter id="
-"\"{id}\"."
+"The condition on custom-field=\"{cfield}\" is invalid in the filter "
+"id=\"{id}\"."
 msgstr ""
 "La condition sur le champ personnalisé=\"{cfield}\" est invalide dans le "
 "filtre id=\"{id}\"."
@@ -1347,6 +1347,9 @@ msgstr "Type"
 
 msgid "(required)"
 msgstr "(obligatoire)"
+
+msgid "(required at creation)"
+msgstr "(seulement à la création)"
 
 #, python-format
 msgid "See the choices (currently %(count)s)"

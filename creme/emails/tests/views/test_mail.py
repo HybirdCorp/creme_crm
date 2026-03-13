@@ -294,7 +294,11 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
 
         create_cf = partial(CustomField.objects.create, content_type=EntityEmail)
         cf1 = create_cf(field_type=CustomField.STR, name='Comment')
-        cf2 = create_cf(field_type=CustomField.INT, name='Business ID', is_required=True)
+        cf2 = create_cf(
+            field_type=CustomField.INT, name='Business ID',
+            # is_required=True,
+            requirement_mode=CustomField.RequirementMode.REQUIRED,
+        )
 
         recipient = 'vincent.law@immigrates.rmd'
         contact = Contact.objects.create(

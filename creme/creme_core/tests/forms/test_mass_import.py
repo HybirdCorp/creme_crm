@@ -663,7 +663,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value=default_value,
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=False,
         )
@@ -697,7 +698,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value=default_value,
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=True,
         )
@@ -737,7 +739,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value=default_value,
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=False,
         )
@@ -777,7 +780,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value=default_value,
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=False,
         )
@@ -814,7 +818,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value='',
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=True,
         )
@@ -839,7 +844,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         extractor = CustomFieldExtractor(
             column_index=3,
             default_value=default_value,
-            value_castor=cfield.get_formfield(None).clean,
+            # value_castor=cfield.get_formfield(None).clean,
+            value_castor=cfield.get_formfield(custom_value=None, creation=False).clean,
             custom_field=cfield,
             create_if_unfound=True,
         )

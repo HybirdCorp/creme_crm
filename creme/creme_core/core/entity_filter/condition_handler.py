@@ -1059,7 +1059,11 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                     efilter_registry=cls.efilter_registry,
                 )
             else:
-                clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
+                # clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
+                clean_value = cf_value_class.get_formfield(
+                    custom_field=custom_field, custom_value=None, user=user,
+                    creation=False,
+                ).clean
 
                 if custom_field.field_type == CustomField.MULTI_ENUM:
                     value = [str(clean_value([v])[0]) for v in values]

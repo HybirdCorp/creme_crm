@@ -27,6 +27,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.core.validators import EMPTY_VALUES
 from django.db.transaction import atomic
 from django.forms import (  # URLField
     BooleanField,
@@ -308,9 +309,13 @@ class VcfImportForm(CremeModelForm):
         orga_cfields, contact_cfields = partition(
             lambda cfield: cfield.content_type.model_class() == Contact,
             CustomField.objects.filter(
-                is_required=True,
+                # is_required=True,
+                requirement_mode__in=(
+                    CustomField.RequirementMode.REQUIRED,
+                    CustomField.RequirementMode.REQUIRED_AT_CREATION,
+                ),
                 is_deleted=False,
-                content_type__in=[get_ct(Contact), get_ct(Organisation)],
+                content_type__in=(get_ct(Contact), get_ct(Organisation)),
             ),
         )
 
@@ -318,7 +323,10 @@ class VcfImportForm(CremeModelForm):
         build_name = self._build_customfield_name
 
         for cfield in contact_cfields:
-            fields[build_name(cfield)] = cfield.get_formfield(None, user=user)
+            # fields[build_name(cfield)] = cfield.get_formfield(None, user=user)
+            fields[build_name(cfield)] = cfield.get_formfield(
+                custom_value=None, user=user, creation=True,
+            )
 
         orga = self._found_organisation
         if orga and orga_cfields:
@@ -331,7 +339,10 @@ class VcfImportForm(CremeModelForm):
                 return None
 
         for cfield in orga_cfields:
-            fields[build_name(cfield)] = cfield.get_formfield(initial_value(cfield), user=user)
+            # fields[build_name(cfield)] = cfield.get_formfield(initial_value(cfield), user=user)
+            fields[build_name(cfield)] = cfield.get_formfield(
+                custom_value=initial_value(cfield), user=user, creation=False,
+            )
 
         self._contact_cfields = contact_cfields
         self._orga_cfields    = orga_cfields
@@ -766,6 +777,21 @@ class VcfImportForm(CremeModelForm):
 
                         self.add_error(field=field_name, error=error)
                 else:
+                    REQUIRED_AT_CREATION = CustomField.RequirementMode.REQUIRED_AT_CREATION
+                    build_name = self._build_customfield_name
+
+                    for cfield in self._orga_cfields:
+                        if cfield.requirement_mode == REQUIRED_AT_CREATION:
+                            field_name = build_name(cfield)
+                            if cleaned_data[field_name] in EMPTY_VALUES:
+                                self.add_error(
+                                    field=field_name,
+                                    error=ValidationError(
+                                        self.error_messages['required4orga'],
+                                        code='required4orga',
+                                    ),
+                                )
+
                     self.organisation = organisation
 
         return cleaned_data

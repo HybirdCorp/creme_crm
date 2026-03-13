@@ -634,6 +634,8 @@ def get_massimport_form_builder(header_dict, choices) -> type[ImportForm4CremeEn
             return participants_data
 
         def _pre_instance_save(self, instance, line):
+            super()._pre_instance_save(instance=instance, line=line)
+
             sub_type = self.cleaned_data['type_selector']
             instance.type, instance.sub_type = sub_type.type, sub_type
 
