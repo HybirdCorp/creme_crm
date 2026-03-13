@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from django import forms
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
 from . import base
@@ -36,6 +37,7 @@ class BillingTemplateStatusSubCell(CustomFormExtraSubCell):
             field = forms.ModelChoiceField(
                 label=gettext('Status of {}').format(meta.verbose_name),
                 queryset=status_model.objects.all(),
+                widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
                 **kwargs
             )
 

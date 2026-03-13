@@ -34,7 +34,7 @@ class FieldsConfigCreationForm(CremeModelForm):
             'The proposed types of resource have at least a field which can be '
             'configured (set hidden or set required).'
         ),
-        widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
+        # widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )
 
     fields_config_registry = fields_config_registry
