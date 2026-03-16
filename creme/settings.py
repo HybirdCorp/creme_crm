@@ -874,6 +874,9 @@ CREME_CORE_JS = [
     # jQuery tools
     'creme_core/js/jquery/extensions/jquery.toggle-attr.js',
 
+    # Underscore tools
+    'creme_core/js/lib/underscore/object.js',
+
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
     'creme_core/js/lib/fallbacks/array-0.9.js',
@@ -1075,6 +1078,7 @@ TEST_CREME_CORE_JS = [
     'testcore.js',
 
     'creme_core/js/tests/jquery/toggle-attr.js',
+    'creme_core/js/tests/underscore/object.js',
 
     # Content
     'creme_core/js/tests/component/component.js',
