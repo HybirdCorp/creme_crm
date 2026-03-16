@@ -59,6 +59,8 @@
                     }
                 },
                 'mock/brick/delete': backend.response(200),
+                'mock/brick/reorder': backend.response(200),
+                'mock/brick/reorder/fail': backend.response(403),
                 'mock/form': backend.response(200),
                 'mock/form/redirect': backend.response(200, 'mock/redirect', {'Content-Type': 'text/plain'}),
                 'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
@@ -171,10 +173,13 @@
             content.push((
                 '<table class="brick-table-content">'
                     + '<thead><tr>${columns}</tr></thead>'
-                    + '<tbody>${rows}</tbody>'
+                    + '<tbody class="${tbodyClasses}">${rows}</tbody>'
               + '</table>').template({
                   columns: options.columns.join(''),
-                  rows: options.rows.map(renderRow).join('')
+                  rows: options.rows.map(renderRow).join(''),
+                  tbodyClasses: [
+                      options.reorderable ? "brick-reorderable-items ui-sortable" : ""
+                  ].join('')
               }));
 
             return this.createBrickHtml($.extend({
