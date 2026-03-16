@@ -206,6 +206,7 @@
                     - These functions have been removed : 'parseUrl()', 'param()' & 'decodeSearchData()'.
                 - In 'creme.utils' :
                     - The function 'confirmSubmit()' has been removed.
+                    - The function 'clickOnce()' has been removed.
                     - The option "waitingOverlay" of 'ajaxQuery()' has been removed.
                     - The functions 'showPageLoadOverlay()', 'hidePageLoadOverlay()' & 'loading()' have been removed.
                     - In 'JSON', these methods have been removed :
