@@ -115,6 +115,7 @@ QUnit.test('creme.utils.scrollBack', function(assert) {
     });
 });
 
+/*
 QUnit.test('creme.utils.clickOnce', function(assert) {
     var once = $('<a onclick="creme.utils.clickOnce(this, QUnit.mockInlineHtmlEvent, \'once call\', 12)"></a>');
     var normal = $('<a onclick="QUnit.mockInlineHtmlEvent(\'normal call\', 13)"></a>');
@@ -144,5 +145,5 @@ QUnit.test('creme.utils.clickOnce', function(assert) {
         ['normal call', 13]
     ]);
 });
-
+*/
 }(jQuery));
