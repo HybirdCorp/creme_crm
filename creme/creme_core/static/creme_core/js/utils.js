@@ -258,6 +258,7 @@ creme.utils.isHTMLDataType = function(dataType) {
 };
 
 // Temporary HACK : Fix used in some <a onclick="..."> tags to prevent multiple clicks.
+/*
 creme.utils.clickOnce = function(element, func) {
     element = $(element);
 
@@ -268,6 +269,7 @@ creme.utils.clickOnce = function(element, func) {
         return false;
     }
 };
+*/
 
 creme.utils.jQueryToMomentDateFormat = function(format) {
     /*
