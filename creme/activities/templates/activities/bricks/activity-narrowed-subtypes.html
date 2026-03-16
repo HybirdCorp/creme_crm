@@ -22,7 +22,7 @@
 {% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     <tbody class="brick-reorderable-items ui-sortable">
       {% for sub_type in page.object_list %}
-        <tr data-reorderable-item-order="{{forloop.counter}}" data-reorderable-item-url="{% url 'activities__reorder_sub_type' sub_type.id %}">
+        <tr data-reorderable-item-order="{{ page.start_index|add:forloop.counter0 }}" data-reorderable-item-url="{% url 'activities__reorder_sub_type' sub_type.id %}">
             <td data-reorderable-handle-column class="ui-sortable-handle brick-configmodel-order" title="{% translate 'Drag and drop to re-order this sub-type' %}">
                 {{reorder_icon.render}}
             </td>
