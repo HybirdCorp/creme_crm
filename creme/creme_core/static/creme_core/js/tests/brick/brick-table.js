@@ -1,6 +1,10 @@
 (function($) {
 
-QUnit.module("creme.bricks.table", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin, {
+QUnit.module("creme.bricks.table", new QUnitMixin(QUnitEventMixin,
+                                                  QUnitAjaxMixin,
+                                                  QUnitBrickMixin,
+                                                  QUnitDialogMixin,
+                                                  QUnitMouseMixin, {
     _brickTableItemInfo: function(d) {
         return {
             selected: d.selected,
@@ -388,17 +392,15 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
 
     var widget = this.createBrickTable(options);
     var brick = widget.brick();
-    var brick_id = brick.id();
-    equal('brick-creme_core-test', brick_id);
+    var brickId = brick.id();
+    equal('brick-creme_core-test', brickId);
     equal('creme_core-test', brick.type_id());
 
-//    this.setBrickReloadContent('brick-for-test', this.createBrickTableHtml(options));
-    this.setBrickReloadContent(brick_id, this.createBrickTableHtml(options));
+    this.setBrickReloadContent(brickId, this.createBrickTableHtml(options));
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-//    brick = $('#brick-for-test').creme().widget().brick();
-    brick = $('#' + brick_id).creme().widget().brick();
+    brick = $('#' + brickId).creme().widget().brick();
     equal(true, brick.isBound());
 
     // use brick.element() each time because it changes on reload.
@@ -409,8 +411,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
         ['GET', {'creme_core-test_order': '-created', brick_id: ['creme_core-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-//    brick = $('#brick-for-test').creme().widget().brick();
-    brick = $('#' + brick_id).creme().widget().brick();
+    brick = $('#' + brickId).creme().widget().brick();
     equal(true, brick.isBound());
 
     $('th[data-sort-field="name"]', brick.element()).trigger('click');
@@ -455,6 +456,201 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
     $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.parametrize('creme.bricks.Brick.table (reorderable)', [
+    [0, 2, [['POST', {target: 6}]]],  // 1
+    [2, 0, [['POST', {target: 4}]]],  // 2
+    [0, 3, [['POST', {target: 7}]]],  // 3
+    [3, 0, [['POST', {target: 4}]]],  // 4
+    [1, 2, [['POST', {target: 6}]]]   // 5
+], function(from, to, expected, assert) {
+    var options = {
+        reorderable: true,
+        columns: [
+            '<th></th>',
+            '<th data-table-primary-column>Id</th>',
+            '<th data-type="date">Created on</th>',
+            '<th>Name</th>'
+        ],
+        rows: [
+            '<tr data-reorderable-item-order="4" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>1</td><td data-type="date">2017-05-08</td><td>A</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="5" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>2</td><td data-type="date">2017-05-07</td><td>B</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="6" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>3</td><td data-type="date">2017-05-06</td><td>C</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="7" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>3</td><td data-type="date">2017-05-06</td><td>C</td>' +
+            '</tr>'
+        ]
+    };
+
+    var widget = this.createBrickTable(options);
+    var brick = widget.brick();
+    var element = brick.element();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('tr[data-row-index="${index}"] td[data-reorderable-handle-column]'.template({index: from}));
+    var target = element.find('tr[data-row-index="${index}"] td[data-reorderable-handle-column]'.template({index: to}));
+
+    this.awaits(this.simulateDragNDrop({source: source, target: target}), function() {
+        deepEqual(expected, this.mockBackendUrlCalls('mock/brick/reorder'));
+
+        if (expected.length > 0) {
+            deepEqual([
+                ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
+            ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+        } else {
+            deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+        }
+    });
+});
+
+QUnit.parametrize('creme.bricks.Brick.table (reorderable, holes & repeats & other items)', [
+    [0, 2, [['POST', {target: 6}]]],  // 1
+    [2, 0, [['POST', {target: 3}]]],  // 2
+    [0, 4, [['POST', {target: 7}]]],  // 3
+    [4, 0, [['POST', {target: 3}]]],  // 4
+    [1, 2, []],                       // 5
+    [2, 2, []]                        // 6
+], function(from, to, expected, assert) {
+    var options = {
+        reorderable: true,
+        columns: [
+            '<th></th>',
+            '<th data-table-primary-column>Id</th>',
+            '<th data-type="date">Created on</th>',
+            '<th>Name</th>'
+        ],
+        rows: [
+            '<tr data-reorderable-item-order="3" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>1</td><td data-type="date">2017-05-08</td><td>A</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="6" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>2</td><td data-type="date">2017-05-07</td><td>B</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="6" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>3</td><td data-type="date">2017-05-06</td><td>C</td>' +
+            '</tr>',
+            '<tr>' +
+                '<td>#</td>' +
+                '<td>99</td><td data-type="date">2017-05-07</td><td>Other</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="7" data-reorderable-item-url="mock/brick/reorder">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>4</td><td data-type="date">2017-05-06</td><td>D</td>' +
+            '</tr>'
+        ]
+    };
+
+    var widget = this.createBrickTable(options);
+    var brick = widget.brick();
+    var element = brick.element();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('tr[data-row-index]').eq(from).find('[data-reorderable-handle-column]');
+    var target = element.find('tr[data-row-index]').eq(to).find('[data-reorderable-handle-column]');
+
+    this.awaits(this.simulateDragNDrop({source: source, target: target}), function() {
+        deepEqual(expected, this.mockBackendUrlCalls('mock/brick/reorder'));
+
+        if (expected.length > 0) {
+            deepEqual([
+                ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
+            ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+        } else {
+            deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+        }
+    });
+});
+
+QUnit.test('creme.bricks.Brick.table (reorderable, invalid query)', function(assert) {
+    var options = {
+        reorderable: true,
+        columns: [
+            '<th></th>',
+            '<th data-table-primary-column>Id</th>',
+            '<th data-type="date">Created on</th>',
+            '<th>Name</th>'
+        ],
+        rows: [
+            '<tr data-reorderable-item-order="4" data-reorderable-item-url="mock/brick/reorder/fail">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>1</td><td data-type="date">2017-05-08</td><td>A</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="5" data-reorderable-item-url="mock/brick/reorder/fail">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>2</td><td data-type="date">2017-05-07</td><td>B</td>' +
+            '</tr>'
+        ]
+    };
+
+    var widget = this.createBrickTable(options);
+    var brick = widget.brick();
+    var element = brick.element();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('tr[data-row-index="0"] td[data-reorderable-handle-column]');
+    var target = element.find('tr[data-row-index="1"] td[data-reorderable-handle-column]');
+
+    this.awaits(this.simulateDragNDrop({source: source, target: target}), function() {
+        deepEqual([
+            ['POST', {target: 5}]
+        ], this.mockBackendUrlCalls('mock/brick/reorder/fail'));
+        deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+        this.assertClosedDialog();
+    });
+});
+
+QUnit.test('creme.bricks.Brick.table (reorderable, invalid data)', function(assert) {
+    var options = {
+        reorderable: true,
+        columns: [
+            '<th></th>',
+            '<th data-table-primary-column>Id</th>',
+            '<th data-type="date">Created on</th>',
+            '<th>Name</th>'
+        ],
+        rows: [
+            '<tr data-reorderable-item-order="4" data-reorderable-item-url="mock/brick/reorder/fail">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>1</td><td data-type="date">2017-05-08</td><td>A</td>' +
+            '</tr>',
+            '<tr data-reorderable-item-order="" data-reorderable-item-url="mock/brick/reorder/fail">' +
+                '<td data-reorderable-handle-column>#</td>' +
+                '<td>2</td><td data-type="date">2017-05-07</td><td>B</td>' +
+            '</tr>'
+        ]
+    };
+
+    var widget = this.createBrickTable(options);
+    var brick = widget.brick();
+    var element = brick.element();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('tr[data-row-index="0"] td[data-reorderable-handle-column]');
+    var target = element.find('tr[data-row-index="1"] td[data-reorderable-handle-column]');
+
+    this.awaits(this.simulateDragNDrop({source: source, target: target}), function() {
+        deepEqual([], this.mockBackendUrlCalls('mock/brick/reorder/fail'));
+        deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    });
 });
 
 }(jQuery));
