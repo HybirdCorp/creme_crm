@@ -5,6 +5,9 @@
     # An issue with custom-brick reloading: the brick was not reloaded when
       a related instance is edited (e.g. if you get an Address field in a
       custom-brick & edit the Address).
+    # Fix drag-n-drop reordering in paginated table bricks : the indices of were
+      form 0 to pagesize, ignoring the current page start index... and the items always move
+      to the first page.
     # Apps :
         * Billing :
             - In the view to create a true Product/Service from a line, the form-field

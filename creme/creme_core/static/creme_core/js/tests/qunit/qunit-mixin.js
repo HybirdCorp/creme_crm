@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals BrowserVersion FunctionFaker DateFaker */
+/* globals BrowserVersion FunctionFaker DateFaker Promise */
 
 (function($) {
     "use strict";
@@ -229,6 +229,39 @@
 
         withFrozenTime: function(date, block) {
             return new DateFaker(date).with(block.bind(this));
+        },
+
+        awaits: function(target, func) {
+            if (isNaN(target)) {
+                return this.awaitsPromise(target, func);
+            } else {
+                stop(1);
+
+                setTimeout(function() {
+                    try {
+                        func.apply(this, arguments);
+                    } finally {
+                        start();
+                    }
+                }, target);
+            }
+        },
+
+        awaitsPromise: function(promise, func) {
+            stop(1);
+
+            promise.then(function() {
+                try {
+                    func.apply(this, arguments);
+                } catch (e) {
+                    console.error(e);
+                    ok(false, 'Unexpected promise callback error');
+                }
+            }.bind(this)).catch(function(e) {
+                console.error(e);
+            }).finally(function() {
+                start();
+            });
         }
     };
 
@@ -277,52 +310,110 @@
 
     window.QUnitMouseMixin = {
         fakeMouseEvent: function(name, options) {
-            options = options || {};
-            var position = options.position || {};
-            var offset = options.offset || {};
+            var position = _.pop(options, 'position') || {};
+            var offset = _.pop(options, 'offset') || {};
+            var button = _.pop(options, 'button') || 1;     // Mouse button 1 (left), 2 (middle), 3 (right)
+            var target = _.pop(options, 'target');
 
-            return $.Event(name, {
-                which: options.which || 1,     // Mouse button 1 (left), 2 (middle), 3 (right)
-                pageX: position.left || 0,     // The mouse position relative to the left edge of the document.
-                pageY: position.top || 0,      // The mouse position relative to the top edge of the document.
-                offsetX: offset.left || 0,
-                offsetY: offset.top || 0,
-                button: options.which || 1,
-                originalEvent: {}
-            });
+            options = Object.assign({
+                bubbles: true,
+                cancelable: (name !== "mousemove"),
+                view: window,
+                detail: 0,
+                screenX: 0,
+                screenY: 0,
+                clientX: position.x,
+                clientY: position.y,
+                ctrlKey: false,
+                altKey: false,
+                shiftKey: false,
+                metaKey: false,
+                button: button,
+                which: button,
+                // relatedTarget: document.body.parentNode,
+                pageX: position.x || 0,     // The mouse position relative to the left edge of the document.
+                pageY: position.y || 0,      // The mouse position relative to the top edge of the document.
+                offsetX: offset.x || 0,
+                offsetY: offset.y || 0,
+                // originalEvent: {},
+                preventDefault: _.noop,
+                target: Object.isNone(target) ? $(target).get(0) : undefined
+            }, options || {});
+
+            return $.Event(name, options);
         },
 
-        fakeDragNDrop: function(source, target) {
-            var dragPosition = source.offset();
-            var dragOffset = {
-                left: source.width() / 2,
-                top: source.height() / 2
-            };
+        simulateDragNDrop: function(options) {
+            options = Object.assign({
+                dragStartDelay: 0,
+                revertDelay: 0
+            }, options || {});
 
-            var dropPosition = {
-                left: target.offset().left + 10,
-                top: target.offset().top + 10
-            };
+            var source = options.source || [];
+            var target = options.target || [];
 
-            // LEFT mouse button down !
-            source.trigger(
-                this.fakeMouseEvent('mousedown', {
-                    position: dragPosition,
-                    offset: dragOffset
-                })
-            );
+            if (source.length !== 1 || target.length !== 1) {
+                this.assert.ok(false, 'Must have only ONE drag source (got ${source}) and ONE target (got ${target})'.template({
+                    source: source.length,
+                    target: target.length
+                }));
 
-            source.trigger(
-                this.fakeMouseEvent('mousemove', {
-                    position: dropPosition
-                })
-            );
+                return;
+            }
 
-            target.trigger(
-                this.fakeMouseEvent('mouseup', {
-                    position: dropPosition
-                })
-            );
+            function center(elem, ratio) {
+                var offset = elem.offset();
+                var document = $(elem.get(0).ownerDocument);
+
+                return {
+                    x: Math.floor(offset.left + elem.outerWidth() / 2 - document.scrollLeft()),
+                    y: Math.floor(offset.top + elem.outerHeight() / 2 - document.scrollTop())
+                };
+            }
+
+            // Get center position from source and target element as initial mouse position.
+            var dragPosition = center(source);
+            var dropPosition = center(target);
+
+            // The drop position must be in the bottom-half or right-half part of the target.
+            // And upper-half or left-half if we move backward.
+            var down = dropPosition.x > dragPosition.x;
+            var right = dropPosition.y > dragPosition.y;
+
+            dropPosition.x += target.outerWidth() * 0.25 * (down ? 1 : -1);
+            dropPosition.y += target.outerHeight() * 0.25 * (right ? 1 : -1);
+
+            return new Promise(function(resolve, reject) {
+                // First : LEFT mouse button down !
+                source.trigger(
+                    this.fakeMouseEvent('mousedown', {
+                        position: dragPosition,
+                        which: 1
+                    })
+                );
+
+                // Second : Move to target drop zone
+                setTimeout(function() {
+                    source.trigger(
+                        this.fakeMouseEvent('mousemove', {
+                            position: dropPosition,
+                            which: 1
+                        })
+                    );
+
+                    // Third : Release mouse button on the drop zone
+                    source.trigger(
+                        this.fakeMouseEvent('mouseup', {
+                            position: dropPosition,
+                            which: 1
+                        })
+                    );
+
+                    setTimeout(function() {
+                        resolve.apply(this);
+                    }.bind(this), options.revertDelay);
+                }.bind(this), options.dragStartDelay);
+            }.bind(this));
         }
     };
 }(jQuery));
