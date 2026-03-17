@@ -588,10 +588,10 @@ def get_cloning_info(entity, user):
     try:
         cloner.check_permissions(entity=entity, user=user)
     except (PermissionDenied, ConflictError) as e:
-        info['allowed'] = False
+        # info['allowed'] = False
         info['error'] = e.args[0]
     else:
-        info['allowed'] = True
+        # info['allowed'] = True
         info['url'] = url
 
     return info
@@ -610,10 +610,10 @@ def get_deletion_info(entity, user):
     try:
         deletor.check_permissions(entity=entity, user=user)
     except (PermissionDenied, ConflictError) as e:
-        info['allowed'] = False
+        # info['allowed'] = False
         info['error'] = e.args[0]
     else:
-        info['allowed'] = True
+        # info['allowed'] = True
         info['url'] = url
 
     if deletor.is_definitive(entity=entity, user=user):
