@@ -38,8 +38,8 @@ from creme.reports.constants import (
     RFT_RELATED,
     RFT_RELATION,
 )
-from creme.reports.core.report import (
-    ExpandableLine,
+from creme.reports.core.report import ExpandableLine
+from creme.reports.core.report.hand import (
     ReportHand,
     ReportHandRegistry,
     RHAggregateCustomField,

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2025  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,9 +38,8 @@ from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity, CustomField, RelationType
 from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import FieldInfo
-
-from .. import constants
-from ..report_aggregation_registry import (
+from creme.reports import constants
+from creme.reports.report_aggregation_registry import (
     FieldAggregation,
     field_aggregation_registry,
 )
@@ -49,7 +48,8 @@ if TYPE_CHECKING:
     from django.db.models import Field, Model, QuerySet
     from django.db.models.aggregates import Aggregate
 
-    from ..models import Field as ReportField  # TODO: rename model ??
+    # TODO: rename model?
+    from creme.reports.models import Field as ReportField
 
 # TODO: use Window/Frame to compute aggregate ?
 
@@ -708,42 +708,3 @@ class RHRelated(ReportHand):
         return (
             ContentType.objects.get_for_model(self._related_field.related_model),
         )
-
-
-class ExpandableLine:
-    """Store a line of report values that can be expanded in several lines if
-    there are selected sub-reports.
-    """
-    def __init__(self, values: list[str | list]):
-        self._cvalues = values
-
-    def _visit(self, lines: list, current_line: list) -> None:
-        values: list[str | None] = []
-        values_to_build = None
-
-        for col_value in self._cvalues:
-            if isinstance(col_value, list):
-                values.append(None)
-                values_to_build = col_value
-            else:
-                values.append(col_value)
-
-        if None in current_line:
-            idx = current_line.index(None)
-            current_line[idx:idx + 1] = values
-        else:
-            current_line.extend(values)
-
-        if values_to_build is not None:
-            cls = type(self)
-
-            for future_node in values_to_build:
-                cls(future_node)._visit(lines, [*current_line])
-        else:
-            lines.append(current_line)
-
-    def get_lines(self) -> list[list[str]]:
-        lines: list[list[str]] = []
-        self._visit(lines, [])
-
-        return lines
