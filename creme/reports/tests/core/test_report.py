@@ -4,6 +4,7 @@ from functools import partial
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import aggregates
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -39,6 +40,10 @@ from creme.reports.constants import (
     RFT_RELATION,
 )
 from creme.reports.core.report import ExpandableLine
+from creme.reports.core.report.aggregation import (
+    FieldAggregation,
+    FieldAggregationRegistry,
+)
 from creme.reports.core.report.hand import (
     ReportHand,
     ReportHandRegistry,
@@ -769,3 +774,39 @@ class ExpandableLineTestCase(CremeTestCase):
             ],
             ExpandableLine(values=['a', 'b', [['c', 'd'], ['e', 'f']], 'g']).get_lines(),
         )
+
+
+class FieldAggregationRegistryTestCase(CremeTestCase):
+    def test_empty(self):
+        registry = FieldAggregationRegistry()
+        self.assertListEqual([], [*registry.aggregations])
+        self.assertIsNone(registry.get('avg'))
+
+    def test_register(self):
+        name1 = 'avg'
+        name2 = 'min'
+        agg1 = FieldAggregation(name1, aggregates.Avg, '{}__avg', 'Average')
+        agg2 = FieldAggregation(name2, aggregates.Avg, '{}__min', 'Minimum')
+        registry = FieldAggregationRegistry().register(agg1).register(agg2)
+
+        self.assertIs(agg1, registry.get(name1))
+        self.assertIs(agg2, registry.get(name2))
+        self.assertIsNone(registry.get('sum'))
+
+        self.assertCountEqual([agg1, agg2], [*registry.aggregations])
+
+    def test_is_regular_field_allowed(self):
+        is_allowed = FieldAggregationRegistry().is_regular_field_allowed
+        get_field = FakeOrganisation._meta.get_field
+        self.assertIs(is_allowed(get_field('capital')), True)
+        self.assertIs(is_allowed(get_field('name')), False)
+
+    def test_is_custom_field_allowed(self):
+        is_allowed = FieldAggregationRegistry().is_custom_field_allowed
+
+        create_cf = partial(CustomField.objects.create, content_type=FakeOrganisation)
+        cf1 = create_cf(name='Integer ID', field_type=CustomField.INT)
+        cf2 = create_cf(name='String ID',  field_type=CustomField.STR)
+
+        self.assertIs(is_allowed(cf1), True)
+        self.assertIs(is_allowed(cf2), False)

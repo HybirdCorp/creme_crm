@@ -54,10 +54,11 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
 from .. import constants, get_report_model
 from ..constants import EF_REPORTS
+# from ..report_aggregation_registry import field_aggregation_registry
+from ..core.report.aggregation import field_aggregation_registry
 # from ..core.report import RHRelated
 from ..core.report.hand import RHRelated
 from ..models import Field
-from ..report_aggregation_registry import field_aggregation_registry
 
 logger = logging.getLogger(__name__)
 Report = get_report_model()
