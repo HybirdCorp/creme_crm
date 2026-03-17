@@ -29,6 +29,7 @@
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.
+                - The ContentType for the old model 'ReportGraph' has been removed.
 
 
 == Version 2.8 ==
