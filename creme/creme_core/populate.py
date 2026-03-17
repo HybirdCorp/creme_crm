@@ -20,7 +20,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from . import (
@@ -233,7 +233,7 @@ class Populator(BasePopulator):
         self._populate_custom_entity_types()
         self._populate_currencies()
 
-        self._fix_roles()  # To be deleted in next major version
+        # self._fix_roles()  # To be deleted in next major version
 
         if settings.TESTS_ON:
             from .tests import fake_populate
@@ -246,23 +246,20 @@ class Populator(BasePopulator):
         self._populate_languages()
         self._populate_vats()
 
-    # NB: creme_registry cannot be used in classical migrations, so we are
-    #     obliged to fill the new field userRole.listable_ctypes here.
-    def _fix_roles(self):
-        from .registry import creme_registry
-
-        get_ct = ContentType.objects.get_for_model
-
-        for role in UserRole.objects.filter(extra_data__listablemigr__isnull=True):
-            allowed_apps = role.allowed_apps
-            role.listable_ctypes.set([
-                get_ct(model)
-                for model in creme_registry.iter_entity_models()
-                if model._meta.app_label in allowed_apps
-            ])
-            # TODO: remove this key in next major version
-            role.extra_data['listablemigr'] = True
-            role.save()
+    # def _fix_roles(self):
+    #     from .registry import creme_registry
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #
+    #     for role in UserRole.objects.filter(extra_data__listablemigr__isnull=True):
+    #         allowed_apps = role.allowed_apps
+    #         role.listable_ctypes.set([
+    #             get_ct(model)
+    #             for model in creme_registry.iter_entity_models()
+    #             if model._meta.app_label in allowed_apps
+    #         ])
+    #         role.extra_data['listablemigr'] = True
+    #         role.save()
 
     def _populate_root(self):
         login = constants.ROOT_USERNAME
