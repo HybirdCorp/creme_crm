@@ -27,6 +27,8 @@
                     - The function 'utils.round_to_2()' has been removed.
         # In 'utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
           (you should not write the internal attributes).
+        # In 'creme_core.templatetags.creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
+          do not inject the key "allowed" in their data anymore (the key "error" is enough).
         # Apps :
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
