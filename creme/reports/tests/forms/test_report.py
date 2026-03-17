@@ -19,6 +19,8 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.reports import constants
+# from creme.reports..report_aggregation_registry import FieldAggregation
+from creme.reports.core.report import FieldAggregation
 from creme.reports.forms.report import (
     ReportEntityCellCustomAggregate,
     ReportEntityCellRegularAggregate,
@@ -27,7 +29,6 @@ from creme.reports.forms.report import (
     ReportHandsField,
 )
 from creme.reports.models import FakeReportsDocument, FakeReportsFolder, Field
-from creme.reports.report_aggregation_registry import FieldAggregation
 from creme.reports.tests.base import (
     BaseReportsTestCase,
     Report,

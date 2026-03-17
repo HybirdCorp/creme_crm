@@ -39,10 +39,8 @@ from creme.creme_core.models import CremeEntity, CustomField, RelationType
 from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import FieldInfo
 from creme.reports import constants
-from creme.reports.report_aggregation_registry import (
-    FieldAggregation,
-    field_aggregation_registry,
-)
+
+from .aggregation import FieldAggregation, field_aggregation_registry
 
 if TYPE_CHECKING:
     from django.db.models import Field, Model, QuerySet

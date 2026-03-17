@@ -132,8 +132,8 @@ class ReportsConfig(CremeAppConfig):
     def register_reports_aggregations(self):
         from django.db.models import aggregates
 
-        from .report_aggregation_registry import FieldAggregation
-        from .report_aggregation_registry import (
+        from creme.reports.core.report import FieldAggregation
+        from creme.reports.core.report import (
             field_aggregation_registry as registry,
         )
 
