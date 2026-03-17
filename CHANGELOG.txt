@@ -25,6 +25,7 @@
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' has been removed.
+        # The class 'utils.meta.Order' is now "immutable" (you should not write the internal attribute '_asc').
         # Apps :
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').

@@ -395,27 +395,35 @@ class ModelFieldEnumerator:
 
 # OrderedField -----------------------------------------------------------------
 
-# TODO: make class immutable
 class Order:
     "Represents DB order: ASC or DESC."
-    __slots__ = ('asc', )
+    # __slots__ = ('asc', )
+    __slots__ = ('_asc', )
 
     def __init__(self, asc: bool = True):
         """Constructor.
 
          @param asc: Boolean. True==ASC / False==DESC .
         """
-        self.asc = asc
+        # self.asc = asc
+        self._asc = asc
 
     def __str__(self):
-        return 'ASC' if self.asc else 'DESC'
+        # return 'ASC' if self.asc else 'DESC'
+        return 'ASC' if self._asc else 'DESC'
 
     def __repr__(self):
-        return f'Order(asc={self.asc})'
+        # return f'Order(asc={self.asc})'
+        return f'Order(asc={self._asc})'
+
+    @property
+    def asc(self) -> bool:
+        return self._asc
 
     @property
     def desc(self) -> bool:
-        return not self.asc
+        # return not self.asc
+        return not self._asc
 
     @classmethod
     def from_string(cls, value: str, required: bool = True):
@@ -445,7 +453,8 @@ class Order:
         """Get the string prefix to use before field name in some places
         like order_by() methods.
         """
-        return '' if self.asc else '-'
+        # return '' if self.asc else '-'
+        return '' if self._asc else '-'
 
     # def reverse(self) -> None:
     #     warnings.warn(
@@ -456,7 +465,8 @@ class Order:
 
     def reversed(self) -> Order:
         "Get a reversed instance of Order."
-        return self.__class__(not self.asc)
+        # return self.__class__(not self.asc)
+        return self.__class__(not self._asc)
 
 
 class OrderedField:
