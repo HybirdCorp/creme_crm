@@ -481,13 +481,16 @@ class OrderedField:
         self._raw = ord_field_str
 
         if ord_field_str.startswith('-'):
-            self.field_name = ord_field_str[1:]
+            # self.field_name = ord_field_str[1:]
+            self._field_name = ord_field_str[1:]
             asc = False
         else:
-            self.field_name = ord_field_str
+            # self.field_name = ord_field_str
+            self._field_name = ord_field_str
             asc = True
 
-        self.order = Order(asc)
+        # self.order = Order(asc)
+        self._order = Order(asc)
 
     def __repr__(self):
         return f'OrderedField("{self._raw}")'
@@ -498,8 +501,17 @@ class OrderedField:
     def __eq__(self, other):
         return isinstance(other, type(self)) and self._raw == other._raw
 
+    @property
+    def field_name(self) -> str:
+        return self._field_name
+
+    @property
+    def order(self) -> Order:
+        return self._order
+
     def reversed(self):
         """Returns the _OrderedField instance corresponding to the same field
         but with a reversed order.
         """
-        return self.__class__(self.order.reversed().prefix + self.field_name)
+        # return self.__class__(self.order.reversed().prefix + self.field_name)
+        return self.__class__(self._order.reversed().prefix + self._field_name)
