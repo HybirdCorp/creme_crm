@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 import logging
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -113,9 +113,10 @@ class HeaderFilterDeletion(generic.CremeModelDeletion):
     model = HeaderFilter
 
     def check_instance_permissions(self, instance, user):
-        allowed, msg = instance.can_delete(user)
-        if not allowed:
-            raise PermissionDenied(msg)
+        # allowed, msg = instance.can_delete(user)
+        # if not allowed:
+        #     raise PermissionDenied(msg)
+        instance.check_deletion(user)
 
     def get_success_url(self):
         # TODO: callback_url?

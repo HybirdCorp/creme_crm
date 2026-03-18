@@ -123,10 +123,11 @@ def listview_header_filters(*,
 
     selected_hfilter = hfilters.selected
     assert selected_hfilter is not None
-    edition_allowed, edition_error = selected_hfilter.can_edit(user)
-    deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
+    # edition_allowed, edition_error = selected_hfilter.can_edit(user)
+    # deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
 
     return {
+        'user': user,
         'model': model,
 
         'global_header_filters': global_header_filters,
@@ -137,11 +138,10 @@ def listview_header_filters(*,
 
         'show_buttons': show_buttons,
 
-        'edition_allowed': edition_allowed,
-        'edition_error': edition_error,
-
-        'deletion_allowed': deletion_allowed,
-        'deletion_error': deletion_error,
+        # 'edition_allowed': edition_allowed,
+        # 'edition_error': edition_error,
+        # 'deletion_allowed': deletion_allowed,
+        # 'deletion_error': deletion_error,
     }
 
 

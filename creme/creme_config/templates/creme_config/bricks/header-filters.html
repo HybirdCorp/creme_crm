@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_widgets creme_bricks creme_header_filter %}
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-headerfilters-brick{% endblock %}
@@ -26,28 +26,57 @@
             <div class="headerfilter-config-all">
                 <span class="headerfilter-config-user-title">{% translate 'Views belonging to all users' %}</span>
                 <ul>
-                {% for hfilter in ctw.all_users_hfilters %}
+                  {% for hfilter in ctw.all_users_hfilters %}
                     <li>
                         {{hfilter}}
 {# TODO??                        {% brick_action id='add' url='creme_config__clone_hfilter'|url:hfilter.id %} #}
+{% comment %}
                         {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
                         {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
+{% endcomment %}
+                        {% with edition_error=hfilter|hfilter_edition_forbidden:user deletion_error=hfilter|hfilter_deletion_forbidden:user %}
+                         {% if edition_error %}
+                          {% brick_action id='edit' url='#' label=edition_error enabled=False %}
+                         {% else %}
+                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id %}
+                         {% endif %}
+                         {% if deletion_error %}
+                          {% brick_action id='delete' url='#' label=deletion_error enabled=False %}
+                         {% else %}
+                          {% brick_action id='delete' url=deletion_url __id=hfilter.id %}
+                         {% endif %}
+                        {% endwith %}
                     </li>
-                {% endfor %}
+                  {% endfor %}
                 </ul>
             </div>
             {% endif %}
-            {% for user, hfilters in ctw.owned_hfilters %}
+            {% for owner_label, hfilters in ctw.owned_hfilters %}
             <div class="headerfilter-config-owned">
-                <span class="headerfilter-config-user-title">{% blocktranslate %}Views belonging to {{user}}{% endblocktranslate %}</span>
+                <span class="headerfilter-config-user-title">{% blocktranslate with user=owner_label %}Views belonging to {{user}}{% endblocktranslate %}</span>
                 <ul>
-                {% for hfilter in hfilters %}
+                  {% for hfilter in hfilters %}
                     <li>
                         {{hfilter}}{% if hfilter.is_private %}&nbsp;<span class="headerfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+{% comment %}
                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
                          {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
+{% endcomment %}
+                        {# TODO: factorise #}
+                        {% with edition_error=hfilter|hfilter_edition_forbidden:user deletion_error=hfilter|hfilter_deletion_forbidden:user %}
+                         {% if edition_error %}
+                          {% brick_action id='edit' url='#' label=edition_error enabled=False %}
+                         {% else %}
+                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id %}
+                         {% endif %}
+                         {% if deletion_error %}
+                          {% brick_action id='delete' url='#' label=deletion_error enabled=False %}
+                         {% else %}
+                          {% brick_action id='delete' url=deletion_url __id=hfilter.id %}
+                         {% endif %}
+                        {% endwith %}
                     </li>
-                {% endfor %}
+                  {% endfor %}
                 </ul>
             </div>
             {% endfor %}

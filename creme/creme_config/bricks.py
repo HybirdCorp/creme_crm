@@ -1406,9 +1406,8 @@ class HeaderFiltersBrick(PaginatedBrick):
         for hfilter in core_models.HeaderFilter.objects.filter(
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
-            # TODO: templatetags instead ?
-            hfilter.edition_perm = hfilter.can_edit(user)[0]
-            hfilter.deletion_perm = hfilter.can_delete(user)[0]
+            # hfilter.edition_perm = hfilter.can_edit(user)[0]
+            # hfilter.deletion_perm = hfilter.can_delete(user)[0]
 
             user_id = hfilter.user_id
             hfilters[hfilter.entity_type_id][user_id].append(hfilter)
