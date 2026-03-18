@@ -19,13 +19,14 @@
 from __future__ import annotations
 
 import logging
-# import warnings
+import warnings
 from collections.abc import Iterable
 from copy import deepcopy
 from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.urls import reverse
@@ -33,6 +34,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from ..core.exceptions import ConflictError
 from ..setting_keys import global_filters_edition_key
 from . import CremeEntity, CremeUser
 from . import fields as core_fields
@@ -409,7 +411,9 @@ class HeaderFilterManager(models.Manager):
         )
 
 
-class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
+# TODO: CremeModel? MinionModel?
+# TODO: factorise better with EntityFilter?
+class HeaderFilter(models.Model):
     """View of list: set of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
@@ -461,44 +465,129 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return self.name
 
     def can_delete(self, user: CremeUser) -> tuple[bool, str]:
-        if not self.is_custom:
-            return False, gettext("This view can't be deleted")
+        # if not self.is_custom:
+        #     return False, gettext("This view can't be deleted")
+        #
+        # return self.can_edit(user)
+        warnings.warn(
+            'HeaderFilter.can_delete() is deprecated; use check_deletion() instead.',
+            DeprecationWarning,
+        )
 
-        return self.can_edit(user)
+        try:
+            self.check_deletion(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
 
-    # TODO: factorise with EntityFilter.can_edit ???
+        return True, 'OK'
+
     def can_edit(self, user: CremeUser) -> tuple[bool, str]:
-        if not user.has_perm(self.entity_type.app_label):
-            return False, gettext('You are not allowed to access to this app')
+        # if not user.has_perm(self.entity_type.app_label):
+        #     return False, gettext('You are not allowed to access to this app')
+        #
+        # if not self.user_id:  # All users allowed
+        #     from .setting_value import SettingValue
+        #
+        #     return (
+        #         (True, 'OK')
+        #         if user.is_superuser
+        #         or SettingValue.objects.get_4_key(global_filters_edition_key).value else
+        #         (False, gettext('Only superusers can edit/delete this view (no owner)'))
+        #     )
+        #
+        # if user.is_staff:
+        #     return True, 'OK'
+        #
+        # if user.is_superuser and not self.is_private:
+        #     return True, 'OK'
+        #
+        # if not self.user.is_team:
+        #     if self.user_id == user.id:
+        #         return True, 'OK'
+        # elif user.id in self.user.teammates:
+        #     return True, 'OK'
+        #
+        # return False, gettext('You are not allowed to edit/delete this view')
+        warnings.warn(
+            'HeaderFilter.can_edit() is deprecated; use check_edition() instead.',
+            DeprecationWarning,
+        )
 
-        if not self.user_id:  # All users allowed
+        try:
+            self.check_edition(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
+
+        return True, 'OK'
+
+    def can_view(self, user: CremeUser) -> tuple[bool, str]:
+        # return self.can_edit(user)
+        warnings.warn(
+            'HeaderFilter.can_view() is deprecated; use check_view() instead.',
+            DeprecationWarning,
+        )
+
+        try:
+            self.check_edition(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
+
+        return True, 'OK'
+
+    def check_edition(self, user: CremeUser) -> None:
+        """Check if the view can be edited.
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
+        if not user.has_perm(self.entity_type.app_label):
+            raise PermissionDenied(
+                gettext('You are not allowed to access to this app')
+            )
+        owner = self.user
+
+        if not owner:  # All users allowed
             from .setting_value import SettingValue
 
-            return (
-                (True, 'OK')
-                if user.is_superuser
-                or SettingValue.objects.get_4_key(global_filters_edition_key).value else
-                (False, gettext('Only superusers can edit/delete this view (no owner)'))
+            if (
+                user.is_superuser
+                or SettingValue.objects.get_4_key(global_filters_edition_key).value
+            ):
+                return
+
+            raise PermissionDenied(
+                gettext('Only superusers are allowed (the view has no owner)')
             )
 
         if user.is_staff:
-            return True, 'OK'
+            return
 
         if user.is_superuser and not self.is_private:
-            return True, 'OK'
+            return
 
-        if not self.user.is_team:
-            if self.user_id == user.id:
-                return True, 'OK'
-        elif user.id in self.user.teammates:
-            return True, 'OK'
+        if owner.is_team:
+            if user.id not in owner.teammates:
+                raise PermissionDenied(
+                    gettext('You do not belong to the owner-team of this private view')
+                )
+        elif owner != user:
+            raise PermissionDenied(gettext('You are not the owner of this private view'))
 
-        return False, gettext('You are not allowed to edit/delete this view')
+    def check_deletion(self, user: CremeUser) -> None:
+        """Check if the view can be deleted.
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
+        if not self.is_custom:
+            raise ConflictError(gettext('This is a system view'))
 
-    def can_view(self,
-                 user: CremeUser,
-                 ) -> tuple[bool, str]:
-        return self.can_edit(user)
+        self.check_edition(user=user)
+
+    def check_view(self, user: CremeUser) -> None:
+        """Check if the view can be viewed (i.e. in detail-view).
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
+        self.check_edition(user=user)
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         self.json_cells = [cell.to_dict(portable=True) for cell in cells]

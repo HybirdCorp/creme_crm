@@ -1,4 +1,4 @@
-{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
+{% load i18n creme_ctype creme_widgets creme_header_filter %}{% load blockjsondata from creme_core_tags %}
 <fieldset title="{% translate 'Show only the desired columns' %}">
     <div class="legend">
         {% translate 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
@@ -17,8 +17,8 @@
             </optgroup>
           {% endif %}
 
-          {% for user, hfilters in other_header_filters %}
-            <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
+          {% for owner, hfilters in other_header_filters %}
+            <optgroup label="{% blocktranslate %}Views of {{owner}}{% endblocktranslate %}">
               {% for hfilter in hfilters %}
                 <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
               {% endfor %}
@@ -35,6 +35,7 @@
       <a href="{% url 'creme_core__clone_hfilter' selected.id %}" data-action="redirect">
           {% widget_icon name='clone' label=_('Clone this view') size='listview-filter-action' %}
       </a>
+{% comment %}
       {% if edition_allowed %}
       <a href="{{selected.get_edit_absolute_url}}" data-action="redirect">
           {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
@@ -44,6 +45,20 @@
           {% widget_icon name='edit' label=edition_error size='listview-filter-action' %}
       </a>
       {% endif %}
+{% endcomment %}
+      {% with edition_error=selected|hfilter_edition_forbidden:user %}
+       {% if edition_error %}
+        <a href="#" data-action="redirect" class="is-disabled">
+            {% widget_icon name='edit' label=edition_error size='listview-filter-action' %}
+        </a>
+       {% else %}
+        <a href="{{selected.get_edit_absolute_url}}" data-action="redirect">
+            {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
+        </a>
+       {% endif %}
+      {% endwith %}
+
+{% comment %}
       {% if deletion_allowed %}
       <a href="{% url 'creme_core__delete_hfilter' %}" data-action="delete">
           {% widget_icon name='delete' label=_('Delete this custom view') size='listview-filter-action' %}
@@ -54,6 +69,20 @@
           {% widget_icon name='delete' label=edition_error size='listview-filter-action' %}
       </a>
       {% endif %}
+{% endcomment %}
+      {% with deletion_error=selected|hfilter_deletion_forbidden:user %}
+       {% if deletion_error %}
+         <a href="#" data-action="delete" class="is-disabled">
+             {% widget_icon name='delete' label=deletion_error size='listview-filter-action' %}
+         </a>
+        {% else %}
+         <a href="{% url 'creme_core__delete_hfilter' %}" data-action="delete">
+             {% widget_icon name='delete' label=_('Delete this custom view') size='listview-filter-action' %}
+             {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{selected.id}}"}}{% endblockjsondata %}
+         </a>
+       {% endif %}
+      {% endwith %}
+
      {% endwith %}
     {% endif %}
 </fieldset>

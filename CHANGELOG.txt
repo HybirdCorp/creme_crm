@@ -3,6 +3,12 @@
   Developers side :
   -----------------
 
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - In the class 'creme_core.models.HeaderFilter', the methods 'can_*()' are deprecated;
+              use the methods 'check_*()' instead.
+
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
@@ -27,13 +33,24 @@
                     - The function 'utils.round_to_2()' has been removed.
         # In 'utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
           (you should not write the internal attributes).
-        # In 'creme_core.templatetags.creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
-          do not inject the key "allowed" in their data anymore (the key "error" is enough).
+        # In 'creme_core.templatetags' :
+            - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
+              do not inject the key "allowed" in their data anymore (the key "error" is enough).
+            - In 'creme_listview', the tag {% listview_header_filters %} does not inject the
+              keys "edition_*" & "deletion_*" anymore.
         # Apps :
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.
                 - The ContentType for the old model 'ReportGraph' has been removed.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # Apps :
+            * Creme_config :
+                - The template context of 'bricks.HeaderFiltersBrick' has changed.
 
 
 == Version 2.8 ==
