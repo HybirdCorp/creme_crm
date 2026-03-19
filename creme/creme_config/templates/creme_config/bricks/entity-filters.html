@@ -28,8 +28,25 @@
                   {% for efilter in ctw.all_users_filters %}
                     <li data-efilter-id="{{efilter.id}}">
                         {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}
+{% comment %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
+{% endcomment %}
+                        {% with edition_error=efilter|efilter_edition_forbidden:user %}
+                         {% if edition_error %}
+                          {% brick_action id='edit' url='#' enabled=False help_text=edition_error %}
+                         {% else %}
+                          {% brick_action id='edit' url=edition_url_name|url:efilter.id %}
+                         {% endif %}
+                        {% endwith %}
+
+                        {% with deletion_error=efilter|efilter_deletion_forbidden:user %}
+                         {% if deletion_error %}
+                          {% brick_action id='delete' url='#' enabled=False help_text=deletion_error %}
+                         {% else %}
+                          {% brick_action id='delete' url=efilter.get_delete_absolute_url %}
+                         {% endif %}
+                        {% endwith %}
                     </li>
                   {% endfor %}
                 </ul>
@@ -42,8 +59,26 @@
                   {% for efilter in efilters %}
                     <li data-efilter-id="{{efilter.id}}">
                         {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+{% comment %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
+{% endcomment %}
+                        {# TODO: factorise #}
+                        {% with edition_error=efilter|efilter_edition_forbidden:user %}
+                         {% if edition_error %}
+                          {% brick_action id='edit' url='#' enabled=False help_text=edition_error %}
+                         {% else %}
+                          {% brick_action id='edit' url=edition_url_name|url:efilter.id %}
+                         {% endif %}
+                        {% endwith %}
+
+                        {% with deletion_error=efilter|efilter_deletion_forbidden:user %}
+                         {% if deletion_error %}
+                          {% brick_action id='delete' url='#' enabled=False help_text=deletion_error %}
+                         {% else %}
+                          {% brick_action id='delete' url=efilter.get_delete_absolute_url %}
+                         {% endif %}
+                        {% endwith %}
                     </li>
                   {% endfor %}
                 </ul>

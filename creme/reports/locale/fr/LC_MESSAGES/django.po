@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.8\n"
+"Project-Id-Version: Creme Reports 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-13 11:39+0100\n"
+"POT-Creation-Date: 2026-04-07 16:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -88,8 +88,8 @@ msgstr ""
 "App : Rapports"
 
 msgid ""
-"It seems the chart has been removed; please contact your administrator to fix "
-"the blocks configuration (chart UUID is \"{}\")"
+"It seems the chart has been removed; please contact your administrator to "
+"fix the blocks configuration (chart UUID is \"{}\")"
 msgstr ""
 "Il semble que le graphique ait été supprimé ; veuillez contacter votre "
 "administrateur pour corriger la configuration des blocs (l'UUID du graphique "
@@ -350,6 +350,10 @@ msgstr "ici"
 
 msgid "Filter"
 msgstr "Filtre"
+
+#, python-brace-format
+msgid "The filter cannot be changed. {error}"
+msgstr "Le filtre ne peut pas être changé. {error}"
 
 msgid "(preview not available)"
 msgstr "(aperçu non disponible)"

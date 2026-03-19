@@ -83,11 +83,19 @@ class ReportFilterOverrider(FieldOverrider):
             if len(instances) == 1:
                 field.initial = first.filter_id
 
-            self._uneditable_ids = uneditable_ids = {
-                report.id
-                for report in instances
-                if report.filter and not report.filter.can_view(user)[0]
-            }
+            # self._uneditable_ids = uneditable_ids = {
+            #     report.id
+            #     for report in instances
+            #     if report.filter and not report.filter.can_view(user)[0]
+            # }
+            self._uneditable_ids = uneditable_ids = set()
+            for report in instances:
+                efilter = report.filter
+                if efilter:
+                    try:
+                        efilter.check_view(user)
+                    except Exception:
+                        uneditable_ids.add(report.id)  # TODO: use error message
 
             if uneditable_ids:
                 length = len(uneditable_ids)

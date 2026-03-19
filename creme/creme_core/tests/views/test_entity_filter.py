@@ -4,6 +4,7 @@ from json import dumps as json_dump
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -753,8 +754,11 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
                 ),
             ],
         )
-        self.assertTrue(subfilter.can_view(user)[0])
-        self.assertFalse(subfilter.can_view(other_user)[0])
+        # self.assertTrue(subfilter.can_view(user)[0])
+        with self.assertNoException():
+            subfilter.check_view(user)
+        # self.assertFalse(subfilter.can_view(other_user)[0])
+        self.assertRaises(PermissionDenied, subfilter.check_view, other_user)
 
         name = 'Katsuragi'
         data = {

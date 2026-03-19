@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-19 12:20+0100\n"
+"POT-Creation-Date: 2026-04-07 16:36+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -691,6 +691,12 @@ msgstr "Oui"
 
 msgid "No"
 msgstr "Non"
+
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgid "Now"
+msgstr "Maintenant"
 
 #, python-brace-format
 msgid "The model «{key}» is invalid"
@@ -2522,34 +2528,26 @@ msgstr "Filtre de fiche"
 msgid "Filters of Entity"
 msgstr "Filtres de fiche"
 
-msgid "This filter can't be deleted (system filter)"
-msgstr "Ce filtre ne peut être supprimé (filtre système)"
-
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'avez pas la permission d'accéder à cette application"
-
-msgid "Only superusers can delete this filter (no owner)"
-msgstr ""
-"Seuls les super-utilisateurs peuvent supprimer ce filtre (pas de "
-"propriétaire)"
-
-msgid "You are not allowed to delete this filter (you are not the owner)"
-msgstr ""
-"Vous n'avez pas la permission de supprimer ce filtre (il ne vous appartient "
-"pas)"
 
 msgid "Only superusers can edit this filter (no owner)"
 msgstr ""
 "Seuls les super-utilisateurs peuvent modifier ce filtre (pas de propriétaire)"
 
-msgid "You are not allowed to edit this filter (you are not the owner)"
-msgstr ""
-"Vous n'avez pas la permission de modifier ce filtre (il ne vous appartient "
-"pas)"
+msgid "You do not belong to the owner-team of this private filter"
+msgstr "Vous ne faîtes pas partie de l'équipe qui possède ce filtre privé"
 
-msgid "You are not allowed to view this filter (you are not the owner)"
+msgid "You are not the owner of this private filter"
+msgstr "Vous ne possédez pas ce filtre privé"
+
+msgid "This filter can't be deleted (system filter)"
+msgstr "Ce filtre ne peut être supprimé (filtre système)"
+
+msgid "Only superusers can delete this filter (no owner)"
 msgstr ""
-"Vous n'avez pas la permission de voir ce filtre (il ne vous appartient pas)"
+"Seuls les super-utilisateurs peuvent supprimer ce filtre (pas de "
+"propriétaire)"
 
 msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
@@ -2718,8 +2716,7 @@ msgstr ""
 "propriétaire)"
 
 msgid "You do not belong to the owner-team of this private view"
-msgstr ""
-"Vous ne faîtes pas partie de l'équipe qui possède cette vue privée"
+msgstr "Vous ne faîtes pas partie de l'équipe qui possède cette vue privée"
 
 msgid "You are not the owner of this private view"
 msgstr "Vous ne possédez pas cette vue privée"
@@ -3263,12 +3260,12 @@ msgstr ""
 msgid "Edition is forbidden (%(error)s)"
 msgstr "La modification est interdite (%(error)s)"
 
-msgid "Do you really want to delete this filter?"
-msgstr "Voulez-vous vraiment supprimer ce filtre ?"
-
 #, python-format
 msgid "Deletion is forbidden (%(error)s)"
 msgstr "La suppression est interdite (%(error)s)"
+
+msgid "Do you really want to delete this filter?"
+msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 
 msgid "Type of filter"
 msgstr "Type de filtre"
@@ -3850,9 +3847,6 @@ msgstr "Minute"
 msgid "Clean"
 msgstr "Effacer"
 
-msgid "Now"
-msgstr "Maintenant"
-
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
@@ -4254,8 +4248,8 @@ msgstr "Cloner ce filtre"
 msgid "Edit this filter"
 msgstr "Modifier ce filtre"
 
-msgid "Delete this custom filter"
-msgstr "Supprimer ce filtre personnalisé"
+msgid "Delete this filter"
+msgstr "Supprimer ce filtre"
 
 msgid "Actions on the selected entities"
 msgstr "Actions sur les fiches sélectionnées"
@@ -4422,9 +4416,6 @@ msgstr "Dans le passé"
 
 msgid "Yesterday"
 msgstr "Hier"
-
-msgid "Today"
-msgstr "Aujourd'hui"
 
 msgid "Tomorrow"
 msgstr "Demain"
@@ -4931,6 +4922,21 @@ msgstr "Ajouter la relation «{predicate}» entre :"
 
 msgid "The source type is not compatible with this relationship type"
 msgstr "Le type de source n'est pas compatible avec ce type de relation"
+
+#~ msgid "You are not allowed to delete this filter (you are not the owner)"
+#~ msgstr ""
+#~ "Vous n'avez pas la permission de supprimer ce filtre (il ne vous "
+#~ "appartient pas)"
+
+#~ msgid "You are not allowed to edit this filter (you are not the owner)"
+#~ msgstr ""
+#~ "Vous n'avez pas la permission de modifier ce filtre (il ne vous "
+#~ "appartient pas)"
+
+#~ msgid "You are not allowed to view this filter (you are not the owner)"
+#~ msgstr ""
+#~ "Vous n'avez pas la permission de voir ce filtre (il ne vous appartient "
+#~ "pas)"
 
 #~ msgid "This view can't be deleted"
 #~ msgstr "Cette vue ne peut être supprimée"

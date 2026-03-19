@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_bricks creme_entity_filter creme_widgets %}
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-efilter-hat-bar{% endblock %}
@@ -14,6 +14,7 @@
          {% block buttons %}
 
           {% block edit_button %}
+{% comment %}
            {% if edition.url %}
             <div class='bar-action'>
               {% if edition.allowed %}
@@ -24,9 +25,25 @@
               {% endif %}
             </div>
            {% endif %}
+{% endcomment %}
+           {% with edition_url=object.get_edit_absolute_url %}
+            {% if edition_url %}
+             <div class='bar-action'>
+              {% with edition_error=object|efilter_edition_forbidden:user %}
+               {% if edition_error %}
+                 {% blocktranslate asvar edit_button_label with error=edition_error %}Edition is forbidden ({{error}}){% endblocktranslate %}
+                 {% brick_bar_button action='redirect' label=edit_button_label url='#' icon='edit' enabled=False %}
+               {% else %}
+                 {% brick_bar_button action='redirect' label=_('Edit') url=edition_url icon='edit' %}
+               {% endif %}
+              {% endwith %}
+             </div>
+            {% endif %}
+           {% endwith %}
           {% endblock %}
 
           {% block delete_button %}
+{% comment %}
            {% if deletion.url %}
             <div class='bar-action'>
               {% if deletion.allowed %}
@@ -37,6 +54,21 @@
               {% endif %}
             </div>
            {% endif %}
+{% endcomment %}
+           {% with deletion_url=object.get_delete_absolute_url %}
+            {% if deletion_url %}
+             <div class='bar-action'>
+              {% with deletion_error=object|efilter_deletion_forbidden:user %}
+               {% if deletion_error %}
+                 {% blocktranslate asvar del_button_label with error=deletion_error %}Deletion is forbidden ({{error}}){% endblocktranslate %}
+                 {% brick_bar_button action='redirect' label=del_button_label url='#' icon='delete' enabled=False %}
+               {% else %}
+                 {% brick_bar_button action='creme_core-detailview-delete' __callback_url='creme_config__efilters'|url label=_('Delete') url=deletion_url icon='delete' confirm=_('Do you really want to delete this filter?') %}
+               {% endif %}
+              {% endwith %}
+             </div>
+            {% endif %}
+           {% endwith %}
           {% endblock %}
 
          {% endblock buttons %}

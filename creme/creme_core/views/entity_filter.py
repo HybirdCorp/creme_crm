@@ -21,7 +21,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, PermissionDenied
+from django.core.exceptions import FieldDoesNotExist  # PermissionDenied
 from django.db.models import Field
 from django.db.models.deletion import PROTECT
 from django.http import Http404
@@ -80,10 +80,11 @@ class FilterMixin:
         return url
 
     def check_filter_permissions(self, filter_obj, user):
-        allowed, msg = filter_obj.can_edit(user)
-
-        if not allowed:
-            raise PermissionDenied(msg)
+        # allowed, msg = filter_obj.can_edit(user)
+        #
+        # if not allowed:
+        #     raise PermissionDenied(msg)
+        filter_obj.check_edition(user)
 
     @staticmethod
     def get_case_sensitivity_message():
@@ -136,38 +137,38 @@ class EntityFilterBarHatBrick(bricks.SimpleBrick):
     dependencies = [EntityFilter]
     template_name = 'creme_core/bricks/efilter-hat-bar.html'
 
-    def _get_edition_info(self, user, efilter):
-        edition_allowed, edition_error = efilter.can_edit(user)
-        edition_info = {
-            'url': efilter.get_edit_absolute_url(),
-            'allowed': edition_allowed,
-        }
-        if not edition_allowed:
-            edition_info['error'] = edition_error
-
-        return edition_info
-
-    def _get_deletion_info(self, user, efilter):
-        deletion_allowed, deletion_error = efilter.can_delete(user)
-        deletion_info = {
-            'url': efilter.get_delete_absolute_url(),
-            'allowed': deletion_allowed,
-        }
-        if not deletion_allowed:
-            deletion_info['error'] = deletion_error
-
-        return deletion_info
-
-    def get_template_context(self, context, **extra_kwargs):
-        efilter = context['object']
-        user = context['user']
-
-        return super().get_template_context(
-            context,
-            edition=self._get_edition_info(user=user, efilter=efilter),
-            deletion=self._get_deletion_info(user=user, efilter=efilter),
-            **extra_kwargs
-        )
+    # def _get_edition_info(self, user, efilter):
+    #     edition_allowed, edition_error = efilter.can_edit(user)
+    #     edition_info = {
+    #         'url': efilter.get_edit_absolute_url(),
+    #         'allowed': edition_allowed,
+    #     }
+    #     if not edition_allowed:
+    #         edition_info['error'] = edition_error
+    #
+    #     return edition_info
+    #
+    # def _get_deletion_info(self, user, efilter):
+    #     deletion_allowed, deletion_error = efilter.can_delete(user)
+    #     deletion_info = {
+    #         'url': efilter.get_delete_absolute_url(),
+    #         'allowed': deletion_allowed,
+    #     }
+    #     if not deletion_allowed:
+    #         deletion_info['error'] = deletion_error
+    #
+    #     return deletion_info
+    #
+    # def get_template_context(self, context, **extra_kwargs):
+    #     efilter = context['object']
+    #     user = context['user']
+    #
+    #     return super().get_template_context(
+    #         context,
+    #         edition=self._get_edition_info(user=user, efilter=efilter),
+    #         deletion=self._get_deletion_info(user=user, efilter=efilter),
+    #         **extra_kwargs
+    #     )
 
 
 class EntityFilterInfoBrick(bricks.SimpleBrick):
@@ -286,9 +287,10 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
         if instance.filter_type != self.efilter_type:
             raise ConflictError('You cannot view this type of filter thought this URL')
 
-        allowed, msg = instance.can_view(user)
-        if not allowed:
-            raise PermissionDenied(msg)
+        # allowed, msg = instance.can_view(user)
+        # if not allowed:
+        #     raise PermissionDenied(msg)
+        instance.check_view(user)
 
     def get_bricks(self):
         main_bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
@@ -331,9 +333,10 @@ class EntityFilterBricksReloading(BricksReloading):
         self.efilter = None
 
     def check_instance_permissions(self, instance, user):
-        allowed, msg = instance.can_view(user)
-        if not allowed:
-            raise PermissionDenied(msg)
+        # allowed, msg = instance.can_view(user)
+        # if not allowed:
+        #     raise PermissionDenied(msg)
+        instance.check_view(user)
 
     def get_bricks(self):
         bricks = []
@@ -494,9 +497,10 @@ class EntityFilterDeletion(EntityFilterMixin,
         if instance.filter_type != self.efilter_type:
             raise ConflictError('You cannot delete this type of filter thought this URL')
 
-        allowed, msg = instance.can_delete(user)
-        if not allowed:
-            raise PermissionDenied(msg)
+        # allowed, msg = instance.can_delete(user)
+        # if not allowed:
+        #     raise PermissionDenied(msg)
+        instance.check_deletion(user)
 
     def get_query_kwargs(self):
         return {'pk': self.kwargs[self.pk_url_kwarg]}
