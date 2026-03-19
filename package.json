@@ -30,7 +30,7 @@
         "karma-qunit": "4.2.1",
         "log4js": "^6.9",
         "minimist": "^1.2.8",
-        "qunit": "2.24.1",
+        "qunit": "^2.25",
         "set-value": "^4",
         "which": "^5",
         "yarn": "^1.22.22"
