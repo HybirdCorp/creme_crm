@@ -1,4 +1,4 @@
-{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
+{% load i18n creme_ctype creme_entity_filter creme_widgets %}{% load blockjsondata from creme_core_tags %}
 <fieldset title="{% translate 'Filter the lines of the table with conditions on fields, relationships…' %}">
     <div class="legend">
         {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
@@ -40,10 +40,36 @@
         {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
     </a>
     {% if selected != None %}
-    <a href="{% url 'creme_core__clone_efilter' selected.id %}" data-action="redirect">
-        {% widget_icon name='clone' label=_('Clone this filter') size='listview-filter-action' %}
-    </a>
+     <a href="{% url 'creme_core__clone_efilter' selected.id %}" data-action="redirect">
+         {% widget_icon name='clone' label=_('Clone this filter') size='listview-filter-action' %}
+     </a>
+
+     {% with edition_error=selected|efilter_edition_forbidden:user %}
+      {% if edition_error %}
+       <a href="#" data-action="redirect" class="is-disabled">
+           {% widget_icon name='edit' label=edition_error size='listview-filter-action' %}
+       </a>
+      {% else %}
+       <a href="{{selected.get_edit_absolute_url}}" data-action="redirect">
+           {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
+       </a>
+      {% endif %}
+     {% endwith %}
+
+     {% with deletion_error=selected|efilter_deletion_forbidden:user %}
+      {% if deletion_error %}
+       <a href="#" data-action="delete" class="is-disabled">
+           {% widget_icon name='delete' label=deletion_error size='listview-filter-action' %}
+       </a>
+      {% else %}
+       <a href="{{selected.get_delete_absolute_url}}" data-action="delete">
+           {% widget_icon name='delete' label=_('Delete this filter') size='listview-filter-action' %}
+       </a>
+      {% endif %}
+     {% endwith %}
     {% endif %}
+
+{% comment %}
     {% if edition_allowed %}
     <a href="{{selected.get_edit_absolute_url}}" data-action="redirect">
         {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
@@ -62,6 +88,7 @@
         {% widget_icon name='delete' label=deletion_error size='listview-filter-action' %}
     </a>
     {% endif %}
+{% endcomment %}
   {% endif %}
  {% endwith %}
 </fieldset>

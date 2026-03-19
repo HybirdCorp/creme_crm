@@ -6,8 +6,11 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - In the class 'creme_core.models.HeaderFilter', the methods 'can_*()' are deprecated;
-              use the methods 'check_*()' instead.
+            - In 'creme_core.models' :
+                - In the class 'EntityFilter', the methods 'can_*()' are deprecated;
+                  use the methods 'check_*()' instead.
+                - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
+                  use the methods 'check_*()' instead.
 
     Breaking changes :
     ------------------
@@ -36,8 +39,8 @@
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
               do not inject the key "allowed" in their data anymore (the key "error" is enough).
-            - In 'creme_listview', the tag {% listview_header_filters %} does not inject the
-              keys "edition_*" & "deletion_*" anymore.
+            - In 'creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
+              do not inject the keys "edition_*" & "deletion_*" anymore.
         # Apps :
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
@@ -48,9 +51,11 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
+        # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :
             * Creme_config :
-                - The template context of 'bricks.HeaderFiltersBrick' has changed.
+                - In 'bricks', the template contexts of 'EntityFiltersBrick' &
+                  'HeaderFiltersBrick' have changed.
 
 
 == Version 2.8 ==

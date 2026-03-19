@@ -27,7 +27,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.urls import reverse
+# from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -1319,7 +1319,11 @@ class EntityFiltersBrick(PaginatedBrick):
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
-        btc = self.get_template_context(context, ctypes)
+        btc = self.get_template_context(
+            context,
+            ctypes,
+            edition_url_name=self.edition_url_name,
+        )
 
         ctypes_wrappers = btc['page'].object_list
 
@@ -1331,10 +1335,9 @@ class EntityFiltersBrick(PaginatedBrick):
             filter_type=self.filter_type,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ).prefetch_related('user', 'user__teammates_set'):
-            # TODO: templatetags instead? (+ reason in tooltip if forbidden)
-            efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
-            efilter.edition_perm = efilter.can_edit(user)[0]
-            efilter.deletion_perm = efilter.can_delete(user)[0]
+            # efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
+            # efilter.edition_perm = efilter.can_edit(user)[0]
+            # efilter.deletion_perm = efilter.can_delete(user)[0]
 
             user_id = efilter.user_id
             efilters[efilter.entity_type_id][user_id].append(efilter)

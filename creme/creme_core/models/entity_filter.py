@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from itertools import zip_longest
@@ -27,6 +28,7 @@ from typing import TYPE_CHECKING, Literal, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.db.models.signals import pre_delete
@@ -41,6 +43,7 @@ from ..core.entity_filter import (
     EntityFilterRegistry,
     entity_filter_registries,
 )
+from ..core.exceptions import ConflictError
 from ..global_info import get_global_info
 from ..setting_keys import global_filters_edition_key
 from ..utils import update_model_instance
@@ -424,113 +427,258 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         """
         return all(c.handler.applicable_on_entity_base for c in self.get_conditions())
 
-    # TODO: can_*() methods:
+    def can_delete(self, user: CremeUser) -> tuple[bool, str]:
+        # assert not user.is_team
+        #
+        # if not self.is_custom:
+        #     return False, gettext("This filter can't be deleted (system filter)")
+        #
+        # if user.is_staff:
+        #     return True, 'OK'
+        #
+        # if user.is_superuser and not self.is_private:
+        #     return True, 'OK'
+        #
+        # if not user.has_perm(self.entity_type.app_label):
+        #     return False, gettext('You are not allowed to access to this app')
+        #
+        # if not self.user_id:  # All users allowed
+        #     from .setting_value import SettingValue
+        #
+        #     return (
+        #         (True, 'OK')
+        #         if user.is_superuser
+        #         or SettingValue.objects.get_4_key(global_filters_edition_key).value else
+        #         (False, gettext('Only superusers can delete this filter (no owner)'))
+        #     )
+        #
+        # if not self.user.is_team:
+        #     if self.user_id == user.id:
+        #         return True, 'OK'
+        # elif user.id in self.user.teammates:  # TODO: move in a User method ??
+        #     return True, 'OK'
+        #
+        # return (
+        #     False,
+        #     gettext('You are not allowed to delete this filter (you are not the owner)'),
+        # )
+        warnings.warn(
+            'EntityFilter.can_delete() is deprecated; use check_deletion() instead.',
+            DeprecationWarning,
+        )
+
+        try:
+            self.check_deletion(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
+
+        return True, 'OK'
+
+    def can_edit(self, user: CremeUser) -> tuple[bool, str]:
+        # assert not user.is_team
+        #
+        # if not user.has_perm(self.entity_type.app_label):
+        #     return False, gettext('You are not allowed to access to this app')
+        #
+        # if user.is_staff:
+        #     return True, 'OK'
+        #
+        # if user.is_superuser and not self.is_private:
+        #     return True, 'OK'
+        #
+        # if not self.user_id:  # All users allowed
+        #     from .setting_value import SettingValue
+        #
+        #     return (
+        #         (True, 'OK')
+        #         if user.is_superuser
+        #         or SettingValue.objects.get_4_key(global_filters_edition_key).value else
+        #         (False, gettext('Only superusers can edit this filter (no owner)'))
+        #     )
+        #
+        # if not self.user.is_team:
+        #     if self.user_id == user.id:
+        #         return True, 'OK'
+        # elif user.id in self.user.teammates:
+        #     return True, 'OK'
+        #
+        # return (
+        #     False, gettext('You are not allowed to edit this filter (you are not the owner)')
+        # )
+        warnings.warn(
+            'EntityFilter.can_edit() is deprecated; use check_edition() instead.',
+            DeprecationWarning,
+        )
+
+        try:
+            self.check_edition(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
+
+        return True, 'OK'
+
+    def can_view(self, user: CremeUser) -> tuple[bool, str]:
+        # assert not user.is_team
+        #
+        # if user.is_staff:
+        #     return True, 'OK'
+        #
+        # if not self.is_private:
+        #     return (
+        #         (True, 'OK')
+        #         if user.is_superuser or user.has_perm(self.entity_type.app_label) else
+        #         (False, gettext('You are not allowed to access to this app'))
+        #     )
+        #
+        # if not self.user.is_team:
+        #     if self.user_id == user.id:
+        #         return True, 'OK'
+        # elif user.id in self.user.teammates:
+        #     return True, 'OK'
+        #
+        # return (
+        #     False,
+        #     gettext(
+        #         'You are not allowed to view this filter '
+        #         '(you are not the owner)'
+        #     ),
+        # )
+        warnings.warn(
+            'EntityFilter.can_view() is deprecated; use check_view() instead.',
+            DeprecationWarning,
+        )
+
+        try:
+            self.check_view(user=user)
+        except (PermissionDenied, ConflictError) as e:
+            return False, str(e)
+
+        return True, 'OK'
+
+    # TODO: check_*() methods:
     #   - move to a registry?
     #   - factorise
-    def can_delete(self, user: CremeUser) -> tuple[bool, str]:
-        # if not self.is_custom:
-        #     return False, gettext("This filter can't be edited/deleted")
-        #
-        # return self.can_edit(user)
+    def check_edition(self, user: CremeUser) -> None:
+        """Check if the filter can be edited.
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
+        assert not user.is_team
+
+        if not user.has_perm(self.entity_type.app_label):
+            raise PermissionDenied(
+                gettext('You are not allowed to access to this app')
+            )
+
+        if user.is_staff:
+            return
+
+        if user.is_superuser and not self.is_private:
+            return
+
+        owner = self.user
+
+        if not owner:  # All users allowed
+            from .setting_value import SettingValue
+
+            if (
+                user.is_superuser
+                or SettingValue.objects.get_4_key(global_filters_edition_key).value
+            ):
+                return
+
+            raise PermissionDenied(
+                gettext('Only superusers can edit this filter (no owner)')
+            )
+
+        # TODO: move in a CremeUser method?
+        if owner.is_team:
+            if user.id not in owner.teammates:
+                raise PermissionDenied(gettext(
+                    'You do not belong to the owner-team of this private filter'
+                ))
+        elif owner != user:
+            raise PermissionDenied(gettext(
+                'You are not the owner of this private filter'
+            ))
+
+    def check_deletion(self, user: CremeUser) -> None:
+        """Check if the filter can be deleted.
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
         assert not user.is_team
 
         if not self.is_custom:
-            return False, gettext("This filter can't be deleted (system filter)")
+            raise ConflictError(gettext(
+                "This filter can't be deleted (system filter)"
+            ))
 
         if user.is_staff:
-            return True, 'OK'
+            return
 
         if user.is_superuser and not self.is_private:
-            return True, 'OK'
+            return
 
         if not user.has_perm(self.entity_type.app_label):
-            return False, gettext('You are not allowed to access to this app')
+            raise PermissionDenied(gettext(
+                'You are not allowed to access to this app'
+            ))
 
-        if not self.user_id:  # All users allowed
+        owner = self.user
+
+        if not owner:  # All users allowed
             from .setting_value import SettingValue
 
-            return (
-                (True, 'OK')
-                if user.is_superuser
-                or SettingValue.objects.get_4_key(global_filters_edition_key).value else
-                (False, gettext('Only superusers can delete this filter (no owner)'))
-            )
+            if (
+                user.is_superuser
+                or SettingValue.objects.get_4_key(global_filters_edition_key).value
+            ):
+                return
 
-        if not self.user.is_team:
-            if self.user_id == user.id:
-                return True, 'OK'
-        elif user.id in self.user.teammates:  # TODO: move in a User method ??
-            return True, 'OK'
+            raise PermissionDenied(gettext(
+                'Only superusers can delete this filter (no owner)'
+            ))
 
-        return (
-            False,
-            gettext('You are not allowed to delete this filter (you are not the owner)'),
-        )
+        if owner.is_team:
+            if user.id not in owner.teammates:
+                raise PermissionDenied(gettext(
+                    'You do not belong to the owner-team of this private filter'
+                ))
+        elif owner != user:
+            raise PermissionDenied(gettext(
+                'You are not the owner of this private filter'
+            ))
 
-    def can_edit(self, user: CremeUser) -> tuple[bool, str]:
-        assert not user.is_team
-
-        if not user.has_perm(self.entity_type.app_label):
-            return False, gettext('You are not allowed to access to this app')
-
-        if user.is_staff:
-            return True, 'OK'
-
-        if user.is_superuser and not self.is_private:
-            return True, 'OK'
-
-        if not self.user_id:  # All users allowed
-            from .setting_value import SettingValue
-
-            return (
-                (True, 'OK')
-                if user.is_superuser
-                or SettingValue.objects.get_4_key(global_filters_edition_key).value else
-                # (False, gettext('Only superusers can edit/delete this filter (no owner)'))
-                (False, gettext('Only superusers can edit this filter (no owner)'))
-            )
-
-        if not self.user.is_team:
-            if self.user_id == user.id:
-                return True, 'OK'
-        elif user.id in self.user.teammates:
-            return True, 'OK'
-
-        return (
-            False,
-            gettext(
-                # 'You are not allowed to view/edit/delete this filter '
-                'You are not allowed to edit this filter '
-                '(you are not the owner)'
-            )
-        )
-
-    def can_view(self, user: CremeUser) -> tuple[bool, str]:
+    def check_view(self, user: CremeUser) -> None:
+        """Check if the filter can be viewed (i.e. in detail-view).
+        @param user: Logged user.
+        @raise PermissionDenied, ConflictError
+        """
         assert not user.is_team
 
         if user.is_staff:
-            return True, 'OK'
+            return
 
         if not self.is_private:
-            return (
-                (True, 'OK')
-                if user.is_superuser or user.has_perm(self.entity_type.app_label) else
-                (False, gettext('You are not allowed to access to this app'))
-            )
+            if user.is_superuser or user.has_perm(self.entity_type.app_label):
+                return
 
-        if not self.user.is_team:
-            if self.user_id == user.id:
-                return True, 'OK'
-        elif user.id in self.user.teammates:
-            return True, 'OK'
+            raise PermissionDenied(gettext(
+                'You are not allowed to access to this app'
+            ))
 
-        return (
-            False,
-            gettext(
-                'You are not allowed to view this filter '
-                '(you are not the owner)'
-            ),
-        )
+        owner = self.user
+
+        if owner.is_team:
+            if user.id not in owner.teammates:
+                raise PermissionDenied(gettext(
+                    'You do not belong to the owner-team of this private filter'
+                ))
+        elif owner != user:
+            raise PermissionDenied(gettext(
+                'You are not the owner of this private filter'
+            ))
 
     def check_cycle(self, conditions: Iterable[EntityFilterCondition]) -> None:
         assert self.id

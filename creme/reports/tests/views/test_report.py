@@ -495,16 +495,31 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         ef_pub = create_efilter(
             'test-public_filter', 'Public filter', FakeContact, is_custom=True,
         )
-        response = self.client.post(
-            report.get_edit_absolute_url(),
+
+        url = report.get_edit_absolute_url()
+        get_response = self.assertGET200(url)
+        filter_key = 'cform_extra-reports_filter'
+        with self.assertNoException():
+            efilter_f = get_response.context['form'].fields[filter_key]
+
+        self.assertIsInstance(efilter_f, ReadonlyMessageField)
+        self.assertEqual(
+            _('The filter cannot be changed. {error}').format(
+                error=_('You are not the owner of this private filter'),
+            ),
+            efilter_f.initial,
+        )
+
+        # POST ---
+        self.assertNoFormError(self.client.post(
+            url,
             follow=True,
             data={
                 'user': user.pk,
                 'name': 'Report edited',
-                'cform_extra-reports_filter': ef_pub.id,  # Should not be used
+                filter_key: ef_pub.id,  # Should not be used
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertEqual(ef_priv, self.refresh(report).filter)
 
     def test_edition__reset_filter(self):

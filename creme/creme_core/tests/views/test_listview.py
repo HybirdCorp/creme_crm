@@ -9,6 +9,7 @@ from xml.etree.ElementTree import tostring as html_tostring
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -1230,7 +1231,8 @@ class ListViewTestCase(CremeTestCase):
                 operator=operators.ICONTAINS, values=['Dragons'],
             ),
         ])
-        self.assertFalse(forbidden_efilter.can_view(user)[0])
+        # self.assertFalse(forbidden_efilter.can_view(user)[0])
+        self.assertRaises(PermissionDenied, forbidden_efilter.check_view, user)
 
         response2 = self.assertPOST200(self.url, data={'filter': forbidden_efilter.id})
 

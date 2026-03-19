@@ -102,12 +102,21 @@ class FilterSubCell(CustomFormExtraSubCell):
         field_name = self.filter_field_name
         efilter = getattr(instance, field_name)
 
-        if efilter and not efilter.can_view(user)[0]:
-            return core_fields.ReadonlyMessageField(
-                label=self.verbose_name,
-                initial=_('The filter cannot be changed because it is private.'),
-                return_value=self.not_editable_flag,
-            )
+        # if efilter and not efilter.can_view(user)[0]:
+        #     return core_fields.ReadonlyMessageField(
+        #         label=self.verbose_name,
+        #         initial=_('The filter cannot be changed because it is private.'),
+        #         return_value=self.not_editable_flag,
+        #     )
+        if efilter:
+            try:
+                efilter.check_view(user)
+            except Exception as e:
+                return core_fields.ReadonlyMessageField(
+                    label=self.verbose_name,
+                    initial=_('The filter cannot be changed. {error}').format(error=e),
+                    return_value=self.not_editable_flag,
+                )
 
         mfield = type(instance)._meta.get_field(field_name)
 

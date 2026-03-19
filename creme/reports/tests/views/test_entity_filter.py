@@ -764,7 +764,8 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             filter_type=EF_REPORTS,
             is_custom=False,
         )
-        self.assertPOST403(efilter.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(efilter.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(efilter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(efilter)
 
     def test_deletion__no_core_perms(self):

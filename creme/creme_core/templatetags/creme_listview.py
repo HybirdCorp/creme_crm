@@ -78,13 +78,13 @@ def listview_entity_filters(*,
                             ):
     global_efilters, my_efilters, other_efilters = _group_filters(user=user, filters=efilters)
 
-    selected_efilter = efilters.selected
-    if selected_efilter:
-        edition_allowed, edition_error = selected_efilter.can_edit(user)
-        deletion_allowed, deletion_error = selected_efilter.can_delete(user)
-    else:
-        edition_allowed = deletion_allowed = False
-        edition_error = deletion_error = ''
+    # selected_efilter = efilters.selected
+    # if selected_efilter:
+    #     edition_allowed, edition_error = selected_efilter.can_edit(user)
+    #     deletion_allowed, deletion_error = selected_efilter.can_delete(user)
+    # else:
+    #     edition_allowed = deletion_allowed = False
+    #     edition_error = deletion_error = ''
 
     return {
         'user': user,
@@ -94,15 +94,15 @@ def listview_entity_filters(*,
         'my_efilters': my_efilters,
         'other_efilters': other_efilters,
 
-        'selected': selected_efilter,
+        # 'selected': selected_efilter,
+        'selected': efilters.selected,
 
         'show_buttons': show_buttons,
 
-        'edition_allowed': edition_allowed,
-        'edition_error': edition_error,
-
-        'deletion_allowed': deletion_allowed,
-        'deletion_error': deletion_error,
+        # 'edition_allowed': edition_allowed,
+        # 'edition_error': edition_error,
+        # 'deletion_allowed': deletion_allowed,
+        # 'deletion_error': deletion_error,
     }
 
 

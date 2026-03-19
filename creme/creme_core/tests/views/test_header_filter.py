@@ -866,7 +866,8 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=False, cells=[],
         ).get_or_create()[0]
-        self.assertPOST403(self.DELETE_URL, data={'id': hf.id})
+        # self.assertPOST403(self.DELETE_URL, data={'id': hf.id})
+        self.assertPOST409(self.DELETE_URL, data={'id': hf.id})
         self.assertStillExists(hf)
 
     def test_delete__not_owner(self):
