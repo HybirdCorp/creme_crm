@@ -133,7 +133,7 @@ QUnit.parametrize('parametrize (real, combine)', [
     assert.equal(arg3, true);
 });
 
-QUnit.parametrize('parametrizeIf', [
+QUnit.parametrize('skipParametrizeIf', [
     [true, []],
     [function() { return true; }, []],
     [false, ['myskiptest-a', 'myskiptest-b']],
@@ -143,7 +143,7 @@ QUnit.parametrize('parametrizeIf', [
     var faker = new FunctionFaker({instance: QUnit, method: 'test'});
 
     faker.with(function() {
-        QUnit.parametrizeIf(condition, 'myskiptest', ['a', 'b'], callable);
+        QUnit.skipParametrizeIf(condition, 'myskiptest', ['a', 'b'], callable);
     });
 
     assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), expected);
