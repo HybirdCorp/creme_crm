@@ -2,8 +2,131 @@
 
 QUnit.module("creme.billing", new QUnitMixin(QUnitEventMixin,
                                              QUnitAjaxMixin,
-                                             QUnitDialogMixin, {
-    beforeEach: function() {}
+                                             QUnitDialogMixin,
+                                             QUnitMouseMixin,
+                                             QUnitBrickMixin, {
+    createBillingLinesBrick: function(options) {
+        var html = this.createBillingLinesBrickHtml(options);
+
+        var element = $(html).appendTo(this.qunitFixture());
+        var widget = creme.widget.create(element);
+        var brick = widget.brick();
+
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
+
+        return widget;
+    },
+
+    createBillingLinesBrickHtml: function(options) {
+        options = $.extend({
+            id: 'orderlines-test',
+            title: 'Test it',
+            header: '',
+            classes: ['billing-lines-brick'],
+            deps: [],
+            attributes: {
+                "data-type-currency": "€",
+                "data-type-global-discount": 0,
+                "data-drag-start-delay": 0,
+                "data-revert-delay": 0
+            }
+        }, options || {});
+
+        var lines = _.pop(options, 'lines') || [];
+
+        options['content'] = '<div class="bline-form ui-sortable">${form}${lines}</div>'.template({
+            lines: lines.map(this.createOrderLineHtml.bind(this)).join(''),
+            form: (
+                '<input type="hidden" name="csrfmiddlewaretoken">' +
+                '<input type="hidden" name="line_formset-TOTAL_FORMS" value="${count}" id="id_line_formset-TOTAL_FORMS" initial="${count}">' +
+                '<input type="hidden" name="line_formset-INITIAL_FORMS" value="${count}" id="id_line_formset-INITIAL_FORMS" initial="${count}">' +
+                '<input type="hidden" name="line_formset-MIN_NUM_FORMS" value="0" id="id_line_formset-MIN_NUM_FORMS" initial="0">' +
+                '<input type="hidden" name="line_formset-MAX_NUM_FORMS" value="1000" id="id_line_formset-MAX_NUM_FORMS" initial="1000">'
+            ).template({
+                count: lines.length
+            })
+        });
+
+        return this.createBrickHtml(options);
+    },
+
+    createOrderLineHtml: function(options) {
+        options = Object.assign({
+            index: 0,
+            discountUnitOptions: [
+                {value: 1, name: 'percent'},
+                {value: 2, name: 'line amount'},
+                {value: 3, name: 'item amount'}
+            ],
+            vatOptions: [
+                {value: '', name: '-----'},
+                {value: 1, name: '0.00 %'},
+                {value: 3, name: '5.50 %'},
+                {value: 4, name: '7.00 %'},
+                {value: 2, name: '13.60 %'},
+                {value: 6, name: '20.00 %'},
+                {value: 5, name: '21.20 %'}
+            ],
+            enabled: false,
+            unitPrice: 1,
+            quantity: 1,
+            deleted: false,
+            vat: 6,
+            totalNoVat: 1,
+            totalDiscount: 0,
+            total: 1,
+            discountUnit: 1,
+            discountValue: 0,
+            reorderUrl: 'mock/brick/reorder',
+            // HACK : The drag placeholder has a min height of 140px. If the lines are smaller, the
+            // dragndrop simulation will (obviously) not work.
+            minHeight: "140px"
+        }, options || {});
+
+        options['enabledChecked'] = options.enabled ? ' checked' : '';
+        options['deletedChecked'] = options.deleted ? ' checked' : '';
+        options['order'] = options.order || options.index;
+
+        function renderOptions(items, selected) {
+            return items.map(function(item) {
+                '<option value="${value}" ${selected}>${name}</option>'.template({
+                    value: item.value,
+                    selected: item.value === selected ? 'selected="selected"' : '',
+                    name: item.name
+                });
+            }).join('');
+        }
+
+        options['discountUnitOptionsHtml'] = renderOptions(options.discountUnitOptions, options.discountUnit);
+        options['vatOptionsHtml'] = renderOptions(options.vatOptions, options.vat);
+
+        return (
+            '<div class="bline-container bline-sortable" data-bline-order="${order}" data-bline-reorder-url="${reorderUrl}" style="min-height: ${minHeight}">' +
+                '<div class="bline-buttons" id="line_content_${index}">' +
+                    '<span class="bline-counter">${index}</span>' +
+                    '<input type="checkbox" name="form-${index}-DELETE" id="id_form-${index}-DELETE" ${deletedChecked}/>' +
+                '</div>' +
+                '<div class="bline-hidden-fields"></div>' +
+                '<div class="bline-fields restorable_${index}">' +
+                    '<table class="linetable"><tbody><tr class="content" data-row-index="0">' +
+                        '<td>' +
+                            '<input type="checkbox" name="form-${index}-enabled" id="id_form-0-enabled" ${enabledChecked}/>' +
+                            '<input name="form-${index}-unit_price" id="id_form-${index}-unit_price" class="bound" validator="PositiveDecimal" value="${unitPrice}"/>' +
+                            '<input name="form-${index}-quantity" id="id_form-${index}-quantity" class="bound" validator="Decimal" value="${quantity}" />' +
+                            '<select name="form-${index}-discount_unit" class="bound">${discountUnitOptionsHtml}</select>' +
+                            '<input name="form-${index}-discount" class="bound" value="${discountValue}" />' +
+                            '<select name="form-${index}-vat_value" class="bound">${vatOptionsHtml}</select>' +
+                        '</td>' +
+                        '<td class="bline-total-no-tax" name="exclusive_of_tax">${totalNoVat}</td>' +
+                        '<td class="bline-total-discounted" name="discounted" data-value="${totalDiscount}">${totalDiscount}</td>' +
+                        '<td class="bline-total" name="inclusive_of_tax" data-value="${total}">${total}</td>' +
+                    '</td></tr></table>' +
+                '</div>' +
+                '<div class="bline-reorder-anchor ui-sortable-handle">#</div>' +
+            '</div>'
+        ).template(options);
+    }
 }));
 
 QUnit.test('creme.billing.checkPositiveDecimal', function(assert) {
@@ -491,6 +614,250 @@ QUnit.test('creme.billing.initializeForm (initial)', function(assert) {
     assert.equal('1', element.find('[name="form-0-discount_unit"]').attr('initial'));
     assert.equal('2', element.find('[name="form-0-discount"]').attr('initial'));
     assert.equal('6', element.find('[name="form-0-vat_value"]').attr('initial'));
+});
+
+
+QUnit.test('creme.billing.BillingLinesBrick (reorder simple swap)', function(assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, order: 4},
+            {index: 1, order: 6}
+        ]
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order="4"] .bline-reorder-anchor');
+    var target = element.find('[data-bline-order="6"]');
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual([
+                ['POST', {target: 6}]
+            ], this.mockBackendUrlCalls('mock/brick/reorder'));
+            assert.deepEqual([
+                ['GET', {"brick_id": ["orderlines-test"], "extra_data": "{}"}]
+            ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+            this.assertClosedDialog();
+        }
+    );
+});
+
+QUnit.test('creme.billing.BillingLinesBrick (reorder simple swap, backward)', function(assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, order: 4},
+            {index: 1, order: 6}
+        ]
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order="6"] .bline-reorder-anchor');
+    var target = element.find('[data-bline-order="4"]');
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual([
+                ['POST', {target: 4}]
+            ], this.mockBackendUrlCalls('mock/brick/reorder'));
+            assert.deepEqual([
+                ['GET', {"brick_id": ["orderlines-test"], "extra_data": "{}"}]
+            ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+            this.assertClosedDialog();
+        }
+    );
+});
+
+QUnit.skipParametrizeIf(!QUnit.browsers.isHeadless() || QUnit.browsers.isChrome(), 'creme.billing.BillingLinesBrick (reorder usecases)', [
+    [0, 2, [['POST', {target: 6}]]],  // 1
+    [2, 0, [['POST', {target: 4}]]],  // 2
+    [0, 3, [['POST', {target: 7}]]],  // 3
+    [3, 0, [['POST', {target: 4}]]],  // 4
+    [1, 2, [['POST', {target: 6}]]]   // 5
+], function(from, to, expected, assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, order: 4},
+            {index: 1, order: 5},
+            {index: 2, order: 6},
+            {index: 4, order: 7}
+        ],
+        minHeight: "124px"
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order]').eq(from).find('.bline-reorder-anchor');
+    var target = element.find('[data-bline-order]').eq(to).find('.bline-reorder-anchor');
+
+    // HACK : move the fixture element to (0,0) or the simulation will not work for an unknown reason.
+    this.qunitFixture().css({top: 0, left: 0});
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual(expected, this.mockBackendUrlCalls('mock/brick/reorder'));
+
+            if (expected.length > 0) {
+                assert.deepEqual([
+                    ['GET', {"brick_id": ["orderlines-test"], "extra_data": "{}"}]
+                ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+            } else {
+                assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+            }
+
+            this.assertClosedDialog();
+        }
+    );
+});
+
+
+QUnit.skipParametrizeIf(!QUnit.browsers.isHeadless() || QUnit.browsers.isChrome(), 'creme.bricks.BillingLinesBrick (reorderable usecases, holes & repeats & other items)', [
+    [0, 2, [['POST', {target: 6}]]],  // 1
+    [2, 0, [['POST', {target: 3}]]],  // 2
+    [0, 4, [['POST', {target: 7}]]],  // 3
+    [4, 0, [['POST', {target: 3}]]],  // 4
+    [1, 2, []],                       // 5
+    [2, 2, []]                        // 6
+], function(from, to, expected, assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, order: 3},
+            {index: 1, order: 6},
+            {index: 2, order: 6},
+            {index: 3, order: "NaN", reorderUrl: ''},
+            {index: 4, order: 7}
+        ],
+        minHeight: "124px"
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order]').eq(from).find('.bline-reorder-anchor');
+    var target = element.find('[data-bline-order]').eq(to).find('.bline-reorder-anchor');
+
+    // HACK : move the fixture element to (0,0) or the simulation will not work for an unknown reason.
+    this.qunitFixture().css({top: 0, left: 0});
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual(expected, this.mockBackendUrlCalls('mock/brick/reorder'));
+
+            if (expected.length > 0) {
+                assert.deepEqual([
+                    ['GET', {"brick_id": ["orderlines-test"], "extra_data": "{}"}]
+                ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+            } else {
+                assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+            }
+
+            this.assertClosedDialog();
+        }
+    );
+});
+
+
+QUnit.test('creme.billing.BillingLinesBrick (reorder, invalid query)', function(assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, reorderUrl: 'mock/brick/reorder/fail'},
+            {index: 1, reorderUrl: 'mock/brick/reorder/fail'}
+        ]
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order="0"] .bline-reorder-anchor');
+    var target = element.find('[data-bline-order="1"]');
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual([
+                ['POST', {target: 1}]
+            ], this.mockBackendUrlCalls('mock/brick/reorder/fail'));
+            assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+            this.assertClosedDialog();
+        }
+    );
+});
+
+QUnit.test('creme.bricks.BillingLinesBrick (reorderable, invalid data)', function(assert) {
+    var widget = this.createBillingLinesBrick({
+        lines: [
+            {index: 0, order: "0", reorderUrl: ''},
+            {index: 1, order: "NaN", reorderUrl: 'mock/brick/reorder'}
+        ]
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    var source = element.find('[data-bline-order="0"] .bline-reorder-anchor');
+    var target = element.find('[data-bline-order="NaN"]');
+
+    this.awaits(
+        this.simulateDragNDrop({
+            source: source,
+            target: target,
+            dragStartDelay: 250,
+            revertDelay: 250
+        }),
+        function() {
+            assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/reorder'));
+            assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+            this.assertClosedDialog();
+        }
+    );
 });
 
 }(jQuery));
