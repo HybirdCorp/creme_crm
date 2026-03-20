@@ -12,6 +12,8 @@
         * Billing :
             - In the view to create a true Product/Service from a line, the form-field
               "category" was not required; selecting nothing caused a crash.
+            - Fix drag-n-drop reordering in billing : moving a line at the first position didn't work
+              every time. 
 
   Developers side :
   ------------
