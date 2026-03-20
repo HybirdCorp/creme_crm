@@ -37,9 +37,9 @@
                         return [id, content || MOCK_BRICK_CONTENT.template({id: id})];
                     });
 */
-                    var brickContents = (data.brick_id || []).map(function(brick_type_id) {
-                        var content = self._brickReloadContent['brick-' + brick_type_id];
-                        return [brick_type_id, content || MOCK_BRICK_CONTENT.template({id: brick_type_id})];
+                    var brickContents = (data.brick_id || []).map(function(typeId) {
+                        var content = self._brickReloadContent['brick-' + typeId];
+                        return [typeId, content || MOCK_BRICK_CONTENT.template({id: typeId})];
                     });
 
                     return backend.responseJSON(200, brickContents);

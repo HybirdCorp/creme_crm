@@ -346,11 +346,13 @@
         simulateDragNDrop: function(options) {
             options = Object.assign({
                 dragStartDelay: 0,
-                revertDelay: 0
+                revertDelay: 0,
+                dropZoneRatio: 0.25
             }, options || {});
 
             var source = options.source || [];
             var target = options.target || [];
+            var dropZoneRatio = _.clamp(options.dropZoneRatio || 0, 0, 1);
 
             if (source.length !== 1 || target.length !== 1) {
                 this.assert.ok(false, 'Must have only ONE drag source (got ${source}) and ONE target (got ${target})'.template({
@@ -361,7 +363,7 @@
                 return;
             }
 
-            function center(elem, ratio) {
+            function center(elem) {
                 var offset = elem.offset();
                 var document = $(elem.get(0).ownerDocument);
 
@@ -377,11 +379,15 @@
 
             // The drop position must be in the bottom-half or right-half part of the target.
             // And upper-half or left-half if we move backward.
-            var down = dropPosition.x > dragPosition.x;
-            var right = dropPosition.y > dragPosition.y;
+            var move = {
+                x: Math.floor(dropPosition.x - dragPosition.x),
+                y: Math.floor(dropPosition.y - dragPosition.y)
+            };
 
-            dropPosition.x += target.outerWidth() * 0.25 * (down ? 1 : -1);
-            dropPosition.y += target.outerHeight() * 0.25 * (right ? 1 : -1);
+            dropPosition.x += Math.round(target.outerWidth() * (move.x > 0 ? dropZoneRatio : (move.x < 0 ? -dropZoneRatio : 0)));
+            dropPosition.y += Math.round(target.outerHeight() * (move.y > 0 ? dropZoneRatio : (move.y < 0 ? -dropZoneRatio : 0)));
+
+            // console.log("drag:", dragPosition, "drop:", dropPosition, "move:", move);
 
             return new Promise(function(resolve, reject) {
                 // First : LEFT mouse button down !
