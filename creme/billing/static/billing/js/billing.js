@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2024  Hybird
+    Copyright (C) 2009-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -331,18 +331,18 @@ creme.billing.checkModifiedOnUnload = function() {
 };
 
 creme.billing.initLinesBrick = function(brick) {
-    var brick_element = brick._element;
-    var currency        = brick_element.attr('data-type-currency');
-    var global_discount = parseFloat(brick_element.attr('data-type-global-discount'));
+    var element = brick._element;
+    var currency = element.attr('data-type-currency');
+    var discount = parseFloat(element.attr('data-type-global-discount'));
 
-    creme.billing.initializeForms(brick_element);
+    creme.billing.initializeForms(element);
 
-    $('.linetable', brick_element).each(function(index) {
-        creme.billing.initBoundedFields($(this), currency, global_discount);
+    $('.linetable', element).each(function(index) {
+        creme.billing.initBoundedFields($(this), currency, discount);
     });
 
     // TODO: hack because CSS class bound is not added to joe's widget
-    $('select[name*="vat_value"]', brick_element).each(function(index) {
+    $('select[name*="vat_value"]', element).each(function(index) {
         $(this).addClass('bound line-vat');
     });
 
@@ -395,15 +395,26 @@ function setupLineSort(brick) {
         revert:  200,
         delay:   200,
         stop:  function(event, ui) {
-            var item = ui.item;
-            var next = item.index('.bline-sortable') + 1;
-            var prev = parseInt(item.data('bline-order'));
-            var url = item.data('bline-reorder-url');
+            var url  = ui.item.data('blineReorderUrl');
+            var prev = parseInt(ui.item.data('blineOrder'));
+            var before = parseInt(ui.item.prev('[data-bline-order]').data('blineOrder'));
+            var after = parseInt(ui.item.next('[data-bline-order]').data('blineOrder'));
 
-            if (next !== prev) {
-                brick.action('update', url, {}, {target: next})
-                     .on('fail', function() { brick.refresh(); })
-                     .start();
+            // Moving backward with the actual mechanism of reordering on server side ends
+            // with a strange behaviour : the item is moved BEFORE the target instead of immediately after.
+            // So we get the element after the drop position in this case.
+            var next = (isNaN(before) || before < prev) ? after : before;
+
+            if (!url || isNaN(next)) {
+                lines.sortable('cancel');
+            } else if (next !== prev) {
+                brick.action('update', url, {
+                    warnOnFail: false
+                }, {
+                    target: next
+                }).onFail(function() {
+                    lines.sortable('cancel');
+                }).start();
             }
         }
     });

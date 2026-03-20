@@ -26,7 +26,7 @@ data-type-global-discount="{{object.discount}}"
         {{formset.management_form}}
 
         {% for form in formset %}
-            <div class="bline-container bline-sortable" data-bline-order="{{form.instance.order}}" data-bline-reorder-url="{% url 'billing__reorder_line' object.id form.instance.id %}">
+            <div class="bline-container bline-sortable" data-bline-order="{{forloop.counter}}" data-bline-reorder-url="{% url 'billing__reorder_line' object.id form.instance.id %}">
                 <div class="bline-buttons" id="line_content_{{form.instance.id}}">
                     <span class="bline-counter">{{forloop.counter}}</span>
                     <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{form.instance.id}}');">
