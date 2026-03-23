@@ -1,6 +1,6 @@
 {
-    "name": "creme-trunk",
-    "version": "2.7.0",
+    "name": "creme-devtools",
+    "version": "2.8",
     "license": "AGPL-3.0",
     "engines": {
         "node": "^20.0.0"
