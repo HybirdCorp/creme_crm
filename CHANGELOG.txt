@@ -71,6 +71,9 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
+        # In 'creme_core.core.entity_filter.operators' the ID for operators (like 'EQUALS')
+          are now strings instead of integers; so data in 'EntityFilterCondition' & 'WorkFlow'
+          have been modified.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :
             * Creme_config :

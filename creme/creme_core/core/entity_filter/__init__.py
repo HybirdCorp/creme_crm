@@ -110,7 +110,8 @@ class EntityFilterRegistry:
         # We keep the registration order for the form.
         self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
 
-        self._operator_classes: dict[int, type[ConditionOperator]] = {}
+        # self._operator_classes: dict[int, type[ConditionOperator]] = {}
+        self._operator_classes: dict[str, type[ConditionOperator]] = {}
         self._operand_classes: dict[str, type[ConditionDynamicOperand]] = {}
 
     def detail_url(self, efilter) -> str:
@@ -231,7 +232,8 @@ class EntityFilterRegistry:
         cls = self._operand_classes.get(type_id) if isinstance(type_id, str) else None
         return None if cls is None else cls(user)
 
-    def get_operator(self, type_id: int) -> ConditionOperator | None:
+    # def get_operator(self, type_id: int) -> ConditionOperator | None:
+    def get_operator(self, type_id: str) -> ConditionOperator | None:
         """Get an instance of operator from its ID.
 
         @param type_id: ID of the operator's class

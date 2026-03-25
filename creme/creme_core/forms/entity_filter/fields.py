@@ -253,7 +253,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         clean_value = self.clean_value
         operator_id = clean_value(
             clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
-            'id', int, required_error_key='invalidoperator',
+            # 'id', int, required_error_key='invalidoperator',
+            name='id', type=str, required_error_key='invalidoperator',
         )
 
         operator_class = self.efilter_registry.get_operator(operator_id)
@@ -605,7 +606,8 @@ class CustomFieldsConditionsField(_ConditionsField):
                 entry, 'operator', dict,
                 required_error_key='invalidoperator',
             ),
-            'id', int, required_error_key='invalidoperator',
+            # 'id', int, required_error_key='invalidoperator',
+            name='id', type=str, required_error_key='invalidoperator',
         )
 
         operator_class = self.efilter_registry.get_operator(operator_id)
@@ -624,7 +626,7 @@ class CustomFieldsConditionsField(_ConditionsField):
             values = [
                 v
                 for v in clean_value(
-                    entry, 'value', list, required_error_key='invalidvalue',
+                    entry, name='value', type=list, required_error_key='invalidvalue',
                 )
                 if v
             ]
@@ -634,7 +636,7 @@ class CustomFieldsConditionsField(_ConditionsField):
             values = [
                 v
                 for v in clean_value(
-                    entry, 'value', str, required_error_key='invalidvalue',
+                    entry, name='value', type=str, required_error_key='invalidvalue',
                 ).split(',')
                 if v
             ]

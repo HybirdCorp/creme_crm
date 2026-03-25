@@ -1122,7 +1122,8 @@ class ConditionProxyRegularField(ConditionProxy):
         self._cond = RegularFieldConditionHandler.build_condition(
             model=self.model,
             field_name=self.name,
-            operator=int(value['operator']),
+            # operator=int(value['operator']),
+            operator=value['operator'],
             values=value['values'],  # TODO: check is list ?
         )
 
