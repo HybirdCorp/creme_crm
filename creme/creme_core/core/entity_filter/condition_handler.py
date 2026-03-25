@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -447,10 +447,12 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     def build(cls, *, efilter_type, model, name, data):
         try:
             kwargs = {
-                'operator_id': int(data['operator']),
+                # 'operator_id': int(data['operator']),
+                'operator_id': data['operator'],
                 'values':      data['values'],
             }
-        except (TypeError, KeyError, ValueError) as e:
+        # except (TypeError, KeyError, ValueError) as e:
+        except (TypeError, KeyError) as e:
             raise cls.DataError(
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
@@ -475,7 +477,8 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
-        operator_id = operator if isinstance(operator, int) else operator.type_id
+        # operator_id = operator if isinstance(operator, int) else operator.type_id
+        operator_id = operator if isinstance(operator, str) else operator.type_id
 
         registry = entity_filter_registries[filter_type]
         operator_obj = registry.get_operator(operator_id)
@@ -978,7 +981,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         try:
             cf_uuid = UUID(name)
             kwargs = {
-                'operator_id':  int(data['operator']),
+                # 'operator_id':  int(data['operator']),
+                'operator_id':  data['operator'],
                 'related_name': data['rname'],  # NB: we could remove it...
                 'values':       data['values'],  # TODO: check if it's a list ? check content ?
             }
@@ -1006,7 +1010,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
-        operator_id = operator if isinstance(operator, int) else operator.type_id
+        # operator_id = operator if isinstance(operator, int) else operator.type_id
+        operator_id = operator if isinstance(operator, str) else operator.type_id
 
         operator_obj = entity_filter_registries[filter_type].get_operator(operator_id)
 

@@ -2028,7 +2028,7 @@ class ImportingTestCase(TransferBaseTestCase):
                     {
                         'type':  CustomFieldConditionHandler.type_id,
                         'name':  cf_uuid1,
-                        'value': {'operator': 10, 'values': ['100']},
+                        'value': {'operator': operators.GTE, 'values': ['100']},
                     }, {
                         'type':  DateCustomFieldConditionHandler.type_id,
                         'name':  cf_uuid2,
@@ -2203,7 +2203,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(str(cfield1.uuid), condition3_1.name)
         self.assertDictEqual(
             {
-                'operator': 10,
+                # 'operator': 10,
+                'operator': 'gte',
                 'rname': 'customfieldinteger',
                 'values': ['100'],
             },
@@ -2767,7 +2768,7 @@ class ImportingTestCase(TransferBaseTestCase):
                     {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
-                        'value': {'operator': 1, 'values': ['Spike']},
+                        'value': {'operator': operators.EQUALS, 'values': ['Spike']},
                     },
                 ],
             }, {

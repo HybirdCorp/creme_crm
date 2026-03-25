@@ -37,31 +37,56 @@ from creme.creme_core.utils.meta import FieldInfo
 from . import EF_REGULAR, entity_filter_registries
 
 # IDs
-EQUALS              = 1
-IEQUALS             = 2
-EQUALS_NOT          = 3
-IEQUALS_NOT         = 4
-CONTAINS            = 5
-ICONTAINS           = 6
-CONTAINS_NOT        = 7
-ICONTAINS_NOT       = 8
-GT                  = 9
-GTE                 = 10
-LT                  = 11
-LTE                 = 12
-STARTSWITH          = 13
-ISTARTSWITH         = 14
-STARTSWITH_NOT      = 15
-ISTARTSWITH_NOT     = 16
-ENDSWITH            = 17
-IENDSWITH           = 18
-ENDSWITH_NOT        = 19
-IENDSWITH_NOT       = 20
-ISEMPTY             = 21
-RANGE               = 22
-CURRENTYEAR         = 23
-CURRENTYEAR_PLUS    = 24
-CURRENTYEAR_MINUS   = 25
+# EQUALS              = 1
+# IEQUALS             = 2
+# EQUALS_NOT          = 3
+# IEQUALS_NOT         = 4
+# CONTAINS            = 5
+# ICONTAINS           = 6
+# CONTAINS_NOT        = 7
+# ICONTAINS_NOT       = 8
+# GT                  = 9
+# GTE                 = 10
+# LT                  = 11
+# LTE                 = 12
+# STARTSWITH          = 13
+# ISTARTSWITH         = 14
+# STARTSWITH_NOT      = 15
+# ISTARTSWITH_NOT     = 16
+# ENDSWITH            = 17
+# IENDSWITH           = 18
+# ENDSWITH_NOT        = 19
+# IENDSWITH_NOT       = 20
+# ISEMPTY             = 21
+# RANGE               = 22
+# CURRENTYEAR         = 23
+# CURRENTYEAR_PLUS    = 24
+# CURRENTYEAR_MINUS   = 25
+EQUALS              = 'equals'
+IEQUALS             = 'iequals'
+EQUALS_NOT          = 'equals_not'
+IEQUALS_NOT         = 'iequals_not'
+CONTAINS            = 'contains'
+ICONTAINS           = 'icontains'
+CONTAINS_NOT        = 'contains_not'
+ICONTAINS_NOT       = 'icontains_not'
+GT                  = 'gt'
+GTE                 = 'gte'
+LT                  = 'lt'
+LTE                 = 'lte'
+STARTSWITH          = 'startswith'
+ISTARTSWITH         = 'istartswith'
+STARTSWITH_NOT      = 'startswith_not'
+ISTARTSWITH_NOT     = 'istartswith_not'
+ENDSWITH            = 'endswith'
+IENDSWITH           = 'iendswith'
+ENDSWITH_NOT        = 'endswith_not'
+IENDSWITH_NOT       = 'iendswith_not'
+ISEMPTY             = 'isempty'
+RANGE               = 'range'
+CURRENTYEAR         = 'currentyear'
+CURRENTYEAR_PLUS    = 'currentyear_plus'
+CURRENTYEAR_MINUS   = 'currentyear_minus'
 
 FIELDTYPES_ALL = {
     'string',
@@ -112,8 +137,9 @@ class ConditionOperator:
         models.URLField,
     }
 
-    # Integer ID (see EQUALS & its friends) used for registration.
-    type_id: int  # = None
+    # String ID (see EQUALS & its friends) used for registration.
+    # type_id: int  # = None
+    type_id: str
 
     # Used in forms to configure the condition (see creme_core/forms/forms.py)
     verbose_name = ''
