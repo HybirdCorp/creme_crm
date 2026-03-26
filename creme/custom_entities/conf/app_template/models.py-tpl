@@ -1,0 +1,52 @@
+from django.db import models
+from django.urls import reverse
+{% for field_import in field_imports %}{{field_import}}
+{% endfor %}
+from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core import models as core_models
+
+{% for field in fields %}{% with minion=field.minion %}{% if minion %}
+class {{minion.name}}(core_models.MinionModel):
+    name = models.CharField(_('Name'), max_length=100)
+
+    creation_label = _('Create a {{minion.verbose_name}}')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        app_label = '{{app_name}}'
+        verbose_name = _('{{minion.verbose_name}}')
+        verbose_name_plural = _('{{minion.verbose_name}}s')
+{% endif %}{% endwith %}{% endfor %}
+
+class {{entity_model_name}}(core_models.CremeEntity):
+    {% for field in fields %}{{field.name}} = {{field.cls_name}}({% for att_name, att_value in field.cls_attributes.items %}{{att_name}}={{att_value}}{% if not forloop.last %}, {% endif %}{% endfor %})
+    {% endfor %}
+
+    creation_label = _('Create a {{ce_type.name}}')
+    save_label = _('Save the {{ce_type.name}}')
+
+    class Meta:
+        app_label = '{{app_name}}'
+        verbose_name = _('{{ce_type.name}}')
+        verbose_name_plural = _('{{ce_type.plural_name}}')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('{{app_name}}__view_{{snake_case_entity_model_name}}', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('{{app_name}}__create_{{snake_case_entity_model_name}}')
+
+    def get_edit_absolute_url(self):
+        return reverse('{{app_name}}__edit_{{snake_case_entity_model_name}}', args=(self.id,))
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return reverse('{{app_name}}__list_{{snake_case_entity_model_name}}s')

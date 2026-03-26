@@ -1,0 +1,26 @@
+from django.urls import re_path
+
+from . import views
+
+urlpatterns = [
+    re_path(
+        r'^{{snake_case_entity_model_name}}s[/]?$',
+        views.{{entity_model_name}}sList.as_view(),
+        name='{{app_name}}__list_{{snake_case_entity_model_name}}s',
+    ),
+    re_path(
+        r'^{{snake_case_entity_model_name}}/add[/]?$',
+        views.{{entity_model_name}}Creation.as_view(),
+        name='{{app_name}}__create_{{snake_case_entity_model_name}}',
+    ),
+    re_path(
+        r'^{{snake_case_entity_model_name}}/edit/(?P<{{snake_case_entity_model_name}}_id>\d+)[/]?$',
+        views.{{entity_model_name}}Edition.as_view(),
+        name='{{app_name}}__edit_{{snake_case_entity_model_name}}',
+    ),
+    re_path(
+        r'^{{snake_case_entity_model_name}}/(?P<{{snake_case_entity_model_name}}_id>\d+)[/]?$',
+        views.{{entity_model_name}}Detail.as_view(),
+        name='{{app_name}}__view_{{snake_case_entity_model_name}}',
+    ),
+]

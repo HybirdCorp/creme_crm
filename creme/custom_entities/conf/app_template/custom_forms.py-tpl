@@ -1,0 +1,39 @@
+from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.gui.custom_form import (
+    CustomFormDefault,
+    CustomFormDescriptor,
+)
+
+from .models import {{entity_model_name}}
+
+
+class {{entity_model_name}}CreationFormDescriptor(CustomFormDefault):
+    main_fields = [
+        'user',
+        'name',
+        {% for field in fields %}'{{field.name}}', {% endfor %}
+    ]
+
+
+class {{entity_model_name}}EditionFormDefault(CustomFormDefault):
+    main_fields = [
+        'user',
+        'name',
+        {% for field in fields %}'{{field.name}}', {% endfor %}
+    ]
+
+
+{{entity_model_name|upper}}_CREATION_CFORM = CustomFormDescriptor(
+    id='{{app_name}}-{{snake_case_entity_model_name}}_creation',
+    model={{entity_model_name}},
+    verbose_name=_('Creation form for {{ce_type.name}}'),
+    default={{entity_model_name}}CreationFormDescriptor,
+)
+{{entity_model_name|upper}}_EDITION_CFORM = CustomFormDescriptor(
+    id='{{app_name}}-{{snake_case_entity_model_name}}_edition',
+    model={{entity_model_name}},
+    form_type=CustomFormDescriptor.EDITION_FORM,
+    verbose_name=_('Edition form for {{ce_type.name}}'),
+    default={{entity_model_name}}EditionFormDefault,
+)
