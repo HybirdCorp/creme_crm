@@ -113,6 +113,8 @@
              - New 'ActionEntry' helper entry to build custom action links.
         # The method 'creme_core.forms.fields.JSONField._clean_entity()' now accepts
           a model class for its argument 'ctype'.
+        # A new command to help te conversion of CustomEntities into real entities has been added:
+          "custom_entities_convert".
         # In 'creme_core.models' :
             - The field 'CTypeForeignKey' (& so, 'EntityCTypeForeignKey') got a
               parameter "allowed_models" to narrow the models which are accepted.

@@ -1,0 +1,74 @@
+from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.apps import CremeAppConfig
+
+
+class {{camel_case_app_name}}Config(CremeAppConfig):
+    default = True
+    name = '{{app_name}}'
+    verbose_name = _('{{camel_case_app_name}}')
+
+    def register_entity_models(self, creme_registry):
+        from . import models
+        creme_registry.register_entity_models(models.{{entity_model_name}})
+
+    def register_bulk_update(self, bulk_update_registry):
+        from . import models
+
+        bulk_update_registry.register(models.{{entity_model_name}})
+{% if has_minions %}
+    def register_creme_config(self, config_registry):
+        from . import models
+        {% for field in fields %}{% with minion=field.minion %}{% if minion %}config_registry.register_model(
+            models.{{minion.name}}, model_name='{{minion.snake_name}}',
+        )
+        {% endif %}{% endwith %}{% endfor %}
+{% endif %}
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.{{entity_model_name|upper}}_CREATION_CFORM,
+            custom_forms.{{entity_model_name|upper}}_EDITION_CFORM,
+        )
+
+    def register_cloners(self, entity_cloner_registry):
+        from . import models
+
+        entity_cloner_registry.register(model=models.{{entity_model_name}})
+
+    def register_deletors(self, entity_deletor_registry):
+        from . import models
+
+        entity_deletor_registry.register(model=models.{{entity_model_name}})
+
+    def register_fields_config(self, fields_config_registry):
+        from . import models
+
+        fields_config_registry.register_models(models.{{entity_model_name}})
+
+    # def register_icons(self, icon_registry):
+    #     from . import models
+    #     icon_registry.register(
+    #         models.{{entity_model_name}},
+    #          'images/{{snake_case_entity_model_name}}_%(size)s.png'
+    #     )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.{{entity_model_name}}sEntry,
+            menu.{{entity_model_name}}CreationEntry,
+        )
+
+    # NB: example to insert in the popup with all creation entries
+    # def register_creation_menu(self, creation_menu_registry):
+    #     from . import models
+    #
+    #     creation_menu_registry.get_or_create_group(
+    #         'opportunities-commercial', _('Commercial'), priority=20,
+    #     ).add_link(
+    #         '{{app_name}}-create_{{snake_case_entity_model_name}}',
+    #         models.{{entity_model_name}}, priority=3,
+    #     )

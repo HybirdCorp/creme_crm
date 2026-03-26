@@ -1,0 +1,1 @@
+DEFAULT_HFILTER_{{entity_model_name|upper}} = '{{snake_case_entity_model_name}}s-hf'

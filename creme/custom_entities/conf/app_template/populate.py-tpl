@@ -1,0 +1,102 @@
+import logging
+
+from django.utils.translation import gettext as _
+
+# from creme import persons
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.menu import ContainerEntry
+from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import RelationType
+from creme.creme_core.models import (
+    HeaderFilter,
+    MenuConfigItem,
+    SearchConfigItem,
+)
+
+from . import constants, custom_forms, menu
+from .models import {{entity_model_name}}{% for field in fields %}{% with minion=field.minion %}{% if minion %}, {{minion.name}}{% endif %}{% endwith %}{% endfor %}
+
+logger = logging.getLogger(__name__)
+
+# Contact      = persons.get_contact_model()
+# Organisation = persons.get_organisation_model()
+
+
+class Populator(BasePopulator):
+    dependencies = ['creme_core']
+
+    # RELATION_TYPES = [
+    #     RelationType.objects.builder(
+    #         id=constants.REL_SUB_TODO,
+    #         predicate=_('Blablabla'),
+    #         models=[{{entity_model_name}}],
+    #     ).symmetric(
+    #         id=constants.REL_OBJ_TODO,
+    #         predicate=_('Blablabla (but other side)'),
+    #         models=[Organisation, Contact],
+    #     ),
+    # ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_{{entity_model_name|upper}},
+            model={{entity_model_name}},
+            name=_('{{entity_model_name}} view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                {% for field in fields %}(EntityCellRegularField, '{{field.name}}'),
+                {% endfor %}
+            ],
+        ),
+    ]
+    CUSTOM_FORMS = [
+        custom_forms.{{entity_model_name|upper}}_CREATION_CFORM,
+        custom_forms.{{entity_model_name|upper}}_EDITION_CFORM,
+    ]
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model={{entity_model_name}},
+            fields=['name'],  # TODO: complete field list
+        ),
+    ]
+{% for field in fields %}{% with minion=field.minion %}{% if minion %}
+    {{minion.snake_name|upper}}S = [
+        {% for instance_info in minion.instances_info %}{{minion.name}}({% for fname, fvalue in instance_info.items %}{{fname}}="{{fvalue}}"{% if not forloop.last %}, {% endif %}{% endfor %}),
+        {% endfor %}
+    ]
+{% endif %}{% endwith %}{% endfor %}
+    def _already_populated(self):
+        raise NotImplementedError
+        # TODO: you should find a robust criteria to know if populating has already be run.
+        #       For example with a RelationType which cannot be deleted
+        #  return RelationType.objects.filter(pk=constants.REL_SUB_...).exists()
+{% if has_minions %}
+    def _populate(self):
+        super()._populate()
+        {% for field in fields %}{% with minion=field.minion %}{% if minion %}self._populate_{{minion.snake_name}}()
+        {% endif %}{% endwith %}{% endfor %}
+  {% for field in fields %}{% with minion=field.minion %}{% if minion %}
+    def _populate_{{minion.snake_name}}(self):
+        self._save_minions(self.{{minion.snake_name|upper}}S)
+  {% endif %}{% endwith %}{% endfor %}
+{% endif %}
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('{{entity_model_name}} category')},
+            role=None, superuser=False,
+            defaults={'order': 1},
+        )[0]
+
+        MenuConfigItem.objects.create(
+            entry_id=menu.{{entity_model_name}}sEntry.id, order=10, parent=menu_container,
+        )
+
+        creations_entry = MenuConfigItem.objects.filter(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('+ Creation')},
+        ).first()
+        if creations_entry is not None:
+            MenuConfigItem.objects.create(
+                entry_id=menu.{{entity_model_name}}CreationEntry.id,
+                order=1, parent=creations_entry,
+            )
