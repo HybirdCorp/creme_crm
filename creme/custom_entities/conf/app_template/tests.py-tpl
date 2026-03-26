@@ -1,0 +1,93 @@
+from functools import partial
+
+from django.urls import reverse
+from django.utils.translation import gettext as _
+
+from creme.creme_core.tests.base import CremeTestCase
+
+from .models import {{entity_model_name}}
+
+
+class {{entity_model_name}}ViewsTestCase(CremeTestCase):
+    def test_detail_view(self):
+        user = self.login_as_root_and_get()
+
+        instance = {{entity_model_name}}.objects.create(
+            user=user, name='My name',
+            # TODO: complete fields
+        )
+        self.assertGET200(instance.get_absolute_url())
+        # TODO: test bricks, buttons etc...
+
+    def test_creation(self):
+        user = self.login_as_root_and_get()
+
+        url = reverse('{{app_name}}__create_{{snake_case_entity_model_name}}')
+        response1 = self.assertGET200(url)
+
+        context1 = response1.context
+        self.assertEqual(_('Create a {{ce_type.name}}'), context1.get('title'))
+        self.assertEqual(_('Save the {{ce_type.name}}'), context1.get('submit_label'))
+
+        # ---
+        name = '*Insert a smart name*'
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                # TODO: to be completed with required value
+                {% for field in fields %}
+                # '{{field.name}}': "SET ME",
+                {% endfor %}
+            },
+        ))
+
+        instance = self.get_object_or_fail({{entity_model_name}}, name=name)
+        # TODO: complete; example:
+        #   self.assertEqual(123, instance.field_number1)
+
+    def test_edition_view(self):
+        user = self.login_as_root_and_get()
+
+        name = 'My name'
+        instance = {{entity_model_name}}.objects.create(
+            user=user, name=name,
+            # TODO: complete fields
+        )
+
+        url = instance.get_edit_absolute_url()
+        self.assertGET200(url)
+
+        # ---
+        name += ' (edited)'
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                # TODO: complete fields
+            },
+        ))
+
+        instance = self.refresh(instance)
+        self.assertEqual(name, instance.name)
+        # TODO: complete tests on fields
+
+    def test_listview(self):
+        user = self.login_as_root_and_get()
+
+        create_instance = partial({{entity_model_name}}.objects.create, user=user)
+        # TODO: complete with required fields
+        instance1 = create_instance(name='Test instance #1')
+        instance2 = create_instance(name='Test instance #2')
+
+        response = self.assertGET200({{entity_model_name}}.get_lv_absolute_url())
+
+        with self.assertNoException():
+            instances = response.context['page_obj'].object_list
+
+        self.assertIn(instance1, instances)
+        self.assertIn(instance2, instances)

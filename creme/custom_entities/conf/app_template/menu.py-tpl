@@ -1,0 +1,13 @@
+from creme.creme_core.gui import menu
+
+from .models import {{entity_model_name}}
+
+
+class {{entity_model_name}}sEntry(menu.ListviewEntry):
+    id = '{{app_name}}-{{snake_case_entity_model_name}}s'
+    model = {{entity_model_name}}
+
+
+class {{entity_model_name}}CreationEntry(menu.CreationEntry):
+    id = '{{app_name}}-create_{{snake_case_entity_model_name}}'
+    model = {{entity_model_name}}

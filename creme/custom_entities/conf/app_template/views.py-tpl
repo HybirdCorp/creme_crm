@@ -1,0 +1,25 @@
+from creme.creme_core.views import generic
+
+from .constants import DEFAULT_HFILTER_{{entity_model_name|upper}}
+from .models import {{entity_model_name}}
+
+
+class {{entity_model_name}}Detail(generic.EntityDetail):
+    model = {{entity_model_name}}
+    pk_url_kwarg = '{{snake_case_entity_model_name}}_id'
+
+
+class {{entity_model_name}}Creation(generic.EntityCreation):
+    model = {{entity_model_name}}
+    form_class = custom_forms.{{entity_model_name|upper}}_CREATION_CFORM
+
+
+class {{entity_model_name}}Edition(generic.EntityEdition):
+    model = {{entity_model_name}}
+    form_class = custom_forms.{{entity_model_name|upper}}_EDITION_CFORM
+    pk_url_kwarg = '{{snake_case_entity_model_name}}_id'
+
+
+class {{entity_model_name}}sList(generic.EntitiesList):
+    model = {{entity_model_name}}
+    default_headerfilter_id = DEFAULT_HFILTER_{{entity_model_name|upper}}
