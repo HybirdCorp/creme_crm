@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -253,7 +253,8 @@ class DateMaker(ValueMaker):
         return date.today() if value is None else value
 
     def render(self):
-        return date_format(self._date, 'DATE_FORMAT')
+        date_obj = self._date
+        return _('Today') if date_obj is None else date_format(date_obj, 'DATE_FORMAT')
 
     def to_dict(self):
         d = super().to_dict()
@@ -321,7 +322,8 @@ class DateTimeMaker(ValueMaker):
         return now() if dt is None else dt
 
     def render(self):
-        return date_format(localtime(self._dt), 'DATETIME_FORMAT')
+        dt = self._dt
+        return _('Now') if dt is None else date_format(localtime(self._dt), 'DATETIME_FORMAT')
 
     def to_dict(self):
         d = super().to_dict()
