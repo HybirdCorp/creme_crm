@@ -235,6 +235,7 @@ class ValueMakerTestCase(CremeTestCase):
         self.assertIsInstance(maker1, DateMaker)
         self.assertEqual(date.today(), maker1.make())
         self.assertDictEqual({'type': 'date', 'op': 'today'}, maker1.to_dict())
+        self.assertEqual(_('Today'), maker1.render())
 
         # Error ---
         with self.assertRaises(ValueError) as exc_mng:
@@ -325,6 +326,7 @@ class ValueMakerTestCase(CremeTestCase):
         self.assertIsInstance(maker1, DateTimeMaker)
         self.assertDatetimesAlmostEqual(now(), maker1.make())
         self.assertDictEqual({'type': 'datetime', 'op': 'now'}, maker1.to_dict())
+        self.assertEqual(_('Now'), maker1.render())
 
         # Error
         with self.assertRaises(ValueError) as exc_mng:
