@@ -5,6 +5,10 @@
     # An issue with custom-brick reloading: the brick was not reloaded when
       a related instance is edited (e.g. if you get an Address field in a
       custom-brick & edit the Address).
+    # Apps :
+        * Billing :
+            - In the view to create a true Product/Service from a line, the form-field
+              "category" was not required; selecting nothing caused a crash.
 
   Developers side :
   ------------
