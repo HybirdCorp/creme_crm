@@ -1992,18 +1992,20 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_reload_user_settings_bricks(self):
         self.login_as_standard()
 
+        invalid_id = 'invalid'
         response = self.assertGET200(
             reverse('creme_config__reload_user_settings_bricks'),
             data={'brick_id': [
                 BrickMypageLocationsBrick.id,
                 NotificationChannelConfigItemsBrick.id,
-                'silly_id',
+                invalid_id,
             ]},
         )
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
-        self.assertIsList(content, length=2)
+        # self.assertIsList(content, length=2)
+        self.assertIsList(content, length=3)
 
         brick_info1 = content[0]
         self.assertIsList(brick_info1, length=2)
@@ -2020,6 +2022,15 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             tree=self.get_html_tree(brick_info2[1]),
             brick=NotificationChannelConfigItemsBrick,
         )
+
+        brick_info3 = content[2]
+        self.assertIsList(brick_info3, length=2)
+        self.assertEqual(invalid_id, brick_info3[0])
+        brick_node3 = self.get_brick_node(
+            tree=self.get_html_tree(brick_info3[1]),
+            brick=invalid_id,
+        )
+        self.assertIn('brick-void', brick_node3.attrib.get('class', ''))
 
     @staticmethod
     def _build_edit_user_svalue_url(setting_key):
@@ -2179,7 +2190,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         context = self.build_context(user=user)
 
         # with self.assertNumQueries(6):
-        render = brick.detailview_display(context)
+        # render = brick.detailview_display(context)
+        render = brick.render(context)
 
         brick_node = self.get_brick_node(
             self.get_html_tree(render), brick=UserSettingValuesBrick,

@@ -640,13 +640,15 @@ def add_relations_with_same_type(request):
 
 
 # RelationType detail-view -----------------------------------------------------
-class RelationTypeBarHatBrick(bricks.SimpleBrick):
+# class RelationTypeBarHatBrick(bricks.SimpleBrick):
+class RelationTypeBarHatBrick(bricks.Brick):
     id = 'relation_hat_bar'
     dependencies = '*'
     template_name = 'creme_core/bricks/rtype-hat-bar.html'
 
 
-class RelationTypeInfoBrick(bricks.SimpleBrick):
+# class RelationTypeInfoBrick(bricks.SimpleBrick):
+class RelationTypeInfoBrick(bricks.Brick):
     id = 'relation_type_info'
     dependencies = '*'
     read_only = True
@@ -699,7 +701,8 @@ class RelatedEntitiesBrick(bricks.QuerysetBrick):
 
         return ctype
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         ctype = self.ctype
 
         # TODO: RealEntityForeignKey for subject too?
@@ -738,7 +741,8 @@ class RelatedMiscEntitiesBrick(bricks.QuerysetBrick):
         super().__init__()
         self.excluded_ctypes = excluded_ctypes
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         excluded_ctypes = self.excluded_ctypes
         btc = self.get_template_context(
             context,

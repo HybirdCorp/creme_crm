@@ -176,7 +176,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         #   - Invoices
         #   - SettingValues "creme_core-display_currency_local_symbol"
         with self.assertNumQueries(6):
-            render = billing_bricks.ReceivedInvoicesBrick().detailview_display(context)
+            # render = billing_bricks.ReceivedInvoicesBrick().detailview_display(context)
+            render = billing_bricks.ReceivedInvoicesBrick().render(context)
 
         brick_node3 = self.get_brick_node(
             self.get_html_tree(render), brick=billing_bricks.ReceivedInvoicesBrick,

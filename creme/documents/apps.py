@@ -54,6 +54,8 @@ class DocumentsConfig(CremeAppConfig):
         brick_registry.register_4_model(
             Document, bricks.DocumentBrick,
         ).register(
+            brick_registry.Tag.DETAIL,
+
             bricks.FolderDocsBrick,
             bricks.ChildFoldersBrick,
             bricks.LinkedDocsBrick,

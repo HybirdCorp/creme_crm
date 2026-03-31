@@ -52,13 +52,29 @@ class ReportsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
+        # NB: have their own reloading views
+        #  - bricks.ReportChartBrick,
+        #  - bricks.InstanceBricksInfoBrick,
+        # brick_registry.register(
+        #     bricks.ReportFieldsBrick,
+        #     bricks.ReportChartsBrick,
+        # ).register_4_instance(
+        #     bricks.ReportChartInstanceBrick,
+        # ).register_hat(
+        #     self.Report,
+        #     main_brick_cls=bricks.ReportBarHatBrick,
+        # )
         brick_registry.register(
+            brick_registry.Tag.DETAIL,
+
             bricks.ReportFieldsBrick,
             bricks.ReportChartsBrick,
-            # NB: have their own reloading views
-            #  - bricks.ReportChartBrick,
-            #  - bricks.InstanceBricksInfoBrick,
         ).register_4_instance(
+            (
+                brick_registry.Tag.DETAIL,
+                brick_registry.Tag.HOME,
+                brick_registry.Tag.MY_PAGE
+            ),
             bricks.ReportChartInstanceBrick,
         ).register_hat(
             self.Report,

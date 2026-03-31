@@ -16,12 +16,8 @@ from creme.creme_config.registry import (
 )
 from creme.creme_core.core.setting_key import SettingKey, SettingKeyRegistry
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.gui.bricks import (
-    Brick,
-    BrickRegistry,
-    SimpleBrick,
-    VoidBrick,
-)
+# from creme.creme_core.gui.bricks import SimpleBrick
+from creme.creme_core.gui.bricks import Brick, BrickRegistry, VoidBrick
 from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents.models import DocumentCategory
@@ -379,7 +375,7 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         class SectorBrick(GenericModelBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_model08')
+            id = GenericModelBrick.generate_id('creme_config', 'test_register_model08')
 
         registry.register_model(FakeSector) \
                 .brick_class(SectorBrick) \
@@ -394,7 +390,7 @@ class RegistryTestCase(CremeTestCase):
 
         # Change class
         class SectorBrick_V2(GenericModelBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_model08_V2')
+            id = GenericModelBrick.generate_id('creme_config', 'test_register_model08_V2')
 
         model_config.brick_cls = SectorBrick_V2
         self.assertIsInstance(model_config.get_brick(), SectorBrick_V2)
@@ -428,17 +424,21 @@ class RegistryTestCase(CremeTestCase):
         self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
     def test_register_app_brick(self):
-        class TestBrick(SimpleBrick):
+        # class TestBrick(SimpleBrick):
+        class TestBrick(Brick):
             pass
 
         class TestBrick1(TestBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks1')
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks1')
+            id = Brick.generate_id('creme_config', 'test_register_app_bricks1')
 
         class TestBrick2(TestBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks2')
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks2')
+            id = Brick.generate_id('creme_config', 'test_register_app_bricks2')
 
         class TestBrick3(TestBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
+            id = Brick.generate_id('creme_config', 'test_register_app_bricks3')
 
         brick_registry = BrickRegistry()
         # brick_registry.register(TestBrick1, TestBrick2, TestBrick3)
@@ -453,7 +453,8 @@ class RegistryTestCase(CremeTestCase):
         def get_brick_ids(app_conf_registry):
             b_ids = set()
             for brick in app_conf_registry.bricks:
-                self.assertIsInstance(brick, SimpleBrick)
+                # self.assertIsInstance(brick, SimpleBrick)
+                self.assertIsInstance(brick, Brick)
                 b_ids.add(brick.id)
             return b_ids
 
@@ -478,7 +479,8 @@ class RegistryTestCase(CremeTestCase):
         )
 
     def test_register_app_brick__error__empty_id(self):
-        class NoIDTestUserBrick(SimpleBrick):
+        # class NoIDTestUserBrick(SimpleBrick):
+        class NoIDTestUserBrick(Brick):
             id = ''
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -488,27 +490,30 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
 
-    def test_register_app_brick__error__no_render(self):
-        "No method detailview_display()."
-        class TestBrick(Brick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error02')
-
-        registry = _ConfigRegistry(BrickRegistry())
-
-        with self.assertRaises(registry.RegistrationError) as cm:
-            registry.register_app_bricks('documents', TestBrick)
-
-        self.assertStartsWith(
-            str(cm.exception),
-            'App config brick class has no detailview_display() method: '
-        )
+    # def test_register_app_brick__error__no_render(self):
+    #     "No method detailview_display()."
+    #     class TestBrick(Brick):
+    #         id = Brick.generate_id('creme_config', 'test_register_app_brick__error02')
+    #
+    #     registry = _ConfigRegistry(BrickRegistry())
+    #
+    #     with self.assertRaises(registry.RegistrationError) as cm:
+    #         registry.register_app_bricks('documents', TestBrick)
+    #
+    #     self.assertStartsWith(
+    #         str(cm.exception),
+    #         'App config brick class has no detailview_display() method: '
+    #     )
 
     def test_register_app_brick__error__duplicated_id(self):
         "Duplicated ID."
-        class TestBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error03')
+        # class TestBrick1(SimpleBrick):
+        class TestBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error03')
+            id = Brick.generate_id('creme_config', 'test_register_app_brick__error03')
 
-        class TestBrick2(SimpleBrick):
+        # class TestBrick2(SimpleBrick):
+        class TestBrick2(Brick):
             id = TestBrick1.id
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -529,13 +534,18 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_app_brick__error__in_global(self):
         "Brick registered in global registry."
-        class TestBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_1')
+        # class TestBrick1(SimpleBrick):
+        class TestBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_1')
+            id = Brick.generate_id('creme_config', 'test_register_app_brick__error04_1')
 
-        class TestBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_2')
+        # class TestBrick2(SimpleBrick):
+        class TestBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_2')
+            id = Brick.generate_id('creme_config', 'test_register_app_brick__error04_2')
 
-        brick_registry = BrickRegistry().register(TestBrick2)
+        # brick_registry = BrickRegistry().register(TestBrick2)
+        brick_registry = BrickRegistry().register(BrickRegistry.Tag.DETAIL, TestBrick2)
         registry = _ConfigRegistry(brick_registry)
         registry.register_app_bricks('persons', TestBrick1, TestBrick2)
 
@@ -547,11 +557,14 @@ class RegistryTestCase(CremeTestCase):
         self.assertListEqual([TestBrick1], brick_classes)
 
     def test_unregister_app_brick__error__empty_id(self):
-        class NoIDTestUserBrick(SimpleBrick):
+        # class NoIDTestUserBrick(SimpleBrick):
+        class NoIDTestUserBrick(Brick):
             id = ''
 
-        class TestBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_brick__error01')
+        # class TestBrick(SimpleBrick):
+        class TestBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_brick__error01')
+            id = Brick.generate_id('creme_config', 'test_unregister_app_brick__error01')
 
         registry = _ConfigRegistry(BrickRegistry())
         with self.assertRaises(KeyError):
@@ -566,11 +579,15 @@ class RegistryTestCase(CremeTestCase):
         self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
 
     def test_unregister_app_brick__error__duplicates(self):
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error02_1')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error1')
+            id = Brick.generate_id('creme_config', 'test_unregister_app_bricks__error1')
 
-        class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error02_2')
+        # class TestUserBrick2(SimpleBrick):
+        class TestUserBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error2')
+            id = Brick.generate_id('creme_config', 'test_unregister_app_bricks__error2')
 
         registry = _ConfigRegistry(BrickRegistry())
         registry.register_app_bricks('persons', TestUserBrick1, TestUserBrick2)
@@ -587,23 +604,33 @@ class RegistryTestCase(CremeTestCase):
     def test_get_user_bricks(self):
         user = self.create_user(role=self.create_role(allowed_apps=['persons']))
 
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks1')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks1')
+            id = Brick.generate_id('creme_config', 'test_get_user_bricks1')
 
-        class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks2')
+        # class TestUserBrick2(SimpleBrick):
+        class TestUserBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks2')
+            id = Brick.generate_id('creme_config', 'test_get_user_bricks2')
             permissions = 'persons'
 
-        class TestUserBrick3(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks3')
+        # class TestUserBrick3(SimpleBrick):
+        class TestUserBrick3(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks3')
+            id = Brick.generate_id('creme_config', 'test_get_user_bricks3')
             permissions = ['persons']
 
-        class TestUserBrick4(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks4')
+        # class TestUserBrick4(SimpleBrick):
+        class TestUserBrick4(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks4')
+            id = Brick.generate_id('creme_config', 'test_get_user_bricks4')
             permissions = 'documents'
 
-        class TestUserBrick5(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks5')
+        # class TestUserBrick5(SimpleBrick):
+        class TestUserBrick5(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks5')
+            id = Brick.generate_id('creme_config', 'test_get_user_bricks5')
             permissions = ['persons', 'documents']
 
         brick_registry = BrickRegistry()
@@ -633,7 +660,8 @@ class RegistryTestCase(CremeTestCase):
         )
 
     def test_unregister_user_bricks__error__empty_id(self):
-        class NoIDTestUserBrick(SimpleBrick):
+        # class NoIDTestUserBrick(SimpleBrick):
+        class NoIDTestUserBrick(Brick):
             id = ''
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -644,11 +672,15 @@ class RegistryTestCase(CremeTestCase):
         self.assertStartsWith(str(cm.exception), 'User brick class with empty ID:')
 
     def test_unregister_user_bricks__error__duplicates(self):
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error02_1')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error1')
+            id = Brick.generate_id('creme_config', 'test_unregister_user_bricks__error1')
 
-        class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error02_2')
+        # class TestUserBrick2(SimpleBrick):
+        class TestUserBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error2')
+            id = Brick.generate_id('creme_config', 'test_unregister_user_bricks__error2')
 
         registry = _ConfigRegistry(BrickRegistry())
         registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
@@ -665,23 +697,33 @@ class RegistryTestCase(CremeTestCase):
     def test_get_user_brick(self):
         user = self.create_user(role=self.create_role(allowed_apps=['persons']))
 
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick1')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick1')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick1')
 
-        class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick2')
+        # class TestUserBrick2(SimpleBrick):
+        class TestUserBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick2')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick2')
             permissions = 'persons'
 
-        class TestUserBrick3(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick3')
+        # class TestUserBrick3(SimpleBrick):
+        class TestUserBrick3(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick3')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick3')
             permissions = ['persons']
 
-        class TestUserBrick4(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick4')
+        # class TestUserBrick4(SimpleBrick):
+        class TestUserBrick4(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick4')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick4')
             permissions = 'documents'
 
-        class TestUserBrick5(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick5')
+        # class TestUserBrick5(SimpleBrick):
+        class TestUserBrick5(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick5')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick5')
             permissions = ['persons', 'documents']
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -710,21 +752,29 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick5, VoidBrick)
         self.assertEqual(TestUserBrick5.id, brick5.id)
 
-        brick6 = registry.get_user_brick(user=user, brick_id='invalid')
-        self.assertIsInstance(brick6, Brick)
-        self.assertFalse(brick6.id)
+        # brick6 = registry.get_user_brick(user=user, brick_id='invalid')
+        # self.assertIsInstance(brick6, Brick)
+        # self.assertFalse(brick6.id)
+        with self.assertLogs(level='WARNING'):
+            brick6 = registry.get_user_brick(user=user, brick_id='invalid')
+        self.assertIsInstance(brick6, VoidBrick)
 
     def test_user_brick_error(self):
         "Brick registered in global registry."
         user = self.get_root_user()
 
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error1')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error1')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick_error1')
 
-        class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error2')
+        # class TestUserBrick2(SimpleBrick):
+        class TestUserBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error2')
+            id = Brick.generate_id('creme_config', 'test_get_user_brick_error2')
 
-        brick_registry = BrickRegistry().register(TestUserBrick2)
+        # brick_registry = BrickRegistry().register(TestUserBrick2)
+        brick_registry = BrickRegistry().register(BrickRegistry.Tag.DETAIL, TestUserBrick2)
         registry = _ConfigRegistry(brick_registry)
         registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
 
@@ -739,7 +789,8 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick, VoidBrick)
 
     def test_register_userbricks_error__empty_id(self):
-        class TestUserBrick(SimpleBrick):
+        # class TestUserBrick(SimpleBrick):
+        class TestUserBrick(Brick):
             # id = ...
             pass
 
@@ -750,8 +801,10 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_userbricks_error__invalid_id(self):
         "ID not found."
-        class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks_error02')
+        # class TestUserBrick1(SimpleBrick):
+        class TestUserBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks_error02')
+            id = Brick.generate_id('creme_config', 'test_register_userbricks_error02')
 
         class TestUserBrick2(TestUserBrick1):
             # id = ...
@@ -763,7 +816,8 @@ class RegistryTestCase(CremeTestCase):
             registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
 
     def test_register_portal_bricks(self):
-        class TestPortalBrick(SimpleBrick):
+        # class TestPortalBrick(SimpleBrick):
+        class TestPortalBrick(Brick):
             pass
 
         class TestPortalBrick1(TestPortalBrick):
@@ -797,7 +851,8 @@ class RegistryTestCase(CremeTestCase):
         )
 
     def test_register_portal_bricks__error__empty_id(self):
-        class NoIDBrick(SimpleBrick):
+        # class NoIDBrick(SimpleBrick):
+        class NoIDBrick(Brick):
             id = ''
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -808,10 +863,13 @@ class RegistryTestCase(CremeTestCase):
         self.assertStartsWith(str(cm.exception), 'Portal brick class with empty ID:')
 
     def test_register_portal_bricks__error__duplicated_id(self):
-        class TestPortalBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02')
+        # class TestPortalBrick1(SimpleBrick):
+        class TestPortalBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02')
+            id = Brick.generate_id('creme_config', 'test_register_portal_bricks__error02')
 
-        class TestPortalBrick2(SimpleBrick):
+        # class TestPortalBrick2(SimpleBrick):
+        class TestPortalBrick2(Brick):
             id = TestPortalBrick1.id
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -824,10 +882,13 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_portal_bricks__error__in_global(self):
         "Brick registered in global registry."
-        class TestPortalBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error03')
+        # class TestPortalBrick(SimpleBrick):
+        class TestPortalBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error03')
+            id = Brick.generate_id('creme_config', 'test_register_portal_bricks__error__in_global')
 
-        brick_registry = BrickRegistry().register(TestPortalBrick)
+        # brick_registry = BrickRegistry().register(TestPortalBrick)
+        brick_registry = BrickRegistry().register(BrickRegistry.Tag.DETAIL, TestPortalBrick)
 
         registry = _ConfigRegistry(brick_registry)
         registry.register_portal_bricks(TestPortalBrick)
@@ -839,7 +900,8 @@ class RegistryTestCase(CremeTestCase):
 
     def test_unregister_portal_bricks__error__empty_id(self):
         "Empty ID."
-        class NoIDBrick(SimpleBrick):
+        # class NoIDBrick(SimpleBrick):
+        class NoIDBrick(Brick):
             id = ''
 
         registry = _ConfigRegistry(BrickRegistry())
@@ -851,11 +913,15 @@ class RegistryTestCase(CremeTestCase):
 
     def test_unregister_portal_bricks__error__invalid_id(self):
         "ID not found."
-        class TestPortalBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02_1')
+        # class TestPortalBrick1(SimpleBrick):
+        class TestPortalBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_portal_bricks__error1')
+            id = Brick.generate_id('creme_config', 'test_unregister_portal_bricks__error1')
 
-        class TestPortalBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02_2')
+        # class TestPortalBrick2(SimpleBrick):
+        class TestPortalBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_unregister_portal_bricks__error2')
+            id = Brick.generate_id('creme_config', 'test_unregister_portal_bricks__error2')
 
         registry = _ConfigRegistry(BrickRegistry())
         registry.register_portal_bricks(TestPortalBrick1, TestPortalBrick2)
@@ -883,8 +949,10 @@ class RegistryTestCase(CremeTestCase):
 
     def test_app_registry__is_empty__bricks(self):
         "Use bricks."
-        class TestBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
+        # class TestBrick(SimpleBrick):
+        class TestBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
+            id = Brick.generate_id('creme_config', 'test_app_registry__is_empty__bricks')
 
         brick_registry = BrickRegistry()
         registry = _ConfigRegistry(
@@ -895,7 +963,8 @@ class RegistryTestCase(CremeTestCase):
         app_registry = registry.get_app_registry('creme_core', create=True)
         self.assertTrue(app_registry.is_empty)
 
-        brick_registry.register(TestBrick)
+        # brick_registry.register(TestBrick)
+        brick_registry.register(brick_registry.Tag.DETAIL, TestBrick)
         self.assertTrue(app_registry.is_empty)
 
         registry.register_app_bricks('creme_core', TestBrick)

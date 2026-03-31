@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -404,10 +404,10 @@ class _AppConfigRegistry:
                     f'App config brick class with empty ID: {brick_cls}'
                 )
 
-            if not hasattr(brick_cls, 'detailview_display'):
-                raise self.RegistrationError(
-                    f'App config brick class has no detailview_display() method: {brick_cls}'
-                )
+            # if not hasattr(brick_cls, 'detailview_display'):
+            #     raise self.RegistrationError(
+            #         f'App config brick class has no detailview_display() method: {brick_cls}'
+            #     )
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(
@@ -436,7 +436,10 @@ class _AppConfigRegistry:
     @property
     def bricks(self) -> Iterator[Brick]:
         """Generator yielding the extra-bricks to configure the app."""
-        global_classes = self._config_registry._brick_registry._brick_classes
+        # global_classes = self._config_registry._brick_registry._brick_classes
+        global_ids = {
+            cls.id for cls in self._config_registry._brick_registry.regular_brick_classes('*')
+        }
 
         for brick_cls in self._brick_classes.values():
             brick = brick_cls()
@@ -445,7 +448,8 @@ class _AppConfigRegistry:
             # NB: we do not check in register_app_bricks() because the registration
             #     of creme_config is generally made before the global registration
             #     of bricks (so the check would not detect any issue).
-            if brick.id in global_classes:
+            # if brick.id in global_classes:
+            if brick.id in global_ids:
                 logger.critical(
                     'App setting brick class registered in global brick registry: %s.\n'
                     'HINT: remove it from global registry.',
@@ -564,14 +568,15 @@ class _ConfigRegistry:
         """Iterator on all AppConfigRegistries."""
         return iter(self._apps.values())
 
+    # TODO: remove?
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
         brick_id = brick_cls.id
 
-        if not hasattr(brick_cls, 'detailview_display'):
-            raise ValueError(
-                '_ConfigRegistry: brick with id="{}" has no '
-                'detailview_display() method'.format(brick_id)
-            )
+        # if not hasattr(brick_cls, 'detailview_display'):
+        #     raise ValueError(
+        #         '_ConfigRegistry: brick with id="{}" has no '
+        #         'detailview_display() method'.format(brick_id)
+        #     )
 
         return brick_id
 
@@ -697,6 +702,10 @@ class _ConfigRegistry:
         """Get the instances of extra Bricks to display on
         "General configuration" page.
         """
+        global_ids = {
+            cls.id for cls in self._brick_registry.regular_brick_classes('*')
+        }
+
         for brick_cls in self._portal_brick_classes.values():
             brick = brick_cls()
 
@@ -704,7 +713,8 @@ class _ConfigRegistry:
             # NB: we do not check in register_portal_bricks() because the registration
             #     of creme_config is generally made before the global registration
             #     of bricks (so the check would not detect any issue).
-            if brick.id in self._brick_registry._brick_classes:
+            # if brick.id in self._brick_registry._brick_classes:
+            if brick.id in global_ids:
                 logger.critical(
                     'Portal brick class registered in global brick registry: %s.\n'
                     'HINT: remove it from global registry.',
@@ -718,6 +728,10 @@ class _ConfigRegistry:
         """Get the instances of extra Bricks to display on
         "My settings" page.
         """
+        global_ids = {
+            cls.id for cls in self._brick_registry.regular_brick_classes('*')
+        }
+
         for brick_cls in self._user_brick_classes.values():
             brick = brick_cls()
 
@@ -725,7 +739,8 @@ class _ConfigRegistry:
             # NB: we do not check in register_user_bricks() because the registration
             #     of creme_config is generally made before the global registration
             #     of bricks (so the check would not detect any issue).
-            if brick.id in self._brick_registry._brick_classes:
+            # if brick.id in self._brick_registry._brick_classes:
+            if brick.id in global_ids:
                 logger.critical(
                     'User setting brick class registered in global brick registry: %s.\n'
                     'HINT #1: remove it from global registry.\n'
@@ -743,9 +758,14 @@ class _ConfigRegistry:
             yield brick
 
     def get_user_brick(self, *, user: CremeUser, brick_id: str) -> Brick:
+        global_ids = {
+            cls.id for cls in self._brick_registry.regular_brick_classes('*')
+        }
+
         # TODO: remove in Creme2.7?
         # NB: see get_user_bricks()
-        if brick_id in self._brick_registry._brick_classes:
+        # if brick_id in self._brick_registry._brick_classes:
+        if brick_id in global_ids:
             logger.critical(
                 'User setting brick class registered in global brick registry: %s.',
                 brick_id,
@@ -756,7 +776,8 @@ class _ConfigRegistry:
             brick_class = self._user_brick_classes[brick_id]
         except KeyError:
             logger.warning('Brick seems deprecated: %s', brick_id)
-            brick = Brick()
+            # brick = Brick()
+            brick = VoidBrick(id=brick_id)
         else:
             brick = brick_class()
             try:

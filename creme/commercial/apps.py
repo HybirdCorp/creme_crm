@@ -49,19 +49,33 @@ class CommercialConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
+        # brick_registry.register(
+        #     bricks.ApproachesBrick,
+        #     bricks.SegmentsBrick,
+        #     bricks.SegmentDescriptionsBrick,
+        #     bricks.AssetsBrick,
+        #     bricks.CharmsBrick,
+        #     bricks.EvaluatedOrgasBrick,
+        #     bricks.ActObjectivesBrick,
+        #     bricks.RelatedOpportunitiesBrick,
+        #     bricks.PatternComponentsBrick,
+        # )
         brick_registry.register(
+            brick_registry.Tag.DETAIL,
+
             bricks.ApproachesBrick,
-            bricks.SegmentsBrick,
+            bricks.SegmentsBrick,  # TODO: Tag.STATIC => fix view?
             bricks.SegmentDescriptionsBrick,
             bricks.AssetsBrick,
             bricks.CharmsBrick,
             bricks.EvaluatedOrgasBrick,
-            # bricks.AssetsMatrixBrick,
-            # bricks.CharmsMatrixBrick,
-            # bricks.AssetsCharmsMatrixBrick,
             bricks.ActObjectivesBrick,
             bricks.RelatedOpportunitiesBrick,
             bricks.PatternComponentsBrick,
+        ).register(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
+
+            bricks.ApproachesBrick,
         )
 
     def register_bulk_update(self, bulk_update_registry):

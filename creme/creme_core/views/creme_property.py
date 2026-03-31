@@ -35,7 +35,7 @@ from ..core.entity_filter.condition_handler import PropertyConditionHandler
 from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
-from ..gui.bricks import ForbiddenBrick, QuerysetBrick, SimpleBrick
+from ..gui.bricks import Brick, ForbiddenBrick, QuerysetBrick  # SimpleBrick
 from ..models import (
     CremeEntity,
     CremeProperty,
@@ -361,13 +361,15 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
         return self.object.get_lv_absolute_url()
 
 
-class PropertyTypeBarHatBrick(SimpleBrick):
+# class PropertyTypeBarHatBrick(SimpleBrick):
+class PropertyTypeBarHatBrick(Brick):
     id = 'property_hat_bar'
     dependencies = '*'
     template_name = 'creme_core/bricks/ptype-hat-bar.html'
 
 
-class PropertyTypeInfoBrick(SimpleBrick):
+# class PropertyTypeInfoBrick(SimpleBrick):
+class PropertyTypeInfoBrick(Brick):
     id = 'property_type_info'
     dependencies = '*'
     read_only = True
@@ -420,7 +422,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
         return ctype
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         ctype = self.ctype
 
         return self._render(self.get_template_context(
@@ -440,7 +443,8 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
         super().__init__()
         self.excluded_ctypes = excluded_ctypes
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         excluded_ctypes = self.excluded_ctypes
         btc = self.get_template_context(
             context,

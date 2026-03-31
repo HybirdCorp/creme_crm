@@ -40,7 +40,8 @@ class NarrowedSubTypesBrick(QuerysetBrick):
         super().__init__()
         self.activity_type = activity_type
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             ActivitySubType.objects.filter(type=self.activity_type),

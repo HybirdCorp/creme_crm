@@ -88,7 +88,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         request.user = user
 
         brick = ActivityBarHatBrick()
-        render = brick.detailview_display(
+        # render = brick.detailview_display(
+        render = brick.render(
             context=self.build_context(user=user, instance=activity),
         )
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
@@ -112,7 +113,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         request.user = user
 
         brick = ActivityBarHatBrick()
-        render = brick.detailview_display(
+        # render = brick.detailview_display(
+        render = brick.render(
             context=self.build_context(user=user, instance=activity),
         )
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
@@ -154,7 +156,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Contacts (with user/is_user/civility)
         #   - Calendars
         with self.assertNumQueries(6):
-            render = ParticipantsBrick().detailview_display(context)
+            # render = ParticipantsBrick().detailview_display(context)
+            render = ParticipantsBrick().render(context)
 
         brick_node = self.get_brick_node(self.get_html_tree(render), ParticipantsBrick)
         self.assertInstanceLink(brick_node, c1)
@@ -196,7 +199,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Contacts
         #   - Organisations
         with self.assertNumQueries(6):
-            render = SubjectsBrick().detailview_display(context)
+            # render = SubjectsBrick().detailview_display(context)
+            render = SubjectsBrick().render(context)
 
         brick_node = self.get_brick_node(self.get_html_tree(render), SubjectsBrick)
         self.assertInstanceLink(brick_node, c2)
@@ -274,7 +278,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Relations ("participates", "subject of activity", "linked to activity")
         #   - Contacts
         with self.assertNumQueries(6):
-            render = FutureActivitiesBrick().detailview_display(context)
+            # render = FutureActivitiesBrick().detailview_display(context)
+            render = FutureActivitiesBrick().render(context)
 
         future_brick_node1 = self.get_brick_node(
             self.get_html_tree(render), brick=FutureActivitiesBrick,
@@ -385,7 +390,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Contacts
         #   - SettingValues "activities-display_review_activities_blocks"
         with self.assertNumQueries(7):
-            render = FutureActivitiesBrick().home_display(context)
+            # render = FutureActivitiesBrick().home_display(context)
+            render = FutureActivitiesBrick().render(context)
 
         future_brick_node1 = self.get_brick_node(
             self.get_html_tree(render), brick=FutureActivitiesBrick,
@@ -572,7 +578,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
 
         context = self.build_context(user=user)
-        future_render = FutureActivitiesBrick().home_display(context)
+        # future_render = FutureActivitiesBrick().home_display(context)
+        future_render = FutureActivitiesBrick().render(context)
 
         future_brick_node = self.get_brick_node(
             self.get_html_tree(future_render), brick=FutureActivitiesBrick,
@@ -583,7 +590,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertInstanceLink(future_brick_node, future[3])
         self.assertNoInstanceLink(future_brick_node, past[0])
 
-        past_render = PastActivitiesBrick().home_display(context)
+        # past_render = PastActivitiesBrick().home_display(context)
+        past_render = PastActivitiesBrick().render(context)
         past_brick_node = self.get_brick_node(
             self.get_html_tree(past_render), brick=PastActivitiesBrick,
         )
@@ -625,7 +633,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_fullcalendar(self):
         user = self.login_as_activities_user()
 
-        contact = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+        # contact = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
 
         default_cal = Calendar.objects.get_default_calendar(user)
         Calendar.objects.create(user=user, name='Other calendar')
@@ -636,9 +644,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             dst_date = self.create_datetime(2023, 8, 1)
 
             with patch('creme.activities.utils.now', return_value=dst_date):
-                render = brick.home_display(
-                    context=self.build_context(user=user, instance=contact),
-                )
+                # render = brick.home_display(
+                #     context=self.build_context(user=user, instance=contact),
+                # )
+                render = brick.render(context=self.build_context(user=user))
 
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 

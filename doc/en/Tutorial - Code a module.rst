@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 09/10/2025 for Creme 2.8
+:Version: 07/05/2026 for Creme 3.0
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1493,19 +1493,19 @@ Create the file ``my_project/beavers/bricks.py``: ::
         # entity types)
         target_ctypes = (Beaver,)
 
-        # If we define this method, we indicate that the block can be displayed on detailed views
-        # (another method is used for home: 'home_display()').
-        def detailview_display(self, context):
+        # We inject some extra information in the related tempalte context
+        def get_template_context(self, context, **extra_kwargs):
             # The current entity is injected in the context by the view 'generic.EntityDetail'
             # & by the reloading view 'bricks.DetailviewBricksReloading'.
             beaver = context['object']
 
             birthday = beaver.birthday
 
-            return self._render(self.get_template_context(
+            return super().get_template_context(
                 context,
                 age=(date.today().year - birthday.year) if birthday else None,
-            ))
+                **extra_kwargs
+            )
 
 Now we add the corresponding template,
 ``my_project/beavers/templates/beavers/bricks/age.html``: ::
@@ -1562,7 +1562,7 @@ In order our brick class is used by Creme, we must register it with ``beavers/ap
         def register_bricks(self, brick_registry):
             from . import bricks
 
-            brick_registry.register(bricks.BeaverAgeBrick)
+            brick_registry.register(brick_registry.Tag.DETAIL, bricks.BeaverAgeBrick)
 
 Now the brick is available in the configuration UI of bricks, when we create
 or edit a configuration of beavers' detailed view.

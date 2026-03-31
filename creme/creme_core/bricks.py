@@ -29,7 +29,7 @@ from .core import notification
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui import button_menu, statistics
-from .gui.bricks import Brick, BrickManager, QuerysetBrick, SimpleBrick
+from .gui.bricks import Brick, BrickManager, QuerysetBrick  # SimpleBrick
 from .gui.history import html_history_registry
 from .models import (
     ButtonMenuItem,
@@ -50,8 +50,10 @@ from .utils.content_type import entity_ctypes
 logger = logging.getLogger(__name__)
 
 
-class ButtonsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('creme_core', 'buttons')
+# class ButtonsBrick(SimpleBrick):
+class ButtonsBrick(Brick):
+    # id = SimpleBrick.generate_id('creme_core', 'buttons')
+    id = Brick.generate_id('creme_core', 'buttons')
     # dependencies => filled dynamically (see detailview_display()/_set_dependencies())
     verbose_name = 'Button menu'
     template_name = 'creme_core/bricks/buttons.html'
@@ -142,7 +144,8 @@ class PropertiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         entity = context['object']
         return self._render(self.get_template_context(
             context, entity.properties.select_related('type'),
@@ -201,7 +204,8 @@ class RelationsBrick(QuerysetBrick):
         for rtype_id in self._included_rtype_ids:
             yield 'creme_core.relation.' + rtype_id
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         entity = context['object']
         # NB: we order by:
         #   - "type__predicate" + "type_id" to group relationships by their type
@@ -260,8 +264,10 @@ class RelationsBrick(QuerysetBrick):
         ))
 
 
-class CustomFieldsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('creme_core', 'customfields')
+# class CustomFieldsBrick(SimpleBrick):
+class CustomFieldsBrick(Brick):
+    # id = SimpleBrick.generate_id('creme_core', 'customfields')
+    id = Brick.generate_id('creme_core', 'customfields')
     verbose_name = _('Custom fields')
     description = _(
         'Displays the values of the Custom Fields for the current entity. '
@@ -340,47 +346,88 @@ class HistoryBrick(QuerysetBrick):
             entity = hline.entity
             hline.can_be_viewed = user.has_perm_to_view(entity) if entity is not None else True
 
-    def detailview_display(self, context):
-        entity = context['object']
-        btc = self.get_template_context(context, HistoryLine.objects.filter(entity=entity.pk))
-        hlines = btc['page'].object_list
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #     btc = self.get_template_context(context, HistoryLine.objects.filter(entity=entity.pk))
+    #     hlines = btc['page'].object_list
+    #     user = context['user']
+    #
+    #     HistoryLine.populate_related_lines(hlines)
+    #     related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+    #     self._populate_related_real_entities(related_hlines)
+    #
+    #     HistoryLine.populate_users(hlines, user)
+    #     self._populate_explainers([*hlines, *related_hlines], user)
+    #
+    #     for hline in hlines:
+    #         hline.entity = entity  # Avoids queries
+    #
+    #         # All lines are referencing "entity", which can be viewed.
+    #         hline.can_be_viewed = True
+    #
+    #     return self._render(btc)
+    #
+    # def home_display(self, context):
+    #     user = context['user']
+    #     qs = HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL))
+    #
+    #     if not user.is_superuser:
+    #         qs = qs.filter(entity_ctype__in=[
+    #             *entity_ctypes(app_labels=user.role.extended_allowed_apps),
+    #         ])
+    #
+    #     btc = self.get_template_context(context, qs, HIDDEN_VALUE=settings.HIDDEN_VALUE)
+    #     hlines = btc['page'].object_list
+    #
+    #     HistoryLine.populate_related_lines(hlines)
+    #     related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+    #     extended_hlines = [*hlines, *related_hlines]
+    #
+    #     self._populate_related_real_entities(extended_hlines)
+    #     HistoryLine.populate_users(hlines, user)
+    #     self._populate_perms(hlines, user)
+    #     self._populate_explainers(extended_hlines, user)
+    #
+    #     return self._render(btc)
+    def render(self, context):
         user = context['user']
+        entity = context.get('object')
+        # TODO: factorise better
+        if entity is None:  # HOME
+            qs = HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL))
 
-        HistoryLine.populate_related_lines(hlines)
-        related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
-        self._populate_related_real_entities(related_hlines)
+            if not user.is_superuser:
+                qs = qs.filter(entity_ctype__in=[
+                    *entity_ctypes(app_labels=user.role.extended_allowed_apps),
+                ])
 
-        HistoryLine.populate_users(hlines, user)
-        self._populate_explainers([*hlines, *related_hlines], user)
+            btc = self.get_template_context(context, qs, HIDDEN_VALUE=settings.HIDDEN_VALUE)
+            hlines = btc['page'].object_list
 
-        for hline in hlines:
-            hline.entity = entity  # Avoids queries
+            HistoryLine.populate_related_lines(hlines)
+            related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+            extended_hlines = [*hlines, *related_hlines]
 
-            # All lines are referencing "entity", which can be viewed.
-            hline.can_be_viewed = True
+            self._populate_related_real_entities(extended_hlines)
+            HistoryLine.populate_users(hlines, user)
+            self._populate_perms(hlines, user)
+            self._populate_explainers(extended_hlines, user)
+        else:
+            btc = self.get_template_context(context, HistoryLine.objects.filter(entity=entity.pk))
+            hlines = btc['page'].object_list
 
-        return self._render(btc)
+            HistoryLine.populate_related_lines(hlines)
+            related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+            self._populate_related_real_entities(related_hlines)
 
-    def home_display(self, context):
-        user = context['user']
-        qs = HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL))
+            HistoryLine.populate_users(hlines, user)
+            self._populate_explainers([*hlines, *related_hlines], user)
 
-        if not user.is_superuser:
-            qs = qs.filter(entity_ctype__in=[
-                *entity_ctypes(app_labels=user.role.extended_allowed_apps),
-            ])
+            for hline in hlines:
+                hline.entity = entity  # Avoids queries
 
-        btc = self.get_template_context(context, qs, HIDDEN_VALUE=settings.HIDDEN_VALUE)
-        hlines = btc['page'].object_list
-
-        HistoryLine.populate_related_lines(hlines)
-        related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
-        extended_hlines = [*hlines, *related_hlines]
-
-        self._populate_related_real_entities(extended_hlines)
-        HistoryLine.populate_users(hlines, user)
-        self._populate_perms(hlines, user)
-        self._populate_explainers(extended_hlines, user)
+                # All lines are referencing "entity", which can be viewed.
+                hline.can_be_viewed = True
 
         return self._render(btc)
 
@@ -398,23 +445,37 @@ class ImprintsBrick(QuerysetBrick):
     order_by = '-id'  # faster than '-date'
     template_name = 'creme_core/bricks/imprints.html'
 
-    def detailview_display(self, context):
-        can_view = context['user'].is_superuser
-        qs = Imprint.objects.filter(
-            entity=context['object'].pk,
-        ) if can_view else Imprint.objects.none()
+    # def detailview_display(self, context):
+    #     can_view = context['user'].is_superuser
+    #     qs = Imprint.objects.filter(
+    #         entity=context['object'].pk,
+    #     ) if can_view else Imprint.objects.none()
+    #
+    #     return self._render(self.get_template_context(context, qs))
+    #
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         # NB: there will still be queries for each different Contacts
+    #         #     corresponding to users...
+    #         Imprint.objects.prefetch_related('real_entity', 'user')
+    #         if context['user'].is_superuser else
+    #         Imprint.objects.none()
+    #     ))
+    def render(self, context):
+        user = context['user']
+        if user.is_superuser:
+            entity = context.get('object')
+            if entity is None:  # HOME
+                # NB: there will still be queries for each different Contacts
+                #     corresponding to users...
+                qs = Imprint.objects.prefetch_related('real_entity', 'user')
+            else:  # DETAIL
+                qs = Imprint.objects.filter(entity.pk)
+        else:
+            qs = Imprint.objects.none()
 
         return self._render(self.get_template_context(context, qs))
-
-    def home_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            # NB: there will still be queries for each different Contacts
-            #     corresponding to users...
-            Imprint.objects.prefetch_related('real_entity', 'user')
-            if context['user'].is_superuser else
-            Imprint.objects.none()
-        ))
 
 
 class TrashBrick(QuerysetBrick):
@@ -427,7 +488,8 @@ class TrashBrick(QuerysetBrick):
     # permissions = None  # NB: the template uses credentials
     configurable = False  # TODO: allows on home page ?
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         btc = self.get_template_context(
             context,
             CremeEntity.objects.filter(is_deleted=True),
@@ -446,7 +508,8 @@ class RecentEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/recent-entities.html'
     page_size = QuerysetBrick.page_size * 2
 
-    def home_display(self, context):
+    # def home_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
@@ -469,7 +532,8 @@ class PinnedEntitiesBrick(QuerysetBrick):
     order_by = '-created'
     template_name = 'creme_core/bricks/pinned-entities.html'
 
-    def home_display(self, context):
+    # def home_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             PinnedEntity.objects.filter(
@@ -507,8 +571,8 @@ class StatisticsBrick(Brick):
             **extra_kwargs
         )
 
-    def home_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
 
 class JobsBrick(QuerysetBrick):
@@ -525,7 +589,8 @@ class JobsBrick(QuerysetBrick):
         #     This ordering regroups jobs per app, it's not bad.
         return Job.objects.order_by('type_id', 'id')
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context, self._jobs_qs(context),
             not_finished_user_jobs_count=Job.objects.not_finished(context['user']).count(),
@@ -552,7 +617,8 @@ class NotificationsBrick(QuerysetBrick):
     configurable = False
     page_size = 50
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         user = context['user']
         btc = self.get_template_context(
             context,

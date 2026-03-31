@@ -17,7 +17,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
 )
-from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.bricks import Brick, BrickRegistry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -432,7 +432,8 @@ class DetailBrickTestCase(BaseBrickTestCase):
         )
         self.assertEqual(
             _('Default block configuration for detail-views uses «{block}»').format(
-                block='BLOCK',
+                # block='BLOCK',
+                block='??',
             ),
             str(loc5),
         )
@@ -990,7 +991,8 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         brick_id = f'instance-{ibi.uuid}'
         self.assertEqual(brick_id, ibi.brick_id)
 
-        brick = ibi.brick
+        # brick = ibi.brick
+        brick = ibi.get_brick(BrickRegistry.Tag.DETAIL)
         self.assertIsInstance(brick, Brick)
 
         # Because the class is not registered

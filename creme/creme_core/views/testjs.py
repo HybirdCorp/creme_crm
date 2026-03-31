@@ -125,7 +125,8 @@ class DummyListBrick(PaginatedBrick):
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
     configurable = False
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         request = context['request']
         user = request.user
         reloading_info = self.reloading_info or {}

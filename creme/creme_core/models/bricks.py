@@ -45,7 +45,7 @@ from .setting_value import SettingValue
 
 if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
-    from ..gui.bricks import Brick, InstanceBrick
+    from ..gui.bricks import Brick, BrickRegistry, InstanceBrick
 
 __all__ = (
     'BrickDetailviewLocation', 'BrickHomeLocation', 'BrickMypageLocation',
@@ -237,7 +237,12 @@ class BrickDetailviewLocation(CremeModel):
 
         model = ct.model_class() if ct else CremeEntity
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,), entity=model())),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,), entity=model())),
+            brick_registry.get_bricks(
+                tag=brick_registry.Tag.DETAIL,
+                brick_ids=(self.brick_id,),
+                entity=model(),
+            ),
             None
         )
 
@@ -306,7 +311,8 @@ class BrickHomeLocation(CremeModel):
             msg = gettext('Block configuration of Home uses «{block}»')
 
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            brick_registry.get_bricks(tag=brick_registry.Tag.HOME, brick_ids=(self.brick_id,)),
             None
         )
 
@@ -344,7 +350,10 @@ class BrickMypageLocation(CremeModel):
         )
 
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            brick_registry.get_bricks(
+                tag=brick_registry.Tag.MY_PAGE, brick_ids=(self.brick_id,)
+            ),
             None
         )
 
@@ -655,13 +664,23 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    @property
-    def brick(self) -> InstanceBrick:
+    # @property
+    # def brick(self) -> InstanceBrick:
+    #     brick = self._brick
+    #
+    #     if brick is None:
+    #         from ..gui.bricks import brick_registry
+    #         self._brick = brick = brick_registry.get_brick_4_instance(self, entity=self.entity)
+    #
+    #     return brick
+    def get_brick(self, tag: BrickRegistry.Tag) -> InstanceBrick:
         brick = self._brick
 
         if brick is None:
             from ..gui.bricks import brick_registry
-            self._brick = brick = brick_registry.get_brick_4_instance(self, entity=self.entity)
+            self._brick = brick = brick_registry.get_brick_4_instance(
+                tag=tag, ibi=self, entity=self.entity,
+            )
 
         return brick
 

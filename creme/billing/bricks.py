@@ -27,11 +27,10 @@ from django.utils.translation import gettext_lazy as _
 import creme.persons.bricks as persons_bricks
 from creme import billing, persons
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
     Brick,
     PaginatedBrick,
     QuerysetBrick,
-    SimpleBrick,
 )
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.utils.paginators import OnePagePaginator
@@ -62,7 +61,8 @@ ServiceLine = billing.get_service_line_model()
 
 
 # Hat bars ---------------------------------------------------------------------
-class BillingBarHatBrick(SimpleBrick):
+# class BillingBarHatBrick(SimpleBrick):
+class BillingBarHatBrick(Brick):
     template_name = 'billing/bricks/billing-hat-bar.html'
     download_button = True
 
@@ -215,7 +215,8 @@ class InvoicesGeneratedFromQuoteSummary(CardSummary):
         return context
 
 
-class _BillingCardHatBrick(SimpleBrick):
+# class _BillingCardHatBrick(SimpleBrick):
+class _BillingCardHatBrick(Brick):
     verbose_name = _('Card header block')
     template_name = 'billing/bricks/billing-hat-card.html'
     download_button = True
@@ -305,7 +306,8 @@ class SalesOrderCardHatBrick(_BillingCardHatBrick):
 
 
 # Other ------------------------------------------------------------------------
-class _LinesBrick(SimpleBrick):
+# class _LinesBrick(SimpleBrick):
+class _LinesBrick(Brick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
@@ -373,7 +375,8 @@ class CreditNotesBrick(PaginatedBrick):
     target_ctypes = (Invoice, SalesOrder, Quote)
     permissions = 'billing'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             context['object'].get_credit_notes(),
@@ -381,8 +384,10 @@ class CreditNotesBrick(PaginatedBrick):
         ))
 
 
-class TotalBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('billing', 'total')
+# class TotalBrick(SimpleBrick):
+class TotalBrick(Brick):
+    # id = SimpleBrick.generate_id('billing', 'total')
+    id = Brick.generate_id('billing', 'total')
     dependencies = (
         ProductLine, ServiceLine,
         Relation,
@@ -402,8 +407,10 @@ class TotalBrick(SimpleBrick):
         )
 
 
-class TargetBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('billing', 'target')
+# class TargetBrick(SimpleBrick):
+class TargetBrick(Brick):
+    # id = SimpleBrick.generate_id('billing', 'target')
+    id = Brick.generate_id('billing', 'target')
     dependencies = (Invoice, CreditNote, SalesOrder, Quote, TemplateBase)
     verbose_name = _('Target and source')
     template_name = 'billing/bricks/target.html'
@@ -421,7 +428,8 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     permissions = 'billing'
     order_by = '-expiration_date'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             Invoice.objects.filter(
@@ -447,7 +455,8 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     _empty_title = _('Received billing documents')  # OVERRIDE ME
     _empty_msg   = _('No received billing document for the moment')  # OVERRIDE ME
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         model = self._billing_model
 
         return self._render(self.get_template_context(
@@ -518,7 +527,8 @@ class PaymentInformationBrick(QuerysetBrick):
     # permissions = 'billing' ??
     order_by = 'name'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         organisation = context['object']
 
         if (
@@ -556,7 +566,8 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     )
     order_by = 'name'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         billing_doc = context['object']
         pi_qs = PaymentInformation.objects.none()
         hidden = context['fields_configs'].get_for_model(
@@ -587,8 +598,10 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     permissions = 'billing'
 
 
-class NumberGeneratorItemsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('billing', 'number_generators')
+# class NumberGeneratorItemsBrick(SimpleBrick):
+class NumberGeneratorItemsBrick(Brick):
+    # id = SimpleBrick.generate_id('billing', 'number_generators')
+    id = Brick.generate_id('billing', 'number_generators')
     verbose_name = 'Number generation'
     template_name = 'billing/bricks/number-generators.html'
     dependencies = (NumberGeneratorItem,)
@@ -622,8 +635,10 @@ class NumberGeneratorItemsBrick(SimpleBrick):
         )
 
 
-class BillingExportersBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('billing', 'exporters')
+# class BillingExportersBrick(SimpleBrick):
+class BillingExportersBrick(Brick):
+    # id = SimpleBrick.generate_id('billing', 'exporters')
+    id = Brick.generate_id('billing', 'exporters')
     verbose_name = _('Exporters')
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
@@ -653,8 +668,10 @@ class BillingExportersBrick(SimpleBrick):
         )
 
 
-class PersonsStatisticsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('billing', 'persons__statistics')
+# class PersonsStatisticsBrick(SimpleBrick):
+class PersonsStatisticsBrick(Brick):
+    # id = SimpleBrick.generate_id('billing', 'persons__statistics')
+    id = Brick.generate_id('billing', 'persons__statistics')
     verbose_name = _('Billing statistics')
     description = _(
         'Displays some statistics concerning Invoices & Quotes:\n'
