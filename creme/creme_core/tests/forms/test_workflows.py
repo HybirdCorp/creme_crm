@@ -165,7 +165,8 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
                 'rtype': rtype1.id,
                 'ctype': ContentType.objects.get_for_model(model2).id,
             },
-            json_load(field1.from_python(trigger1)),
+            # json_load(field1.from_python(trigger1)),
+            json_load(field1.prepare_value(trigger1)),
         )
 
         # ---
@@ -417,11 +418,17 @@ class SourceFieldsTestCase(CremeTestCase):
         })
         self.assertEqual(FixedEntitySource(entity=orga), field.clean(serialized_data))
 
-        self.assertEqual('', field.from_python(None))
-        self.assertEqual('', field.from_python(''))
-        self.assertEqual(serialized_data, field.from_python(serialized_data))
+        # self.assertEqual('', field.from_python(None))
+        # self.assertEqual('', field.from_python(''))
+        # self.assertEqual(serialized_data, field.from_python(serialized_data))
+        # self.assertJSONEqual(
+        #     serialized_data, field.from_python(FixedEntitySource(entity=orga)),
+        # )
+        self.assertEqual('', field.prepare_value(None))
+        self.assertEqual('', field.prepare_value(''))
+        self.assertEqual(serialized_data, field.prepare_value(serialized_data))
         self.assertJSONEqual(
-            serialized_data, field.from_python(FixedEntitySource(entity=orga)),
+            serialized_data, field.prepare_value(FixedEntitySource(entity=orga)),
         )
 
     def test_FixedEntitySourceField__empty(self):
@@ -526,7 +533,8 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
                 'rtype': rtype1.id,
                 'ctype': ContentType.objects.get_for_model(model2).id,
             },
-            json_load(field1.from_python(source1)),
+            # json_load(field1.from_python(source1)),
+            json_load(field1.prepare_value(source1)),
         )
 
         # ---
@@ -846,11 +854,27 @@ class SourceFieldTestCase(CremeTestCase):
             (created_kind, {created_kind: ''}),
             field.prepare_value(CreatedEntitySource(model=model)),
         )
-        self.assertTupleEqual(
-            # TODO: to be fixed when prepare_value() is cleanly managed by our JSONFields...
-            (fixed_kind, {fixed_kind: FixedEntitySource(entity=orga)}),
-            field.prepare_value(FixedEntitySource(entity=orga)),
+
+        # self.assertTupleEqual(
+        #     (fixed_kind, {fixed_kind: FixedEntitySource(entity=orga)}),
+        #     field.prepare_value(FixedEntitySource(entity=orga)),
+        # )
+        fixed_prepared_value = field.prepare_value(FixedEntitySource(entity=orga))
+        self.assertIsTuple(fixed_prepared_value, length=2)
+        self.assertEqual(fixed_kind, fixed_prepared_value[0])
+        self.assertIsDict(fixed_prepared_value[1], length=1)
+        self.assertJSONEqual(
+            raw=fixed_prepared_value[1].get(fixed_kind),
+            expected_data={
+                'ctype': {
+                    'create': reverse('creme_core__quick_form', args=(orga.entity_type_id,)),
+                    'id': orga.entity_type_id,
+                    'create_label': str(orga.creation_label),
+                },
+                'entity': orga.id,
+            },
         )
+
         self.assertTupleEqual(
             (fk_kind, {fk_kind: 'image'}),
             field.prepare_value(EntityFKSource(

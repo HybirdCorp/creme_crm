@@ -114,12 +114,12 @@ class JSONField(fields.CharField):
     def __init__(self, *, user: CremeUser | None = None, **kwargs):
         super().__init__(**kwargs)
         self._user = user
-        self.widget.from_python = self.from_python
+        # self.widget.from_python = self.from_python
 
-    def __deepcopy__(self, memo):
-        obj = super().__deepcopy__(memo)
-        obj.widget.from_python = obj.from_python
-        return obj
+    # def __deepcopy__(self, memo):
+    #     obj = super().__deepcopy__(memo)
+    #     obj.widget.from_python = obj.from_python
+    #     return obj
 
     @property
     def user(self) -> CremeUser | None:
@@ -209,8 +209,15 @@ class JSONField(fields.CharField):
     def format_json(self, value):
         return json_encode(value)
 
-    # TODO: can we remove this hack with the new widget api (since django 1.2) ??
-    def from_python(self, value):
+    # def from_python(self, value):
+    #     if not value:
+    #         return ''
+    #
+    #     if isinstance(value, str):
+    #         return value
+    #
+    #     return self.format_json(self._value_to_jsonifiable(value))
+    def prepare_value(self, value):
         if not value:
             return ''
 

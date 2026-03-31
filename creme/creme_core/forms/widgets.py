@@ -210,14 +210,12 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
         super().__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
-        self.from_python = None
+        # self.from_python = None
         self.choices = options
         self.avoid_empty = self.avoid_empty if avoid_empty is None else avoid_empty
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-dselect'
-
-        # value = self.from_python(value) if self.from_python is not None else value # TODO ?
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
@@ -248,13 +246,11 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
         super().__init__(attrs=attrs, choices=())  # TODO: options or ()
         self.url = url
         self.label = label
-        self.from_python = None
+        # self.from_python = None
         self.choices = options
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-dselect'
-
-        # value = self.from_python(value) if self.from_python is not None else value  # TODO ?
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
@@ -284,7 +280,7 @@ class ActionButtonList(widgets.Widget):
         super().__init__(attrs)
         self.delegate = delegate
         self.actions = [*actions]
-        self.from_python = None
+        # self.from_python = None
 
     def __deepcopy__(self, memo):
         obj = super().__deepcopy__(memo)
@@ -306,7 +302,7 @@ class ActionButtonList(widgets.Widget):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-actionbuttonlist'
 
-        value = self.from_python(value) if self.from_python is not None else value
+        # value = self.from_python(value) if self.from_python is not None else value
 
         # TODO: what about attrs passed twice + cannot customise "class" of the wrapping <ul>?
         context = super().get_context(name=name, value=value, attrs=attrs)
@@ -331,7 +327,7 @@ class PolymorphicInput(widgets.TextInput):
         self.inputs = []
         self.default_input = None
         self.set_inputs(*args)
-        self.from_python = None  # TODO: remove this hack ?
+        # self.from_python = None
 
     def set_inputs(self, *args):
         for input in args:
@@ -357,7 +353,6 @@ class PolymorphicInput(widgets.TextInput):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-polymorphicselect'
 
-        # value = self.from_python(value) if self.from_python is not None else value # TODO ?
         context = super().get_context(name='', value='', attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['key'] = self.key
@@ -447,7 +442,7 @@ class ChainedInput(widgets.TextInput):
         super().__init__(attrs)
         self.inputs = []
         self.set_inputs(*args)
-        self.from_python = None  # TODO: remove this hack ?
+        # self.from_python = None
 
     def __deepcopy__(self, memo):
         obj = super().__deepcopy__(memo)
@@ -479,7 +474,7 @@ class ChainedInput(widgets.TextInput):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-chainedselect'
 
-        value = self.from_python(value) if self.from_python is not None else value
+        # value = self.from_python(value) if self.from_python is not None else value
         context = super().get_context(name=f'chain|{name}', value='', attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
@@ -519,7 +514,7 @@ class SelectorList(widgets.TextInput):
         self.selector = selector
 
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
-        self.from_python = None  # TODO: remove this hack ?
+        # self.from_python = None
 
     def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
         self.actions.append(self.action_class(
@@ -534,7 +529,7 @@ class SelectorList(widgets.TextInput):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-selectorlist'
 
-        value = self.from_python(value) if self.from_python is not None else value
+        # value = self.from_python(value) if self.from_python is not None else value
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
@@ -578,7 +573,7 @@ class EntitySelector(widgets.Widget):
         super().__init__(attrs=attrs)
         self.url = self._build_listview_url(content_type)
         self.text_url = self._build_text_url()
-        self.from_python = None
+        # self.from_python = None
 
     def _build_listview_url(self, content_type):
         return '{}?ct_id={}&selection=${{selection}}&q_filter=${{qfilter}}'.format(
@@ -594,8 +589,6 @@ class EntitySelector(widgets.Widget):
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-entityselector'
-
-        # value = self.from_python(value) if self.from_python is not None else value  # TODO ?
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']

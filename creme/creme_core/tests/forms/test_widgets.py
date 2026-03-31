@@ -1433,7 +1433,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         )
         self.assertEqual(creation_label, widget.creation_label)
 
-        widget.from_python = lambda value: value.id
+        # widget.from_python = lambda value: value.id
         reset_label = _('Clear')
         html = '''
 <ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist"
@@ -1474,7 +1474,8 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 
             value=contact.id,
         )
-        self.assertHTMLEqual(html, widget.render('field', value=contact))
+        # self.assertHTMLEqual(html, widget.render('field', value=contact))
+        self.assertHTMLEqual(html, widget.render('field', value=contact.id))
 
 
 class CremeTextareaTestCase(CremeTestCase):
