@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2025  Hybird
+#    Copyright (C) 2017-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,9 +44,8 @@ class BricksReloading(generic.CheckedView):
     """
     response_class: type[HttpResponseBase] = CremeJsonResponse
     brick_registry: BrickRegistry = global_brick_registry
-    # Name of the Brick's render method to use ;
-    # classically: "detailview_display" or "home_display".
-    brick_render_method: str = 'detailview_display'
+    # brick_render_method: str = 'detailview_display'
+    brick_tag = BrickRegistry.Tag.STATIC
 
     def get_brick_ids(self) -> list[str]:
         # TODO: filter empty IDs ??
@@ -60,6 +59,7 @@ class BricksReloading(generic.CheckedView):
     def get_bricks(self) -> list[Brick]:
         return [
             *self.brick_registry.get_bricks(
+                tag=self.brick_tag,
                 brick_ids=self.get_brick_ids(),
                 user=self.request.user,
             ),
@@ -93,25 +93,27 @@ class BricksReloading(generic.CheckedView):
         for brick in bricks:
             bricks_manager.add_group(f'group-{id(brick)}', brick)
 
-        render_method = self.brick_render_method
+        # render_method = self.brick_render_method
         for brick in bricks:
             reloading_info = all_reloading_info.get(brick.id)
             if reloading_info is not None:
                 brick.reloading_info = reloading_info
 
-            render_func = getattr(brick, render_method, None)
+            # render_func = getattr(brick, render_method, None)
+            #
+            # if render_func is None:
+            #     logger.warning(
+            #         'Brick without %s(): %s (id=%s)',
+            #         render_method, brick.__class__, brick.id,
+            #     )
+            # else:
+            #     brick_renders.append((brick.id, render_func({**context})))
 
-            if render_func is None:
-                logger.warning(
-                    'Brick without %s(): %s (id=%s)',
-                    render_method, brick.__class__, brick.id,
-                )
-            else:
-                # NB: the context is copied is order to a 'fresh' one for each
-                # brick, & so avoid annoying side effects.
-                # Notice that build_context() creates a shared dictionary with
-                # the "shared" key in order to explicitly share data between 2+ bricks.
-                brick_renders.append((brick.id, render_func({**context})))
+            # NB: the context is copied is order to a 'fresh' one for each
+            # brick, & so avoid annoying side effects.
+            # Notice that build_context() creates a shared dictionary with
+            # the "shared" key in order to explicitly share data between 2+ bricks.
+            brick_renders.append((brick.id, brick.render({**context})))
 
         return brick_renders
 
@@ -132,6 +134,8 @@ class BricksReloading(generic.CheckedView):
 
 
 class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading):
+    brick_tag = BrickRegistry.Tag.DETAIL
+
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
 
@@ -141,6 +145,7 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
         model = type(entity)
 
         for brick in self.brick_registry.get_bricks(
+            tag=self.brick_tag,
             brick_ids=self.get_brick_ids(),
             entity=entity,
             user=self.request.user,
@@ -161,7 +166,12 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
 
 
 class HomeBricksReloading(BricksReloading):
-    brick_render_method = 'home_display'
+    # brick_render_method = 'home_display'
+    brick_tag = BrickRegistry.Tag.HOME
+
+
+class MyPageBricksReloading(BricksReloading):
+    brick_tag = BrickRegistry.Tag.MY_PAGE
 
 
 class BrickStateSetting(generic.CheckedView):

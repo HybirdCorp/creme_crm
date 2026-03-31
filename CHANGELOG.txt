@@ -13,15 +13,33 @@
 
   Developers side :
   -----------------
+    # The 'Brick' class has now only one 'render()' method, and the registration
+      methods take a tag ('DETAIL', 'HOME', 'MY_PAGE', 'STATIC').
+       - It would be easier to remove a render target (detail-view, home etc..) of an
+         existing 'Brick' class from custom code (you just have to unregister the class for
+         some targets, not to remove a method anymore -- which was annoying with inheriting classes).
+       - It's now possible to have a 'Brick' class which renders on Home but not on
+         "My page" (or the contrary).
+     You have to replace the methods 'detailview_display()' & 'home_display()' in your
+     'Brick' classes by the method 'render()' (note: you can check 'context["object"]'
+     if you have to manage the both cases -- or even define 2 classes).
+     More details below.
 
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - In 'creme_core.bui.bricks' :
+                - The method 'BrickRegistry.__iter__()' is deprecated.
+                - The class 'SimpleBrick'  is deprecated ; use 'Brick' instead.
             - In 'creme_core.models' :
                 - In the class 'EntityFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
                 - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
+            - In the templatetags libray "creme_bricks" :
+               - The argument "render" of '{% brick_display %}' is deprecated & ignored.
+               - Not passing a "tag" parameter to the following templatetags is deprecated :
+                 '{% brick_get_by_ids %}', '{% brick_import %}'.
             - Apps :
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
@@ -52,8 +70,21 @@
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' has been removed.
-        # In 'utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
+        # In 'creme_core.gui.bricks' :
+            - The method 'Brick._simple_detailview_display()' has been removed.
+            - In the class 'BrickRegistry':
+                - These methods take a new "tag" argument :
+                    - register()
+                    - register_4_instance()
+                    - unregister()
+                  So you have to fix your 'apps.py' if you handle bricks.
+                - The methods 'get_bricks()' & 'get_brick_4_instance' take now their arguments
+                  as keyword only now, & a new mandatory argument "tag" has been added.
+                - The method '__getitem__' has been removed.
+        # In 'creme_core.utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
           (you should not write the internal attributes).
+        # In 'creme_core.views.bricks.BricksReloading', the attribute 'brick_render_method' has
+          been removed ; define 'brick_tag' instead.
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
               do not inject the key "allowed" in their data anymore (the key "error" is enough).
@@ -92,11 +123,14 @@
             - The class attribute 'creme_core.core.entity_filter.operators.ConditionOperator.type_id'is now a string;
               the "constants" like 'EQUALS' have been modified.
           are now strings instead of integers;
+        # In the class 'creme_core.gui.bricks.BrickRegistry', some internal attributes have changed.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :
             * Creme_config :
                 - In 'bricks', the template contexts of 'EntityFiltersBrick' &
                   'HeaderFiltersBrick' have changed.
+            * Persons :
+                - The global variable 'bricks.brick_classes' has been removed.
 
 
 == Version 2.8 ==

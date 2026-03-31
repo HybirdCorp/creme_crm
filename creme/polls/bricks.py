@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2025  Hybird
+#    Copyright (C) 2012-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme import persons, polls
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
+    Brick,
     BrickDependencies,
     QuerysetBrick,
-    SimpleBrick,
 )
 
 from .models import PollFormLine, PollReplyLine
@@ -35,12 +35,15 @@ PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
 
 
-class PollFormBarHatBrick(SimpleBrick):
+# class PollFormBarHatBrick(SimpleBrick):
+class PollFormBarHatBrick(Brick):
     template_name = 'polls/bricks/pform-hat-bar.html'
 
 
-class PollFormLinesBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('polls', 'pollform_lines')
+# class PollFormLinesBrick(SimpleBrick):
+class PollFormLinesBrick(Brick):
+    # id = SimpleBrick.generate_id('polls', 'pollform_lines')
+    id = Brick.generate_id('polls', 'pollform_lines')
     verbose_name = _('Form lines')
     dependencies = (PollFormLine,)
     template_name = 'polls/bricks/pform-lines.html'
@@ -100,8 +103,10 @@ class PollFormLinesBrick(SimpleBrick):
         )
 
 
-class PollReplyLinesBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('polls', 'pollreply_lines')
+# class PollReplyLinesBrick(SimpleBrick):
+class PollReplyLinesBrick(Brick):
+    # id = SimpleBrick.generate_id('polls', 'pollreply_lines')
+    id = Brick.generate_id('polls', 'pollreply_lines')
     verbose_name = _('Reply lines')
     dependencies = (PollReplyLine,)
     template_name = 'polls/bricks/preply-lines.html'
@@ -130,7 +135,8 @@ class PollRepliesBrick(QuerysetBrick):
     target_ctypes = (PollForm,)
     permissions = 'polls'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         pform = context['object']
 
         return self._render(self.get_template_context(
@@ -149,7 +155,8 @@ class _RelatedRepliesBrick(QuerysetBrick):
     def _get_replies(self, pk):
         raise NotImplementedError
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         pk = context['object'].id
 
         return self._render(self.get_template_context(

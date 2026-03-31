@@ -59,6 +59,8 @@ class EmailsConfig(CremeAppConfig):
         from . import bricks
 
         brick_registry.register(
+            brick_registry.Tag.DETAIL,
+
             bricks.EmailHTMLBodyBrick,
             bricks.TemplateHTMLBodyBrick,
             bricks.MailingListsBrick,
@@ -73,6 +75,8 @@ class EmailsConfig(CremeAppConfig):
             bricks.MailPopupBrick,
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
+        ).register(
+            brick_registry.Tag.STATIC,
             bricks.EmailsToSyncBrick,
         ).register_hat(
             self.EntityEmail,

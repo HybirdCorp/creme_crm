@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,8 @@ class CrudityQuerysetBrick(QuerysetBrick):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         if not context['user'].has_perm('crudity'):
             raise PermissionDenied(
                 gettext(
@@ -67,10 +68,12 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
     def _iter_dependencies_info(self):
         yield 'crudity.waitingaction.' + self.backend.get_id()
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         # Credentials are OK: brick is not registered in brick registry,
         # so reloading is necessarily done with the custom view
-        super().detailview_display(context)
+        # super().detailview_display(context)
+        super().render(context)
         backend = self.backend
         ct = ContentType.objects.get_for_model(backend.model)
 
@@ -105,10 +108,11 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         self.ct = ct
         self.id = self.generate_id('crudity', str(ct.id))
 
-    def detailview_display(self, context):
-        # Credentials are OK: block is not registered in block registry,
+    # def detailview_display(self, context):
+    def render(self, context):
+        # Credentials are OK: brick is not registered in brick registry,
         # so reloading is necessarily done with the custom view
-        super().detailview_display(context)
+        super().render(context)
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)

@@ -82,6 +82,7 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         assert hasattr(EntityDetail, 'brick_registry')
 
         EntityDetail.brick_registry = deepcopy(brick_registry).register(
+            brick_registry.Tag.DETAIL,
             AppPermissionBrick,
         )
 
@@ -90,7 +91,10 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         super().tearDownClass()
         delattr(EntityDetail, 'brick_registry')
         assert hasattr(EntityDetail, 'brick_registry')
-        assert AppPermissionBrick.id not in EntityDetail.brick_registry._brick_classes
+        assert (
+            AppPermissionBrick.id not in
+            EntityDetail.brick_registry.regular_brick_classes(brick_registry.Tag.DETAIL)
+        )
 
     def test_basic(self):
         user = self.login_as_root_and_get()

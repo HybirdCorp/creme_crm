@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-08 23:05+0200\n"
+"POT-Creation-Date: 2026-05-11 15:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1611,8 +1611,11 @@ msgstr "Peut être affiché sur"
 msgid "Errors"
 msgstr "Erreurs"
 
-msgid "Home & «My page»"
-msgstr "Accueil & «Ma page»"
+msgid "Home"
+msgstr "Accueil"
+
+msgid "«My page»"
+msgstr "«Ma page»"
 
 msgid "Detail views:"
 msgstr "Vue détaillée :"
@@ -2209,9 +2212,6 @@ msgstr "Clé"
 
 msgid "Menu icon"
 msgstr "Icône du menu"
-
-msgid "Home"
-msgstr "Accueil"
 
 msgid "Default icon"
 msgstr "Icône par défaut"

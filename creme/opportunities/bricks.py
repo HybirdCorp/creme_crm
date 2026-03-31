@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,12 +28,11 @@ from creme.creme_core.core.entity_cell import (
     EntityCell,
     EntityCellRegularField,
 )
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
     Brick,
     BrickDependencies,
     EntityBrick,
     QuerysetBrick,
-    SimpleBrick,
 )
 from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.creme_core.utils.paginators import OnePagePaginator
@@ -177,7 +176,8 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
     def _extra_context(self, context) -> dict:
         return {}
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         entity = context['object']
         relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
 
@@ -313,7 +313,8 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
     permissions = 'opportunities'
     order_by = 'name'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         entity = context['object']
 
         return self._render(self.get_template_context(
@@ -329,8 +330,10 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
         ))
 
 
-class OppTotalBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('opportunities', 'total')
+# class OppTotalBrick(SimpleBrick):
+class OppTotalBrick(Brick):
+    # id = SimpleBrick.generate_id('opportunities', 'total')
+    id = Brick.generate_id('opportunities', 'total')
     verbose_name = _('Totals')
     description = _(
         'Displays the totals (exclusive of tax & inclusive of tax) of the '
@@ -344,8 +347,10 @@ class OppTotalBrick(SimpleBrick):
     permissions = 'opportunities'
 
 
-class OppTargetBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('opportunities', 'target')
+# class OppTargetBrick(SimpleBrick):
+class OppTargetBrick(Brick):
+    # id = SimpleBrick.generate_id('opportunities', 'target')
+    id = Brick.generate_id('opportunities', 'target')
     verbose_name = _('Target and source')
     description = _(
         'Displays the target & the source of the current Opportunity.\n'

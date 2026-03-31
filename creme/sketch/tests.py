@@ -13,7 +13,8 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def render_brick(self, user, brick_class):
         entity = FakeContact.objects.create(user=user, first_name='Any', last_name='Entity')
 
-        brick_registry.register(brick_class)
+        # brick_registry.register(brick_class)
+        brick_registry.register(brick_registry.Tag.DETAIL, brick_class)  # TODO: unregister
 
         response = self.assertGET200(
             reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),

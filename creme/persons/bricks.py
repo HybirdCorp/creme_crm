@@ -30,12 +30,8 @@ from django.utils.translation import gettext_lazy as _
 from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.bricks import (
-    Brick,
-    PaginatedBrick,
-    QuerysetBrick,
-    SimpleBrick,
-)
+# from creme.creme_core.gui.bricks import SimpleBrick
+from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick
 from creme.creme_core.models import CremeEntity, Relation, RelationType
 from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.paginators import OnePagePaginator
@@ -221,18 +217,21 @@ else:
         pass
 
 
-class ContactBarHatBrick(SimpleBrick):
+# class ContactBarHatBrick(SimpleBrick):
+class ContactBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'persons/bricks/contact-hat-bar.html'
 
 
-class OrganisationBarHatBrick(SimpleBrick):
+# class OrganisationBarHatBrick(SimpleBrick):
+class OrganisationBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'persons/bricks/organisation-hat-bar.html'
 
 
 # TODO: move to core ?
-class _PersonsCardHatBrick(SimpleBrick):
+# class _PersonsCardHatBrick(SimpleBrick):
+class _PersonsCardHatBrick(Brick):
     intro_summary = LastActivityIntroSummary  # TODO: accept several summaries?
     summaries = [
         CommercialActsSummary,
@@ -417,7 +416,8 @@ class _LinkedPeopleBrick(QuerysetBrick):
     def _get_people_qs(self, orga):
         raise NotImplementedError
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             # TODO: better system to know which field(s) to select_related()
@@ -485,7 +485,8 @@ def _get_address_field_names():
     return field_names
 
 
-class _AddressesBrick(SimpleBrick):
+# class _AddressesBrick(SimpleBrick):
+class _AddressesBrick(Brick):
     dependencies = (Address,)
     verbose_name = 'Addresses'
     target_ctypes: Collection[type[CremeEntity]] = (Contact, Organisation)
@@ -581,8 +582,8 @@ class _OtherAddressesBrick(QuerysetBrick):
             ),
         )
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def detailview_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
 
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
@@ -619,14 +620,16 @@ class ManagedOrganisationsBrick(PaginatedBrick):
     template_name = 'persons/bricks/managed-organisations.html'
     configurable = False
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             Organisation.objects.filter_managed_by_creme(),
         ))
 
 
-brick_classes: list[type[Brick]] = [
+# brick_classes: list[type[Brick]] = [
+detail_brick_classes: list[type[Brick]] = [
     DetailedAddressesBrick,
     PrettyAddressesBrick,
     DetailedOtherAddressesBrick,
@@ -634,6 +637,7 @@ brick_classes: list[type[Brick]] = [
     ManagersBrick,
     EmployeesBrick,
 ]
+home_brick_classes: list[type[Brick]] = []
 
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
@@ -728,7 +732,8 @@ if apps.is_installed('creme.activities'):
 
             return neglected_orgas
 
-        def home_display(self, context):
+        # def home_display(self, context):
+        def render(self, context):
             # We do not check the 'persons' permission, because it's only
             # statistics for people who cannot see Organisations.
             return self._render(self.get_template_context(
@@ -736,4 +741,5 @@ if apps.is_installed('creme.activities'):
                 self._get_neglected(context['today']),
             ))
 
-    brick_classes.append(NeglectedOrganisationsBrick)
+    # brick_classes.append(NeglectedOrganisationsBrick)
+    home_brick_classes.append(NeglectedOrganisationsBrick)

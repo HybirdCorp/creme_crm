@@ -26,6 +26,7 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         assert hasattr(Home, 'brick_registry')
         assert hasattr(MyPage, 'brick_registry')
         Home.brick_registry = MyPage.brick_registry = deepcopy(brick_registry).register(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
             AppPermissionBrick,
         )
 
@@ -35,11 +36,11 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         delattr(Home, 'brick_registry')
         assert hasattr(Home, 'brick_registry')
-        assert AppPermissionBrick.id not in Home.brick_registry._brick_classes
+        assert AppPermissionBrick.id not in Home.brick_registry.regular_brick_classes('*')
 
         delattr(MyPage, 'brick_registry')
         assert hasattr(MyPage, 'brick_registry')
-        assert AppPermissionBrick.id not in MyPage.brick_registry._brick_classes
+        assert AppPermissionBrick.id not in MyPage.brick_registry.regular_brick_classes('*')
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_home(self):
@@ -147,7 +148,8 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         context = response.context
         self.assertEqual(
-            reverse('creme_core__reload_home_bricks'),
+            # reverse('creme_core__reload_home_bricks'),
+            reverse('creme_core__reload_my_page_bricks'),
             context.get('bricks_reload_url'),
         )
 

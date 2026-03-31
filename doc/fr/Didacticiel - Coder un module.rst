@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 09-10-2025 pour la version 2.8 de Creme
+:Version: 07-05-2026 pour la version 3.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1539,19 +1539,19 @@ Créez le fichier ``my_project/beavers/bricks.py`` : ::
         # tous les types de fiche).
         target_ctypes = (Beaver,)
 
-        # Si on définit cette méthode, on indique que ce bloc est capable de s'afficher
-        # sur les vue détaillée (c'est une autre méthode pour l'accueil: 'home_display()').
-        def detailview_display(self, context):
+        # On injecte des informations supplémentaires dans le contexte du template associé
+        def get_template_context(self, context, **extra_kwargs):
             # L'entité courante est injectée dans le contexte par la vue 'generic.EntityDetail'
             # et par la vue de rechargement 'bricks.DetailviewBricksReloading'.
             beaver = context['object']
 
             birthday = beaver.birthday
 
-            return self._render(self.get_template_context(
+            return super().get_template_context(
                 context,
                 age=(date.today().year - birthday.year) if birthday else None,
-            ))
+                **extra_kwargs
+            )
 
 On crée ensuite le *template* correspondant,
 ``my_project/beavers/templates/beavers/bricks/age.html`` : ::
@@ -1609,7 +1609,7 @@ Pour que le bloc soit pris en compte par Creme, il faut l'enregistrer grâce
         def register_bricks(self, brick_registry):
             from . import bricks
 
-            brick_registry.register(bricks.BeaverAgeBrick)
+            brick_registry.register(brick_registry.Tag.DETAIL, bricks.BeaverAgeBrick)
 
 Maintenant le bloc est disponible dans l'interface de configuration des blocs, lorsqu'on
 crée/modifie une configuration de vue détaillée pour les castors.

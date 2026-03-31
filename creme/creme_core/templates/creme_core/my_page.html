@@ -5,6 +5,7 @@
 
 {% block content_extra_class %}content-my_page{% endblock %}
 
+{# TODO: factorise better with 'home.html' #}
 {% block content %}
     <div class="hat-bar-container">
         <div class="hat-bar">{% translate 'My page' as title %}
@@ -14,6 +15,7 @@
     </div>
 
     {% brick_declare bricks.main %}
-    {% brick_display bricks.main render='home' %}
+{#    {% brick_display bricks.main render='home' %} #}
+    {% brick_display bricks.main %}
     {% brick_end %}
 {% endblock %}

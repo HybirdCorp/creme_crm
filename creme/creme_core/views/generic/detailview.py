@@ -73,6 +73,7 @@ def detailview_bricks(user, entity, registry=brick_registry) -> dict[str, list[B
     bricks = {}
     model = entity.__class__
     for brick in registry.get_bricks(
+        tag=registry.Tag.DETAIL,
         brick_ids=[*chain.from_iterable(brick_ids for brick_ids in loc_map.values())],
         entity=entity,
         user=user,
@@ -167,6 +168,7 @@ class EntityDetail(base.EntityModelMixin, CremeModelDetail):
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+    brick_tag = brick_registry.Tag.DETAIL
 
     visitor_mode_arg = 'visitor'
     visitor_cls = EntityVisitor
@@ -183,9 +185,11 @@ class EntityDetail(base.EntityModelMixin, CremeModelDetail):
     def get_bricks(self):
         user = self.request.user
         entity = self.object
-        bricks = detailview_bricks(user=user, entity=entity, registry=self.brick_registry)
+        registry = self.brick_registry
+        bricks = detailview_bricks(user=user, entity=entity, registry=registry)
         # TODO: add a system for mandatory Bricks in BricksMixin?
-        bricks['buttons'] = [*self.brick_registry.get_bricks(
+        bricks['buttons'] = [*registry.get_bricks(
+            tag=self.brick_tag,
             brick_ids=[ButtonsBrick.id], entity=entity, user=user,
         )]
 
@@ -237,6 +241,7 @@ class CremeModelDetailPopup(base.TitleMixin, CremeModelDetail):
     template_name = 'creme_core/generics/detail-popup.html'
     title = '{object}'
     bricks_reload_url_name = ''
+    brick_tag = brick_registry.Tag.DETAIL
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

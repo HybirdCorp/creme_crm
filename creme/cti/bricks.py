@@ -51,7 +51,8 @@ class CallersBrick(PaginatedBrick):
         Organisation,
     )
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         # Ensure that it will crash if we try to load it from a classic load view
         number = context['number']
 

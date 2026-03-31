@@ -125,7 +125,8 @@ class DummyListBrick(PaginatedBrick):
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
     configurable = False
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         request = context['request']
         user = request.user
         reloading_info = self.reloading_info or {}
@@ -161,11 +162,15 @@ def js_testview_or_404(message, error):
 
 
 def js_testview_context(request, viewname):
-    try:
-        brick_registry[DummyListBrick.id]
-    except KeyError:
+    # try:
+    #     brick_registry[DummyListBrick.id]
+    # except KeyError:
+    #     logger.info('Register dummy object list brick %s', DummyListBrick.id)
+    #     brick_registry.register(DummyListBrick)
+    # NB: meh
+    if DummyListBrick.id not in brick_registry.regular_brick_classes(brick_registry.Tag.STATIC):
         logger.info('Register dummy object list brick %s', DummyListBrick.id)
-        brick_registry.register(DummyListBrick)
+        brick_registry.register(brick_registry.Tag.STATIC, DummyListBrick)
 
     test_view_pattern = re_compile(r'^test_(?P<name>[\d\w]+)\.html$')
     test_views = []

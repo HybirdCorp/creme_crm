@@ -22,7 +22,8 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import products
 from creme.creme_config.bricks import GenericModelBrick
-from creme.creme_core.gui.bricks import SimpleBrick
+# from creme.creme_core.gui.bricks import SimpleBrick
+from creme.creme_core.gui.bricks import Brick
 from creme.products.models import Category, SubCategory
 
 Product = products.get_product_model()
@@ -46,7 +47,8 @@ class SubCategoriesBrick(GenericModelBrick):
     dependencies = (SubCategory, Category)
     template_name = 'products/bricks/subcategories.html'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             Category.objects
@@ -56,8 +58,10 @@ class SubCategoriesBrick(GenericModelBrick):
         ))
 
 
-class ImagesBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('products', 'images')
+# class ImagesBrick(SimpleBrick):
+class ImagesBrick(Brick):
+    # id = SimpleBrick.generate_id('products', 'images')
+    id = Brick.generate_id('products', 'images')
     verbose_name = _('Images of product/service')
     # dependencies  = (Document,) ??
     template_name = 'products/bricks/images.html'

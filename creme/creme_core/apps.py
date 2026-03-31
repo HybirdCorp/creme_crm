@@ -511,17 +511,42 @@ class CremeCoreConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
+        # brick_registry.register(
+        #     bricks.ButtonsBrick,
+        #     bricks.PropertiesBrick,
+        #     bricks.RelationsBrick,
+        #     bricks.CustomFieldsBrick,
+        #     bricks.HistoryBrick,
+        #     bricks.ImprintsBrick,
+        #     bricks.TrashBrick,
+        #     bricks.RecentEntitiesBrick,
+        #     bricks.PinnedEntitiesBrick,
+        #     bricks.StatisticsBrick,
+        #     bricks.JobsBrick,
+        #     bricks.MyJobsBrick,
+        #     bricks.NotificationsBrick,
+        # )
         brick_registry.register(
+            brick_registry.Tag.DETAIL,
+
             bricks.ButtonsBrick,
             bricks.PropertiesBrick,
             bricks.RelationsBrick,
             bricks.CustomFieldsBrick,
             bricks.HistoryBrick,
             bricks.ImprintsBrick,
-            bricks.TrashBrick,
+        ).register(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
+
+            bricks.HistoryBrick,
+            bricks.ImprintsBrick,
             bricks.RecentEntitiesBrick,
             bricks.PinnedEntitiesBrick,
             bricks.StatisticsBrick,
+        ).register(
+            brick_registry.Tag.STATIC,
+
+            bricks.TrashBrick,
             bricks.JobsBrick,
             bricks.MyJobsBrick,
             bricks.NotificationsBrick,

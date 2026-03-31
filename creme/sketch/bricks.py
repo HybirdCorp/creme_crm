@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2025  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -247,10 +247,12 @@ class DemoGroupBarChartBrick(GroupBarChartBrick):
 
         return data
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
+    #
+    # def home_display(self, context):
+    #     return self._render_chart(context)
+    def render(self, context):
         return self._render_chart(context)
 
 
@@ -276,10 +278,12 @@ class DemoStackBarChartBrick(StackBarChartBrick):
 
         return data
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
+    #
+    # def home_display(self, context):
+    #     return self._render_chart(context)
+    def render(self, context):
         return self._render_chart(context)
 
 
@@ -295,10 +299,12 @@ class DemoBarChartBrick(BarChartBrick):
     def get_chart_data(self, context):
         return [{"x": f"A {i}", "y": randint(1, 1500)} for i in range(1, randint(5, 40))]
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
+    #
+    # def home_display(self, context):
+    #     return self._render_chart(context)
+    def render(self, context):
         return self._render_chart(context)
 
 
@@ -312,10 +318,12 @@ class DemoDonutChartBrick(DonutChartBrick):
     def get_chart_data(self, context):
         return [{"x": f"A {i}", "y": randint(1, 100)} for i in range(1, randint(5, 10))]
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
+    #
+    # def home_display(self, context):
+    #     return self._render_chart(context)
+    def render(self, context):
         return self._render_chart(context)
 
 
@@ -329,10 +337,15 @@ class DemoLineChartBrick(LineChartBrick):
     ordinate_title = "Axis of Ordinates"
 
     def get_chart_data(self, context):
-        return [{"x": f"Line Dot {i}", "y": randint(1, 1500)} for i in range(1, randint(5, 40))]
+        return [
+            {"x": f"Line Dot {i}", "y": randint(1, 1500)}
+            for i in range(1, randint(5, 40))
+        ]
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
+    #
+    # def home_display(self, context):
+    #     return self._render_chart(context)
+    def render(self, context):
         return self._render_chart(context)
