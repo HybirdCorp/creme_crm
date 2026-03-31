@@ -88,7 +88,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         # 'property_types',
         # 'fixed_relations',
-        # 'dyn_relations',
+        # # 'dyn_relations',
+        'dyn_relations_0': '',
+        'dyn_relations_1': '[]',
 
         'address_value_colselect':      0,
         'address_zipcode_colselect':    0,
@@ -365,7 +367,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'property_types': [ptype1.id],
 
                 'fixed_relations': self.formfield_value_multi_relation_entity((loves, shinji)),
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                #     employed, FakeOrganisation, 6, 'name',
+                # ),
+                'dyn_relations_0': '',
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 6, 'name',
                 ),
 
@@ -447,8 +453,14 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
 
-                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
-                'dyn_relations_can_create': True,
+                # 'dyn_relations': self._dyn_relations_value(
+                #   employed, FakeOrganisation, 3, 'name'),
+                # 'dyn_relations_can_create': True,
+                'dyn_relations_0': 'on',
+                'dyn_relations_1': self._dyn_relations_value(
+                    rtype=employed, model=FakeOrganisation, column=3, subfield='name'
+                ),
+
             },
         )
         self.assertNoFormError(response)
@@ -624,7 +636,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
             },
@@ -690,7 +703,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'dyn_relations': json_dump([
+                # 'dyn_relations': json_dump([
+                'dyn_relations_1': json_dump([
                     {
                         'rtype': employed.id,
                         'ctype': orga_ct_id,
@@ -829,7 +843,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
             },
@@ -875,7 +890,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype.id],
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
             },
@@ -941,7 +957,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'dyn_relations': json_dump([
+                # 'dyn_relations': json_dump([
+                'dyn_relations_1': json_dump([
                     {
                         'rtype': employed.id,
                         'ctype': orga_ct_id,
@@ -1077,7 +1094,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype.id],
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
             },
@@ -1127,7 +1145,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype2.id],
-                'dyn_relations': self._dyn_relations_value(
+                # 'dyn_relations': self._dyn_relations_value(
+                'dyn_relations_1': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
             },
@@ -1847,8 +1866,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'first_name_colselect': 2,
                 'last_name_colselect': 1,
 
-                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
-                'dyn_relations_can_create': True,
+                # 'dyn_relations': self._dyn_relations_value(
+                #   employed, FakeOrganisation, 3, 'name'),
+                # 'dyn_relations_can_create': True,
+                'dyn_relations_0': True,
+                'dyn_relations_1': self._dyn_relations_value(
+                    rtype=employed, model=FakeOrganisation, column=3, subfield='name',
+                ),
             },
         )
         self.assertFormError(

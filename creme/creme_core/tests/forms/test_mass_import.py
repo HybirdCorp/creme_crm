@@ -8,6 +8,7 @@ from django.forms.widgets import TextInput
 from django.utils.translation import gettext as _
 
 from creme.creme_core.forms import CremeModelForm
+# RelationExtractorField, RelationExtractorSelector
 from creme.creme_core.forms.mass_import import (
     CustomFieldExtractor,
     CustomfieldExtractorField,
@@ -17,12 +18,12 @@ from creme.creme_core.forms.mass_import import (
     EntityExtractorField,
     EntityExtractorWidget,
     MultiRelationsExtractor,
+    MultiRelationsExtractorField,
+    MultiRelationsExtractorSelector,
     RegularFieldExtractor,
     RegularFieldExtractorField,
     RegularFieldExtractorWidget,
     RelationExtractor,
-    RelationExtractorField,
-    RelationExtractorSelector,
 )
 from creme.creme_core.models import (
     CustomField,
@@ -407,7 +408,8 @@ class RelationExtractorTestCase(CremeTestCase):
         self.assertEqual(column_index, extractor.column_index)
         self.assertEqual(rtype, extractor.rtype)
         self.assertEqual(field_name, extractor.subfield_search)
-        self.assertFalse(extractor.create_if_unfound())
+        # self.assertFalse(extractor.create_if_unfound())
+        self.assertFalse(extractor.create_if_unfound)
 
         self.assertTupleEqual(
             ((rtype, orga), None),
@@ -431,8 +433,30 @@ class RelationExtractorTestCase(CremeTestCase):
             create_if_unfound=True,
         )
         self.assertEqual(field_name, extractor.subfield_search)
-        self.assertTrue(extractor.create_if_unfound())
+        # self.assertTrue(extractor.create_if_unfound())
+        self.assertTrue(extractor.create_if_unfound)
 
+        extracted = extractor.extract_value([orga_name], user)
+        orga = self.get_object_or_fail(FakeOrganisation, name=orga_name)
+        self.assertTupleEqual(((rtype, orga), None), extracted)
+
+    def test_extract__create__property(self):
+        user = self.get_root_user()
+        rtype = self.rtype
+
+        orga_name = 'Acme'
+        self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
+
+        extractor = RelationExtractor(
+            column_index=1,
+            rtype=rtype,
+            subfield_search='name',
+            related_model=FakeOrganisation,
+            # create_if_unfound=True,
+        )
+        self.assertFalse(extractor.create_if_unfound)
+
+        extractor.create_if_unfound = True
         extracted = extractor.extract_value([orga_name], user)
         orga = self.get_object_or_fail(FakeOrganisation, name=orga_name)
         self.assertTupleEqual(((rtype, orga), None), extracted)
@@ -509,7 +533,6 @@ class RelationExtractorTestCase(CremeTestCase):
         )
 
     def test_extract__search__permissions(self):
-        # user = self.get_root_user()
         user = self.create_user(
             role=self.create_role(
                 allowed_apps=['creme_core'],
@@ -1097,7 +1120,259 @@ class EntityExtractorFieldTestCase(CremeTestCase):
         )
 
 
-class RelationExtractorFieldTestCase(CremeTestCase):
+# class RelationExtractorFieldTestCase(CremeTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#
+#         cls.rtype1 = RelationType.objects.builder(
+#             id='test-subject_employed_by', predicate='is an employee of',
+#             models=[FakeContact],
+#         ).symmetric(
+#             id='test-object_employed_by', predicate='employs',
+#             models=[FakeOrganisation],
+#         ).get_or_create()[0]
+#         cls.rtype2 = RelationType.objects.builder(
+#             id='test-subject_customer', predicate='is a customer of',
+#             models=[FakeContact, FakeOrganisation],
+#         ).symmetric(
+#             id='test-object_customer', predicate='is a supplier of',
+#             models=[FakeContact, FakeOrganisation],
+#         ).get_or_create()[0]
+#
+#     @staticmethod
+#     def _build_entry(*, rtype, model, column, subfield):
+#         return {
+#             'rtype':       rtype.id,
+#             'ctype':       str(ContentType.objects.get_for_model(model).id),
+#             'column':      str(column),
+#             'searchfield': subfield,
+#         }
+#
+#     @staticmethod
+#     def _build_data(can_create, *entries):
+#         return {
+#             'can_create': can_create,
+#             'selectorlist': json_dump([*entries]),
+#         }
+#
+#     def test_attributes(self):
+#         columns1 = [(1, 'Column #1'), (2, 'Column #2')]
+#         field = RelationExtractorField(columns=columns1)
+#         self.assertTrue(field.required)
+#         self.assertIsNone(field.user)
+#         self.assertListEqual(columns1, field.columns)
+#         self.assertFalse([*field.allowed_rtypes])
+#
+#         widget = field.widget
+#         self.assertIsInstance(field.widget, RelationExtractorSelector)
+#         self.assertListEqual(columns1, widget.columns)
+#         self.assertFalse([*widget.relation_types])
+#
+#         columns2 = [*columns1, (3, 'Column #3')]
+#         field.columns = columns2
+#         self.assertListEqual(columns2, field.columns)
+#         self.assertListEqual(columns2, widget.columns)
+#
+#     def test_clean__one_rtype(self):
+#         field = RelationExtractorField(
+#             columns=[(1, 'Column #1'), (2, 'Column #2')],
+#             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
+#         )
+#
+#         fname = 'name'
+#         extractor = field.clean(
+#             self._build_data(
+#                 False,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype1,
+#                     model=FakeOrganisation,
+#                     column=1,
+#                     subfield=fname,
+#                 ),
+#             ),
+#         )
+#         self.assertIsInstance(extractor, MultiRelationsExtractor)
+#
+#         extractors = [*extractor]
+#         self.assertEqual(1, len(extractors))
+#
+#         extractor = extractors[0]
+#         self.assertIsInstance(extractor, RelationExtractor)
+#         self.assertEqual(1,                extractor.column_index)
+#         self.assertEqual(self.rtype1,      extractor.rtype)
+#         self.assertEqual(FakeOrganisation, extractor.related_model)
+#         self.assertEqual(fname,            extractor.subfield_search)
+#         self.assertFalse(extractor.create_if_unfound())
+#
+#     def test_clean__two_rtypes(self):
+#         field = RelationExtractorField(
+#             columns=[(1, 'Column #1'), (2, 'Column #2'), (3, 'Column #3')],
+#             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
+#         )
+#
+#         fname1 = 'name'
+#         fname2 = 'email'
+#         extractor1 = field.clean(
+#             self._build_data(
+#                 True,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype1,
+#                     model=FakeOrganisation,
+#                     column=1,
+#                     subfield=fname1,
+#                 ),
+#                 self._build_entry(
+#                     rtype=self.rtype2,
+#                     model=FakeContact,
+#                     column=3,
+#                     subfield=fname2,
+#                 ),
+#             ),
+#         )
+#
+#         extractors = [*extractor1]
+#         self.assertEqual(2, len(extractors))
+#
+#         extractor1 = extractors[0]
+#         self.assertEqual(1,                extractor1.column_index)
+#         self.assertEqual(self.rtype1,      extractor1.rtype)
+#         self.assertEqual(FakeOrganisation, extractor1.related_model)
+#         self.assertEqual(fname1,           extractor1.subfield_search)
+#         self.assertTrue(extractor1.create_if_unfound())
+#
+#         extractor2 = extractors[1]
+#         self.assertEqual(3,           extractor2.column_index)
+#         self.assertEqual(self.rtype2, extractor2.rtype)
+#         self.assertEqual(FakeContact, extractor2.related_model)
+#         self.assertEqual(fname2,      extractor2.subfield_search)
+#         self.assertTrue(extractor2.create_if_unfound())
+#
+#     def test_clean__empty(self):
+#         field = RelationExtractorField(
+#             columns=[(1, 'Column #1'), (2, 'Column #2')],
+#             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
+#             required=False,
+#         )
+#         self.assertFalse(field.required)
+#
+#         data = self._build_data(False)
+#         extractor = field.clean(data)
+#         self.assertIsInstance(extractor, MultiRelationsExtractor)
+#         self.assertFalse([*extractor])
+#
+#         # ---
+#         field.required = True
+#         self.assertFormfieldError(
+#             field=field,
+#             messages=_('This field is required.'),
+#             codes='required',
+#             value=data,
+#         )
+#
+#     def test_clean__invalid_data_type(self):
+#         self.assertFormfieldError(
+#             field=RelationExtractorField(
+#                 columns=[(1, 'Column #1'), (2, 'Column #2')],
+#                 allowed_rtypes=[self.rtype1.id],
+#                 required=False,
+#             ),
+#             value={
+#                 'can_create': False,
+#                 'selectorlist': json_dump({'foo': 'bar'}),  # <==
+#             },
+#             messages=_('Invalid format'),
+#             codes='invalidformat',
+#         )
+#
+#     def test_clean__forbidden_column(self):
+#         self.assertFormfieldError(
+#             field=RelationExtractorField(
+#                 columns=[(1, 'Column #1'), (2, 'Column #2')],
+#                 allowed_rtypes=[self.rtype1.id],
+#                 required=False,
+#             ),
+#             value=self._build_data(
+#                 False,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype1,
+#                     model=FakeOrganisation,
+#                     column=3,  # <==
+#                     subfield='name',
+#                 ),
+#             ),
+#             messages=_('This column is not a valid choice.'),
+#             codes='invalidcolunm',
+#         )
+#
+#     def test_clean__invalid_search_field(self):
+#         self.assertFormfieldError(
+#             field=RelationExtractorField(
+#                 columns=[(1, 'Column #1'), (2, 'Column #2')],
+#                 allowed_rtypes=[self.rtype1.id],
+#                 required=False,
+#             ),
+#             value=self._build_data(
+#                 False,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype1,
+#                     model=FakeOrganisation,
+#                     column=1,
+#                     subfield='invalid_field',   # <==
+#                 ),
+#             ),
+#             messages=_("This field doesn't exist in this ContentType."),
+#             codes='fielddoesnotexist',
+#         )
+#
+#     def test_clean__incompatible_ctype(self):
+#         self.assertFormfieldError(
+#             field=RelationExtractorField(
+#                 columns=[(1, 'Column #1'), (2, 'Column #2')],
+#                 allowed_rtypes=[self.rtype1.id],
+#                 required=False,
+#             ),
+#             value=self._build_data(
+#                 False,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype1,
+#                     model=FakeDocument,  # <==
+#                     column=1,
+#                     subfield='title',
+#                 ),
+#             ),
+#             messages=_(
+#                 'The type «%(model)s» is not allowed by the relationship «%(predicate)s».'
+#             ) % {
+#                 'model': FakeDocument._meta.verbose_name,
+#                 'predicate': self.rtype1.symmetric_type.predicate,
+#             },
+#             codes='forbiddenctype',
+#         )
+#
+#     def test_clean__forbidden_rtype(self):
+#         self.assertFormfieldError(
+#             field=RelationExtractorField(
+#                 columns=[(1, 'Column #1'), (2, 'Column #2')],
+#                 allowed_rtypes=[self.rtype1.id],
+#                 required=False,
+#             ),
+#             value=self._build_data(
+#                 False,  # can_create
+#                 self._build_entry(
+#                     rtype=self.rtype2,
+#                     model=FakeDocument,  # <==
+#                     column=1,
+#                     subfield='title',
+#                 ),
+#             ),
+#             messages=_(
+#                 'This type of relationship causes a constraint error '
+#                 '(id="%(rtype_id)s").'
+#             ) % {'rtype_id': self.rtype2.id},
+#             codes='rtypenotallowed',
+#         )
+class MultiRelationsExtractorFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -1128,21 +1403,21 @@ class RelationExtractorFieldTestCase(CremeTestCase):
 
     @staticmethod
     def _build_data(can_create, *entries):
-        return {
-            'can_create': can_create,
-            'selectorlist': json_dump([*entries]),
-        }
+        return [
+            'on' if can_create else '',
+            json_dump([*entries]),
+        ]
 
     def test_attributes(self):
         columns1 = [(1, 'Column #1'), (2, 'Column #2')]
-        field = RelationExtractorField(columns=columns1)
+        field = MultiRelationsExtractorField(columns=columns1)
         self.assertTrue(field.required)
         self.assertIsNone(field.user)
         self.assertListEqual(columns1, field.columns)
         self.assertFalse([*field.allowed_rtypes])
 
         widget = field.widget
-        self.assertIsInstance(field.widget, RelationExtractorSelector)
+        self.assertIsInstance(field.widget, MultiRelationsExtractorSelector)
         self.assertListEqual(columns1, widget.columns)
         self.assertFalse([*widget.relation_types])
 
@@ -1151,11 +1426,21 @@ class RelationExtractorFieldTestCase(CremeTestCase):
         self.assertListEqual(columns2, field.columns)
         self.assertListEqual(columns2, widget.columns)
 
+        rtypes = [self.rtype1, self.rtype2]
+        field.allowed_rtypes = [rtype.id for rtype in rtypes]
+        self.assertCountEqual(rtypes, field.allowed_rtypes)
+
+        choices = widget.relation_types
+        self.assertEqual(2, len(choices))
+        self.assertInChoices(value=self.rtype1.id, label=str(self.rtype1), choices=choices)
+        self.assertInChoices(value=self.rtype2.id, label=str(self.rtype2), choices=choices)
+
     def test_clean__one_rtype(self):
-        field = RelationExtractorField(
+        field = MultiRelationsExtractorField(
             columns=[(1, 'Column #1'), (2, 'Column #2')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
         )
+        self.assertCountEqual([self.rtype1, self.rtype2], field.allowed_rtypes)
 
         fname = 'name'
         extractor = field.clean(
@@ -1180,10 +1465,10 @@ class RelationExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(self.rtype1,      extractor.rtype)
         self.assertEqual(FakeOrganisation, extractor.related_model)
         self.assertEqual(fname,            extractor.subfield_search)
-        self.assertFalse(extractor.create_if_unfound())
+        self.assertFalse(extractor.create_if_unfound)
 
     def test_clean__two_rtypes(self):
-        field = RelationExtractorField(
+        field = MultiRelationsExtractorField(
             columns=[(1, 'Column #1'), (2, 'Column #2'), (3, 'Column #3')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
         )
@@ -1216,55 +1501,59 @@ class RelationExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(self.rtype1,      extractor1.rtype)
         self.assertEqual(FakeOrganisation, extractor1.related_model)
         self.assertEqual(fname1,           extractor1.subfield_search)
-        self.assertTrue(extractor1.create_if_unfound())
+        self.assertTrue(extractor1.create_if_unfound)
 
         extractor2 = extractors[1]
         self.assertEqual(3,           extractor2.column_index)
         self.assertEqual(self.rtype2, extractor2.rtype)
         self.assertEqual(FakeContact, extractor2.related_model)
         self.assertEqual(fname2,      extractor2.subfield_search)
-        self.assertTrue(extractor2.create_if_unfound())
+        self.assertTrue(extractor2.create_if_unfound)
 
-    def test_clean__empty(self):
-        field = RelationExtractorField(
+    def test_clean__empty__not_required(self):
+        field = MultiRelationsExtractorField(
             columns=[(1, 'Column #1'), (2, 'Column #2')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
             required=False,
         )
         self.assertFalse(field.required)
 
-        data = self._build_data(False)
-        extractor = field.clean(data)
+        extractor = field.clean(self._build_data(False))
         self.assertIsInstance(extractor, MultiRelationsExtractor)
         self.assertFalse([*extractor])
 
-        # ---
-        field.required = True
+    def test_clean__empty__required(self):
+        field = MultiRelationsExtractorField(
+            columns=[(1, 'Column #1'), (2, 'Column #2')],
+            allowed_rtypes=[self.rtype1.id, self.rtype2.id],
+            # required=True,
+        )
+        self.assertTrue(field.required)
         self.assertFormfieldError(
             field=field,
             messages=_('This field is required.'),
             codes='required',
-            value=data,
+            value=self._build_data(False),
         )
 
     def test_clean__invalid_data_type(self):
         self.assertFormfieldError(
-            field=RelationExtractorField(
+            field=MultiRelationsExtractorField(
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
             ),
-            value={
-                'can_create': False,
-                'selectorlist': json_dump({'foo': 'bar'}),  # <==
-            },
+            value=[
+                '',
+                json_dump({'foo': 'bar'}),  # <==
+            ],
             messages=_('Invalid format'),
             codes='invalidformat',
         )
 
     def test_clean__forbidden_column(self):
         self.assertFormfieldError(
-            field=RelationExtractorField(
+            field=MultiRelationsExtractorField(
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
@@ -1284,7 +1573,7 @@ class RelationExtractorFieldTestCase(CremeTestCase):
 
     def test_clean__invalid_search_field(self):
         self.assertFormfieldError(
-            field=RelationExtractorField(
+            field=MultiRelationsExtractorField(
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
@@ -1304,7 +1593,7 @@ class RelationExtractorFieldTestCase(CremeTestCase):
 
     def test_clean__incompatible_ctype(self):
         self.assertFormfieldError(
-            field=RelationExtractorField(
+            field=MultiRelationsExtractorField(
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
@@ -1329,7 +1618,7 @@ class RelationExtractorFieldTestCase(CremeTestCase):
 
     def test_clean__forbidden_rtype(self):
         self.assertFormfieldError(
-            field=RelationExtractorField(
+            field=MultiRelationsExtractorField(
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
