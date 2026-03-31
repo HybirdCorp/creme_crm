@@ -11,6 +11,7 @@
               "category" was not required; selecting nothing caused a crash.
         * Activities :
             - Fix a CSS issue when displaying long titles in month calendar.
+            - Limit the size of the "more" calendar popup in month view to prevent hidding days cells.
 
   Developers side :
   ------------
