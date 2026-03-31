@@ -237,7 +237,12 @@ class BrickDetailviewLocation(CremeModel):
 
         model = ct.model_class() if ct else CremeEntity
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,), entity=model())),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,), entity=model())),
+            brick_registry.get_bricks(
+                tag=brick_registry.Tag.DETAIL,
+                brick_ids=(self.brick_id,),
+                entity=model(),
+            ),
             None
         )
 
@@ -306,7 +311,8 @@ class BrickHomeLocation(CremeModel):
             msg = gettext('Block configuration of Home uses «{block}»')
 
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            brick_registry.get_bricks(tag=brick_registry.Tag.HOME, brick_ids=(self.brick_id,)),
             None
         )
 
@@ -344,7 +350,10 @@ class BrickMypageLocation(CremeModel):
         )
 
         brick = next(
-            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            # (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            brick_registry.get_bricks(
+                tag=brick_registry.Tag.MY_PAGE, brick_ids=(self.brick_id,)
+            ),
             None
         )
 
@@ -661,7 +670,11 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         if brick is None:
             from ..gui.bricks import brick_registry
-            self._brick = brick = brick_registry.get_brick_4_instance(self, entity=self.entity)
+
+            # self._brick = brick = brick_registry.get_brick_4_instance(self, entity=self.entity)
+            self._brick = brick = brick_registry.get_brick_4_instance(
+                tag='*', ibi=self, entity=self.entity,
+            )
 
         return brick
 

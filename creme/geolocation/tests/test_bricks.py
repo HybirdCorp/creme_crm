@@ -507,7 +507,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
         context = self.build_context(user=user, instance=contact)
 
-        render = brick_class().detailview_display(context)
+        # render = brick_class().detailview_display(context)
+        render = brick_class().render(context)
         brick_node = self.get_brick_node(self.get_html_tree(render), brick_class)
 
         self.assertEqual(
@@ -517,7 +518,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
         contact.trash()
 
-        render = brick_class().detailview_display(context)
+        # render = brick_class().detailview_display(context)
+        render = brick_class().render(context)
         brick_node = self.get_brick_node(self.get_html_tree(render), brick_class)
 
         self.assertEqual(

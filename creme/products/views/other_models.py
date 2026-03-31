@@ -39,7 +39,8 @@ class NarrowedSubCategoriesBrick(QuerysetBrick):
         super().__init__()
         self.category = category
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             SubCategory.objects.filter(category=self.category),

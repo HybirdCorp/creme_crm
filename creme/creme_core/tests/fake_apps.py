@@ -125,6 +125,7 @@ def ready():
     )
 
     brick_registry.register(
+        brick_registry.Tag.DETAIL,
         # fake_bricks.FakeAppPortalBrick,
     ).register_invalid_models(
         fake_models.FakeInvoiceLine,  # See creme_config tests

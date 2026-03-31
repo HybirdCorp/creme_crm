@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,24 +36,42 @@ class _AssistantsBrick(QuerysetBrick):
         """OVERRIDE ME"""
         pass
 
-    def detailview_display(self, context):
-        entity = context['object']
-        btc = self.get_template_context(
-            context, self._get_queryset_for_detailview(entity, context),
-        )
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #     btc = self.get_template_context(
+    #         context, self._get_queryset_for_detailview(entity, context),
+    #     )
+    #
+    #     # NB: optimisation; it avoids the retrieving of the entity during
+    #     #     template rendering.
+    #     for assistant in btc['page'].object_list:
+    #         assistant.real_entity = entity
+    #
+    #     return self._render(btc)
+    #
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_queryset_for_home(context).prefetch_related('real_entity'),
+    #     ))
+    def render(self, context):
+        entity = context.get('object')
+        if entity is None:  # HOME/MY_PAGE
+            btc = self.get_template_context(
+                context,
+                self._get_queryset_for_home(context).prefetch_related('real_entity'),
+            )
+        else:  # DETAIL
+            btc = self.get_template_context(
+                context, self._get_queryset_for_detailview(entity, context),
+            )
 
-        # NB: optimisation; it avoids the retrieving of the entity during
-        #     template rendering.
-        for assistant in btc['page'].object_list:
-            assistant.real_entity = entity
+            # NB: optimisation; it avoids the retrieving of the entity during
+            #     template rendering.
+            for assistant in btc['page'].object_list:
+                assistant.real_entity = entity
 
         return self._render(btc)
-
-    def home_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            self._get_queryset_for_home(context).prefetch_related('real_entity'),
-        ))
 
 
 class TodosBrick(_AssistantsBrick):

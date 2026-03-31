@@ -48,12 +48,31 @@ class ActivitiesConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
+        # brick_registry.register(
+        #     bricks.ParticipantsBrick,
+        #     bricks.SubjectsBrick,
+        #     bricks.FutureActivitiesBrick,
+        #     bricks.PastActivitiesBrick,
+        #     bricks.RelatedCalendarBrick,
+        #     bricks.MyActivitiesCalendarBrick,
+        # ).register_hat(
+        #     self.Activity,
+        #     main_brick_cls=bricks.ActivityBarHatBrick,
+        #     secondary_brick_classes=(bricks.ActivityCardHatBrick,),
+        # )
         brick_registry.register(
+            brick_registry.Tag.DETAIL,
+
             bricks.ParticipantsBrick,
             bricks.SubjectsBrick,
             bricks.FutureActivitiesBrick,
             bricks.PastActivitiesBrick,
             bricks.RelatedCalendarBrick,
+        ).register(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
+
+            bricks.FutureActivitiesBrick,
+            bricks.PastActivitiesBrick,
             bricks.MyActivitiesCalendarBrick,
         ).register_hat(
             self.Activity,

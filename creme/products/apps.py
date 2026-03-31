@@ -40,7 +40,8 @@ class ProductsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ImagesBrick)
+        # brick_registry.register(bricks.ImagesBrick)
+        brick_registry.register(brick_registry.Tag.DETAIL, bricks.ImagesBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.bulk_update import CategoryOverrider

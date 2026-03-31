@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -118,8 +118,8 @@ class RelationChartBrick(ChartBrick):
             self.get_graph_chart_data(context['object'], context['user'])
         )
 
-    def detailview_display(self, context):
-        return self._render_chart(context)
+    # def detailview_display(self, context):
+    #     return self._render_chart(context)
 
 
 class RootNodesBrick(QuerysetBrick):
@@ -136,7 +136,8 @@ class RootNodesBrick(QuerysetBrick):
     permissions = 'graphs'
     order_by = 'entity__header_filter_search_field'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         graph = context['object']
         btc = self.get_template_context(
             context,
@@ -167,7 +168,8 @@ class OrbitalRelationTypesBrick(QuerysetBrick):
     target_ctypes = (get_graph_model(),)
     permissions = 'graphs'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         graph = context['object']
         return self._render(self.get_template_context(
             context,

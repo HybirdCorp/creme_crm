@@ -29,8 +29,13 @@
         <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
         <td>
             <ul>
+{% comment %}
                 {% if brick|has_attr:'home_display' %}<li>{% translate 'Home & «My page»' %}</li>{% endif %}
                 {% if brick|has_attr:'detailview_display' %}<li>{% translate 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') summary=_('{count} types of entity') %}</li>{% endif %}
+{% endcomment %}
+                {% if brick_type.brick_class_id in home_brick_ids %}<li>{% translate 'Home' %}</li>{% endif %}
+                {% if brick_type.brick_class_id in mypage_brick_ids %}<li>{% translate '«My page»' %}</li>{% endif %}
+                {% if brick_type.brick_class_id in detail_brick_ids %}<li>{% translate 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') summary=_('{count} types of entity') %}</li>{% endif %}
             </ul>
         </td>
         <td class="instancebrick-config-errors">

@@ -23,7 +23,7 @@ from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
-from creme.creme_core.gui.bricks import QuerysetBrick, SimpleBrick
+from creme.creme_core.gui.bricks import Brick, QuerysetBrick  # SimpleBrick
 from creme.creme_core.models import Relation, RelationType
 
 from . import constants
@@ -50,12 +50,14 @@ EntityEmail   = emails.get_entityemail_model()
 MailingList   = emails.get_mailinglist_model()
 
 
-class EntityEmailBarHatBrick(SimpleBrick):
+# class EntityEmailBarHatBrick(SimpleBrick):
+class EntityEmailBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'emails/bricks/mail-hat-bar.html'
 
 
-class _HTMLBodyBrick(SimpleBrick):
+# class _HTMLBodyBrick(SimpleBrick):
+class _HTMLBodyBrick(Brick):
     verbose_name = _('HTML body')
     template_name = 'emails/bricks/html-body.html'
 
@@ -111,7 +113,8 @@ class _RelatedEntitiesBrick(QuerysetBrick):
     def _update_context(self, context):
         pass
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         btc = self.get_template_context(context, self._get_queryset(context['object']))
         self._update_context(btc)
 
@@ -153,7 +156,8 @@ class EmailRecipientsBrick(QuerysetBrick):
     target_ctypes = (MailingList,)
     permissions = 'emails'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         mailing_list = context['object']
         return self._render(self.get_template_context(
             context,
@@ -230,7 +234,8 @@ class SendingConfigItemsBrick(QuerysetBrick):
     configurable = False
     # permissions = 'emails.can_admin' => auto by creme_config views
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context, EmailSendingConfigItem.objects.all(),
         ))
@@ -249,7 +254,8 @@ class SendingsBrick(QuerysetBrick):
     target_ctypes = (EmailCampaign,)
     permissions = 'emails'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         campaign = context['object']
         return self._render(self.get_template_context(
             context,
@@ -259,8 +265,10 @@ class SendingsBrick(QuerysetBrick):
         ))
 
 
-class SendingBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('emails', 'sending')
+# class SendingBrick(SimpleBrick):
+class SendingBrick(Brick):
+    # id = SimpleBrick.generate_id('emails', 'sending')
+    id = Brick.generate_id('emails', 'sending')
     verbose_name = _('Information')
     dependencies = (EmailSending,)
     permissions = 'emails'
@@ -282,7 +290,8 @@ class MailsBrick(QuerysetBrick):
     # TODO: remove when the bricks is no more globally registered
     target_ctypes = (EmailSending,)  # Security purpose
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             context['object'].mails_set.prefetch_related('real_recipient'),
@@ -309,7 +318,8 @@ class MailsHistoryBrick(QuerysetBrick):
     # Important because it can be displayed on entities' detail-views of other apps
     permissions = 'emails'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         pk = context['object'].pk
         entityemail_ids = Relation.objects.filter(
             type__symmetric_type_id__in=self.relation_type_deps,
@@ -328,8 +338,9 @@ class MailsHistoryBrick(QuerysetBrick):
         ))
 
 
-class MailPopupBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('emails', 'mail_popup')
+# class MailPopupBrick(SimpleBrick):
+class MailPopupBrick(Brick):
+    id = Brick.generate_id('emails', 'mail_popup')
     verbose_name = 'Detail popup of email'
     dependencies = (EntityEmail,)
     permissions = 'emails'
@@ -338,8 +349,9 @@ class MailPopupBrick(SimpleBrick):
     target_ctypes = (EntityEmail,)  # Security purpose only
 
 
-class LwMailPopupBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('emails', 'lw_mail_popup')
+# class LwMailPopupBrick(SimpleBrick):
+class LwMailPopupBrick(Brick):
+    id = Brick.generate_id('emails', 'lw_mail_popup')
     verbose_name = 'Detail popup of LightWeight email'
     dependencies = (LightWeightEmail,)
     permissions = 'emails'
@@ -360,7 +372,8 @@ class LwMailsHistoryBrick(QuerysetBrick):
     template_name = 'emails/bricks/lw-mails-history.html'
     order_by = '-sending_date'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         pk = context['object'].pk
         return self._render(self.get_template_context(
             context,
@@ -381,7 +394,8 @@ class MySignaturesBrick(QuerysetBrick):
 
     signature_render_cls = SignatureRenderer
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         btc = self.get_template_context(
             context,
             EmailSignature.objects.filter(user=context['user']).prefetch_related('images')
@@ -403,7 +417,8 @@ class EmailSyncConfigItemsBrick(QuerysetBrick):
     configurable = False
     # permissions = 'emails.can_admin' => auto by creme_config views
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context, EmailSyncConfigItem.objects.all(),
         ))
@@ -418,7 +433,8 @@ class EmailsToSyncBrick(QuerysetBrick):
     permissions = 'emails'
     page_size = 50
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         user = context['user']
 
         qs = EmailToSync.objects.prefetch_related('attachments')

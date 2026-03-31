@@ -106,7 +106,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def _assertMenuButtons(self, user, entity, buttons):
         brick = ButtonsBrick()
-        render = brick.detailview_display(
+        # render = brick.detailview_display(
+        render = brick.render(
             context=self.build_context(user=user, instance=entity)
         )
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
@@ -272,7 +273,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - SettingValues "is open"/"how empty fields"
         #   - CremeProperties
         with self.assertNumQueries(4):
-            render = PropertiesBrick().detailview_display(context)
+            # render = PropertiesBrick().detailview_display(context)
+            render = PropertiesBrick().render(context)
 
         brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=PropertiesBrick)
         self.assertInstanceLink(brick_node1, ptype1)
@@ -324,7 +326,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - Relations
         #   - Contacts (objects)
         with self.assertNumQueries(5):
-            render = RelationsBrick().detailview_display(context)
+            # render = RelationsBrick().detailview_display(context)
+            render = RelationsBrick().render(context)
 
         brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=RelationsBrick)
         self.assertInstanceLink(brick_node1, tenma)
@@ -524,7 +527,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - BrickStates
         #   - SettingValues "is open"/"how empty fields"
         with self.assertNumQueries(5):
-            render = CustomFieldsBrick().detailview_display(context)
+            # render = CustomFieldsBrick().detailview_display(context)
+            render = CustomFieldsBrick().render(context)
 
         brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=CustomFieldsBrick)
         self.assertEqual(
@@ -575,7 +579,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - HistoryLines
         #   - Users
         with self.assertNumQueries(5):
-            render = HistoryBrick().detailview_display(context)
+            # render = HistoryBrick().detailview_display(context)
+            render = HistoryBrick().render(context)
 
         self.get_brick_node(self.get_html_tree(render), brick=HistoryBrick)
 
@@ -629,7 +634,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - Contacts
         #   - Users
         with self.assertNumQueries(6):
-            render = HistoryBrick().home_display(context)
+            # render = HistoryBrick().home_display(context)
+            render = HistoryBrick().render(context)
 
         brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=HistoryBrick)
         self.assertInstanceLink(brick_node1, atom)

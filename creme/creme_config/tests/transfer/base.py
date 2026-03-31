@@ -9,15 +9,16 @@ class TransferInstanceBrick(InstanceBrick):
     # NB: would be in __init__() in classical cases...
     verbose_name = 'Instance brick for transfer'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return (
             f'<table id="{self.id}">'
             f'<thead><tr>{self.config_item.entity}</tr></thead>'
             f'</table>'
         )
 
-    def home_display(self, context):
-        return self.detailview_display(context)
+    # def home_display(self, context):
+    #     return self.detailview_display(context)
 
 
 class TransferBaseTestCase(CremeTestCase):
@@ -26,4 +27,9 @@ class TransferBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        brick_registry.register_4_instance(TransferInstanceBrick)
+        # brick_registry.register_4_instance(TransferInstanceBrick)
+        brick_registry.register_4_instance(
+            brick_registry.Tag.DETAIL, TransferInstanceBrick,
+        ).register_4_instance(
+            brick_registry.Tag.HOME, TransferInstanceBrick,
+        )
