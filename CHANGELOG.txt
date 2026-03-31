@@ -9,6 +9,8 @@
         * Billing :
             - In the view to create a true Product/Service from a line, the form-field
               "category" was not required; selecting nothing caused a crash.
+        * Activities :
+            - Fix a CSS issue when displaying long titles in month calendar.
 
   Developers side :
   ------------
