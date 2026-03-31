@@ -32,6 +32,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeImage,
     FakeOrganisation,
+    FakeSector,
     InstanceBrickConfigItem,
     Language,
     Relation,
@@ -43,7 +44,6 @@ from creme.creme_core.utils.content_type import entity_ctypes
 
 from ..base import CremeTestCase
 from ..fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
-from ..fake_models import FakeSector
 from ..views.base import BrickTestCaseMixin
 
 
