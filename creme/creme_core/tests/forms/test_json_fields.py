@@ -30,6 +30,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeImage,
     FakeOrganisation,
+    FakeSector,
     Relation,
     RelationType,
 )
@@ -37,7 +38,6 @@ from creme.creme_core.utils.content_type import entity_ctypes
 
 from .. import fake_forms
 from ..base import CremeTestCase
-from ..fake_models import FakeSector
 
 
 class _JSONFieldBaseTestCase(CremeTestCase):

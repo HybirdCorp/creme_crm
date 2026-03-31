@@ -1,9 +1,9 @@
 from django.core.paginator import Paginator
 
+from creme.creme_core.models import FakeSector
 from creme.creme_core.utils.paginators import OnePagePaginator
 
 from ..base import CremeTestCase
-from ..fake_models import FakeSector
 
 
 class OnePagePaginatorTestCase(CremeTestCase):
