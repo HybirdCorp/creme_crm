@@ -26,6 +26,7 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         assert hasattr(Home, 'brick_registry')
         assert hasattr(MyPage, 'brick_registry')
         Home.brick_registry = MyPage.brick_registry = deepcopy(brick_registry).register(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
             AppPermissionBrick,
         )
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ class BaseHome(BricksView):
 
 class Home(BaseHome):
     template_name = 'creme_core/home.html'
+    brick_tag = BaseHome.brick_registry.Tag.HOME
 
     def get_brick_ids(self):
         user = self.request.user
@@ -56,6 +57,7 @@ class Home(BaseHome):
 
 class MyPage(BaseHome):
     template_name = 'creme_core/my_page.html'
+    brick_tag = BaseHome.brick_registry.Tag.MY_PAGE
 
     def get_brick_ids(self):
         return BrickMypageLocation.objects.filter(

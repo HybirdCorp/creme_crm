@@ -110,8 +110,8 @@ class _DetailMapBrick(_MapBrick):
             **extra_kwargs
         )
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def detailview_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
 
 class GoogleDetailMapBrick(_DetailMapBrick):
@@ -153,8 +153,8 @@ class _FilteredMapBrick(_MapBrick):
             **extra_kwargs
         )
 
-    def home_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
 
 class GoogleFilteredMapBrick(_FilteredMapBrick):
@@ -213,8 +213,8 @@ class _NeighboursMapBrick(_MapBrick):
             **extra_kwargs
         )
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def detailview_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
 
 class GoogleNeighboursMapBrick(_NeighboursMapBrick):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,10 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import projects
 from creme.activities import get_activity_model
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
+    Brick,
     PaginatedBrick,
     QuerysetBrick,
-    SimpleBrick,
 )
 from creme.creme_core.models import Relation
 
@@ -36,8 +36,10 @@ Project = projects.get_project_model()
 ProjectTask = projects.get_task_model()
 
 
-class ProjectExtraInfoBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('projects', 'project_extra_info')
+# class ProjectExtraInfoBrick(SimpleBrick):
+class ProjectExtraInfoBrick(Brick):
+    # id = SimpleBrick.generate_id('projects', 'project_extra_info')
+    id = Brick.generate_id('projects', 'project_extra_info')
     dependencies = (ProjectTask,)
     verbose_name = _('Extra project information')
     description = _(
@@ -49,8 +51,10 @@ class ProjectExtraInfoBrick(SimpleBrick):
     permissions = 'projects'
 
 
-class TaskExtraInfoBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('projects', 'task_extra_info')
+# class TaskExtraInfoBrick(SimpleBrick):
+class TaskExtraInfoBrick(Brick):
+    # id = SimpleBrick.generate_id('projects', 'task_extra_info')
+    id = Brick.generate_id('projects', 'task_extra_info')
     dependencies = (Activity,)
     verbose_name = _('Extra project task information')
     description = _(
@@ -70,7 +74,8 @@ class ParentTasksBrick(QuerysetBrick):
     target_ctypes = (ProjectTask,)
     permissions = 'projects'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         task = context['object']
 
         return self._render(self.get_template_context(context, task.parent_tasks.all()))
@@ -84,7 +89,8 @@ class ProjectTasksBrick(QuerysetBrick):
     target_ctypes = (Project,)
     permissions = 'projects'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         project = context['object']
 
         return self._render(self.get_template_context(context, project.get_tasks()))
@@ -99,7 +105,8 @@ class TaskResourcesBrick(QuerysetBrick):
     permissions = 'projects'
     order_by = 'linked_contact__last_name'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         task = context['object']
         return self._render(self.get_template_context(
             context,
@@ -116,7 +123,8 @@ class TaskActivitiesBrick(PaginatedBrick):
     target_ctypes = (ProjectTask,)
     permissions = ['projects', 'activities']
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         task = context['object']
 
         return self._render(self.get_template_context(context, task.related_activities))

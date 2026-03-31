@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,8 +32,25 @@ class SketchConfig(CremeAppConfig):
         from . import bricks
 
         if settings.SKETCH_ENABLE_DEMO_BRICKS:
+            # brick_registry.register(
+            #     bricks.DemoGroupBarChartBrick,
+            #     bricks.DemoBarChartBrick,
+            #     bricks.DemoStackBarChartBrick,
+            #     bricks.DemoDonutChartBrick,
+            #     bricks.DemoLineChartBrick,
+            # )
             brick_registry.register(
-                bricks.DemoGroupBarChartBrick,
+                brick_registry.Tag.DETAIL,
+
+                bricks.DemoGroupBarChartBrick,  # TODO: Detail VS only Home render??
+                bricks.DemoBarChartBrick,
+                bricks.DemoStackBarChartBrick,
+                bricks.DemoDonutChartBrick,
+                bricks.DemoLineChartBrick,
+            ).register(
+                brick_registry.Tag.HOME,
+
+                bricks.DemoGroupBarChartBrick,  # TODO: Home
                 bricks.DemoBarChartBrick,
                 bricks.DemoStackBarChartBrick,
                 bricks.DemoDonutChartBrick,

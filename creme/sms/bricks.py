@@ -37,7 +37,8 @@ class _RelatedEntitiesBrick(QuerysetBrick):
     def _update_context(self, context):
         pass
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         btc = self.get_template_context(context, self._get_queryset(context['object']))
         self._update_context(btc)
 
@@ -71,7 +72,8 @@ class RecipientsBrick(QuerysetBrick):
     target_ctypes = (MessagingList,)
     permissions = 'sms'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         pk = context['object'].pk
         return self._render(self.get_template_context(
             context,
@@ -100,7 +102,8 @@ class MessagesBrick(QuerysetBrick):
     page_size = QuerysetBrick.page_size * 3
     # configurable = False
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         sending = context['object']
         return self._render(self.get_template_context(context, sending.messages.all()))
 
@@ -114,9 +117,10 @@ class SendingsBrick(QuerysetBrick):
     permissions = 'sms'
     order_by = '-date'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         campaign = context['object']
         return self._render(self.get_template_context(
             context,
-            Sending.objects.filter(campaign=campaign),  # get_sendings() ??
+            Sending.objects.filter(campaign=campaign),
         ))

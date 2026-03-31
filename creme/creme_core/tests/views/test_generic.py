@@ -82,6 +82,7 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         assert hasattr(EntityDetail, 'brick_registry')
 
         EntityDetail.brick_registry = deepcopy(brick_registry).register(
+            brick_registry.Tag.DETAIL,
             AppPermissionBrick,
         )
 

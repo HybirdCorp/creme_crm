@@ -22,6 +22,7 @@ import logging
 # import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator, Sequence
+from enum import Enum
 from typing import DefaultDict, List, Literal, Tuple, Type, Union
 
 from django.conf import settings
@@ -211,9 +212,9 @@ class Brick:
         return f'brick-{self.id}'
 
     def _render(self, template_context) -> str:
-        # return get_template(self.template_name).render(template_context)
         return get_template(template_context['template_name']).render(template_context)
 
+    # TODO: remove?
     def _simple_detailview_display(self, context: dict) -> str:
         """Helper method to build a basic detailview_display() method for
         classes that inherit Brick.
@@ -289,9 +290,17 @@ class Brick:
 
         return template_context
 
+    def render(self, context: dict) -> str:
+        """Render as HTML.
+        @param context: Context of the page (with 'request', 'user' etc...).
+        """
+        return self._render(self.get_template_context(context))
 
+
+# TODO: remove? deprecate?
 class SimpleBrick(Brick):
-    detailview_display = Brick._simple_detailview_display
+    # detailview_display = Brick._simple_detailview_display
+    pass
 
 
 class ForbiddenBrick(Brick):
@@ -311,14 +320,15 @@ class ForbiddenBrick(Brick):
             context, permissions_error=self.error, **extra_kwargs
         )
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
+    # def detailview_display(self, context):
+    #     return self._render(self.get_template_context(context))
+    #
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(context))
 
-    def home_display(self, context):
-        return self._render(self.get_template_context(context))
 
-
-class VoidBrick(SimpleBrick):
+# class VoidBrick(SimpleBrick):
+class VoidBrick(Brick):
     """Used by code which needs to get a content for forbidden/invalid/... brick."""
     template_name = 'creme_core/bricks/generic/void.html'
 
@@ -326,7 +336,7 @@ class VoidBrick(SimpleBrick):
         super().__init__()
         self.id = id
 
-    home_display = Brick._simple_detailview_display
+    # home_display = Brick._simple_detailview_display
 
 
 class _PaginatedBrickContext(_BrickContext):
@@ -495,7 +505,8 @@ class QuerysetBrick(PaginatedBrick):
         )
 
 
-class EntityBrick(SimpleBrick):
+# class EntityBrick(SimpleBrick):
+class EntityBrick(Brick):
     id = MODELBRICK_ID
     verbose_name = _('Information on the entity (generic)')
     description = _(
@@ -574,7 +585,8 @@ class SpecificRelationsBrick(QuerysetBrick):
             "block's icon)."
         ).format(predicate=rtype.predicate)
 
-    def detailview_display(self, context) -> str:
+    # def detailview_display(self, context) -> str:
+    def render(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
         #       & display a message in the brick (and disable the creation button)
         #       if constraints are broken ? (beware: add CremePropertyType in dependencies)
@@ -644,8 +656,8 @@ class InstanceBrick(Brick):
         self.id = instance_brick_config_item.brick_id
 
 
-# class CustomBrick(Brick):
-class CustomBrick(SimpleBrick):
+# class CustomBrick(SimpleBrick):
+class CustomBrick(Brick):
     """Brick which can be customised by the user to display information of an entity.
     It can display regular, custom & function fields, relationships...
     (see HeaderFilter & EntityCells)
@@ -766,6 +778,13 @@ class BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
     """
+    # TODO: comments
+    class Tag(Enum):
+        DETAIL = 'DETAIL'
+        HOME = 'HOME'
+        MY_PAGE = 'MY_PAGE'
+        STATIC = 'STATIC'
+        # STATIC_DETAIL = 'STATIC_DETAIL'  TODO
 
     class RegistrationError(Exception):
         pass
@@ -774,45 +793,100 @@ class BrickRegistry:
         pass
 
     def __init__(self) -> None:
-        self._brick_classes: dict[str, type[Brick]] = {}
+        # self._brick_classes: dict[str, type[Brick]] = {}
+        self._brick_classes: \
+            DefaultDict[BrickRegistry.Tag, dict[str, type[Brick]]] = defaultdict(dict)
         self._hat_brick_classes: \
             DefaultDict[type[CremeEntity], dict[str, type[Brick]]] = defaultdict(dict)
         self._object_brick_classes: dict[type[CremeEntity], type[Brick]] = {}
-        self._instance_brick_classes: dict[str, type[InstanceBrick]] = {}
+        # self._instance_brick_classes: dict[str, type[InstanceBrick]] = {}
+        self._instance_brick_classes: \
+            DefaultDict[BrickRegistry.Tag, dict[str, type[InstanceBrick]]] = defaultdict(dict)
         self._invalid_models: set[type[CremeEntity]] = set()
 
-    def register(self, *brick_classes: type[Brick]) -> BrickRegistry:
-        setdefault = self._brick_classes.setdefault
+    # def register(self, *brick_classes: type[Brick]) -> BrickRegistry:
+    #     setdefault = self._brick_classes.setdefault
+    #
+    #     for brick_cls in brick_classes:
+    #         brick_id = brick_cls.id
+    #
+    #         if not brick_id:
+    #             raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+    #
+    #         if setdefault(brick_id, brick_cls) is not brick_cls:
+    #             raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
+    #
+    #     return self
+    def register(self, tags: Tag | tuple[Tag, ...], *brick_classes: type[Brick]) -> BrickRegistry:
+        # TODO: remove in Creme 3.1
+        assert isinstance(tags, self.Tag | tuple), \
+            f'The argument "tag" is a {type(tags)} ' \
+            f'(you probably forget to pass the new argument of <register()>)'
 
-        for brick_cls in brick_classes:
-            brick_id = brick_cls.id
+        if isinstance(tags, self.Tag):
+            tags = (tags,)
 
-            if not brick_id:
-                raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+        for tag in tags:
+            setdefault = self._brick_classes[tag].setdefault
 
-            if setdefault(brick_id, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
+            for brick_cls in brick_classes:
+                brick_id = brick_cls.id
+
+                if not brick_id:
+                    raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+
+                if setdefault(brick_id, brick_cls) is not brick_cls:
+                    raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
         return self
 
     # TODO: factorise
     # TODO: def unregister_4_instance()?
-    def register_4_instance(self, *brick_classes: type[InstanceBrick]) -> BrickRegistry:
-        setdefault = self._instance_brick_classes.setdefault
+    # def register_4_instance(self, *brick_classes: type[InstanceBrick]) -> BrickRegistry:
+    #     setdefault = self._instance_brick_classes.setdefault
+    #
+    #     for brick_cls in brick_classes:
+    #         if not issubclass(brick_cls, InstanceBrick):
+    #             raise self.RegistrationError(
+    #                 f'Brick class does not inherit InstanceBrick: {brick_cls}'
+    #             )
+    #
+    #         brick_id = brick_cls.id
+    #
+    #         if not brick_id:
+    #             raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+    #
+    #         if setdefault(brick_id, brick_cls) is not brick_cls:
+    #             raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
+    #
+    #     return self
+    def register_4_instance(self,
+                            tags: Tag | tuple[Tag, ...],
+                            *brick_classes: type[InstanceBrick]) -> BrickRegistry:
+        # TODO: remove in Creme 3.1
+        assert isinstance(tags, self.Tag | tuple), \
+            f'The argument "tag" is a {type(tags)} ' \
+            f'(you probably forget to pass the new argument of <register()>)'
 
-        for brick_cls in brick_classes:
-            if not issubclass(brick_cls, InstanceBrick):
-                raise self.RegistrationError(
-                    f'Brick class does not inherit InstanceBrick: {brick_cls}'
-                )
+        if isinstance(tags, self.Tag):
+            tags = (tags,)
 
-            brick_id = brick_cls.id
+        for tag in tags:
+            setdefault = self._instance_brick_classes[tag].setdefault
 
-            if not brick_id:
-                raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+            for brick_cls in brick_classes:
+                if not issubclass(brick_cls, InstanceBrick):
+                    raise self.RegistrationError(
+                        f'Brick class does not inherit InstanceBrick: {brick_cls}'
+                    )
 
-            if setdefault(brick_id, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
+                brick_id = brick_cls.id
+
+                if not brick_id:
+                    raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+
+                if setdefault(brick_id, brick_cls) is not brick_cls:
+                    raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
         return self
 
@@ -877,14 +951,29 @@ class BrickRegistry:
 
         return self
 
-    def unregister(self, *brick_classes: type[Brick]) -> BrickRegistry:
+    # def unregister(self, *brick_classes: type[Brick]) -> BrickRegistry:
+    #     for brick_cls in brick_classes:
+    #         brick_id = brick_cls.id
+    #
+    #         if not brick_id:
+    #             raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+    #
+    #         if self._brick_classes.pop(brick_id, None) is None:
+    #             raise self.UnRegistrationError(
+    #                 f'Brick class with invalid ID (already unregistered?): {brick_cls}',
+    #             )
+    #
+    #     return self
+    def unregister(self, tag: Tag, *brick_classes: type[Brick]) -> BrickRegistry:
+        pop = self._brick_classes[tag].pop
+
         for brick_cls in brick_classes:
             brick_id = brick_cls.id
 
             if not brick_id:
                 raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
 
-            if self._brick_classes.pop(brick_id, None) is None:
+            if pop(brick_id, None) is None:
                 raise self.UnRegistrationError(
                     f'Brick class with invalid ID (already unregistered?): {brick_cls}',
                 )
@@ -924,13 +1013,52 @@ class BrickRegistry:
 
         return self
 
+    # TODO: remove
     def __getitem__(self, brick_id: str) -> type[Brick]:
         return self._brick_classes[brick_id]
 
+    # TODO: remove
     def __iter__(self) -> Iterator[tuple[str, type[Brick]]]:
         return iter(self._brick_classes.items())
 
-    def get_brick_4_instance(self,
+    def brick_classes(self, tag: Tag) -> Iterator[type[Brick]]:
+        yield from self._brick_classes[tag].values()
+
+    # def get_brick_4_instance(self,
+    #                          ibi: InstanceBrickConfigItem,
+    #                          entity: CremeEntity | None = None,
+    #                          ) -> InstanceBrick:
+    #     """Get a Brick instance corresponding to an InstanceBrickConfigItem.
+    #     @param ibi: InstanceBrickConfigItem instance.
+    #     @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
+    #     @return Brick instance.
+    #     """
+    #     brick_class_id = ibi.brick_class_id
+    #     brick_class = self._instance_brick_classes.get(brick_class_id)
+    #
+    #     if brick_class is None:
+    #         logger.warning('Brick class seems deprecated: %s', brick_class_id)
+    #
+    #         brick = InstanceBrick(ibi)
+    #         brick.verbose_name = '??'
+    #         # TODO: add this attribute to the class
+    #         brick.errors = [_('Unknown type of block (bad uninstall?)')]
+    #     else:
+    #         brick = brick_class(ibi)
+    #
+    #         if entity:
+    #             # When an InstanceBrick is on a detail-view of an entity, the content
+    #             # of this brick depends (generally) on this entity, so we have to
+    #             # complete the dependencies.
+    #             model = entity.entity_type.model_class()
+    #             if model not in brick.dependencies:
+    #                 assert not isinstance(brick.dependencies, str)  # NB: '*'
+    #
+    #                 brick.dependencies += (model,)
+    #
+    #     return brick
+    def get_brick_4_instance(self, *,
+                             tag: Tag,
                              ibi: InstanceBrickConfigItem,
                              entity: CremeEntity | None = None,
                              ) -> InstanceBrick:
@@ -940,7 +1068,7 @@ class BrickRegistry:
         @return Brick instance.
         """
         brick_class_id = ibi.brick_class_id
-        brick_class = self._instance_brick_classes.get(brick_class_id)
+        brick_class = self._instance_brick_classes[tag].get(brick_class_id)
 
         if brick_class is None:
             logger.warning('Brick class seems deprecated: %s', brick_class_id)
@@ -964,10 +1092,17 @@ class BrickRegistry:
 
         return brick
 
+    # def get_bricks(self,
+    #                brick_ids: Collection[str],
+    #                entity: CremeEntity | None = None,
+    #                *,
+    #                user: CremeUser | None = None,
+    #                ) -> Iterator[Brick]:
     def get_bricks(self,
+                   *,
+                   tag: Tag,
                    brick_ids: Collection[str],
                    entity: CremeEntity | None = None,
-                   *,  # TODO: make all arguments keyword-only
                    user: CremeUser | None = None,
                    ) -> Iterator[Brick]:
         """Bricks type can be SpecificRelationsBrick/InstanceBrickConfigItem:
@@ -1004,7 +1139,8 @@ class BrickRegistry:
 
             ibi = instance_bricks_items.get(id_)
             if ibi:
-                yield self.get_brick_4_instance(ibi, entity)
+                # yield self.get_brick_4_instance(ibi, entity)
+                yield self.get_brick_4_instance(tag=tag, ibi=ibi, entity=entity)
                 continue
 
             cbci = custom_bricks_items.get(id_)
@@ -1047,7 +1183,8 @@ class BrickRegistry:
 
                 continue
 
-            brick_cls = self._brick_classes.get(id_)
+            # brick_cls = self._brick_classes.get(id_)
+            brick_cls = self._brick_classes[tag].get(id_)
             if brick_cls is None:
                 logger.warning('Brick seems deprecated: %s', id_)
                 yield Brick()
@@ -1101,7 +1238,8 @@ class BrickRegistry:
         brick: Brick
 
         if brick_cls is None:
-            brick = SimpleBrick()
+            # brick = SimpleBrick()
+            brick = Brick()
             brick.dependencies = (model,)  # TODO: what about FK, M2M ?
             brick.template_name = 'creme_core/bricks/generic/hat-bar.html'
         else:
@@ -1134,12 +1272,18 @@ class BrickRegistry:
         @param model: Constraint on a CremeEntity class;
                <None> means bricks must be compatible with all kind of CremeEntity.
         """
-        for brick_cls in self._brick_classes.values():
+        tag = self.Tag.DETAIL
+        # for brick_cls in self._brick_classes.values():
+        for brick_cls in self._brick_classes[tag].values():
             brick = brick_cls()
 
-            if (brick.configurable
-                    and hasattr(brick, 'detailview_display')
-                    and (not brick.target_ctypes or model in brick.target_ctypes)):
+            # if (brick.configurable
+            #         and hasattr(brick, 'detailview_display')
+            #         and (not brick.target_ctypes or model in brick.target_ctypes)):
+            if (
+                brick.configurable
+                and (not brick.target_ctypes or model in brick.target_ctypes)
+            ):
                 yield brick
 
         for rbi in RelationBrickItem.objects.select_related('relation_type'):
@@ -1148,13 +1292,20 @@ class BrickRegistry:
             if not brick.target_ctypes or model in brick.target_ctypes:
                 yield brick
 
-        for ibi in InstanceBrickConfigItem.objects.all():
-            brick = self.get_brick_4_instance(ibi)
+        # for ibi in InstanceBrickConfigItem.objects.all():
+        #     brick = self.get_brick_4_instance(ibi)
+        #
+        #     if (
+        #         hasattr(brick, 'detailview_display')
+        #         and (not brick.target_ctypes or model in brick.target_ctypes)
+        #     ):
+        #         yield brick
+        for ibi in InstanceBrickConfigItem.objects.filter(
+            brick_class_id__in=self._instance_brick_classes[tag].keys(),
+        ):
+            brick = self.get_brick_4_instance(tag=tag, ibi=ibi)
 
-            if (
-                hasattr(brick, 'detailview_display')
-                and (not brick.target_ctypes or model in brick.target_ctypes)
-            ):
+            if not brick.target_ctypes or model in brick.target_ctypes:
                 yield brick
 
         if model:
@@ -1174,20 +1325,37 @@ class BrickRegistry:
             if brick_id:  # Only generic hat brick's ID is empty
                 yield brick_cls()
 
-    def get_compatible_home_bricks(self) -> Iterator[Brick]:
-        method_name = 'home_display'
-
-        for brick_cls in self._brick_classes.values():
+    # def get_compatible_home_bricks(self) -> Iterator[Brick]:
+    #     method_name = 'home_display'
+    #
+    #     for brick_cls in self._brick_classes.values():
+    #         brick = brick_cls()
+    #
+    #         if brick.configurable and hasattr(brick, method_name):
+    #             yield brick
+    #
+    #     for ibi in InstanceBrickConfigItem.objects.all():
+    #         brick = self.get_brick_4_instance(ibi)
+    #
+    #         if hasattr(brick, method_name):
+    #             yield brick
+    def _get_compatible_home_bricks(self, tag: Tag) -> Iterator[Brick]:
+        for brick_cls in self._brick_classes[tag].values():
             brick = brick_cls()
 
-            if brick.configurable and hasattr(brick, method_name):
+            if brick.configurable:
                 yield brick
 
-        for ibi in InstanceBrickConfigItem.objects.all():
-            brick = self.get_brick_4_instance(ibi)
+        for ibi in InstanceBrickConfigItem.objects.filter(
+            brick_class_id__in=self._instance_brick_classes[tag].keys(),
+        ):
+            yield self.get_brick_4_instance(tag=tag, ibi=ibi)
 
-            if hasattr(brick, method_name):
-                yield brick
+    def get_compatible_home_bricks(self) -> Iterator[Brick]:
+        yield from self._get_compatible_home_bricks(tag=self.Tag.HOME)
+
+    def get_compatible_my_page_bricks(self) -> Iterator[Brick]:
+        yield from self._get_compatible_home_bricks(tag=self.Tag.MY_PAGE)
 
     def is_model_invalid(self, model: type[CremeEntity]) -> bool:
         "See register_invalid_model()."

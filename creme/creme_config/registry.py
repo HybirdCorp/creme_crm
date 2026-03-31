@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -404,10 +404,10 @@ class _AppConfigRegistry:
                     f'App config brick class with empty ID: {brick_cls}'
                 )
 
-            if not hasattr(brick_cls, 'detailview_display'):
-                raise self.RegistrationError(
-                    f'App config brick class has no detailview_display() method: {brick_cls}'
-                )
+            # if not hasattr(brick_cls, 'detailview_display'):
+            #     raise self.RegistrationError(
+            #         f'App config brick class has no detailview_display() method: {brick_cls}'
+            #     )
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(
@@ -564,14 +564,15 @@ class _ConfigRegistry:
         """Iterator on all AppConfigRegistries."""
         return iter(self._apps.values())
 
+    # TODO: remove?
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
         brick_id = brick_cls.id
 
-        if not hasattr(brick_cls, 'detailview_display'):
-            raise ValueError(
-                '_ConfigRegistry: brick with id="{}" has no '
-                'detailview_display() method'.format(brick_id)
-            )
+        # if not hasattr(brick_cls, 'detailview_display'):
+        #     raise ValueError(
+        #         '_ConfigRegistry: brick with id="{}" has no '
+        #         'detailview_display() method'.format(brick_id)
+        #     )
 
         return brick_id
 

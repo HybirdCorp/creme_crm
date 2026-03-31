@@ -422,21 +422,24 @@ class BricksMixin:
     """Mixin for views which use Bricks for they display.
 
     Attributes:
-    brick_registry: Instance of _BrickRegistry, used to retrieve the instances
+    brick_registry: Instance of BrickRegistry, used to retrieve the instances
                     of Bricks from their ID (see get_brick_ids() & get_bricks()).
     bricks_reload_url_name: Name of the URL used to reload the bricks
                             (see get_bricks_reload_url()).
     bricks: Classes of the Brick which are returned (see get_bricks()).
             - If it's <None>, the classes are retrieved from their IDs
               (see get_brick_ids()).
+              BEWARE of the value of the attribute 'brick_tag'.
             - If it's a list of Brick classes, bricks are built from them &
               placed in a zone called "main".
             - It can also be a dictionary: keys are zone, values the
               corresponding Brick classes.
+    brick_tag: tag used to register the bricks (see BrickRegistry.Tag).
     """
     brick_registry = brick_registry
     bricks_reload_url_name: str = 'creme_core__reload_bricks'
     brick_classes: list[type[Brick]] | dict[str, list[type[Brick]]] | None = None
+    brick_tag = brick_registry.Tag.STATIC
 
     # NB: for linters only
     request: HttpRequest
@@ -460,6 +463,7 @@ class BricksMixin:
         if brick_classes is None:
             bricks = {
                 'main': [*self.brick_registry.get_bricks(
+                    tag=self.brick_tag,
                     brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
                     user=self.request.user,
                 )],

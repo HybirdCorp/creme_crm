@@ -47,12 +47,15 @@ class ReportChartMixin:
         ]
 
 
-class ReportBarHatBrick(core_bricks.SimpleBrick):
+# class ReportBarHatBrick(core_bricks.SimpleBrick):
+class ReportBarHatBrick(core_bricks.Brick):
     template_name = 'reports/bricks/report-hat-bar.html'
 
 
-class ReportFieldsBrick(core_bricks.SimpleBrick):
-    id = core_bricks.SimpleBrick.generate_id('reports', 'fields')
+# class ReportFieldsBrick(core_bricks.SimpleBrick):
+class ReportFieldsBrick(core_bricks.Brick):
+    # id = core_bricks.SimpleBrick.generate_id('reports', 'fields')
+    id = core_bricks.Brick.generate_id('reports', 'fields')
     verbose_name = _('Columns of the report')
     description = _(
         'Displays & edits the columns of a report.\n'
@@ -91,7 +94,8 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
     # order_by = 'created'
     order_by = 'id'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         report = context['object']
         context = self.get_template_context(
             context,
@@ -195,53 +199,90 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
             **kwargs
         )
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    #     fetcher = self.fetcher
+    #
+    #     if fetcher is None:
+    #         btc = self.get_template_context(context, errors=self.errors)
+    #     else:
+    #         entity = context['object']
+    #         user = context['user']
+    #         chart = fetcher.chart
+    #         data = []
+    #         error = None
+    #
+    #         try:
+    #             x, y = fetcher.fetch_4_entity(
+    #                 entity=entity, user=user,
+    #                 order='ASC' if chart.asc else 'DESC',
+    #             )
+    #
+    #             data = self.merge_chart_data(
+    #                 x, y, colors=chart.fetch_colormap(user),
+    #             )
+    #         except ChartFetcher.IncompatibleContentType as e:
+    #             error = str(e)
+    #         except ChartFetcher.UselessResult:
+    #             pass
+    #
+    #         btc = self._get_chart_context(
+    #             context, chart=chart, data=data, error=error, fetcher=self.fetcher,
+    #         )
+    #
+    #     return self._render(btc)
+    #
+    # def home_display(self, context):
+    #     fetcher = self.fetcher
+    #
+    #     if fetcher is None:
+    #         btc = self.get_template_context(context, errors=self.errors)
+    #     else:
+    #         user = context['user']
+    #         chart = fetcher.chart
+    #         x, y = fetcher.fetch(user=user, order='ASC' if chart.asc else 'DESC')
+    #
+    #         btc = self._get_chart_context(
+    #             context,
+    #             chart=chart,
+    #             data=self.merge_chart_data(x, y, colors=chart.fetch_colormap(user)),
+    #         )
+    #
+    #     return self._render(btc)
+    def render(self, context):
         fetcher = self.fetcher
 
         if fetcher is None:
             btc = self.get_template_context(context, errors=self.errors)
         else:
-            entity = context['object']
             user = context['user']
             chart = fetcher.chart
-            data = []
-            error = None
+            order = 'ASC' if chart.asc else 'DESC'
+            entity = context.get('object')
 
-            try:
-                x, y = fetcher.fetch_4_entity(
-                    entity=entity, user=user,
-                    order='ASC' if chart.asc else 'DESC',  # TODO: factorise
+            if entity is None:  # HOME
+                x, y = fetcher.fetch(user=user, order=order)
+                btc = self._get_chart_context(
+                    context,
+                    chart=chart,
+                    data=self.merge_chart_data(x, y, colors=chart.fetch_colormap(user)),
                 )
+            else:  # DETAIL
+                data = []
+                error = None
 
-                data = self.merge_chart_data(
-                    x, y, colors=chart.fetch_colormap(user),
+                try:
+                    x, y = fetcher.fetch_4_entity(entity=entity, user=user, order=order)
+                    data = self.merge_chart_data(
+                        x, y, colors=chart.fetch_colormap(user),
+                    )
+                except ChartFetcher.IncompatibleContentType as e:
+                    error = str(e)
+                except ChartFetcher.UselessResult:
+                    pass
+
+                btc = self._get_chart_context(
+                    context, chart=chart, data=data, error=error, fetcher=fetcher,
                 )
-            except ChartFetcher.IncompatibleContentType as e:
-                error = str(e)
-            except ChartFetcher.UselessResult:
-                pass
-
-            btc = self._get_chart_context(
-                context, chart=chart, data=data, error=error, fetcher=self.fetcher,
-            )
-
-        return self._render(btc)
-
-    def home_display(self, context):
-        fetcher = self.fetcher
-
-        if fetcher is None:
-            btc = self.get_template_context(context, errors=self.errors)
-        else:
-            user = context['user']
-            chart = fetcher.chart
-            x, y = fetcher.fetch(user=user, order='ASC' if chart.asc else 'DESC')
-
-            btc = self._get_chart_context(
-                context,
-                chart=chart,
-                data=self.merge_chart_data(x, y, colors=chart.fetch_colormap(user)),
-            )
 
         return self._render(btc)
 
@@ -251,8 +292,10 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
         return () if fetcher is None else fetcher.linked_models
 
 
-class ReportChartBrick(ReportChartMixin, core_bricks.SimpleBrick):
-    id = core_bricks.SimpleBrick.generate_id('reports', 'chart')
+# class ReportChartBrick(ReportChartMixin, core_bricks.SimpleBrick):
+class ReportChartBrick(ReportChartMixin, core_bricks.Brick):
+    # id = core_bricks.SimpleBrick.generate_id('reports', 'chart')
+    id = core_bricks.Brick.generate_id('reports', 'chart')
     dependencies = (ReportChart,)
     verbose_name = _('Report chart')
     template_name = 'reports/bricks/report-chart.html'
@@ -291,11 +334,12 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     verbose_name = _('Blocks')
     dependencies = (InstanceBrickConfigItem,)
     template_name = 'reports/bricks/instance-bricks-info.html'
-    configurable = False
+    # configurable = False
     target_ctypes = (Report,)  # Security purpose only
     permissions = 'reports'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         chart = context['object']
 
         return self._render(self.get_template_context(

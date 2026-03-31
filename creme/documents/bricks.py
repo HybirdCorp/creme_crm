@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import documents
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.bricks import EntityBrick, QuerysetBrick, SimpleBrick
+# from creme.creme_core.gui.bricks import SimpleBrick
+from creme.creme_core.gui.bricks import Brick, EntityBrick, QuerysetBrick
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.queries import QSerializer
 
@@ -31,7 +32,8 @@ Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
 
-class DocumentBarHatBrick(SimpleBrick):
+# class DocumentBarHatBrick(SimpleBrick):
+class DocumentBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'documents/bricks/document-hat-bar.html'
 
@@ -62,7 +64,8 @@ class FolderDocsBrick(QuerysetBrick):
     permissions = 'documents'
     order_by = 'title'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         folder_id = context['object'].id
         q_dict = {'linked_folder': folder_id}
         return self._render(self.get_template_context(
@@ -83,7 +86,8 @@ class ChildFoldersBrick(QuerysetBrick):
     target_ctypes = (Folder,)
     permissions = 'documents'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         folder = context['object']
 
         return self._render(self.get_template_context(
@@ -106,7 +110,8 @@ class LinkedDocsBrick(QuerysetBrick):
     template_name = 'documents/bricks/linked-docs.html'
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         entity = context['object']
         rtype = RelationType.objects.get(id=self.relation_type_deps[0])
         btc = self.get_template_context(

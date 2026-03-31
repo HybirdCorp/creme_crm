@@ -2179,7 +2179,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         context = self.build_context(user=user)
 
         # with self.assertNumQueries(6):
-        render = brick.detailview_display(context)
+        # render = brick.detailview_display(context)
+        render = brick.render(context)
 
         brick_node = self.get_brick_node(
             self.get_html_tree(render), brick=UserSettingValuesBrick,

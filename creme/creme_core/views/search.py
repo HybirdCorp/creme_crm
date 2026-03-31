@@ -92,7 +92,8 @@ class FoundEntitiesBrick(QuerysetBrick):
 
         return ctype
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         model = self.model
         searched = self.searched
         searcher = self.searcher

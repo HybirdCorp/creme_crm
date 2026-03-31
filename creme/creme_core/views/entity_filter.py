@@ -132,7 +132,8 @@ class EntityFilterMixin(FilterMixin):
         return self.efilter_registries[self.efilter_type]
 
 
-class EntityFilterBarHatBrick(bricks.SimpleBrick):
+# class EntityFilterBarHatBrick(bricks.SimpleBrick):
+class EntityFilterBarHatBrick(bricks.Brick):
     id = 'efilter_hat_bar'
     dependencies = [EntityFilter]
     template_name = 'creme_core/bricks/efilter-hat-bar.html'
@@ -171,7 +172,8 @@ class EntityFilterBarHatBrick(bricks.SimpleBrick):
     #     )
 
 
-class EntityFilterInfoBrick(bricks.SimpleBrick):
+# class EntityFilterInfoBrick(bricks.SimpleBrick):
+class EntityFilterInfoBrick(bricks.Brick):
     id = 'efilter_info'
     read_only = True
     template_name = 'creme_core/bricks/efilter-info.html'
@@ -182,7 +184,8 @@ class EntityFilterParentsBrick(bricks.PaginatedBrick):
     read_only = True
     template_name = 'creme_core/bricks/efilter-parents.html'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         efilter = context['object']
 
         return self._render(self.get_template_context(
@@ -260,7 +263,8 @@ class EntityFilterLinkedEntitiesBrick(bricks.QuerysetBrick):
 
         return (model, field)
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         field = self.field
 
         # TODO?

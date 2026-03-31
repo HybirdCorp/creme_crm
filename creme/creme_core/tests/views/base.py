@@ -26,10 +26,12 @@ class AppPermissionBrick(Brick):
     detail_str = '<div id="brick-{id}" data-brick-id="{id}" class="brick">DETAIL</div>'
     home_str = '<div id="brick-{id}" data-brick-id="{id}" class="brick">HOME</div>'
 
-    def detailview_display(self, context):
-        return self.detail_str.format(id=self.id)
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return self.detail_str.format(id=self.id)
+    #
+    # def home_display(self, context):
+    #     return self.home_str.format(id=self.id)
+    def render(self, context):
         return self.home_str.format(id=self.id)
 
 

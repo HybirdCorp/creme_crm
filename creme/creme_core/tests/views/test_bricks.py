@@ -34,14 +34,20 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     class TestBrick(Brick):
         verbose_name = 'Testing purpose'
 
-        string_format_detail = '<div id="brick-{id}" data-brick-id="{id}">DETAIL</div>'.format
-        string_format_home   = '<div id="brick-{id}" data-brick-id="{id}">HOME</div>'.format
+        # string_format_detail = '<div id="brick-{id}" data-brick-id="{id}">DETAIL</div>'.format
+        # string_format_home   = '<div id="brick-{id}" data-brick-id="{id}">HOME</div>'.format
+        template_str = '<div id="brick-{id}" data-brick-id="{id}">{label}</div>'.format
 
-        def detailview_display(self, context):
-            return self.string_format_detail(id=self.id)
-
-        def home_display(self, context):
-            return self.string_format_home(id=self.id)
+        # def detailview_display(self, context):
+        #     return self.string_format_detail(id=self.id)
+        #
+        # def home_display(self, context):
+        #     return self.string_format_home(id=self.id)
+        def render(self, context):
+            return self.template_str(
+                id=self.id,
+                label='DETAIL' if 'object' in context else 'HOME',
+            )
 
     @classmethod
     def setUpClass(cls):
@@ -51,6 +57,10 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         BricksReloading.brick_registry = cls.brick_registry = deepcopy(
             BricksReloading.brick_registry
         ).register(
+            (
+                BricksReloading.brick_registry.Tag.DETAIL,
+                BricksReloading.brick_registry.Tag.HOME,
+            ),
             AppPermissionBrick,
         )
 
@@ -143,7 +153,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return f'<table id="{self.id}"><thead><tr>' \
                        f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
@@ -272,7 +283,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         class FoobarBrick(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_basic05')
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 nonlocal error, received_extra_data
 
                 try:
@@ -303,9 +315,12 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
             contact = None
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            #     FoobarBrick.contact = context.get('object')
+            #     return super().detailview_display(context)
+            def render(self, context):
                 FoobarBrick.contact = context.get('object')
-                return super().detailview_display(context)
+                return super().render(context)
 
         self.brick_registry.register(FoobarBrick)
 
@@ -328,25 +343,34 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview02_1')
             contact = None
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            #     FoobarBrick1.contact = context.get('object')
+            #     return super().detailview_display(context)
+            def render(self, context):
                 FoobarBrick1.contact = context.get('object')
-                return super().detailview_display(context)
+                return super().render(context)
 
         class FoobarBrick2(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview02_2')
             contact = None
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            #     FoobarBrick2.contact = context.get('object')
+            #     return super().detailview_display(context)
+            def render(self, context):
                 FoobarBrick2.contact = context.get('object')
-                return super().detailview_display(context)
+                return super().render(context)
 
         class FoobarBrick3(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview02_3')
             contact = None
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            #     FoobarBrick3.contact = context.get('object')
+            #     return super().detailview_display(context)
+            def render(self, context):
                 FoobarBrick3.contact = context.get('object')
-                return super().detailview_display(context)
+                return super().render(context)
 
         self.brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 

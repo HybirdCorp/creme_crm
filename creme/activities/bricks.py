@@ -29,7 +29,7 @@ from creme.activities.utils import get_current_utc_offset
 from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
+from creme.creme_core.gui.bricks import Brick, QuerysetBrick  # SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 
 from . import constants, get_activity_model, setting_keys
@@ -65,7 +65,8 @@ class ActivitySubTypesBrick(GenericModelBrick):
     dependencies = (ActivitySubType, ActivityType)
     template_name = 'activities/bricks/activity-subtypes.html'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             ActivityType.objects
@@ -75,13 +76,16 @@ class ActivitySubTypesBrick(GenericModelBrick):
         ))
 
 
-class ActivityBarHatBrick(SimpleBrick):
+# class ActivityBarHatBrick(SimpleBrick):
+class ActivityBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'activities/bricks/activity-hat-bar.html'
 
 
-class ActivityCardHatBrick(SimpleBrick):
-    id = SimpleBrick._generate_hat_id('activities', 'activity_card')
+# class ActivityCardHatBrick(SimpleBrick):
+class ActivityCardHatBrick(Brick):
+    # id = SimpleBrick._generate_hat_id('activities', 'activity_card')
+    id = Brick._generate_hat_id('activities', 'activity_card')
     verbose_name = _('Card header block')
     # NB: Organisation is a hack in order to reload the SubjectsBrick when
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
@@ -143,7 +147,8 @@ class ParticipantsBrick(QuerysetBrick):
     target_ctypes = (Activity, )
     permissions = 'activities'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         activity = context['object']
         btc = self.get_template_context(
             context,
@@ -186,7 +191,8 @@ class SubjectsBrick(QuerysetBrick):
     target_ctypes = (Activity, )
     permissions = 'activities'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             context['object'].relations
@@ -238,23 +244,34 @@ class _RelatedActivitiesBrick(QuerysetBrick):
                     )
 
         ctxt['display_review'] = SettingValue.objects.get_4_key(review_key).value
+        ctxt['rtype_id'] = constants.REL_SUB_LINKED_2_ACTIVITY  # TODO: rename?
 
         return ctxt
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            self._get_queryset_for_entity(context['object'], context)
-                .select_related('status', 'type'),
-            rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
-        ))
+    # def detailview_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_queryset_for_entity(context['object'], context)
+    #             .select_related('status', 'type'),
+    #         rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
+    #     ))
+    #
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_queryset_for_entity(context['user'].linked_contact, context)
+    #             .select_related('status', 'type'),
+    #     ))
+    def render(self, context):
+        # NB: can be rendered on detail-view & home
+        entity = context.get('object')
+        if entity is None:
+            entity = context['user'].linked_contact
 
-    def home_display(self, context):
         return self._render(self.get_template_context(
             context,
-            self._get_queryset_for_entity(context['user'].linked_contact, context)
+            self._get_queryset_for_entity(entity=entity, context=context)
                 .select_related('status', 'type'),
-            # is_home=True,
         ))
 
 
@@ -318,7 +335,8 @@ class CalendarsBrick(GenericModelBrick):
     template_name = 'activities/bricks/calendars.html'
     # permissions = 'activities.can_admin' => useless because views check that.
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         qs = get_user_model().objects.all()
 
         if not context['user'].is_staff:
@@ -341,7 +359,8 @@ class UserCalendarsBrick(QuerysetBrick):
     permissions = 'activities'
     order_by = 'name'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=context['user']),
@@ -412,10 +431,10 @@ class MyActivitiesCalendarBrick(FullCalendarBrick):
         settings['allow_event_move'] = False
         return settings
 
-    def home_display(self, context):
+    # def home_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
-            # is_home=True,
             **self.get_calendar_context(context),
         ))
 
@@ -426,16 +445,14 @@ class RelatedCalendarBrick(QuerysetBrick):
     dependencies = (Calendar, )
     template_name = 'activities/bricks/related-calendars.html'
     order_by = 'name'
-
     target_ctypes = (Activity, )
     permissions = 'activities'
 
-    def detailview_display(self, context):
-        user = context['user']
-        activity = context['object']
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context,
-            activity.calendars.filter(user=user),
+            context['object'].calendars.filter(user=context['user']),
         ))
 
 
@@ -447,7 +464,8 @@ class CalendarConfigItemsBrick(QuerysetBrick):
     configurable = False
     # permissions = 'activities.can_admin' => useless because views check that.
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         btc = self.get_template_context(
             context,
             queryset=CalendarConfigItem.objects.filter(
@@ -478,8 +496,10 @@ class CalendarConfigItemsBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class UnsuccessfulButtonConfigBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('activities', 'unsuccessful_call_config')
+# class UnsuccessfulButtonConfigBrick(SimpleBrick):
+class UnsuccessfulButtonConfigBrick(Brick):
+    # id = SimpleBrick.generate_id('activities', 'unsuccessful_call_config')
+    id = Brick.generate_id('activities', 'unsuccessful_call_config')
     verbose_name = _('Configuration of the button «Create an unsuccessful phone call»')
     template_name = 'activities/bricks/unsuccessful-config.html'
     configurable = False

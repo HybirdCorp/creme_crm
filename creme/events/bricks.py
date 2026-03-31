@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,22 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import SimpleBrick
+# from creme.creme_core.gui.bricks import SimpleBrick
+from creme.creme_core.gui.bricks import Brick
 
 from . import get_event_model
 
 
-class EventBarHatBrick(SimpleBrick):
+# class EventBarHatBrick(SimpleBrick):
+class EventBarHatBrick(Brick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'events/bricks/event-hat-bar.html'
 
 
-class ResultsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('events', 'results')
+# class ResultsBrick(SimpleBrick):
+class ResultsBrick(Brick):
+    # id = SimpleBrick.generate_id('events', 'results')
+    id = Brick.generate_id('events', 'results')
     # dependencies  = (Relation,) ??
     verbose_name = _('Results of an event')
     template_name = 'events/bricks/results.html'

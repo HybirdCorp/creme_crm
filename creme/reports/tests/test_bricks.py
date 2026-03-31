@@ -79,14 +79,16 @@ def get_listview_url(url, q_filters):
 class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     maxDiff = None
 
-    def test_detailview_display__no_data(self, mock_brick_render):
+    # def test_detailview_display__no_data(self, mock_brick_render):
+    def test_render__no_data(self, mock_brick_render):
         user = self.get_root_user()
         chart = self._create_documents_chart(user=user)
 
         context = self.build_context(user=user, instance=chart)
 
         brick = ReportChartBrick()
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once_with({
             **context,
@@ -97,7 +99,8 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ),
         })
 
-    def test_detailview_display(self, mock_brick_render):
+    # def test_detailview_display(self, mock_brick_render):
+    def test_render(self, mock_brick_render):
         user = self.get_root_user()
         chart = self._create_documents_chart(user=user)
 
@@ -116,7 +119,8 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         ]
 
         brick = ReportChartBrick()
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once_with({
             **context,
@@ -127,7 +131,8 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ),
         })
 
-    def test_detailview_display__colors(self, mock_brick_render):
+    # def test_detailview_display__colors(self, mock_brick_render):
+    def test_render__colors(self, mock_brick_render):
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         chart = self._create_documents_colors_chart(report)
@@ -156,7 +161,8 @@ class D3ReportChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         ]
 
         brick = ReportChartBrick()
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once_with({
             **context,
@@ -188,21 +194,24 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ),
         )
 
-    def test_detailview_display__no_chart(self, mock_brick_render):
+    # def test_detailview_display__no_chart(self, mock_brick_render):
+    def test_render__no_chart(self, mock_brick_render):
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
 
         context = self.build_context(user=user, instance=report)
 
         brick = ReportChartsBrick()
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         render_context = mock_brick_render.call_args[0][0]
         self.assertEqual(render_context['plots'], [*plot_registry])
         self.assertEqual(render_context['rows'], [])
 
-    def test_detailview_display__no_data(self, mock_brick_render):
+    # def test_detailview_display__no_data(self, mock_brick_render):
+    def test_render__no_data(self, mock_brick_render):
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         chart_by_year, chart_by_month = self._create_report_charts(report)
@@ -210,7 +219,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         context = self.build_context(user=user, instance=report)
 
         brick = ReportChartsBrick()
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         data = []
 
@@ -245,7 +255,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         ])
 
-    def test_detailview_display(self, mock_brick_render):
+    # def test_detailview_display(self, mock_brick_render):
+    def test_render(self, mock_brick_render):
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         chart_by_year, chart_by_month = self._create_report_charts(report)
@@ -253,7 +264,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         create_fake_docs(user)
 
         brick = ReportChartsBrick()
-        brick.detailview_display(self.build_context(user=user, instance=report))
+        # brick.detailview_display(self.build_context(user=user, instance=report))
+        brick.render(self.build_context(user=user, instance=report))
 
         chart_by_year_data = [
             {
@@ -322,7 +334,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             render_context['rows'],
         )
 
-    def test_detailview_display__colors(self, mock_brick_render):
+    # def test_detailview_display__colors(self, mock_brick_render):
+    def test_render__colors(self, mock_brick_render):
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         chart = self._create_documents_colors_chart(report)
@@ -349,7 +362,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         ]
 
         brick = ReportChartsBrick()
-        brick.detailview_display(self.build_context(user=user, instance=report))
+        # brick.detailview_display(self.build_context(user=user, instance=report))
+        brick.render(self.build_context(user=user, instance=report))
 
         mock_brick_render.assert_called_once()
         render_context = mock_brick_render.call_args[0][0]
@@ -374,7 +388,8 @@ class D3ReportChartsBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
 @mock.patch('creme.reports.bricks.ReportChartInstanceBrick._render')
 class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
-    def test_detailview_display__no_data(self, mock_brick_render):
+    # def test_detailview_display__no_data(self, mock_brick_render):
+    def test_render__detail__no_data(self, mock_brick_render):
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'reports'], admin_4_apps=['reports'],
         )
@@ -386,7 +401,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         context = self.build_context(user=user, instance=entity)
 
         brick = ReportChartInstanceBrick(ibci)
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         self.maxDiff = None
@@ -404,7 +420,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
-    def test_detailview_display__invalid_uuid(self, mock_brick_render):
+    # def test_detailview_display__invalid_uuid(self, mock_brick_render):
+    def test_render__detail__invalid_uuid(self, mock_brick_render):
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user)
@@ -433,14 +450,16 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         self.assertListEqual(errors, brick.errors)
         self.assertTupleEqual((), brick.target_ctypes)
 
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
         mock_brick_render.assert_called_once()
         self.assertDictEqual(
             {**context, 'errors': errors},
             mock_brick_render.call_args[0][0]
         )
 
-    def test_detailview_display(self, mock_brick_render):
+    # def test_detailview_display(self, mock_brick_render):
+    def test_render__detail(self, mock_brick_render):
         user = self.login_as_root_and_get()
         chart = self._create_documents_chart(user=user)
         ibci = self._create_chart_instance_brick(chart)
@@ -461,7 +480,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         ]
 
         brick = ReportChartInstanceBrick(ibci)
-        brick.detailview_display(context)
+        # brick.detailview_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         self.maxDiff = None
@@ -479,7 +499,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
-    def test_home_display__no_data(self, mock_brick_render):
+    # def test_home_display__no_data(self, mock_brick_render):
+    def test_render__home__no_data(self, mock_brick_render):
         user = self.login_as_root_and_get()
         chart = self._create_documents_chart(user=user)
         ibci = self._create_chart_instance_brick(chart)
@@ -487,7 +508,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         context = self.build_context(user=user)
 
         brick = ReportChartInstanceBrick(ibci)
-        brick.home_display(context)
+        # brick.home_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         self.maxDiff = None
@@ -505,7 +527,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
-    def test_home_display(self, mock_brick_render):
+    # def test_home_display(self, mock_brick_render):
+    def test_render__home(self, mock_brick_render):
         user = self.login_as_root_and_get()
         chart = self._create_documents_chart(user=user)
         ibci = self._create_chart_instance_brick(chart)
@@ -525,7 +548,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         ]
 
         brick = ReportChartInstanceBrick(ibci)
-        brick.home_display(context)
+        # brick.home_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         self.maxDiff = None
@@ -543,7 +567,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
-    def test_home_display__colors(self, mock_brick_render):
+    # def test_home_display__colors(self, mock_brick_render):
+    def test_render__home__colors(self, mock_brick_render):
         user = self.login_as_root_and_get()
         report = self._create_simple_documents_report(user=user)
         chart = self._create_documents_colors_chart(report)
@@ -573,7 +598,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         ]
 
         brick = ReportChartInstanceBrick(ibci)
-        brick.home_display(context)
+        # brick.home_display(context)
+        brick.render(context)
 
         mock_brick_render.assert_called_once()
         self.maxDiff = None
@@ -591,7 +617,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
-    def test_home_display__invalid_uuid(self, mock_brick_render):
+    # def test_home_display__invalid_uuid(self, mock_brick_render):
+    def test_render__home__invalid_uuid(self, mock_brick_render):
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user)
@@ -613,7 +640,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         ]
         self.assertListEqual(errors, brick.errors)
 
-        brick.home_display(context)
+        # brick.home_display(context)
+        brick.render(context)
         mock_brick_render.assert_called_once()
         self.assertDictEqual(
             {**context, 'errors': errors}, mock_brick_render.call_args[0][0],

@@ -31,7 +31,8 @@ from ..auth import SUPERUSER_PERM
 from ..core.exceptions import ConflictError
 from ..core.job import get_queue
 from ..creme_jobs.base import JobType
-from ..gui.bricks import SimpleBrick
+# from ..gui.bricks import SimpleBrick
+from ..gui.bricks import Brick
 from ..http import CremeJsonResponse
 from ..models import Job
 from . import bricks as bricks_views
@@ -52,18 +53,21 @@ class MyJobs(generic.BricksView):
 
 
 # Detail-view ------------------------------------------------------------------
-class JobBarHatBrick(SimpleBrick):
+# class JobBarHatBrick(SimpleBrick):
+class JobBarHatBrick(Brick):
     id = 'job_hat_bar'
     dependencies = (Job,)
     template_name = 'creme_core/bricks/job-hat-bar.html'
 
 
-class JobInfoBrick(SimpleBrick):
+# class JobInfoBrick(SimpleBrick):
+class JobInfoBrick(Brick):
     id = 'job_info'
     dependencies = (Job,)
     template_name = 'creme_core/bricks/job-info.html'
 
-    @SimpleBrick.reloading_info.setter
+    # @SimpleBrick.reloading_info.setter
+    @Brick.reloading_info.setter
     def reloading_info(self, info):
         info_are_ok = False
 

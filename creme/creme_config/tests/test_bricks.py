@@ -56,10 +56,12 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 class _BaseCompleteBrick(Brick):
     verbose_name = 'Testing purpose'
 
-    def detailview_display(self, context):
-        return f'<table id="{self.id}"></table>'
-
-    def home_display(self, context):
+    # def detailview_display(self, context):
+    #     return f'<table id="{self.id}"></table>'
+    #
+    # def home_display(self, context):
+    #     return f'<table id="{self.id}"></table>'
+    def render(self, context):
         return f'<table id="{self.id}"></table>'
 
 
@@ -87,9 +89,11 @@ class HomeOnlyBrick1(Brick):
     id = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = 'Home only brick #1'
 
-    # def detailview_display(self, context): NO
-
-    def home_display(self, context):
+    # # def detailview_display(self, context): NO
+    #
+    # def home_display(self, context):
+    #     return f'<table id="{self.id}"></table>'
+    def render(self, context):
         return f'<table id="{self.id}"></table>'
 
 
@@ -98,9 +102,11 @@ class HomeOnlyBrick2(Brick):
     verbose_name = 'Home only brick #2'
     configurable = False  # <----
 
-    # def detailview_display(self, context): NO
-
-    def home_display(self, context):
+    # # def detailview_display(self, context): NO
+    #
+    # def home_display(self, context):
+    #     return f'<table id="{self.id}"></table>'
+    def render(self, context):
         return f'<table id="{self.id}"></table>'
 
 
@@ -111,7 +117,8 @@ class DetailviewInstanceBrick(InstanceBrick):
         super().__init__(*args, **kwargs)
         self.verbose_name = f'Instance brick #{self.id} for detail-view'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return f'<table id="{self.id}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
@@ -123,7 +130,8 @@ class HomeInstanceBrick(InstanceBrick):
         super().__init__(*args, **kwargs)
         self.verbose_name = f'Instance brick #{self.id} for home'
 
-    def home_display(self, context):
+    # def home_display(self, context):
+    def render(self, context):
         return f'<table id="{self.id}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
@@ -131,7 +139,8 @@ class FakeContactHatBrick(Brick):
     id = Brick._generate_hat_id('creme_core', 'test_hat_brick')
     verbose_name = 'Fake contact header brick'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return f'<table id="{self.id}"></table>'
 
 
@@ -1822,6 +1831,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_home__for_role(self):
         self.login_as_root()
         role = self.role
+        self.fail('FIXME')
         bricks = [
             brick
             for brick_id, brick in self.brick_registry
@@ -1848,6 +1858,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_home__for_superuser(self):
         self.login_as_root()
         role = self.role
+        self.fail('FIXME')
         bricks = [
             brick
             for brick_id, brick in self.brick_registry
@@ -2992,7 +3003,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - UserRoles
         #   - COUNT BrickDetailviewLocations for default configuration
         with self.assertNumQueries(6):
-            render = bricks.BrickDetailviewLocationsBrick().detailview_display(context)
+            # render = bricks.BrickDetailviewLocationsBrick().detailview_display(context)
+            render = bricks.BrickDetailviewLocationsBrick().render(context)
 
         brick_node = self.get_brick_node(
             self.get_html_tree(render), brick=bricks.BrickDetailviewLocationsBrick,

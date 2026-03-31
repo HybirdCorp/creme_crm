@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,10 @@ from itertools import chain
 from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
+    Brick,
     PaginatedBrick,
     QuerysetBrick,
-    SimpleBrick,
 )
 from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.opportunities import get_opportunity_model
@@ -57,32 +57,57 @@ class ApproachesBrick(QuerysetBrick):
     order_by = '-creation_date'
     template_name = 'commercial/bricks/approaches.html'
 
-    def detailview_display(self, context):
-        entity = context['object']
-        pk = entity.pk
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #     pk = entity.pk
+    #
+    #     if isinstance(entity, get_organisation_model()) and \
+    #        not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value:
+    #         # TODO: regroup the queries
+    #         managers_ids  = entity.get_managers().values_list('id', flat=True)
+    #         employees_ids = entity.get_employees().values_list('id', flat=True)
+    #         opportunities_ids = Opportunity.objects.filter(
+    #             relations__type=REL_SUB_TARGETS, relations__object_entity=entity,
+    #         ).values_list('id', flat=True)
+    #
+    #         approaches = CommercialApproach.objects.filter(
+    #             entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
+    #         )
+    #     else:
+    #         approaches = CommercialApproach.get_approaches(pk)
+    #
+    #     return self._render(self.get_template_context(context, approaches))
+    #
+    # def home_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         CommercialApproach.get_approaches().prefetch_related('creme_entity'),
+    #     ))
+    def render(self, context):
+        entity = context.get('object')
+        if entity is None:  # HOME
+            approaches = CommercialApproach.get_approaches().prefetch_related('creme_entity')
+        else:  # DETAIL
+            pk = entity.pk
 
-        if isinstance(entity, get_organisation_model()) and \
-           not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value:
-            # TODO: regroup the queries
-            managers_ids  = entity.get_managers().values_list('id', flat=True)
-            employees_ids = entity.get_employees().values_list('id', flat=True)
-            opportunities_ids = Opportunity.objects.filter(
-                relations__type=REL_SUB_TARGETS, relations__object_entity=entity,
-            ).values_list('id', flat=True)
+            if (
+                isinstance(entity, get_organisation_model())
+                and not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value
+            ):
+                # TODO: regroup the queries
+                managers_ids  = entity.get_managers().values_list('id', flat=True)
+                employees_ids = entity.get_employees().values_list('id', flat=True)
+                opportunities_ids = Opportunity.objects.filter(
+                    relations__type=REL_SUB_TARGETS, relations__object_entity=entity,
+                ).values_list('id', flat=True)
 
-            approaches = CommercialApproach.objects.filter(
-                entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
-            )
-        else:
-            approaches = CommercialApproach.get_approaches(pk)
+                approaches = CommercialApproach.objects.filter(
+                    entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
+                )
+            else:
+                approaches = CommercialApproach.get_approaches(pk)
 
         return self._render(self.get_template_context(context, approaches))
-
-    def home_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            CommercialApproach.get_approaches().prefetch_related('creme_entity'),
-        ))
 
 
 class SegmentsBrick(QuerysetBrick):
@@ -95,7 +120,8 @@ class SegmentsBrick(QuerysetBrick):
     # NB: used by the view <creme_core.views.bricks.BricksReloading>
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         return self._render(self.get_template_context(
             context, MarketSegment.objects.all(),
         ))
@@ -109,7 +135,8 @@ class SegmentDescriptionsBrick(PaginatedBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
             context, strategy.get_segment_descriptions_list(),
@@ -125,7 +152,8 @@ class AssetsBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
             context, strategy.assets.all(),
@@ -141,7 +169,8 @@ class CharmsBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
             context, strategy.charms.all(),
@@ -157,16 +186,18 @@ class EvaluatedOrgasBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         strategy = context['object']
-
         return self._render(self.get_template_context(
             context, strategy.evaluated_orgas.all(),
         ))
 
 
-class AssetsMatrixBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('commercial', 'assets_matrix')
+# class AssetsMatrixBrick(SimpleBrick):
+class AssetsMatrixBrick(Brick):
+    # id = SimpleBrick.generate_id('commercial', 'assets_matrix')
+    id = Brick.generate_id('commercial', 'assets_matrix')
     verbose_name = _('Assets / Segments matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-matrix.html'
@@ -188,8 +219,10 @@ class AssetsMatrixBrick(SimpleBrick):
         )
 
 
-class CharmsMatrixBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('commercial', 'charms_matrix')
+# class CharmsMatrixBrick(SimpleBrick):
+class CharmsMatrixBrick(Brick):
+    # id = SimpleBrick.generate_id('commercial', 'charms_matrix')
+    id = Brick.generate_id('commercial', 'charms_matrix')
     verbose_name = _('Charms / Segments matrix')
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/charms-matrix.html'
@@ -211,8 +244,10 @@ class CharmsMatrixBrick(SimpleBrick):
         )
 
 
-class AssetsCharmsMatrixBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('commercial', 'assets_charms_matrix')
+# class AssetsCharmsMatrixBrick(SimpleBrick):
+class AssetsCharmsMatrixBrick(Brick):
+    # id = SimpleBrick.generate_id('commercial', 'assets_charms_matrix')
+    id = Brick.generate_id('commercial', 'assets_charms_matrix')
     verbose_name = _('Assets / Charms matrix')
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
@@ -242,7 +277,8 @@ class ActObjectivesBrick(QuerysetBrick):
     target_ctypes = (Act,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         act_id = context['object'].id
         # TODO: pre-populate EntityFilters ??
         return self._render(self.get_template_context(
@@ -261,17 +297,19 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
     target_ctypes = (Act,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    # def detailview_display(self, context):
+    def render(self, context):
         act = context['object']
-
         return self._render(self.get_template_context(
             context, act.get_related_opportunities(),
             relation_type=RelationType.objects.get(id=REL_OBJ_COMPLETE_GOAL),
         ))
 
 
-class PatternComponentsBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('commercial', 'pattern_components')
+# class PatternComponentsBrick(SimpleBrick):
+class PatternComponentsBrick(Brick):
+    # id = SimpleBrick.generate_id('commercial', 'pattern_components')
+    id = Brick.generate_id('commercial', 'pattern_components')
     verbose_name = _('Components of an Objective Pattern')
     dependencies = (ActObjectivePatternComponent,)
     template_name = 'commercial/bricks/components.html'

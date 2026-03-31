@@ -18,29 +18,45 @@ from ..views.base import BrickTestCaseMixin
 class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick_import_n_display__named_brick(self):
         brick_str = '<div>FOOBAR</div>'
-        name = 'CremeBricksTagsTestCase__test_brick_import_n_display01'
+        name = 'CremeBricksTagsTestCase__test_brick_import_n_display__named_brick'
 
-        class FooBrick(Brick):
+        class TestBrick(Brick):
             id = Brick.generate_id('creme_core', name)
             verbose_name = 'Testing purpose'
 
-            def detailview_display(this, context):
+            # def detailview_display(this, context):
+            def render(this, context):
                 return brick_str
 
-        brick_registry.register(FooBrick)
+        # brick_registry.register(TestBrick)
+        tag = brick_registry.Tag.DETAIL
+        brick_registry.register(tag, TestBrick)
 
-        with self.assertNoException():
-            template = Template(
+        ctxt = RequestContext(self.build_request())
+
+        # No "tag" (deprecated) ---
+        with (self.assertNoException(), self.assertWarns(DeprecationWarning)):
+            render = Template(
                 f"{{% load creme_bricks %}}"
                 f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
                 f"{{% brick_display my_brick %}}"
-            )
-            render = template.render(RequestContext(self.build_request()))
-
+            ).render(ctxt)
         self.assertEqual(brick_str, render.strip())
 
+        # With "tag" ---
+        with self.assertNoException():
+            render = Template(
+                f"{{% load creme_bricks %}}"
+                f"{{% brick_import app='creme_core' name='{name}' tag='DETAIL' as my_brick %}}"
+                f"{{% brick_display my_brick %}}"
+            ).render(ctxt)
+        self.assertEqual(brick_str, render.strip())
+
+        # Clean
+        brick_registry.unregister(tag, TestBrick)
+
     def test_brick_import_n_display__object_brick(self):
-        "Object Brick (generic brick)"
+        "Object Brick (generic brick)."
         user = self.get_root_user()
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi', phone='123489',
@@ -71,21 +87,20 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             verbose_name = 'Testing purpose'
             brick_str = 'OVERLOAD ME'
 
-            def detailview_display(this, context):
+            # def detailview_display(this, context):
+            def render(this, context):
                 return this.brick_str
 
-        prefix = 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01'
-
         class FooBrick1(_FooBrick):
-            id = _FooBrick.generate_id('creme_core', f'{prefix}_01')
+            id = _FooBrick.generate_id('creme_core', 'test_1')
             brick_str = '<div>FOOBARBAZ #1</div>'
 
         class FooBrick2(_FooBrick):
-            id = _FooBrick.generate_id('creme_core', f'{prefix}_02')
+            id = _FooBrick.generate_id('creme_core', 'test_2')
             brick_str = '<div>FOOBARBAZ #2</div>'
 
         class FooBrick3(_FooBrick):
-            id = _FooBrick.generate_id('creme_core', f'{prefix}_03')
+            id = _FooBrick.generate_id('creme_core', 'test_3')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
@@ -117,28 +132,50 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render.strip(),
         )
 
-    def test_brick_declare_n_display__error(self):
-        "Invalid Brick => no crash please"
-        class InvalidBrick(Brick):
-            id_ = Brick.generate_id(
-                'creme_core',
-                'CremeBricksTagsTestCase__brick_test_brick_declare_n_display02',
-            )
+    def test_brick_import_n_display__home(self):
+        brick_str = '<div>FOOBAR</div>'
+        name = 'CremeBricksTagsTestCase__test_brick_import_n_display__home'
+
+        class TestBrick(Brick):
+            id = Brick.generate_id('creme_core', name)
             verbose_name = 'Testing purpose'
 
-        context = RequestContext(
-            self.build_request(),
-            {'my_brick': InvalidBrick()},
-        )
+            def render(this, context):
+                return brick_str
+
+        tag = brick_registry.Tag.HOME
+        brick_registry.register(tag, TestBrick)
 
         with self.assertNoException():
             render = Template(
-                '{% load creme_bricks %}'
-                '{% brick_declare my_brick %}'
-                '{% brick_display my_brick %}'
-            ).render(context)
+                f"{{% load creme_bricks %}}"
+                f"{{% brick_import app='creme_core' name='{name}' tag='HOME' as my_brick %}}"
+                f"{{% brick_display my_brick %}}"
+            ).render(RequestContext(self.build_request()))
+        self.assertEqual(brick_str, render.strip())
 
-        self.assertFalse(render.strip())
+        # Clean
+        brick_registry.unregister(tag, TestBrick)
+
+    # def test_brick_declare_n_display__error(self):
+    #     "Invalid Brick => no crash please."
+    #     class InvalidBrick(Brick):
+    #         id = Brick.generate_id('creme_core', 'invalid')
+    #         verbose_name = 'Testing purpose'
+    #
+    #     context = RequestContext(
+    #         self.build_request(),
+    #         {'my_brick': InvalidBrick()},
+    #     )
+    #
+    #     with self.assertNoException():
+    #         render = Template(
+    #             '{% load creme_bricks %}'
+    #             '{% brick_declare my_brick %}'
+    #             '{% brick_display my_brick %}'
+    #         ).render(context)
+    #
+    #     self.assertFalse(render.strip())
 
     def test_brick_end(self):
         class FooBrick(Brick):
@@ -146,7 +183,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOO</div>'
 
-            def detailview_display(this, context):
+            # def detailview_display(this, context):
+            def render(this, context):
                 return this.brick_str
 
         context = RequestContext(self.build_request(), {'my_brick': FooBrick()})
@@ -185,11 +223,11 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render.strip(),
         )
 
-    def test_brick_get_by_ids(self):
+    def test_brick_get_by_ids__home(self):
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
-                '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
+                '{% brick_get_by_ids brick_id1 brick_id2 tag="HOME" as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
                 self.build_request(),
@@ -214,32 +252,43 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi',
         )
+        ctxt = RequestContext(
+            self.build_request(user=user),
+            {
+                'brick_id1': HistoryBrick.id,
+                'brick_id2': MODELBRICK_ID,
+                'brick_id3': rbi.brick_id,
+                'motoko': motoko,
+            },
+        )
 
-        with self.assertNoException():
+        # No tag (deprecated) ---
+        with (self.assertNoException(), self.assertWarns(DeprecationWarning)):
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_get_by_ids brick_id1 brick_id2 brick_id3 entity=motoko as bricks %}'
                 '{{bricks.0.verbose_name}}'
                 '##{{bricks.1.verbose_name}}'
                 '##{{bricks.2.config_item.brick_id}}'
-            ).render(RequestContext(
-                self.build_request(user=user),
-                {
-                    'brick_id1': HistoryBrick.id,
-                    'brick_id2': MODELBRICK_ID,
-                    'brick_id3': rbi.brick_id,
-                    'motoko': motoko,
-                },
-            ))
+            ).render(ctxt)
 
-        self.assertEqual(
-            '{}##{}##{}'.format(
-                HistoryBrick.verbose_name,
-                EntityBrick.verbose_name,
-                rbi.brick_id,
-            ),
-            render.strip()
+        expected = '{}##{}##{}'.format(
+            HistoryBrick.verbose_name,
+            EntityBrick.verbose_name,
+            rbi.brick_id,
         )
+        self.assertEqual(expected, render.strip())
+
+        # With tag ---
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_get_by_ids brick_id1 brick_id2 brick_id3 tag="DETAIL" entity=motoko as bricks %}'  # NOQA
+                '{{bricks.0.verbose_name}}'
+                '##{{bricks.1.verbose_name}}'
+                '##{{bricks.2.config_item.brick_id}}'
+            ).render(ctxt)
+        self.assertEqual(expected, render.strip())
 
     # TODO: complete
 

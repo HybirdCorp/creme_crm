@@ -39,7 +39,8 @@ class PortalTestCase(CremeTestCase):
         url = reverse('creme_config__reload_portal_bricks')
         response = self.assertGET200(url, data={'brick_id': brick.id})
         self.assertListEqual(
-            [[brick.id, brick.detailview_display({})]],
+            # [[brick.id, brick.detailview_display({})]],
+            [[brick.id, brick.render({})]],
             response.json(),
         )
 

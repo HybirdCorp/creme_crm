@@ -11,7 +11,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.gui.bricks import (
+from creme.creme_core.gui.bricks import (  # SimpleBrick
     Brick,
     BrickManager,
     BrickRegistry,
@@ -20,7 +20,6 @@ from creme.creme_core.gui.bricks import (
     ForbiddenBrick,
     InstanceBrick,
     QuerysetBrick,
-    SimpleBrick,
     SpecificRelationsBrick,
     VoidBrick,
 )
@@ -54,11 +53,46 @@ class BrickRegistryTestCase(CremeTestCase):
         RelationBrickItem.objects.all().delete()
         InstanceBrickConfigItem.objects.all().delete()
 
-    def test_register(self):
+    # def test_register(self):
+    #     class FoobarBrick(Brick):
+    #         verbose_name = 'Testing purpose'
+    #
+    #         def detailview_display(self, context):
+    #             return self._render(self.get_template_context(context))
+    #
+    #     class FoobarBrick1(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #
+    #     class FoobarBrick2(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_2')
+    #
+    #     brick_registry = BrickRegistry()
+    #     self.assertListEqual([], [*brick_registry])
+    #
+    #     with self.assertRaises(KeyError):
+    #         brick_registry[FoobarBrick1.id]  # NOQA
+    #
+    #     # 1 brick
+    #     brick_registry.register(FoobarBrick1)
+    #     self.assertListEqual([(FoobarBrick1.id, FoobarBrick1)], [*brick_registry])
+    #     self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+    #
+    #     # 2 bricks
+    #     brick_registry.register(FoobarBrick2)
+    #     self.assertCountEqual(
+    #         [
+    #             (FoobarBrick1.id, FoobarBrick1),
+    #             (FoobarBrick2.id, FoobarBrick2),
+    #         ],
+    #         [*brick_registry],
+    #     )
+    #     self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+    #     self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+    def test_register__detail(self):
         class FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            def render(self, context):
                 return self._render(self.get_template_context(context))
 
         class FoobarBrick1(FoobarBrick):
@@ -68,35 +102,46 @@ class BrickRegistryTestCase(CremeTestCase):
             id = Brick.generate_id('creme_core', 'foobar_brick_2')
 
         brick_registry = BrickRegistry()
-        self.assertListEqual([], [*brick_registry])
+        self.assertListEqual([], [*brick_registry.brick_classes(BrickRegistry.Tag.DETAIL)])
+        self.assertListEqual([], [*brick_registry.brick_classes(BrickRegistry.Tag.HOME)])
 
-        with self.assertRaises(KeyError):
-            brick_registry[FoobarBrick1.id]  # NOQA
+        # with self.assertRaises(KeyError):
+        #     brick_registry[FoobarBrick1.id]  # NOQA
 
         # 1 brick
-        brick_registry.register(FoobarBrick1)
-        self.assertListEqual([(FoobarBrick1.id, FoobarBrick1)], [*brick_registry])
-        self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+        brick_registry.register(brick_registry.Tag.DETAIL, FoobarBrick1)
+        self.assertListEqual(
+            [FoobarBrick1], [*brick_registry.brick_classes(brick_registry.Tag.DETAIL)],
+        )
+        # self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
 
         # 2 bricks
-        brick_registry.register(FoobarBrick2)
+        brick_registry.register(brick_registry.Tag.DETAIL, FoobarBrick2)
         self.assertCountEqual(
-            [
-                (FoobarBrick1.id, FoobarBrick1),
-                (FoobarBrick2.id, FoobarBrick2),
-            ],
-            [*brick_registry],
+            [FoobarBrick1, FoobarBrick2],
+            [*brick_registry.brick_classes(brick_registry.Tag.DETAIL)],
         )
-        self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
-        self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+        self.assertListEqual([], [*brick_registry.brick_classes(BrickRegistry.Tag.HOME)])
+        # self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+        # self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
 
-    def test_register__2_classes_at_once(self):
-        # class FoobarBrick(Brick):
-        class FoobarBrick(SimpleBrick):
+    # def test_register__2_classes_at_once(self):
+    #     class FoobarBrick(SimpleBrick):
+    #         verbose_name = 'Testing purpose'
+    #
+    #     class FoobarBrick1(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #
+    #     class FoobarBrick2(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_2')
+    #
+    #     brick_registry = BrickRegistry()
+    #     brick_registry.register(FoobarBrick1, FoobarBrick2)
+    #     self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+    #     self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+    def test_register__detail__2_classes_at_once(self):
+        class FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
-
-            # def detailview_display(self, context):
-            #     return self._render(self.get_template_context(context))
 
         class FoobarBrick1(FoobarBrick):
             id = Brick.generate_id('creme_core', 'foobar_brick_1')
@@ -105,18 +150,37 @@ class BrickRegistryTestCase(CremeTestCase):
             id = Brick.generate_id('creme_core', 'foobar_brick_2')
 
         brick_registry = BrickRegistry()
-        brick_registry.register(FoobarBrick1, FoobarBrick2)
-        self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
-        self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+        brick_registry.register(
+            brick_registry.Tag.DETAIL,
+            FoobarBrick1, FoobarBrick2,
+        )
+        self.assertCountEqual(
+            [FoobarBrick1, FoobarBrick2],
+            [*brick_registry.brick_classes(brick_registry.Tag.DETAIL)],
+        )
+        # self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id])
+        # self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
 
-    def test_register__duplicates(self):
-        # class FoobarBrick1(Brick):
-        class FoobarBrick1(SimpleBrick):
+    # def test_register__duplicates(self):
+    #     class FoobarBrick1(SimpleBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #         verbose_name = 'Testing purpose'
+    #
+    #     class FoobarBrick2(FoobarBrick1):
+    #         pass
+    #
+    #     brick_registry = BrickRegistry()
+    #
+    #     with self.assertRaises(BrickRegistry.RegistrationError) as cm:
+    #         brick_registry.register(FoobarBrick1, FoobarBrick2)
+    #
+    #     self.assertEqual(
+    #         f"Duplicated brick's ID: {FoobarBrick2.id}", str(cm.exception),
+    #     )
+    def test_register__detail__duplicates(self):
+        class FoobarBrick1(Brick):
             id = Brick.generate_id('creme_core', 'foobar_brick_1')
             verbose_name = 'Testing purpose'
-
-            # def detailview_display(self, context):
-            #     return self._render(self.get_template_context(context))
 
         class FoobarBrick2(FoobarBrick1):
             pass
@@ -124,32 +188,166 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = BrickRegistry()
 
         with self.assertRaises(BrickRegistry.RegistrationError) as cm:
-            brick_registry.register(FoobarBrick1, FoobarBrick2)
+            brick_registry.register(
+                brick_registry.Tag.DETAIL,
+                FoobarBrick1, FoobarBrick2,
+            )
 
         self.assertEqual(
             f"Duplicated brick's ID: {FoobarBrick2.id}", str(cm.exception),
         )
 
-    def test_register__empty_id(self):
-        class FoobarBrick(SimpleBrick):
+    # def test_register__empty_id(self):
+    #     class FoobarBrick(SimpleBrick):
+    #         # id = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
+    #         verbose_name = 'Testing purpose'
+    #
+    #     brick_registry = BrickRegistry()
+    #
+    #     with self.assertRaises(BrickRegistry.RegistrationError) as cm:
+    #         brick_registry.register(FoobarBrick)
+    #
+    #     self.assertEqual(
+    #         f"Brick class with empty ID: {FoobarBrick}", str(cm.exception),
+    #     )
+    def test_register__detail__empty_id(self):
+        class FoobarBrick(Brick):
             # id = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
             verbose_name = 'Testing purpose'
 
         brick_registry = BrickRegistry()
 
         with self.assertRaises(BrickRegistry.RegistrationError) as cm:
-            brick_registry.register(FoobarBrick)
+            brick_registry.register(brick_registry.Tag.DETAIL, FoobarBrick)
 
         self.assertEqual(
             f"Brick class with empty ID: {FoobarBrick}", str(cm.exception),
         )
 
-    def test_unregister(self):
-        class FoobarBrick(Brick):
+    def test_register__home(self):
+        class _FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
+        class FoobarBrick1(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+
+        class FoobarBrick2(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+
+        brick_registry = BrickRegistry().register(
+            BrickRegistry.Tag.HOME,
+            FoobarBrick1, FoobarBrick2,
+        )
+        self.assertCountEqual(
+            [FoobarBrick1, FoobarBrick2],
+            [*brick_registry.brick_classes(BrickRegistry.Tag.HOME)],
+        )
+
+    def test_register__home__duplicates(self):
+        class FoobarBrick1(Brick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+            verbose_name = 'Testing purpose'
+
+        class FoobarBrick2(FoobarBrick1):
+            pass
+
+        brick_registry = BrickRegistry()
+
+        with self.assertRaises(BrickRegistry.RegistrationError) as cm:
+            brick_registry.register(
+                BrickRegistry.Tag.HOME,
+                FoobarBrick1, FoobarBrick2,
+            )
+
+        self.assertEqual(
+            f"Duplicated brick's ID: {FoobarBrick2.id}", str(cm.exception),
+        )
+
+    def test_register__home__empty_id(self):
+        class FoobarBrick(Brick):
+            # id = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
+            verbose_name = 'Testing purpose'
+
+        brick_registry = BrickRegistry()
+
+        with self.assertRaises(BrickRegistry.RegistrationError) as cm:
+            brick_registry.register(BrickRegistry.Tag.HOME, FoobarBrick)
+
+        self.assertEqual(
+            f"Brick class with empty ID: {FoobarBrick}", str(cm.exception),
+        )
+
+    def test_register__several_categories(self):
+        class _FoobarBrick(Brick):
+            verbose_name = 'Testing purpose'
+
+        class FoobarBrick1(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+
+        class FoobarBrick2(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+
+        brick_registry = BrickRegistry().register(
+            (BrickRegistry.Tag.HOME, BrickRegistry.Tag.MY_PAGE),
+            FoobarBrick1, FoobarBrick2,
+        )
+        self.assertCountEqual(
+            [FoobarBrick1, FoobarBrick2],
+            [*brick_registry.brick_classes(BrickRegistry.Tag.HOME)],
+        )
+        self.assertCountEqual(
+            [FoobarBrick1, FoobarBrick2],
+            [*brick_registry.brick_classes(BrickRegistry.Tag.MY_PAGE)],
+        )
+
+    # def test_unregister(self):
+    #     class FoobarBrick(Brick):
+    #         verbose_name = 'Testing purpose'
+    #
+    #         def detailview_display(self, context):
+    #             return self._render(self.get_template_context(context))
+    #
+    #     class FoobarBrick1(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #
+    #     class FoobarBrick2(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_2')
+    #
+    #     class FoobarBrick3(FoobarBrick):
+    #         id = Brick.generate_id('creme_core', 'foobar_brick_3')
+    #
+    #     brick_registry = BrickRegistry().register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
+    #     brick_registry.unregister(FoobarBrick1, FoobarBrick3)
+    #     self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+    #
+    #     with self.assertRaises(KeyError):
+    #         brick_registry[FoobarBrick1.id]  # NOQA
+    #     with self.assertRaises(KeyError):
+    #         brick_registry[FoobarBrick3.id]  # NOQA
+    #
+    #     # ---
+    #     class FoobarBrick4(FoobarBrick):
+    #         pass
+    #
+    #     with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+    #         brick_registry.unregister(FoobarBrick4)
+    #
+    #     self.assertEqual(
+    #         f'Brick class with empty ID: {FoobarBrick4}',
+    #         str(cm1.exception),
+    #     )
+    #
+    #     # ---
+    #     with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+    #         brick_registry.unregister(FoobarBrick2, FoobarBrick1)
+    #
+    #     self.assertEqual(
+    #         f'Brick class with invalid ID (already unregistered?): {FoobarBrick1}',
+    #         str(cm1.exception)
+    #     )
+    def test_unregister__detail(self):
+        class FoobarBrick(Brick):
+            verbose_name = 'Testing purpose'
 
         class FoobarBrick1(FoobarBrick):
             id = Brick.generate_id('creme_core', 'foobar_brick_1')
@@ -160,21 +358,28 @@ class BrickRegistryTestCase(CremeTestCase):
         class FoobarBrick3(FoobarBrick):
             id = Brick.generate_id('creme_core', 'foobar_brick_3')
 
-        brick_registry = BrickRegistry().register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
-        brick_registry.unregister(FoobarBrick1, FoobarBrick3)
-        self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
-
-        with self.assertRaises(KeyError):
-            brick_registry[FoobarBrick1.id]  # NOQA
-        with self.assertRaises(KeyError):
-            brick_registry[FoobarBrick3.id]  # NOQA
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry = BrickRegistry().register(
+            tag,
+            FoobarBrick1, FoobarBrick2, FoobarBrick3,
+        )
+        brick_registry.unregister(tag, FoobarBrick1, FoobarBrick3)
+        # self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+        #
+        # with self.assertRaises(KeyError):
+        #     brick_registry[FoobarBrick1.id]  # NOQA
+        # with self.assertRaises(KeyError):
+        #     brick_registry[FoobarBrick3.id]  # NOQA
+        self.assertListEqual(
+            [FoobarBrick2], [*brick_registry.brick_classes(tag)],
+        )
 
         # ---
         class FoobarBrick4(FoobarBrick):
             pass
 
         with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
-            brick_registry.unregister(FoobarBrick4)
+            brick_registry.unregister(tag, FoobarBrick4)
 
         self.assertEqual(
             f'Brick class with empty ID: {FoobarBrick4}',
@@ -183,11 +388,55 @@ class BrickRegistryTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
-            brick_registry.unregister(FoobarBrick2, FoobarBrick1)
+            brick_registry.unregister(tag, FoobarBrick2, FoobarBrick1)
 
         self.assertEqual(
             f'Brick class with invalid ID (already unregistered?): {FoobarBrick1}',
             str(cm1.exception)
+        )
+
+    def test_unregister__home(self):
+        class _FoobarBrick(Brick):
+            verbose_name = 'Testing purpose'
+
+        class FoobarBrick1(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+
+        class FoobarBrick2(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+
+        class FoobarBrick3(_FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_3')
+
+        tag = BrickRegistry.Tag.HOME
+        brick_registry = BrickRegistry().register(
+            tag,
+            FoobarBrick1, FoobarBrick2, FoobarBrick3,
+        )
+        brick_registry.unregister(tag, FoobarBrick1, FoobarBrick3)
+        self.assertListEqual(
+            [FoobarBrick2], [*brick_registry.brick_classes(tag)],
+        )
+
+        # ---
+        class FoobarBrick4(_FoobarBrick):
+            pass
+
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+            brick_registry.unregister(tag, FoobarBrick4)
+
+        self.assertEqual(
+            f'Brick class with empty ID: {FoobarBrick4}',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+            brick_registry.unregister(tag, FoobarBrick2, FoobarBrick1)
+
+        self.assertEqual(
+            f'Brick class with invalid ID (already unregistered?): {FoobarBrick1}',
+            str(cm1.exception),
         )
 
     def test_register_4_instance(self):
@@ -199,7 +448,8 @@ class BrickRegistryTestCase(CremeTestCase):
         class _FoobarInstanceBrick(InstanceBrick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -225,7 +475,9 @@ class BrickRegistryTestCase(CremeTestCase):
         ibci2 = create_ibci(brick_class_id=FoobarInstanceBrick2.id)
         brick_registry = BrickRegistry()
 
-        ibrick1 = brick_registry.get_brick_4_instance(ibci1)
+        # ibrick1 = brick_registry.get_brick_4_instance(ibci1)
+        tag = brick_registry.Tag.DETAIL
+        ibrick1 = brick_registry.get_brick_4_instance(tag=tag, ibi=ibci1)
         self.assertIs(ibrick1.__class__, InstanceBrick)
         self.assertEqual('??', ibrick1.verbose_name)
         self.assertListEqual(
@@ -234,25 +486,78 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
         # 1 brick
-        brick_registry.register_4_instance(FoobarInstanceBrick1)
+        # brick_registry.register_4_instance(FoobarInstanceBrick1)
+        brick_registry.register_4_instance(tag, FoobarInstanceBrick1)
 
-        ibrick2 = brick_registry.get_brick_4_instance(ibci1)
+        # ibrick2 = brick_registry.get_brick_4_instance(ibci1)
+        ibrick2 = brick_registry.get_brick_4_instance(tag=tag, ibi=ibci1)
         self.assertIsInstance(ibrick2, FoobarInstanceBrick1)
         self.assertEqual(ibci1.brick_id, ibrick2.id)
         self.assertFalse(ibrick2.dependencies)
         self.assertIsNone(ibrick2.errors)
 
         self.assertIs(
-            brick_registry.get_brick_4_instance(ibci2).__class__, InstanceBrick,
+            # brick_registry.get_brick_4_instance(ibci2).__class__,
+            brick_registry.get_brick_4_instance(tag=tag, ibi=ibci2).__class__,
+            InstanceBrick,
         )
 
-        # 3 bricks
-        brick_registry.register_4_instance(FoobarInstanceBrick2, FoobarInstanceBrick3)
+        # 3 bricks ---
+        # brick_registry.register_4_instance(FoobarInstanceBrick2, FoobarInstanceBrick3)
+        brick_registry.register_4_instance(tag, FoobarInstanceBrick2, FoobarInstanceBrick3)
         self.assertIsInstance(
-            brick_registry.get_brick_4_instance(ibci1), FoobarInstanceBrick1,
+            # brick_registry.get_brick_4_instance(ibci1),
+            brick_registry.get_brick_4_instance(tag=tag, ibi=ibci1),
+            FoobarInstanceBrick1,
         )
         self.assertIsInstance(
-            brick_registry.get_brick_4_instance(ibci2), FoobarInstanceBrick2,
+            # brick_registry.get_brick_4_instance(ibci2), FoobarInstanceBrick2,
+            brick_registry.get_brick_4_instance(tag=tag, ibi=ibci2),
+            FoobarInstanceBrick2,
+        )
+
+    def test_register_4_instance__several_categories(self):
+        user = self.get_root_user()
+        casca = FakeContact.objects.create(
+            user=user, first_name='Casca', last_name='Mylove',
+        )
+
+        class FoobarInstanceBrick1(InstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick')
+            verbose_name = 'Testing purpose'
+
+            def render(self, context):
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
+
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=casca, brick_class_id=FoobarInstanceBrick1.id,
+        )
+
+        tag1 = BrickRegistry.Tag.HOME
+        tag2 = BrickRegistry.Tag.MY_PAGE
+        brick_registry = BrickRegistry().register_4_instance(
+            (tag1, tag2), FoobarInstanceBrick1,
+        )
+
+        ibrick1 = brick_registry.get_brick_4_instance(tag=tag1, ibi=ibci)
+        self.assertIsInstance(ibrick1, FoobarInstanceBrick1)
+        self.assertEqual(ibci.brick_id, ibrick1.id)
+        self.assertFalse(ibrick1.dependencies)
+        self.assertIsNone(ibrick1.errors)
+
+        ibrick2 = brick_registry.get_brick_4_instance(tag=tag2, ibi=ibci)
+        self.assertIsInstance(ibrick1, FoobarInstanceBrick1)
+        self.assertEqual(ibci.brick_id, ibrick2.id)
+
+        self.assertIs(
+            brick_registry.get_brick_4_instance(
+                tag=brick_registry.Tag.DETAIL, ibi=ibci,
+            ).__class__,
+            InstanceBrick,
         )
 
     def test_register_4_instance__duplicates(self):
@@ -260,7 +565,7 @@ class BrickRegistryTestCase(CremeTestCase):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -274,6 +579,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         with self.assertRaises(BrickRegistry.RegistrationError) as cm:
             brick_registry.register_4_instance(
+                brick_registry.Tag.DETAIL,
                 FoobarInstanceBrick1, FoobarInstanceBrick2,
             )
 
@@ -287,7 +593,8 @@ class BrickRegistryTestCase(CremeTestCase):
             # id = InstanceBrickConfigItem.generate_base_id(...)
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -297,7 +604,8 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = BrickRegistry()
 
         with self.assertRaises(BrickRegistry.RegistrationError) as cm:
-            brick_registry.register_4_instance(FoobarInstanceBrick)
+            # brick_registry.register_4_instance(FoobarInstanceBrick)
+            brick_registry.register_4_instance(brick_registry.Tag.DETAIL, FoobarInstanceBrick)
 
         self.assertEqual(
             f"Brick class with empty ID: {FoobarInstanceBrick}",
@@ -309,13 +617,15 @@ class BrickRegistryTestCase(CremeTestCase):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return f'<table id="{self.html_id}"><thead><tr></tr></thead></table>'
 
         brick_registry = BrickRegistry()
 
         with self.assertRaises(BrickRegistry.RegistrationError) as cm:
-            brick_registry.register_4_instance(FoobarInstanceBrick)
+            # brick_registry.register_4_instance(FoobarInstanceBrick)
+            brick_registry.register_4_instance(brick_registry.Tag.DETAIL, FoobarInstanceBrick)
 
         self.assertEqual(
             f"Brick class does not inherit InstanceBrick: {FoobarInstanceBrick}",
@@ -332,7 +642,8 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
             dependencies = (FakeOrganisation, )
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -345,11 +656,25 @@ class BrickRegistryTestCase(CremeTestCase):
         )
         brick_registry = BrickRegistry()
 
-        brick_registry.register_4_instance(FoobarInstanceBrick)
+        # brick_registry.register_4_instance(FoobarInstanceBrick)
+        tag = brick_registry.Tag.DETAIL
+        brick_registry.register_4_instance(tag, FoobarInstanceBrick)
 
-        ibrick = brick_registry.get_brick_4_instance(ibci, entity=casca)
+        # ibrick = brick_registry.get_brick_4_instance(ibci, entity=casca)
+        with self.assertNoLogs(level='WARNING'):
+            ibrick = brick_registry.get_brick_4_instance(ibi=ibci, entity=casca, tag=tag)
         self.assertIsInstance(ibrick, FoobarInstanceBrick)
         self.assertEqual((FakeOrganisation, FakeContact), ibrick.dependencies)
+
+        # ---
+        with self.assertLogs(level='WARNING'):
+            error_ibrick = brick_registry.get_brick_4_instance(
+                ibi=ibci, entity=casca, tag=brick_registry.Tag.HOME,
+            )
+        self.assertIsInstance(error_ibrick, InstanceBrick)
+        self.assertNotIsInstance(error_ibrick, FoobarInstanceBrick)
+        self.assertEqual('??', error_ibrick.verbose_name)
+        self.assertListEqual([_('Unknown type of block (bad uninstall?)')], error_ibrick.errors)
 
     # def test_get_compatible_bricks(self):  # DEPRECATED
     #     user = self.get_root_user()
@@ -511,33 +836,36 @@ class BrickRegistryTestCase(CremeTestCase):
         user = self.get_root_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
-        class FoobarBrick1(Brick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+        class TestBrickOK1(Brick):
+            id = Brick.generate_id('creme_core', 'brick_ok1')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
+            # def render(self, context):
+            #     return self._render(self.get_template_context(context))
 
-        class FoobarBrick2(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+        class TestBrickOK2(Brick):
+            id = Brick.generate_id('creme_core', 'brick_ok2')
             verbose_name = 'Testing purpose'
             target_ctypes = (FakeContact, FakeOrganisation)
 
-        class FoobarBrick3(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_3')
+        class TestBrickNoContact(Brick):
+            id = Brick.generate_id('creme_core', 'brick_no_contact')
             verbose_name = 'Testing purpose'
             target_ctypes = (FakeOrganisation,)  # Not 'Contact'
 
-        class FoobarBrick4(SimpleBrick):
-            id = Brick.generate_id('creme_core', 'foobar_brick_4')
+        class TestBrickNotConfigurable(Brick):
+            id = Brick.generate_id('creme_core', 'brick_not_configurable')
             verbose_name = 'Testing purpose'
             configurable = False  # <------
 
-        class FoobarBrick5(Brick):  # No detailview_display() method
-            id = Brick.generate_id('creme_core', 'foobar_brick_5')
+        # class TestBrickNoDetail(Brick):  # No detailview_display() method
+        class TestBrickNoDetail(Brick):
+            id = Brick.generate_id('creme_core', 'brick_no_detail')
             verbose_name = 'Testing purpose'
 
-            def home_display(self, context):
+            # def home_display(self, context):
+            #     return f'<table id="{self.html_id}"></table>'
+            def render(self, context):
                 return f'<table id="{self.html_id}"></table>'
 
         class FakeContactBrick(EntityBrick):
@@ -546,62 +874,43 @@ class BrickRegistryTestCase(CremeTestCase):
         class FakeOrganisationBrick(EntityBrick):
             verbose_name = 'Fake Organisation block'
 
-        class _FoobarInstanceBrick(InstanceBrick):
+        class _TestInstanceBrick(InstanceBrick):
             verbose_name = 'Testing purpose'
 
-        class FoobarInstanceBrick1(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
-
-            def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
                     f'</table>'
                 )
 
-        class FoobarInstanceBrick2(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_2')
+        class InstanceBrickOk1(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_ok1')
+
+        class InstanceBrickOK2(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_ok2')
             target_ctypes = (FakeContact, FakeOrganisation)  # <-- OK !!
 
-            def detailview_display(self, context):
-                return (
-                    f'<table id="{self.html_id}">'
-                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
-
-        class FoobarInstanceBrick3(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
+        class InstanceBrickNoContact(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_no_contact')
             target_ctypes = (FakeOrganisation, FakeImage)  # <-- KO !!
 
-            def detailview_display(self, context):
-                return (
-                    f'<table id="{self.html_id}"><thead><tr>'
-                    f'{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
+        class InstanceBrickNoDetail(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_no_detail')
 
-        class FoobarInstanceBrick4(_FoobarInstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_4')
-
-            def home_display(self, context):  # <====== not detailview_display()
-                return (
-                    f'<table id="{self.html_id}">'
-                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
-                    f'</table>'
-                )
+            # def home_display(self, context):  # <====== not detailview_display()
 
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
         ibci1 = create_ibci(
-            brick_class_id=FoobarInstanceBrick1.id,
+            brick_class_id=InstanceBrickOk1.id,
             uuid='585f1df4-5bdc-4696-aa45-a2f49865580e',
         )
         ibci2 = create_ibci(
-            brick_class_id=FoobarInstanceBrick2.id,
+            brick_class_id=InstanceBrickOK2.id,
             uuid='685f1df4-5bdc-4696-aa45-a2f49865580e',  # After "ibci1.uuid" to facilitate test.
         )
-        create_ibci(brick_class_id=FoobarInstanceBrick3.id)
-        create_ibci(brick_class_id=FoobarInstanceBrick4.id)
+        create_ibci(brick_class_id=InstanceBrickNoContact.id)
+        create_ibci(brick_class_id=InstanceBrickNoDetail.id)
 
         brick_registry = BrickRegistry()
 
@@ -624,35 +933,43 @@ class BrickRegistryTestCase(CremeTestCase):
         )  # Not compatible with Contact
 
         brick_registry.register(
-            FoobarBrick1,
-            FoobarBrick2,
-            FoobarBrick3,
-            FoobarBrick4,
-            FoobarBrick5,
+            brick_registry.Tag.DETAIL,
+
+            TestBrickOK1,
+            TestBrickOK2,
+            TestBrickNoContact,
+            TestBrickNotConfigurable,
+            # TestBrickNoDetail,
+        ).register(
+            brick_registry.Tag.HOME,
+            TestBrickNoDetail,
         ).register_4_model(
             FakeContact, FakeContactBrick,
         ).register_4_model(
             FakeOrganisation, FakeOrganisationBrick,
         ).register_4_instance(
-            FoobarInstanceBrick1,
-            FoobarInstanceBrick2,
-            FoobarInstanceBrick3,
-            FoobarInstanceBrick4,
+            brick_registry.Tag.DETAIL,
+
+            InstanceBrickOk1,
+            InstanceBrickOK2,
+            InstanceBrickNoContact,
+            # InstanceBrickNoDetail,
+        ).register_4_instance(
+            brick_registry.Tag.HOME,
+            InstanceBrickNoDetail,
         )
 
-        bricks = sorted(
-            brick_registry.get_compatible_detail_bricks(FakeContact),
-            key=lambda b: b.id
-        )
-        self.assertEqual(7, len(bricks))
-
-        bricks_by_id = {brick.id: brick for brick in bricks}
-        self.assertIsInstance(bricks_by_id.get(FoobarBrick1.id), FoobarBrick1)
-        self.assertIsInstance(bricks_by_id.get(FoobarBrick2.id), FoobarBrick2)
+        bricks_by_id = {
+            brick.id: brick
+            for brick in brick_registry.get_compatible_detail_bricks(FakeContact)
+        }
+        self.assertEqual(7, len(bricks_by_id), bricks_by_id)
+        self.assertIsInstance(bricks_by_id.get(TestBrickOK1.id), TestBrickOK1)
+        self.assertIsInstance(bricks_by_id.get(TestBrickOK2.id), TestBrickOK2)
 
         self.assertIsInstance(bricks_by_id.get(cbci.brick_id), CustomBrick)
-        self.assertIsInstance(bricks_by_id.get(ibci1.brick_id), FoobarInstanceBrick1)
-        self.assertIsInstance(bricks_by_id.get(ibci2.brick_id), FoobarInstanceBrick2)
+        self.assertIsInstance(bricks_by_id.get(ibci1.brick_id), InstanceBrickOk1)
+        self.assertIsInstance(bricks_by_id.get(ibci2.brick_id), InstanceBrickOK2)
 
         model_brick = bricks_by_id['model']
         self.assertIsInstance(model_brick, FakeContactBrick)
@@ -720,15 +1037,17 @@ class BrickRegistryTestCase(CremeTestCase):
     def test_get_compatible_hat_bricks(self):
         brick_registry = BrickRegistry()
         brick = self.get_alone_element(brick_registry.get_compatible_hat_bricks(FakeContact))
-        self.assertIsInstance(brick, SimpleBrick)
+        # self.assertIsInstance(brick, SimpleBrick)
+        self.assertIsInstance(brick, Brick)
         self.assertEqual((FakeContact,), brick.dependencies)
         self.assertEqual('creme_core/bricks/generic/hat-bar.html', brick.template_name)
-        self.assertEqual(SimpleBrick.GENERIC_HAT_BRICK_ID, brick.id)
+        self.assertEqual(Brick.GENERIC_HAT_BRICK_ID, brick.id)
 
     def test_get_compatible_hat_bricks__register_main_class(self):
         template = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
-        class FakeContactHatBrick(SimpleBrick):
+        # class FakeContactHatBrick(SimpleBrick):
+        class FakeContactHatBrick(Brick):
             template_name = template
 
         brick_registry = BrickRegistry()
@@ -739,27 +1058,30 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick, FakeContactHatBrick)
         self.assertEqual((FakeContact,), brick.dependencies)
         self.assertEqual(template, brick.template_name)
-        self.assertEqual(SimpleBrick.GENERIC_HAT_BRICK_ID, brick.id)
+        self.assertEqual(Brick.GENERIC_HAT_BRICK_ID, brick.id)
 
     def test_get_compatible_hat_bricks__register_main_class__error(self):
         brick_registry = BrickRegistry()
 
-        class FakeContactHatBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'contact_hat')
+        # class FakeContactHatBrick(SimpleBrick):
+        class FakeContactHatBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'contact_hat')
+            id = Brick.generate_id('creme_core', 'contact_hat')
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         with self.assertRaises(BrickRegistry.RegistrationError):
             brick_registry.register_hat(FakeContact, main_brick_cls=FakeContactHatBrick)
 
     def test_get_compatible_hat_bricks__secondary_classes(self):
-        class BaseFakeContactHatBrick(SimpleBrick):
+        # class BaseFakeContactHatBrick(SimpleBrick):
+        class BaseFakeContactHatBrick(Brick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         class FakeContactHatBrick01(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_1')
+            id = Brick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_1')
 
         class FakeContactHatBrick02(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_2')
+            id = Brick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_2')
 
         brick_registry = BrickRegistry()
         brick_registry.register_hat(
@@ -770,14 +1092,16 @@ class BrickRegistryTestCase(CremeTestCase):
         bricks = [*brick_registry.get_compatible_hat_bricks(FakeContact)]
         self.assertEqual(3, len(bricks))
 
-        self.assertIsInstance(bricks[0], SimpleBrick)
+        # self.assertIsInstance(bricks[0], SimpleBrick)
+        self.assertIsInstance(bricks[0], Brick)
         self.assertSetEqual(
             {FakeContactHatBrick01, FakeContactHatBrick02},
             {brick.__class__ for brick in bricks[1:]},
         )
 
     def test_get_compatible_hat_bricks__secondary_classes__error(self):
-        class BaseFakeContactHatBrick(SimpleBrick):
+        # class BaseFakeContactHatBrick(SimpleBrick):
+        class BaseFakeContactHatBrick(Brick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         # id is None -----------
@@ -793,7 +1117,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         # Bad id type ------------
         class FakeContactHatBrick02(BaseFakeContactHatBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_get_compatible_hat_bricks03_error')
+            id = Brick.generate_id('creme_core', 'test_get_compatible_hat_bricks03_error')
 
         with self.assertRaises(BrickRegistry.RegistrationError):
             brick_registry.register_hat(
@@ -802,7 +1126,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         # Duplicated id -------------
         class FakeContactHatBrick03(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id(
+            id = Brick._generate_hat_id(
                 'creme_core', 'test_get_compatible_hat_bricks03_error',
             )
 
@@ -820,7 +1144,8 @@ class BrickRegistryTestCase(CremeTestCase):
             )
 
     def test_unregister_hat_bricks__main_class(self):
-        class FakeContactHatBrick(SimpleBrick):
+        # class FakeContactHatBrick(SimpleBrick):
+        class FakeContactHatBrick(Brick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         brick_registry = BrickRegistry().register_hat(
@@ -829,10 +1154,11 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick_registry.unregister_hat(FakeContact, main_brick=True)
         brick = self.get_alone_element(brick_registry.get_compatible_hat_bricks(FakeContact))
-        self.assertIsInstance(brick, SimpleBrick)
+        # self.assertIsInstance(brick, SimpleBrick)
+        self.assertIsInstance(brick, Brick)
         self.assertEqual((FakeContact,), brick.dependencies)
         self.assertEqual('creme_core/bricks/generic/hat-bar.html', brick.template_name)
-        self.assertEqual(SimpleBrick.GENERIC_HAT_BRICK_ID, brick.id)
+        self.assertEqual(Brick.GENERIC_HAT_BRICK_ID, brick.id)
 
         # ---
         with self.assertRaises(brick_registry.UnRegistrationError) as cm:
@@ -845,17 +1171,18 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
     def test_unregister_hat_bricks__secondary_classes(self):
-        class BaseFakeContactHatBrick(SimpleBrick):
+        # class BaseFakeContactHatBrick(SimpleBrick):
+        class BaseFakeContactHatBrick(Brick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         class FakeContactHatBrick1(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_1')
+            id = Brick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_1')
 
         class FakeContactHatBrick2(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_2')
+            id = Brick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_2')
 
         class FakeContactHatBrick3(BaseFakeContactHatBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_3')
+            id = Brick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_3')
 
         brick_registry = BrickRegistry().register_hat(
             FakeContact,
@@ -869,7 +1196,8 @@ class BrickRegistryTestCase(CremeTestCase):
             secondary_brick_classes=(FakeContactHatBrick1, FakeContactHatBrick3),
         )
         self.assertCountEqual(
-            [SimpleBrick, FakeContactHatBrick2],
+            # [SimpleBrick, FakeContactHatBrick2],
+            [Brick, FakeContactHatBrick2],
             [brick.__class__ for brick in brick_registry.get_compatible_hat_bricks(FakeContact)],
         )
 
@@ -890,58 +1218,167 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
     def test_get_compatible_home_bricks(self):
-        class FoobarBrick1(Brick):
-            id = Brick.generate_id(
-                'creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_1',
-            )
+        class TestBrickOK(Brick):
+            id = Brick.generate_id('creme_core', 'brick_ok1')
             verbose_name = 'Testing purpose'
 
-            # NB: only home_display() method
-            # def detailview_display(self, context): [...]
-            def home_display(self, context):
+            # # NB: only home_display() method
+            # # def detailview_display(self, context): [...]
+            # def home_display(self, context):
+            #     return f'<table id="{self.html_id}"></table>'
+            def render(self, context):
                 return f'<table id="{self.html_id}"></table>'
 
-        class FoobarBrick2(Brick):
-            id = Brick.generate_id(
-                'creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_2',
-            )
+        class BrickNotConfigurable(Brick):
+            id = Brick.generate_id('creme_core', 'brick_not_configurable')
             verbose_name = 'Testing purpose'
             configurable = False  # <----
 
-            def home_display(self, context):
+            # def home_display(self, context):
+            def render(self, context):
                 return f'<table id="{self.html_id}"></table>'
 
-        class FoobarBrick3(Brick):
-            id = Brick.generate_id(
-                'creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_3',
-            )
+        class BrickNotHome(Brick):
+            id = Brick.generate_id('creme_core', 'brick_not_home')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            #     return f'<table id="{self.html_id}"></table>'
+            # # def home_display(self, context): [...]
+            def render(self, context):
                 return f'<table id="{self.html_id}"></table>'
-            # def home_display(self, context): [...]
+
+        class _TestInstanceBrick(InstanceBrick):
+            verbose_name = 'Testing purpose'
+
+            def render(self, context):
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
+
+        class InstanceBrickOk(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_ok1')
+
+        class InstanceBrickNotHome(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_no_home')
+
+        casca = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Casca', last_name='Mylove',
+        )
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        ibci = create_ibci(
+            brick_class_id=InstanceBrickOk.id,
+            uuid='585f1df5-5bdc-4696-aa45-a2f49865580e',
+        )
+        create_ibci(
+            brick_class_id=InstanceBrickNotHome.id,
+            uuid='685f1df6-5bdc-4696-aa45-a2f49865580e',
+        )
 
         brick_registry = BrickRegistry()
-        brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
+        self.assertListEqual([], [*brick_registry.get_compatible_home_bricks()])
 
-        brick = self.get_alone_element(brick_registry.get_compatible_home_bricks())
-        self.assertIsInstance(brick, FoobarBrick1)
+        # brick_registry.register(TestBrickOK, BrickNotConfigurable, BrickNotHome)
+        brick_registry.register(
+            BrickRegistry.Tag.HOME,
+            TestBrickOK, BrickNotConfigurable,
+        ).register(
+            BrickRegistry.Tag.DETAIL, BrickNotHome,
+        ).register_4_instance(
+            BrickRegistry.Tag.HOME, InstanceBrickOk,
+        ).register_4_instance(
+            BrickRegistry.Tag.DETAIL, InstanceBrickNotHome,
+        )
+
+        # brick = self.get_alone_element(brick_registry.get_compatible_home_bricks())
+        # self.assertIsInstance(brick, TestBrickOK)
+        bricks_by_id = {
+            brick.id: brick for brick in brick_registry.get_compatible_home_bricks()
+        }
+        self.assertEqual(2, len(bricks_by_id), bricks_by_id)
+        self.assertIsInstance(bricks_by_id.get(TestBrickOK.id), TestBrickOK)
+        self.assertIsInstance(bricks_by_id.get(ibci.brick_id), InstanceBrickOk)
+
+    def test_get_compatible_my_page_bricks(self):
+        class _TestBrick(Brick):
+            verbose_name = 'Testing purpose'
+
+        class TestBrickOK(_TestBrick):
+            id = Brick.generate_id('creme_core', 'brick_ok1')
+
+        class BrickNotConfigurable(_TestBrick):
+            id = Brick.generate_id('creme_core', 'brick_not_configurable')
+            configurable = False  # <----
+
+        class BrickNotHome(_TestBrick):
+            id = Brick.generate_id('creme_core', 'brick_not_home')
+
+        class _TestInstanceBrick(InstanceBrick):
+            verbose_name = 'Testing purpose'
+
+        class InstanceBrickOk(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_ok')
+
+        class InstanceBrickNotMyPage(_TestInstanceBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'instance_not_mypage')
+
+        casca = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Casca', last_name='Mylove',
+        )
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        ibci = create_ibci(
+            brick_class_id=InstanceBrickOk.id,
+            uuid='685f1df5-5bdc-4696-aa45-a2f49865580e',
+        )
+        create_ibci(
+            brick_class_id=InstanceBrickNotMyPage.id,
+            uuid='785f1df6-5bdc-4696-aa45-a2f49865580e',
+        )
+
+        brick_registry = BrickRegistry()
+        self.assertListEqual([], [*brick_registry.get_compatible_home_bricks()])
+
+        brick_registry.register(
+            BrickRegistry.Tag.MY_PAGE,
+            TestBrickOK, BrickNotConfigurable,
+        ).register(
+            BrickRegistry.Tag.DETAIL, BrickNotHome,
+        ).register_4_instance(
+            BrickRegistry.Tag.MY_PAGE, InstanceBrickOk,
+        ).register_4_instance(
+            BrickRegistry.Tag.DETAIL, InstanceBrickNotMyPage,
+        )
+
+        bricks_by_id = {
+            brick.id: brick for brick in brick_registry.get_compatible_my_page_bricks()
+        }
+        self.assertEqual(2, len(bricks_by_id), bricks_by_id)
+        self.assertIsInstance(bricks_by_id.get(TestBrickOK.id), TestBrickOK)
+        self.assertIsInstance(bricks_by_id.get(ibci.brick_id), InstanceBrickOk)
 
     def test_get_bricks(self):
-        class QuuxBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_1')
+        # class QuuxBrick1(SimpleBrick):
+        class QuuxBrick1(Brick):
+            id = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_1')
             verbose_name = 'Testing purpose #1'
 
-        class QuuxBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
+        # class QuuxBrick2(SimpleBrick):
+        class QuuxBrick2(Brick):
+            id = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
             verbose_name = 'Testing purpose #2'
 
-        class QuuxBrick3(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_3')
+        # class QuuxBrick3(SimpleBrick):
+        class QuuxBrick3(Brick):
+            id = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_3')
             verbose_name = 'Testing purpose #3'
 
-        brick_registry = BrickRegistry()
-        brick_registry.register(QuuxBrick1, QuuxBrick2, QuuxBrick3)
+        # brick_registry = BrickRegistry().register(QuuxBrick1, QuuxBrick2, QuuxBrick3)
+        brick_registry = BrickRegistry().register(
+            BrickRegistry.Tag.DETAIL,
+            QuuxBrick1, QuuxBrick2, QuuxBrick3,
+        )
 
         def assertBricks(brick_classes, bricks):
             self.assertIsList(bricks, length=len(brick_classes))
@@ -949,16 +1386,24 @@ class BrickRegistryTestCase(CremeTestCase):
             for brick_cls, brick in zip(brick_classes, bricks):
                 self.assertIsInstance(brick, brick_cls)
 
+        tag = brick_registry.Tag.DETAIL
         assertBricks(
             [QuuxBrick1, QuuxBrick2],
-            [*brick_registry.get_bricks([QuuxBrick1.id, QuuxBrick2.id])],
+            # [*brick_registry.get_bricks([QuuxBrick1.id, QuuxBrick2.id])],
+            [*brick_registry.get_bricks(tag=tag, brick_ids=[QuuxBrick1.id, QuuxBrick2.id])],
         )
 
         # Not registered -------------
         brick = self.get_alone_element(
-            brick_registry.get_bricks([
-                SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4'),
-            ])
+            # brick_registry.get_bricks([
+            #   SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4'),
+            # ])
+            brick_registry.get_bricks(
+                tag=tag,
+                brick_ids=[Brick.generate_id(
+                    'creme_core', 'BrickRegistryTestCase__test_get_bricks_4',
+                )],
+            )
         )
         self.assertIsInstance(brick, Brick)
 
@@ -972,23 +1417,33 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = BrickRegistry()
         brick_registry.register_4_model(FakeContact, ContactBrick)
 
+        tag = BrickRegistry.Tag.DETAIL
         # No entity
-        self.assertFalse([*brick_registry.get_bricks([MODELBRICK_ID])])
+        # self.assertFalse([*brick_registry.get_bricks([MODELBRICK_ID])])
+        self.assertFalse([*brick_registry.get_bricks(tag=tag, brick_ids=[MODELBRICK_ID])])
 
         # No registered model brick
         orga = FakeOrganisation.objects.create(user=user, name='Hawk')
-        orga_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=orga))
+        # orga_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=orga))
+        orga_brick = self.get_alone_element(
+            brick_registry.get_bricks(tag=tag, brick_ids=[MODELBRICK_ID], entity=orga)
+        )
         self.assertIsInstance(orga_brick, EntityBrick)
 
         # Registered model brick
         contact = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
-        contact_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        # contact_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        contact_brick = self.get_alone_element(
+            brick_registry.get_bricks(tag=tag, brick_ids=[MODELBRICK_ID], entity=contact)
+        )
         self.assertIsInstance(contact_brick, ContactBrick)
 
     def test_get_bricks__relation(self):
         "Specific relation bricks."
-        class QuuxBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__relation')
+        # class QuuxBrick(SimpleBrick):
+        class QuuxBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__relation')
+            id = Brick.generate_id('creme_core', 'test_get_bricks__relation')
             verbose_name = 'Testing purpose #1'
 
         rtype = RelationType.objects.builder(
@@ -996,15 +1451,19 @@ class BrickRegistryTestCase(CremeTestCase):
         ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
-        brick_registry = BrickRegistry()
-        brick_registry.register(QuuxBrick)
+        # brick_registry = BrickRegistry()
+        # brick_registry.register(QuuxBrick)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry = BrickRegistry().register(tag, QuuxBrick)
 
         # No entity
-        self.assertFalse([*brick_registry.get_bricks([rbi.brick_id])])
+        # self.assertFalse([*brick_registry.get_bricks([rbi.brick_id])])
+        self.assertFalse([*brick_registry.get_bricks(tag=tag, brick_ids=[rbi.brick_id])])
 
         # ---
         bricks = [*brick_registry.get_bricks(
-            brick_ids=[QuuxBrick.id, rbi.brick_id], entity=FakeContact(),
+            # brick_ids=[QuuxBrick.id, rbi.brick_id], entity=FakeContact(),
+            tag=tag, brick_ids=[QuuxBrick.id, rbi.brick_id], entity=FakeContact(),
         )]
         self.assertEqual(2, len(bricks))
 
@@ -1016,30 +1475,36 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_bricks__custom(self):
         "Custom bricks."
-        class QuuxBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__custom')
+        # class QuuxBrick(SimpleBrick):
+        class QuuxBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__custom')
+            id = Brick.generate_id('creme_core', 'test_get_bricks__custom')
             verbose_name = 'Testing purpose #1'
 
         cbci = CustomBrickConfigItem.objects.create(
-            # id='tests-organisations01',
             name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
-        brick_registry = BrickRegistry()
-        brick_registry.register(QuuxBrick)
+        # brick_registry = BrickRegistry()
+        # brick_registry.register(QuuxBrick)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry = BrickRegistry().register(tag, QuuxBrick)
 
         # No entity
-        self.assertFalse([*brick_registry.get_bricks([cbci.brick_id])])
+        # self.assertFalse([*brick_registry.get_bricks([cbci.brick_id])])
+        self.assertFalse([*brick_registry.get_bricks(tag=tag, brick_ids=[cbci.brick_id])])
 
         # Entity with bad type
         self.assertFalse([*brick_registry.get_bricks(
-            brick_ids=[cbci.brick_id], entity=FakeContact(),
+            # brick_ids=[cbci.brick_id], entity=FakeContact(),
+            tag=tag, brick_ids=[cbci.brick_id], entity=FakeContact(),
         )])
 
         # ---
         bricks = [*brick_registry.get_bricks(
-            brick_ids=[QuuxBrick.id, cbci.brick_id], entity=FakeOrganisation(),
+            # brick_ids=[QuuxBrick.id, cbci.brick_id], entity=FakeOrganisation(),
+            tag=tag, brick_ids=[QuuxBrick.id, cbci.brick_id], entity=FakeOrganisation(),
         )]
         self.assertEqual(2, len(bricks))
 
@@ -1058,38 +1523,50 @@ class BrickRegistryTestCase(CremeTestCase):
             user=user, first_name='Casca', last_name='Mylove',
         )
 
-        class FakeContactBasicHatBrick(SimpleBrick):
+        # class FakeContactBasicHatBrick(SimpleBrick):
+        class FakeContactBasicHatBrick(Brick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
-        class FakeContactCardHatBrick(SimpleBrick):
-            id = SimpleBrick._generate_hat_id('creme_core', 'fake_contact_card')
+        # class FakeContactCardHatBrick(SimpleBrick):
+        class FakeContactCardHatBrick(Brick):
+            # id = SimpleBrick._generate_hat_id('creme_core', 'fake_contact_card')
+            id = Brick._generate_hat_id('creme_core', 'fake_contact_card')
             template_name = 'creme_core/bricks/fake_contact_hat_card.html'  # (does not exists)
 
-        brick_registry = BrickRegistry()
-        brick_registry.register_hat(
+        brick_registry = BrickRegistry().register_hat(
             FakeContact,
             main_brick_cls=FakeContactBasicHatBrick,
             secondary_brick_classes=[FakeContactCardHatBrick],
         )
 
-        brick_id = SimpleBrick.GENERIC_HAT_BRICK_ID
-        self.assertFalse([*brick_registry.get_bricks([brick_id])])
+        tag = brick_registry.Tag.DETAIL
+        brick_id = Brick.GENERIC_HAT_BRICK_ID
+        # self.assertFalse([*brick_registry.get_bricks([brick_id])])
+        self.assertFalse([*brick_registry.get_bricks(tag=tag, brick_ids=[brick_id])])
 
         # ----
-        brick1 = self.get_alone_element(brick_registry.get_bricks([brick_id], entity=casca))
+        # brick1 = self.get_alone_element(brick_registry.get_bricks([brick_id], entity=casca))
+        brick1 = self.get_alone_element(
+            brick_registry.get_bricks(tag=tag, brick_ids=[brick_id], entity=casca)
+        )
         self.assertIsInstance(brick1, FakeContactBasicHatBrick)
 
         # ----
         brick2 = self.get_alone_element(
-            brick_registry.get_bricks([FakeContactCardHatBrick.id], entity=casca)
+            # brick_registry.get_bricks([FakeContactCardHatBrick.id], entity=casca)
+            brick_registry.get_bricks(
+                tag=tag, brick_ids=[FakeContactCardHatBrick.id], entity=casca
+            )
         )
         self.assertIsInstance(brick2, FakeContactCardHatBrick)
 
         # ----
         brick3 = self.get_alone_element(
             brick_registry.get_bricks(
-                [SimpleBrick._generate_hat_id('creme_core', 'invalid')],
+                # [SimpleBrick._generate_hat_id('creme_core', 'invalid')],
+                brick_ids=[Brick._generate_hat_id('creme_core', 'invalid')],
                 entity=casca,
+                tag=tag,
             )
         )
         self.assertIsInstance(brick3, FakeContactBasicHatBrick)
@@ -1100,27 +1577,37 @@ class BrickRegistryTestCase(CremeTestCase):
             role=self.create_role(name='Basic', allowed_apps=['creme_core']),
         )
 
-        class AllowedBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+        # class AllowedBrick1(SimpleBrick):
+        class AllowedBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+            id = Brick.generate_id('creme_core', 'test_perms_1')
             verbose_name = 'Always allowed'
 
-        class AllowedBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_2')
+        # class AllowedBrick2(SimpleBrick):
+        class AllowedBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_2')
+            id = Brick.generate_id('creme_core', 'test_perms_2')
             verbose_name = 'Allowed'
             permissions = 'creme_core'
 
-        class NotAllowedBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+        # class NotAllowedBrick1(SimpleBrick):
+        class NotAllowedBrick1(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+            id = Brick.generate_id('creme_core', 'test_perms_3')
             verbose_name = 'Forbidden block #1'
             permissions = 'persons'
 
-        class NotAllowedBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+        # class NotAllowedBrick2(SimpleBrick):
+        class NotAllowedBrick2(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+            id = Brick.generate_id('creme_core', 'test_perms_4')
             verbose_name = 'Forbidden block #2'
             permissions = ['persons']
 
         all_bricks = [AllowedBrick1, AllowedBrick2, NotAllowedBrick1, NotAllowedBrick2]
-        brick_registry = BrickRegistry().register(*all_bricks)
+        # brick_registry = BrickRegistry().register(*all_bricks)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry = BrickRegistry().register(tag, *all_bricks)
 
         def assertBricks(brick_classes, bricks):
             self.assertIsList(bricks, length=len(brick_classes))
@@ -1129,10 +1616,14 @@ class BrickRegistryTestCase(CremeTestCase):
                 self.assertIsInstance(brick, brick_cls)
 
         all_brick_ids = [b.id for b in all_bricks]
-        assertBricks(all_bricks, [*brick_registry.get_bricks(all_brick_ids)])
-        assertBricks(all_bricks, [*brick_registry.get_bricks(brick_ids=all_brick_ids, user=root)])
+        get_bricks = brick_registry.get_bricks
+        # assertBricks(all_bricks, [*get_bricks(all_brick_ids)])
+        assertBricks(all_bricks, [*get_bricks(tag=tag, brick_ids=all_brick_ids)])
+        # assertBricks(all_bricks, [*get_bricks(brick_ids=all_brick_ids, user=root)])
+        assertBricks(all_bricks, [*get_bricks(tag=tag, brick_ids=all_brick_ids, user=root)])
 
-        user_bricks = [*brick_registry.get_bricks(brick_ids=all_brick_ids, user=user)]
+        # user_bricks = [*get_bricks(brick_ids=all_brick_ids, user=user)]
+        user_bricks = [*get_bricks(tag=tag, brick_ids=all_brick_ids, user=user)]
         self.assertEqual(len(all_brick_ids), len(user_bricks))
 
         self.assertIsInstance(user_bricks[0], AllowedBrick1)
@@ -1188,7 +1679,8 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_brick_4_model__error(self):
         "Custom brick does not inherit EntityBrick."
-        class ContactBrick(SimpleBrick):
+        # class ContactBrick(SimpleBrick):
+        class ContactBrick(Brick):
             template_name = 'persons/bricks/my_contact.html'
 
         brick_registry = BrickRegistry()
@@ -1206,7 +1698,10 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = BrickRegistry().register_4_model(FakeContact, ContactBrick)
 
         brick_registry.unregister_4_model(FakeContact)
-        brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        # brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        brick = self.get_alone_element(brick_registry.get_bricks(
+            tag=brick_registry.Tag.DETAIL, brick_ids=[MODELBRICK_ID], entity=contact,
+        ))
         self.assertIsInstance(brick, EntityBrick)
         self.assertFalse(isinstance(brick, ContactBrick))
 
@@ -1220,7 +1715,7 @@ class BrickRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_brick_4_instance(self):
+    def test_brick_4_instance__detail(self):
         user = self.get_root_user()
 
         create_contact = FakeContact.objects.create
@@ -1231,7 +1726,8 @@ class BrickRegistryTestCase(CremeTestCase):
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="brick-{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -1244,23 +1740,40 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
         brick_registry = BrickRegistry()
-        brick_registry.register_4_instance(ContactBrick)
+        # brick_registry.register_4_instance(ContactBrick)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry.register_4_instance(tag, ContactBrick)
 
         brick_id = ibci.brick_id
-        brick1 = self.get_alone_element(brick_registry.get_bricks([brick_id]))
+        # brick1 = self.get_alone_element(brick_registry.get_bricks([brick_id]))
+        brick1 = self.get_alone_element(brick_registry.get_bricks(tag=tag, brick_ids=[brick_id]))
         self.assertIsInstance(brick1, ContactBrick)
         self.assertEqual(ibci, brick1.config_item)
         self.assertEqual(brick_id, brick1.id)
         self.assertEqual((FakeOrganisation,), brick1.dependencies)
 
         # ----------------------------------------------------------------------
+        error_brick = self.get_alone_element(
+            brick_registry.get_bricks(tag=BrickRegistry.Tag.HOME, brick_ids=[brick_id])
+        )
+        self.assertListEqual(
+            [_('Unknown type of block (bad uninstall?)')], error_brick.errors,
+        )
+
+        # ----------------------------------------------------------------------
         # In detail-views of an entity we give it in order to compute dependencies correctly.
         judo = create_contact(user=user, first_name='Judo',  last_name='Doe')
-        brick2 = next(brick_registry.get_bricks([brick_id], entity=judo))
+        # brick2 = next(brick_registry.get_bricks([brick_id], entity=judo))
+        brick2 = self.get_alone_element(brick_registry.get_bricks(
+            tag=tag, brick_ids=[brick_id], entity=judo,
+        ))
         self.assertEqual((FakeOrganisation, FakeContact), brick2.dependencies)
 
         hawk = FakeOrganisation.objects.create(user=user, name='Hawk')
-        brick = next(brick_registry.get_bricks([brick_id], entity=hawk))
+        # brick = next(brick_registry.get_bricks([brick_id], entity=hawk))
+        brick = self.get_alone_element(brick_registry.get_bricks(
+            tag=tag, brick_ids=[brick_id], entity=hawk,
+        ))
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
@@ -1271,7 +1784,10 @@ class BrickRegistryTestCase(CremeTestCase):
                 'does_not_exist',  # <==
             ),
         )
-        brick3 = self.get_alone_element(brick_registry.get_bricks([bad_ibci.brick_id]))
+        # brick3 = self.get_alone_element(brick_registry.get_bricks([bad_ibci.brick_id]))
+        brick3 = self.get_alone_element(brick_registry.get_bricks(
+            tag=tag, brick_ids=[bad_ibci.brick_id],
+        ))
         self.assertIsInstance(brick3, Brick)
 
     def test_brick_4_instance__error(self):
@@ -1281,7 +1797,8 @@ class BrickRegistryTestCase(CremeTestCase):
 
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
-            def detailview_display(self, context):
+            # def detailview_display(self, context):
+            def render(self, context):
                 return (
                     f'<table id="brick-{self.html_id}">'
                     f'<thead><tr>{self.config_item.entity}</tr></thead>'
@@ -1295,12 +1812,14 @@ class BrickRegistryTestCase(CremeTestCase):
             pass
 
         brick_registry = BrickRegistry()
-        brick_registry.register_4_instance(ContactBrick)
-        self.assertRaises(
-            BrickRegistry.RegistrationError,
-            brick_registry.register_4_instance,
-            OrgaBrick,
-        )
+        # brick_registry.register_4_instance(ContactBrick)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry.register_4_instance(tag, ContactBrick)
+        # self.assertRaises(
+        #     BrickRegistry.RegistrationError, brick_registry.register_4_instance, OrgaBrick,
+        # )
+        with self.assertRaises(BrickRegistry.RegistrationError):
+            brick_registry.register_4_instance(tag, OrgaBrick)
 
     def test_deep_copy(self):
         class FoobarBrick1(Brick):
@@ -1313,16 +1832,24 @@ class BrickRegistryTestCase(CremeTestCase):
             id = Brick.generate_id('creme_core', 'foobar_brick_3')
 
         brick_registry = BrickRegistry().register(
+            BrickRegistry.Tag.DETAIL,
             FoobarBrick1, FoobarBrick2,
         ).register_invalid_models(FakeContact)
         copied = deepcopy(brick_registry)
 
-        expected = [
-            (FoobarBrick1.id, FoobarBrick1),
-            (FoobarBrick2.id, FoobarBrick2),
-        ]
-        self.assertListEqual(expected, [*brick_registry])
-        self.assertListEqual(expected, [*copied])
+        # expected = [
+        #     (FoobarBrick1.id, FoobarBrick1),
+        #     (FoobarBrick2.id, FoobarBrick2),
+        # ]
+        # self.assertListEqual(expected, [*brick_registry])
+        # self.assertListEqual(expected, [*copied])
+        expected = [FoobarBrick1, FoobarBrick2]
+        self.assertListEqual(
+            expected, [*brick_registry.brick_classes(BrickRegistry.Tag.DETAIL)],
+        )
+        self.assertListEqual(
+            expected, [*copied.brick_classes(BrickRegistry.Tag.DETAIL)],
+        )
 
         self.assertTrue(brick_registry.is_model_invalid(FakeContact))
         self.assertFalse(brick_registry.is_model_invalid(FakeOrganisation))
@@ -1330,16 +1857,18 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertFalse(copied.is_model_invalid(FakeOrganisation))
 
         # ---
-        brick_registry.unregister(FoobarBrick2)
-        copied.register(FoobarBrick3)
+        # brick_registry.unregister(FoobarBrick2)
+        brick_registry.unregister(BrickRegistry.Tag.DETAIL, FoobarBrick2)
+        # copied.register(FoobarBrick3)
+        copied.register(BrickRegistry.Tag.DETAIL, FoobarBrick3)
 
-        self.assertListEqual([(FoobarBrick1.id, FoobarBrick1),], [*brick_registry])
+        # self.assertListEqual([(FoobarBrick1.id, FoobarBrick1),], [*brick_registry])
         self.assertListEqual(
-            [
-                *expected,
-                (FoobarBrick3.id, FoobarBrick3),
-            ],
-            [*copied],
+            [FoobarBrick1], [*brick_registry.brick_classes(BrickRegistry.Tag.DETAIL)],
+        )
+        # self.assertListEqual([*expected, (FoobarBrick3.id, FoobarBrick3)], [*copied])
+        self.assertListEqual(
+            [*expected, FoobarBrick3], [*copied.brick_classes(BrickRegistry.Tag.DETAIL)],
         )
 
         # ---
@@ -1416,9 +1945,13 @@ class BrickRegistryTestCase(CremeTestCase):
             model=FakeOrganisation, brick_cls=OrgaBrick1,
         )
         copied = deepcopy(brick_registry)
+        tag = BrickRegistry.Tag.DETAIL
 
         def get_brick(registry):
-            return next(registry.get_bricks([MODELBRICK_ID], entity=orga))
+            # return next(registry.get_bricks([MODELBRICK_ID], entity=orga))
+            return self.get_alone_element(registry.get_bricks(
+                tag=tag, brick_ids=[MODELBRICK_ID], entity=orga,
+            ))
 
         self.assertIsInstance(get_brick(brick_registry), OrgaBrick1)
         self.assertIsInstance(get_brick(copied),         OrgaBrick1)
@@ -1442,18 +1975,22 @@ class BrickRegistryTestCase(CremeTestCase):
         class OrgaBrick1(BaseOrgaBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'deep_copy1')
 
-        brick_registry = BrickRegistry().register_4_instance(OrgaBrick1)
+        # brick_registry = BrickRegistry().register_4_instance(OrgaBrick1)
+        tag = BrickRegistry.Tag.DETAIL
+        brick_registry = BrickRegistry().register_4_instance(tag, OrgaBrick1)
         copied = deepcopy(brick_registry)
 
         ibci1 = InstanceBrickConfigItem(
             entity=orga, brick_class_id=OrgaBrick1.id,
         )
 
-        ibrick11 = brick_registry.get_brick_4_instance(ibci1)
+        # ibrick11 = brick_registry.get_brick_4_instance(ibci1)
+        ibrick11 = brick_registry.get_brick_4_instance(tag=tag, ibi=ibci1)
         self.assertIsInstance(ibrick11, OrgaBrick1)
         self.assertIsNone(ibrick11.errors)
 
-        ibrick12 = copied.get_brick_4_instance(ibci1)
+        # ibrick12 = copied.get_brick_4_instance(ibci1)
+        ibrick12 = copied.get_brick_4_instance(tag=tag, ibi=ibci1)
         self.assertIsInstance(ibrick12, OrgaBrick1)
         self.assertIsNone(ibrick12.errors)
 
@@ -1461,19 +1998,22 @@ class BrickRegistryTestCase(CremeTestCase):
         class OrgaBrick2(BaseOrgaBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'deep_copy2')
 
-        brick_registry.register_4_instance(OrgaBrick2)
+        # brick_registry.register_4_instance(OrgaBrick2)
+        brick_registry.register_4_instance(tag, OrgaBrick2)
 
         ibci2 = InstanceBrickConfigItem(
             entity=orga, brick_class_id=OrgaBrick2.id,
         )
 
-        ibrick21 = brick_registry.get_brick_4_instance(ibci2)
+        # ibrick21 = brick_registry.get_brick_4_instance(ibci2)
+        ibrick21 = brick_registry.get_brick_4_instance(tag=tag, ibi=ibci2)
         self.assertIsInstance(ibrick21, OrgaBrick2)
         self.assertIsNone(ibrick21.errors)
 
         self.assertListEqual(
             [_('Unknown type of block (bad uninstall?)')],
-            copied.get_brick_4_instance(ibci2).errors,
+            # copied.get_brick_4_instance(ibci2).errors,
+            copied.get_brick_4_instance(tag=tag, ibi=ibci2).errors,
         )
 
     # TODO different keys
@@ -1481,7 +2021,8 @@ class BrickRegistryTestCase(CremeTestCase):
 
 class BricksManagerTestCase(CremeTestCase):
     def test_one_group(self):
-        class TestBlock(SimpleBrick):
+        # class TestBlock(SimpleBrick):
+        class TestBlock(Brick):
             verbose_name = 'Testing purpose'
 
         class FoobarBrick1(TestBlock):
@@ -1519,7 +2060,8 @@ class BricksManagerTestCase(CremeTestCase):
         self.assertRaises(BrickManager.Error, mngr.add_group, name1, brick4)  # Same name
 
     def test_several_groups(self):
-        class TestBrick(SimpleBrick):
+        # class TestBrick(SimpleBrick):
+        class TestBrick(Brick):
             verbose_name = 'Testing purpose'
 
         class FoobarBrick1(TestBrick):
@@ -1585,8 +2127,10 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_html_id(self):
-        class MyBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_html_id')
+        # class MyBrick(SimpleBrick):
+        class MyBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_html_id')
+            id = Brick.generate_id('creme_core', 'test_html_id')
 
         brick = MyBrick()
         self.assertEqual('regular-creme_core-test_html_id',       brick.id)
@@ -1602,8 +2146,10 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(user.has_perm('persons'))
         self.assertFalse(user.has_perms(['persons', 'documents']))
 
-        class AlwaysAllowedBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+        # class AlwaysAllowedBrick(SimpleBrick):
+        class AlwaysAllowedBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+            id = Brick.generate_id('creme_core', 'test_perms_1')
             verbose_name = 'Always allowed'
 
         brick1 = AlwaysAllowedBrick()
@@ -1613,8 +2159,9 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             brick1.check_permissions(user)
 
         # ---
-        class SimpleAllowedBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_2')
+        # class SimpleAllowedBrick(SimpleBrick):
+        class SimpleAllowedBrick(Brick):
+            id = Brick.generate_id('creme_core', 'test_perms_2')
             verbose_name = 'Allowed (simple)'
             permissions = 'creme_core'
 
@@ -1624,8 +2171,10 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             brick2.check_permissions(user)
 
         # ---
-        class MultiAllowedBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+        # class MultiAllowedBrick(SimpleBrick):
+        class MultiAllowedBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+            id = Brick.generate_id('creme_core', 'test_perms_3')
             verbose_name = 'Allowed (multi)'
             permissions = ['creme_core', 'documents']
 
@@ -1635,8 +2184,10 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             brick3.check_permissions(user)
 
         # ---
-        class SimpleForbiddenBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+        # class SimpleForbiddenBrick(SimpleBrick):
+        class SimpleForbiddenBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+            id = Brick.generate_id('creme_core', 'test_perms_4')
             verbose_name = 'Forbidden (simple)'
             permissions = 'persons'
 
@@ -1648,8 +2199,10 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             brick4.check_permissions(user)
 
         # ---
-        class MultiForbiddenBrick(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'test_perms_5')
+        # class MultiForbiddenBrick(SimpleBrick):
+        class MultiForbiddenBrick(Brick):
+            # id = SimpleBrick.generate_id('creme_core', 'test_perms_5')
+            id = Brick.generate_id('creme_core', 'test_perms_5')
             verbose_name = 'Forbidden (multi)'
             permissions = ['documents', 'persons']
 
@@ -1690,7 +2243,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         brick = VoidBrick(id=Brick.generate_id('creme_core', 'test_void'))
 
-        render = brick.detailview_display(self.build_context(user=user))
+        # render = brick.detailview_display(self.build_context(user=user))
+        render = brick.render(self.build_context(user=user))
         self.get_brick_node(self.get_html_tree(render), brick=brick)
 
     def test_custom_brick(self):
@@ -2002,7 +2556,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - Contacts (only first page, no Organisation)
         #   - Compatible ContentTypes (see all_ctypes_configured())
         with self.assertNumQueries(6):
-            render = brick.detailview_display(context)
+            # render = brick.detailview_display(context)
+            render = brick.render(context)
 
         brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=brick)
         self.assertEqual(
@@ -2016,7 +2571,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node1, wood)
 
         # page 2 ---
-        render2 = brick.detailview_display(
+        # render2 = brick.detailview_display(
+        render2 = brick.render(
             self.build_context(user=user, instance=wily, request_data={f'{brick.id}_page': 2})
         )
         brick_node2 = self.get_brick_node(self.get_html_tree(render2), brick=brick)
@@ -2051,7 +2607,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertCountEqual(expected_models, [*brick.target_ctypes])
 
     def test_specific_relations_brick__dependencies(self):
-        class TestBrick(SimpleBrick):
+        # class TestBrick(SimpleBrick):
+        class TestBrick(Brick):
             verbose_name = 'Testing purpose'
 
         class FoobarBrick3(TestBrick):

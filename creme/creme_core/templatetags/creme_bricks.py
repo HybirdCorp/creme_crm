@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
@@ -854,7 +855,7 @@ def brick_pager(page):
 
 
 @register.simple_tag(takes_context=True)
-def brick_import(context, app=None, name=None, object=None):
+def brick_import(context, app=None, name=None, object=None, tag=None):
     """ Import an instance of a registered Brick.
 
     Can be used in 2 ways.
@@ -911,7 +912,19 @@ def brick_import(context, app=None, name=None, object=None):
                 '{% brick_import %}: you have to give "app" AND "name" parameters.'
             )
 
-        brick = bricks.brick_registry[Brick.generate_id(app, name)]()
+        if tag is None:
+            warnings.warn(
+                '{% brick_import %}: empty "tag" parameters is deprecated; '
+                '"DETAIL has been used by default but it could cause issues.',
+                DeprecationWarning,
+            )  # TODO: syntax error in creme 3.1
+            tag = bricks.BrickRegistry.Tag.DETAIL
+        else:
+            tag = bricks.BrickRegistry.Tag(tag)
+
+        # brick = bricks.brick_registry[Brick.generate_id(app, name)]()
+        # TODO: add a method?
+        brick = bricks.brick_registry._brick_classes[tag][Brick.generate_id(app, name)]()
 
     BrickManager.get(context).add_group(brick.id, brick)
 
@@ -970,28 +983,40 @@ def brick_declare(context, *bricks):
 
 
 @register.simple_tag
-def brick_get_by_ids(*brick_ids, **kwargs):
+# def brick_get_by_ids(*brick_ids, **kwargs):
+def brick_get_by_ids(*brick_ids, entity=None, tag=None):
     """ Get a list of instances of registered Brick, from a list of brick IDs.
     It's useful to get information on a Brick when we only get its ID
     (e.g. it's stored in an instance of BrickHomeLocation).
 
         {% load creme_bricks %}
 
-        {% brick_get_by_ids brick_id1 brick_id2 as bricks %}
+        {% brick_get_by_ids brick_id1 brick_id2 tag='HOME' as bricks %}
         <span>{{bricks.0.verbose_name}}</span>
 
     An instance of CremeEntity can be given to retrieve correctly EntityBricks
     (even if this case is not currently used in Creme...) :
 
-        {% brick_get_by_ids brick_id1 brick_id2 entity=my_instance as bricks %}
+        {% brick_get_by_ids brick_id1 brick_id2 tag='DETAIL' entity=my_instance as bricks %}
     """
-    return [*bricks.brick_registry.get_bricks(brick_ids, entity=kwargs.get('entity'))]
+    # return [*bricks.brick_registry.get_bricks(brick_ids, entity=kwargs.get('entity'))]
+    if tag is None:
+        warnings.warn(
+            '{% brick_get_by_ids %}: empty "tag" parameters is deprecated; '
+            '"DETAIL has been used by default but it could cause issues.',
+            DeprecationWarning,
+        )  # TODO: syntax error in creme 3.1
+        tag = bricks.BrickRegistry.Tag.DETAIL
+    else:
+        tag = bricks.BrickRegistry.Tag(tag)
+
+    return [*bricks.brick_registry.get_bricks(tag=tag, brick_ids=brick_ids, entity=entity)]
 
 
-_DISPLAY_METHODS = {
-    'detail': 'detailview_display',
-    'home':   'home_display',
-}
+# _DISPLAY_METHODS = {
+#     'detail': 'detailview_display',
+#     'home':   'home_display',
+# }
 
 
 @register.simple_tag(takes_context=True)
@@ -1006,40 +1031,36 @@ def brick_display(context, *bricks, **kwargs):
         [...]
 
         {% brick_display my_brick1 my_brick2 %}
-
-    By default, the method detailview_display() of the bricks is called ;
-    but you can call the different render method by giving the keyword argument 'render':
-
-        {% brick_display my_brick1 my_brick2 render='home' %}
-
-    Possible values are:
-       - 'detail'  => detailview_display() (default value)
-       - 'home'    => home_display()
     """
     context_dict = context.flatten()
-    render_type = kwargs.get('render', 'detail')
+    # render_type = kwargs.get('render', 'detail')
+    if 'render' in kwargs:
+        warnings.warn(
+            'The argument "render" of {% brick_display %} is deprecated & ignored.',
+            DeprecationWarning,
+        )  # TODO: remove kwargs in creme 3.1
 
-    try:
-        brick_render_method = _DISPLAY_METHODS[render_type]
-    except KeyError as e:
-        raise ValueError(
-            '{{% brick_display %}}: "render" argument must be in [{}].'.format(
-                ', '.join(_DISPLAY_METHODS.keys())
-            )
-        ) from e
+    # try:
+    #     brick_render_method = _DISPLAY_METHODS[render_type]
+    # except KeyError as e:
+    #     raise ValueError(
+    #         '{{% brick_display %}}: "render" argument must be in [{}].'.format(
+    #             ', '.join(_DISPLAY_METHODS.keys())
+    #         )
+    #     ) from e
 
-    def render(brick):
-        fun = getattr(brick, brick_render_method, None)
-
-        if fun:
-            # NB: the context is copied is order to a 'fresh' one for each brick,
-            #     & so avoid annoying side-effects.
-            return fun({**context_dict})
-
-        logger.warning(
-            'Brick without %s(): %s (id=%s)',
-            brick_render_method, brick.__class__, brick.id,
-        )
+    # def render(brick):
+    #     fun = getattr(brick, brick_render_method, None)
+    #
+    #     if fun:
+    #         # NB: the context is copied is order to a 'fresh' one for each brick,
+    #         #     & so avoid annoying side-effects.
+    #         return fun({**context_dict})
+    #
+    #     logger.warning(
+    #         'Brick without %s(): %s (id=%s)',
+    #         brick_render_method, brick.__class__, brick.id,
+    #     )
 
     bricks_to_render = []
 
@@ -1069,7 +1090,8 @@ def brick_display(context, *bricks, **kwargs):
 
     return mark_safe(''.join(filter(
         None,
-        (render(brick) for brick in bricks_to_render)
+        # (render(brick) for brick in bricks_to_render)
+        (brick.render({**context_dict}) for brick in bricks_to_render)
     )))
 
 
