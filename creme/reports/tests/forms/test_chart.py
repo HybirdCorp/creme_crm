@@ -797,7 +797,8 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
-    def test_from_python__rfield__fk(self):
+    # def test_from_python__rfield__fk(self):
+    def test_preppare_value__rfield__fk(self):
         field = AbscissaField(
             model=FakeOrganisation, abscissa_constraints=abscissa_constraints,
         )
@@ -815,16 +816,22 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': '',
             },
-            json_load(field.from_python(
+            # json_load(field.from_python(
+            json_load(field.prepare_value(
                 AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
-    def test_from_python__rfield__date(self):
-        from_python = AbscissaField(
+    # def test_from_python__rfield__date(self):
+    def test_prepare_value__rfield__date(self):
+        # from_python = AbscissaField(
+        #     model=FakeOrganisation,
+        #     abscissa_constraints=abscissa_constraints,
+        # ).from_python
+        prepare_value = AbscissaField(
             model=FakeOrganisation,
             abscissa_constraints=abscissa_constraints,
-        ).from_python
+        ).prepare_value
         cell = EntityCellRegularField.build(FakeOrganisation, 'creation_date')
 
         chart_type1 = ReportChart.Group.YEAR
@@ -840,7 +847,8 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': '',
             },
-            json_load(from_python(AbscissaInfo(cell=cell, chart_type=chart_type1))),
+            # json_load(from_python(AbscissaInfo(cell=cell, chart_type=chart_type1))),
+            json_load(prepare_value(AbscissaInfo(cell=cell, chart_type=chart_type1))),
         )
 
         chart_type2 = ReportChart.Group.RANGE
@@ -857,12 +865,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': parameter,
             },
-            json_load(from_python(AbscissaInfo(
+            # json_load(from_python(AbscissaInfo(
+            json_load(prepare_value(AbscissaInfo(
                 cell=cell, chart_type=chart_type2, parameter=parameter,
             ))),
         )
 
-    def test_from_python__relation(self):
+    # def test_from_python__relation(self):
+    def test_prepare_value__relation(self):
         field = AbscissaField(
             model=FakeOrganisation, abscissa_constraints=abscissa_constraints,
         )
@@ -881,12 +891,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': '',
             },
-            json_load(field.from_python(
+            # json_load(field.from_python(
+            json_load(field.prepare_value(
                 AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
-    def test_from_python__cfield__enum(self):
+    # def test_from_python__cfield__enum(self):
+    def test_prepare_value__cfield__enum(self):
         model = FakeContact
         cfield = CustomField.objects.create(
             content_type=model,
@@ -909,12 +921,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': '',
             },
-            json_load(field.from_python(
+            # json_load(field.from_python(
+            json_load(field.prepare_value(
                 AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
-    def test_from_python__cfield__date(self):
+    # def test_from_python__cfield__date(self):
+    def test_prepapre_value__cfield__date(self):
         model = FakeContact
         cfield = CustomField.objects.create(
             content_type=model,
@@ -937,7 +951,8 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'parameter': '',
             },
-            json_load(field.from_python(
+            # json_load(field.from_python(
+            json_load(field.prepare_value(
                 AbscissaInfo(cell=cell, chart_type=chart_type))
             ),
         )
@@ -1339,7 +1354,8 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         # TODO: test empty choices ??
 
-    def test_from_python__count(self):
+    # def test_from_python__count(self):
+    def test_prepare_value__count(self):
         field = OrdinateField(
             model=FakeOrganisation,
             ordinate_constraints=ordinate_constraints,
@@ -1353,10 +1369,12 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 },
                 'entity_cell': None,
             },
-            json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id))),
+            # json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id))),
+            json_load(field.prepare_value(OrdinateInfo(aggr_id=aggr_id))),
         )
 
-    def test_from_python__rfield__int(self):
+    # def test_from_python__rfield__int(self):
+    def test_prepare_value__rfield__int(self):
         field = OrdinateField(
             model=FakeOrganisation,
             ordinate_constraints=ordinate_constraints,
@@ -1375,10 +1393,12 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
                     'aggr_category': category,
                 },
             },
-            json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
+            # json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
+            json_load(field.prepare_value(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
         )
 
-    def test_from_python__cfield__int(self):
+    # def test_from_python__cfield__int(self):
+    def test_prepare_value__cfield__int(self):
         model = FakeContact
         cfield = CustomField.objects.create(
             content_type=model,
@@ -1403,7 +1423,8 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
                     'aggr_category': category,
                 },
             },
-            json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
+            # json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
+            json_load(field.prepare_value(OrdinateInfo(aggr_id=aggr_id, cell=cell))),
         )
 
 # TODO: test ReportChartForm

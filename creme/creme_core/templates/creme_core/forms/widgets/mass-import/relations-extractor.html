@@ -1,4 +1,17 @@
 {% load i18n %}
+{% with widgets=widget.subwidgets %}
+  {% with widget=widgets.0 %}
+  <label for="{{widget.attrs.id}}">
+     {% include widget.template_name %}
+     {% translate 'Create entities if they are not found? (only fields followed by [CREATION] allows you to create, if they exist)' %}
+  </label>
+  {% endwith %}
+
+  {% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}
+{% endwith %}
+
+{% comment %}
+{% load i18n %}
 {% with id=widget.attrs.id %}
 <label for="{{id}}_can_create">
     <input class="relationships_extractor-creation" type="checkbox" id="{{id}}_can_create" name="{{widget.name}}_can_create"{% if widget.can_create_checked %} checked{% endif %}/>
@@ -6,3 +19,4 @@
 </label>
 {% include 'creme_core/forms/widgets/selector-list.html' %}
 {% endwith %}
+{% endcomment %}

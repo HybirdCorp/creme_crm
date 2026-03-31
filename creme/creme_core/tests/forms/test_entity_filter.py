@@ -390,7 +390,8 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
         self.assertJSONEqual(
-            raw=field.from_python([condition]),
+            # raw=field.from_python([condition]),
+            raw=field.prepare_value([condition]),
             expected_data=[{
                 'field': {'name': name, 'type': 'string'},
                 'operator': {'id': operator, 'types': 'string'},
@@ -469,7 +470,8 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         #         'value': True,
         #     }],
         # )
-        initial = json_load(field.from_python([condition]))
+        # initial = json_load(field.from_python([condition]))
+        initial = json_load(field.prepare_value([condition]))
         self.assertIsList(initial, length=1)
         initial0 = initial[0]
         self.assertIsDict(initial0, length=3)
@@ -522,7 +524,8 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         #         'value': True,
         #     }],
         # )
-        initial = json_load(field.from_python([condition]))
+        # initial = json_load(field.from_python([condition]))
+        initial = json_load(field.prepare_value([condition]))
         self.assertIsList(initial, length=1)
         initial0 = initial[0]
         self.assertIsDict(initial0, length=3)
@@ -984,7 +987,8 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
         with self.assertLogs(level='WARNING') as logs_manager:
             with self.assertNoException():
-                raw_json = field.from_python([condition])
+                # raw_json = field.from_python([condition])
+                raw_json = field.prepare_value([condition])
         self.assertEqual('[]', raw_json)
 
         self.assertIn(
@@ -1385,7 +1389,8 @@ class DateFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
         with self.assertNoException():
-            decoded_value = json_load(field.widget.from_python(field.initial))
+            # decoded_value = json_load(field.widget.from_python(field.initial))
+            decoded_value = json_load(field.prepare_value(field.initial))
 
         date_value = self.formfield_value_date
         self.assertListEqual(
@@ -1418,7 +1423,8 @@ class DateFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
         with self.assertLogs(level='WARNING') as logs_manager:
             with self.assertNoException():
-                raw_json = field.from_python([condition])
+                # raw_json = field.from_python([condition])
+                raw_json = field.prepare_value([condition])
         self.assertEqual('[]', raw_json)
 
         self.assertIn(
@@ -1492,7 +1498,8 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertNotInChoices(value=self.cfield_datetime.id, choices=cfields)
         self.assertNotInChoices(value=self.cfield_date.id,     choices=cfields)
 
-    def test_from_python__custom_int(self):
+    # def test_from_python__custom_int(self):
+    def test_prepare_value__custom_int(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
@@ -1512,7 +1519,8 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             field._value_to_jsonifiable([condition]),
         )
 
-    def test_from_python__custom_string(self):
+    # def test_from_python__custom_string(self):
+    def test_prepare_value__custom_string(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
@@ -1532,7 +1540,8 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             field._value_to_jsonifiable([condition]),
         )
 
-    def test_from_python__custom_bool(self):
+    # def test_from_python__custom_bool(self):
+    def test_prepare_value__custom_bool(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
@@ -1568,7 +1577,8 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             field._value_to_jsonifiable([condition]),
         )
 
-    def test_from_python__custom_enum(self):
+    # def test_from_python__custom_enum(self):
+    def test_prepare_value__custom_enum(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
@@ -2522,7 +2532,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
                     'entity': None,
                 },
             ],
-            json_load(field.from_python(conditions)),
+            # json_load(field.from_python(conditions)),
+            json_load(field.prepare_value(conditions)),
         )
 
     def test_ok__fixed_content_type(self):
@@ -2567,7 +2578,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
                     'entity': None,
                 },
             ],
-            json_load(field.from_python(conditions)),
+            # json_load(field.from_python(conditions)),
+            json_load(field.prepare_value(conditions)),
         )
 
     def test_ok__fixed_entity(self):
@@ -2595,7 +2607,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
                 'ctype':  ct.id,
                 'entity': naru.id,
             }],
-            json_load(field.from_python(conditions)),
+            # json_load(field.from_python(conditions)),
+            json_load(field.prepare_value(conditions)),
         )
 
     def test_ok__fixed_ctype_n_entity(self):
@@ -2649,7 +2662,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         }
         self.assertListEqual(
             [jsondict],
-            json_load(field.from_python([*efilter.conditions.all()])),
+            # json_load(field.from_python([*efilter.conditions.all()])),
+            json_load(field.prepare_value([*efilter.conditions.all()])),
         )
 
         try:
@@ -2661,7 +2675,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         jsondict['ctype'] = 0
         self.assertListEqual(
             [jsondict],
-            json_load(field.from_python([*efilter.conditions.all()])),
+            # json_load(field.from_python([*efilter.conditions.all()])),
+            json_load(field.prepare_value([*efilter.conditions.all()])),
         )
 
     def test_ok__model_property(self):
