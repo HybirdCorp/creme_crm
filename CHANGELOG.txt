@@ -96,11 +96,15 @@
           (you should not write the internal attributes).
         # In 'creme_core.views.bricks.BricksReloading', the attribute 'brick_render_method' has
           been removed ; define 'brick_tag' instead.
+        # The method 'creme_core.forms.field.JSONField.from_python()' has been removed; the classical
+          Django method 'prepare_value()' has been implemented instead, & is used in child fields & related widgets.
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
               do not inject the key "allowed" in their data anymore (the key "error" is enough).
             - In 'creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
               do not inject the keys "edition_*" & "deletion_*" anymore.
+        # In 'creme_core.utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
+          (you should not write the internal attributes).
         # Apps :
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').

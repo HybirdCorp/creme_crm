@@ -430,16 +430,19 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertValidationError(cm3.exception, messages=message, codes=code)
 
     def test_FMTing_to_json(self):
-        self.assertEqual('', JSONField().from_python(''))
+        # self.assertEqual('', JSONField().from_python(''))
+        self.assertEqual('', JSONField().prepare_value(''))
 
         val = 'this is a string'
-        self.assertEqual(val, JSONField().from_python(val))
+        # self.assertEqual(val, JSONField().from_python(val))
+        self.assertEqual(val, JSONField().prepare_value(val))
 
     def test_format_object_to_json(self):
         val = {'ctype': '12', 'entity': '1'}
         self.assertEqual(
             json_dump(val, separators=(',', ':')),
-            JSONField().from_python(val),
+            # JSONField().from_python(val),
+            JSONField().prepare_value(val),
         )
 
     # def test_clean_entity_from_model(self):  # DEPRECATED
@@ -565,7 +568,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         self.assertEqual(
             self.build_field_data(12, 1, 'Add'),
-            field.from_python({
+            # field.from_python({
+            field.prepare_value({
                 'ctype': {
                     'create': reverse('creme_core__quick_form', args=(12,)),
                     'id': 12,
@@ -586,7 +590,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 },
                 'entity': contact.id,
             },
-            json_load(field.from_python(contact)),
+            # json_load(field.from_python(contact)),
+            json_load(field.prepare_value(contact)),
         )
 
         field.user = user
@@ -598,11 +603,14 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             },
             'entity': contact.id,
         }
-        self.assertDictEqual(expected, json_load(field.from_python(contact)))
-        self.assertDictEqual(expected, json_load(field.from_python(contact.id)))
+        # self.assertDictEqual(expected, json_load(field.from_python(contact)))
+        # self.assertDictEqual(expected, json_load(field.from_python(contact.id)))
+        self.assertDictEqual(expected, json_load(field.prepare_value(contact)))
+        self.assertDictEqual(expected, json_load(field.prepare_value(contact.id)))
 
         with self.assertRaises(ValueError) as cm:
-            field.from_python(self.UNUSED_PK)
+            # field.from_python(self.UNUSED_PK)
+            field.prepare_value(self.UNUSED_PK)
         self.assertEqual(f'No such entity with id={self.UNUSED_PK}.', str(cm.exception))
 
     def test_format_ctype(self):
@@ -617,7 +625,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 },
                 'entity': None,
             },
-            json_load(field.from_python(ct)),
+            # json_load(field.from_python(ct)),
+            json_load(field.prepare_value(ct)),
         )
 
     def test_clean__empty__required(self):
@@ -970,7 +979,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 build_entry_v1(contact_ct_id, 1, contact_label),
                 build_entry_v1(orga_ct_id, 5,    orga_label),
             ],
-            json_load(field.from_python([
+            # json_load(field.from_python([
+            json_load(field.prepare_value([
                 {
                     'ctype': {
                         'id': contact_ct_id,
@@ -1004,7 +1014,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 build_entry_v2(contact_ct_id, contact.id, contact_label),
                 build_entry_v2(orga_ct_id,    orga.id,    orga_label),
             ],
-            json_load(field.from_python([contact, orga]))
+            # json_load(field.from_python([contact, orga]))
+            json_load(field.prepare_value([contact, orga]))
         )
 
         # With user
@@ -1024,7 +1035,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 build_entry_v3(contact_ct_id, contact.id, contact_label),
                 build_entry_v3(orga_ct_id,    orga.id,    orga_label),
             ],
-            json_load(field.from_python([contact, orga])),
+            # json_load(field.from_python([contact, orga])),
+            json_load(field.prepare_value([contact, orga])),
         )
 
     def test_clean__empty__required(self):
@@ -2200,7 +2212,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         # TODO: assertJSONEqual ?
         with self.assertNoException():
-            json_data = json_load(field.from_python([(rtype1, contact), (rtype2, orga)]))
+            # json_data = json_load(field.from_python([(rtype1, contact), (rtype2, orga)]))
+            json_data = json_load(field.prepare_value([(rtype1, contact), (rtype2, orga)]))
 
         self.assertListEqual(
             [
@@ -2233,11 +2246,15 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_format_object(self):
         contact = self.create_contact(user=self.get_root_user())
-        from_python = CreatorEntityField(model=FakeContact).from_python
         jsonified = str(contact.pk)
-        self.assertEqual(jsonified, from_python(jsonified))
-        self.assertEqual(jsonified, from_python(contact))
-        self.assertEqual(jsonified, from_python(contact.pk))
+        # from_python = CreatorEntityField(model=FakeContact).from_python
+        # self.assertEqual(jsonified, from_python(jsonified))
+        # self.assertEqual(jsonified, from_python(contact))
+        # self.assertEqual(jsonified, from_python(contact.pk))
+        prepare_value = CreatorEntityField(model=FakeContact).prepare_value
+        self.assertEqual(jsonified, prepare_value(jsonified))
+        self.assertEqual(jsonified, prepare_value(contact))
+        self.assertEqual(jsonified, prepare_value(contact.pk))
 
     def test_model(self):
         field = CreatorEntityField(model=FakeContact)
@@ -2303,11 +2320,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = CreatorEntityField(model=FakeContact)
 
         jsonified = str(contact.pk)
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python(contact))
+        # self.assertEqual(jsonified, field.from_python(jsonified))
+        # self.assertEqual(jsonified, field.from_python(contact))
+        self.assertEqual(jsonified, field.prepare_value(jsonified))
+        self.assertEqual(jsonified, field.prepare_value(contact))
 
         with self.assertRaises(ValueError) as error:
-            field.from_python(orga.pk)
+            # field.from_python(orga.pk)
+            field.prepare_value(orga.pk)
 
         self.assertEqual(
             str(error.exception), f'No such entity with id={orga.id}.',
@@ -2641,12 +2661,17 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiCreatorEntityField(model=FakeContact)
         self.assertEqual(field.value_type, list)
 
-        from_python = field.from_python
         jsonified = f'[{contact.id}]'
-        self.assertEqual(jsonified, from_python(jsonified))
-        self.assertEqual(jsonified, from_python([contact]))
-        self.assertEqual(jsonified, from_python([contact.pk]))
-        self.assertEqual('', from_python([]))
+        # from_python = field.from_python
+        # self.assertEqual(jsonified, from_python(jsonified))
+        # self.assertEqual(jsonified, from_python([contact]))
+        # self.assertEqual(jsonified, from_python([contact.pk]))
+        # self.assertEqual('', from_python([]))
+        prepare_value = field.prepare_value
+        self.assertEqual(jsonified, prepare_value(jsonified))
+        self.assertEqual(jsonified, prepare_value([contact]))
+        self.assertEqual(jsonified, prepare_value([contact.pk]))
+        self.assertEqual('', prepare_value([]))
 
     def test_format_object_list(self):
         user = self.get_root_user()
@@ -2658,13 +2683,17 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiCreatorEntityField(model=FakeContact)
         self.assertEqual(field.value_type, list)
 
-        from_python = field.from_python
         jsonified = json_dump(
             [contact1.id, contact2.id, contact3.id], separators=(',', ':'),
         )
-        self.assertEqual(jsonified, from_python(jsonified))
-        self.assertEqual(jsonified, from_python([contact1, contact2, contact3]))
-        self.assertEqual(jsonified, from_python([contact1.pk, contact2.pk, contact3.pk]))
+        # from_python = field.from_python
+        # self.assertEqual(jsonified, from_python(jsonified))
+        # self.assertEqual(jsonified, from_python([contact1, contact2, contact3]))
+        # self.assertEqual(jsonified, from_python([contact1.pk, contact2.pk, contact3.pk]))
+        prepare_value = field.prepare_value
+        self.assertEqual(jsonified, prepare_value(jsonified))
+        self.assertEqual(jsonified, prepare_value([contact1, contact2, contact3]))
+        self.assertEqual(jsonified, prepare_value([contact1.pk, contact2.pk, contact3.pk]))
 
     def test_qfilter(self):
         contact = self.create_contact(user=self.get_root_user())
@@ -2695,15 +2724,19 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         jsonified = json_dump(
             [contact1.id, contact2.id, contact3.id], separators=(',', ':'),
         )
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python([contact1, contact2, contact3]))
+        # self.assertEqual(jsonified, field.from_python(jsonified))
+        # self.assertEqual(jsonified, field.from_python([contact1, contact2, contact3]))
+        self.assertEqual(jsonified, field.prepare_value(jsonified))
+        self.assertEqual(jsonified, field.prepare_value([contact1, contact2, contact3]))
         self.assertEqual(
             f'[{contact2.id},{contact3.id}]',
-            field.from_python([contact2.pk, contact3.pk])
+            # field.from_python([contact2.pk, contact3.pk])
+            field.prepare_value([contact2.pk, contact3.pk]),
         )
 
         with self.assertRaises(ValueError) as error:
-            field.from_python([contact1.pk, contact2.pk, contact3.pk])
+            # field.from_python([contact1.pk, contact2.pk, contact3.pk])
+            field.prepare_value([contact1.pk, contact2.pk, contact3.pk])
 
         ids = [str(e.id) for e in (contact1, contact2, contact3)]
         self.assertEqual(
@@ -2724,11 +2757,14 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             [orga.id, contact1.id, contact2.id], separators=(',', ':'),
         )
 
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python([orga, contact1, contact2]))
+        # self.assertEqual(jsonified, field.from_python(jsonified))
+        # self.assertEqual(jsonified, field.from_python([orga, contact1, contact2]))
+        self.assertEqual(jsonified, field.prepare_value(jsonified))
+        self.assertEqual(jsonified, field.prepare_value([orga, contact1, contact2]))
 
         with self.assertRaises(ValueError) as error:
-            field.from_python([orga.pk, contact1.pk, contact2.pk])
+            # field.from_python([orga.pk, contact1.pk, contact2.pk])
+            field.prepare_value([orga.pk, contact1.pk, contact2.pk])
 
         self.assertEqual(
             str(error.exception),
