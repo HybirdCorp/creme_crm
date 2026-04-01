@@ -206,9 +206,20 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 class OrgaEvaluation(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_evaluation.html'
 
+    def get_bricks(self):
+        return {
+            'left': [com_bricks.AssetsMatrixBrick()],
+            'right': [com_bricks.CharmsMatrixBrick()],
+        }
+
 
 class OrgaSynthesis(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_synthesis.html'
+
+    def get_bricks(self):
+        return {
+            'main': [com_bricks.AssetsCharmsMatrixBrick()],
+        }
 
 
 class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):

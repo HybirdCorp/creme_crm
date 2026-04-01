@@ -26,14 +26,19 @@
         </div>
     {% endblock %}
 
+{% comment %}
     {% brick_import app='commercial' name='assets_matrix' as assets_matrix_brick %}
     {% brick_import app='commercial' name='charms_matrix' as charms_matrix_brick %}
+{% endcomment %}
+    {% brick_declare bricks.left %}{% brick_declare bricks.right %}
 
     <div style="float:left;width:49.9%;margin-left:0px;">
-        {% brick_display assets_matrix_brick %}
+{#        {% brick_display assets_matrix_brick %} #}
+        {% brick_display bricks.left %}
     </div>
     <div style="float:right;width:49.9%;margin-right:0px;">
-        {% brick_display charms_matrix_brick %}
+{#        {% brick_display charms_matrix_brick %} #}
+        {% brick_display bricks.right %}
     </div>
 
     {% brick_end %}
