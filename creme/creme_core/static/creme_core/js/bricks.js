@@ -380,12 +380,14 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
         events.on('row-drag-stop', function(event, item) {
             var url  = item.data('reorderableItemUrl');
-
-            var target = item.prev('[data-reorderable-item-order]');
-            target = target.length > 0 ? target : item.next('[data-reorderable-item-order]');
-
             var prev = parseInt(item.data('reorderableItemOrder'));
-            var next = parseInt(target.data('reorderableItemOrder'));
+            var before = parseInt(item.prev('[data-reorderable-item-order]').data('reorderableItemOrder'));
+            var after = parseInt(item.next('[data-reorderable-item-order]').data('reorderableItemOrder'));
+
+            // Moving backward with the actual mechanism of reordering on server side ends
+            // with a strange behaviour : the item is moved BEFORE the target instead of immediately after.
+            // So we get the element after the drop position in this case.
+            var next = (isNaN(before) || before < prev) ? after : before;
 
             if (!url || isNaN(next)) {
                 $('.brick-reorderable-items', element).sortable('cancel');

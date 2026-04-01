@@ -396,11 +396,14 @@ function setupLineSort(brick) {
         delay:   200,
         stop:  function(event, ui) {
             var url  = ui.item.data('blineReorderUrl');
-            var target = ui.item.prev('[data-bline-order]');
-            target = target.length > 0 ? target : ui.item.next('[data-bline-order]');
-
             var prev = parseInt(ui.item.data('blineOrder'));
-            var next = parseInt(target.data('blineOrder'));
+            var before = parseInt(ui.item.prev('[data-bline-order]').data('blineOrder'));
+            var after = parseInt(ui.item.next('[data-bline-order]').data('blineOrder'));
+
+            // Moving backward with the actual mechanism of reordering on server side ends
+            // with a strange behaviour : the item is moved BEFORE the target instead of immediately after.
+            // So we get the element after the drop position in this case.
+            var next = (isNaN(before) || before < prev) ? after : before;
 
             if (!url || isNaN(next)) {
                 lines.sortable('cancel');
