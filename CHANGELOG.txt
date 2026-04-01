@@ -333,6 +333,9 @@
                     - _populate_header_filters_for_*()
                - The module 'views.convert' has been renamed "conversion".
             * Commercial :
+                - These Brick classes are not registered anymore :
+                  'AssetsMatrixBrick', 'CharmsMatrixBrick', 'AssetsCharmsMatrixBrick'.
+                  The related views & templates have been reworked.
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
                 - The class 'forms.strategy.AddOrganisationForm' has been renamed 'AddOrganisationsForm'.
             * Emails :
