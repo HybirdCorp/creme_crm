@@ -594,11 +594,11 @@ class BrickRegistryTestCase(CremeTestCase):
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
         ibci1 = create_ibci(
             brick_class_id=FoobarInstanceBrick1.id,
-            uuid='575f1df4-5bdc-4696-aa45-a2f49865580e',
+            uuid='585f1df4-5bdc-4696-aa45-a2f49865580e',
         )
         ibci2 = create_ibci(
             brick_class_id=FoobarInstanceBrick2.id,
-            uuid='675f1df4-5bdc-4696-aa45-a2f49865580e',  # After "ibci1.uuid" to facilitate test.
+            uuid='685f1df4-5bdc-4696-aa45-a2f49865580e',  # After "ibci1.uuid" to facilitate test.
         )
         create_ibci(brick_class_id=FoobarInstanceBrick3.id)
         create_ibci(brick_class_id=FoobarInstanceBrick4.id)

@@ -810,6 +810,34 @@ class RelationBrickTestCase(BaseBrickTestCase):
             count = len(RelationBrickItem.objects.for_brick_ids(['invalid']))
         self.assertEqual(0, count)
 
+    def test_prefetch_rtypes(self):
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_likes', predicate='likes',
+        ).symmetric(id='test-object_liked', predicate='is liked by').get_or_create()[0]
+
+        create_rbi = RelationBrickItem.objects.create
+        rbi1 = create_rbi(relation_type=rtype1)
+        rbi2 = create_rbi(relation_type=rtype2)
+
+        rbi1 = self.refresh(rbi1)
+        rbi2 = self.refresh(rbi2)
+
+        with self.assertNumQueries(2):
+            RelationBrickItem.prefetch_rtypes([rbi1, rbi2])
+
+        with self.assertNumQueries(0):
+            self.assertEqual(rtype1, rbi1.relation_type)
+
+        with self.assertNumQueries(0):
+            self.assertEqual(rtype2, rbi2.relation_type)
+
+        # Empty ---
+        with self.assertNumQueries(0):
+            RelationBrickItem.prefetch_rtypes([])
+
 
 class CustomBrickTestCase(CremeTestCase):
     def test_create(self):
