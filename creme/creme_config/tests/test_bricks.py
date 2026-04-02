@@ -301,7 +301,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn('hat', fields)
 
-        bricks = [*self.brick_registry.get_compatible_bricks(model)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
         self.assertIn(CompleteBrick1.id, locations_choices)
 
@@ -397,7 +397,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInChoices(value=role2.id, label=role2.name,                    choices=choices)
 
         # Role ------------
-        bricks = [*self.brick_registry.get_compatible_bricks(model)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BrickDetailviewLocation.objects.create, content_type=ct, order=1)
@@ -572,7 +572,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         model1 = FakeContact
         model2 = FakeOrganisation
-        get_bricks = self.brick_registry.get_compatible_bricks
+        get_bricks = self.brick_registry.get_compatible_detail_bricks
         brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 3)]
         brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
 
@@ -669,7 +669,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         model = FakeContact
         brick_ids = [
             brick_cls.id
-            for brick_cls in islice(self.brick_registry.get_compatible_bricks(model), 3)
+            for brick_cls in islice(self.brick_registry.get_compatible_detail_bricks(model), 3)
         ]
 
         LEFT = BrickDetailviewLocation.LEFT
@@ -736,7 +736,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         model = FakeContact
         brick_ids = [
             brick_cls.id
-            for brick_cls in islice(self.brick_registry.get_compatible_bricks(model), 3)
+            for brick_cls in islice(self.brick_registry.get_compatible_detail_bricks(model), 3)
         ]
 
         LEFT = BrickDetailviewLocation.LEFT
@@ -780,7 +780,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         model1 = FakeContact
         model2 = FakeOrganisation
-        get_bricks = self.brick_registry.get_compatible_bricks
+        get_bricks = self.brick_registry.get_compatible_detail_bricks
         brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 4)]
         brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
 
@@ -851,7 +851,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         model1 = FakeContact
         model2 = FakeOrganisation
-        get_bricks = self.brick_registry.get_compatible_bricks
+        get_bricks = self.brick_registry.get_compatible_detail_bricks
         brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 4)]
         brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
 
@@ -928,7 +928,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             fields = context1['form'].fields
             locations_choices = [brick_id for (brick_id, brick) in fields['locations'].choices]
 
-        bricks = [*self.brick_registry.get_compatible_bricks(model)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
         self.assertIn(CompleteBrick1.id, locations_choices)
         self.assertNotIn(HomeOnlyBrick1.id, locations_choices)
@@ -993,7 +993,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
-        brick_id = [*self.brick_registry.get_compatible_bricks(model)][0].id
+        brick_id = [*self.brick_registry.get_compatible_detail_bricks(model)][0].id
 
         # These bricks should not be modified
         create_loc = partial(
@@ -1106,7 +1106,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
-        bricks = [*self.brick_registry.get_compatible_bricks(model)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BrickDetailviewLocation.objects.create, content_type=ct, order=1)
@@ -1169,7 +1169,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response1 = self.assertGET200(url)
 
-        bricks = [*self.brick_registry.get_compatible_bricks(None)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(None)]
         self.assertGreaterEqual(len(bricks), 1, bricks)
         brick = bricks[0]
         brick_id = brick.id
@@ -1210,7 +1210,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             fields = response.context['form'].fields
             locations_choices = [brick_id for (brick_id, brick) in fields['locations'].choices]
 
-        bricks = [*self.brick_registry.get_compatible_bricks(model)]
+        bricks = [*self.brick_registry.get_compatible_detail_bricks(model)]
         self.assertTrue(bricks)
 
         def post(brick):
