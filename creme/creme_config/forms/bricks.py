@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -154,7 +154,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
         self.choices = choices = [
             (brick.id, brick)
-            for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
+            # for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
+            for brick in gui_bricks.brick_registry.get_compatible_detail_bricks(model=model)
         ]
         sort_key = collator.sort_key
         choices.sort(key=lambda c: sort_key(c[1].verbose_name))

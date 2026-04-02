@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 # import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
@@ -1149,9 +1150,20 @@ class BrickRegistry:
     def get_compatible_bricks(self,
                               model: type[CremeEntity] | None = None,
                               ) -> Iterator[Brick]:
+        warnings.warn(
+            'BrickRegistry.get_compatible_bricks() is deprecated; '
+            'use BrickRegistry.get_compatible_detail_bricks() instead.',
+            DeprecationWarning
+        )
+
+        yield from self.get_compatible_detail_bricks(model)
+
+    def get_compatible_detail_bricks(self,
+                                     model: type[CremeEntity] | None = None,
+                                     ) -> Iterator[Brick]:
         """Returns the registered bricks that are configurable and
-        compatible with the given ContentType.
-        @param model: Constraint on a CremeEntity class ;
+        compatible with the given ContentType for its detail-view.
+        @param model: Constraint on a CremeEntity class;
                <None> means bricks must be compatible with all kind of CremeEntity.
         """
         for brick_cls in self._brick_classes.values():
