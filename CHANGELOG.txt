@@ -39,6 +39,9 @@
                 - They can now be ordered manually.
                   Hint: the first sub-types of "Meeting" & "Phone call" are used
                         as initial values in the related creation forms.
+        * Persons :
+            - You cannot delete an image Document which is referenced by a Contact
+              or an Organisation as a photograph/logo anymore.
         * Documents :
             - You can now download several Documents at once, as a .zip archive.
         * Products :

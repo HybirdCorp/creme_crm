@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
+from django.db.models import ProtectedError
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -444,15 +445,17 @@ class ContactTestCase(_PersonsTestCase):
 
     @skipIfCustomDocument
     def test_delete_image(self):
-        "Set to NULL."
+        "PROTECT-ed."
         user = self.login_as_root_and_get()
         image = self._create_image(user=user)
-        harlock = Contact.objects.create(user=user, last_name='Matsumoto', image=image)
+        # harlock = Contact.objects.create(user=user, last_name='Matsumoto', image=image)
+        Contact.objects.create(user=user, last_name='Matsumoto', image=image)
 
-        image.delete()
-
-        self.assertDoesNotExist(image)
-        self.assertIsNone(self.refresh(harlock).image)
+        # image.delete()
+        # self.assertDoesNotExist(image)
+        # self.assertIsNone(self.refresh(harlock).image)
+        with self.assertRaises(ProtectedError):
+            image.delete()
 
     def test_user_linked_contact(self):
         first_name = 'Deunan'
