@@ -1419,14 +1419,15 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             response = self.client.post(url, data={'target': next_order})
             self.assertEqual(response.status_code, 200)
 
-        invoice.refresh_from_db()
+        # invoice.refresh_from_db()
+        invoice = self.refresh(invoice)
         self.assertEqual(
+            expected,
             [
                 (line.order, line.on_the_fly_item)
                 for model in (ProductLine, ServiceLine)
-                for line in invoice.get_lines(model).order_by('order')
+                for line in invoice.get_lines(model)  # .order_by('order')
             ],
-            expected,
         )
 
         # billing document save() is never called !
