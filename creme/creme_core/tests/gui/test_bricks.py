@@ -25,14 +25,19 @@ from creme.creme_core.gui.bricks import (
 )
 from creme.creme_core.models import (
     CremeEntity,
+    CremeUser,
     CustomBrickConfigItem,
+    FakeAddress,
     FakeContact,
     FakeImage,
     FakeOrganisation,
+    FakeSector,
     InstanceBrickConfigItem,
+    Language,
     Relation,
     RelationBrickItem,
     RelationType,
+    UserRole,
 )
 from creme.creme_core.utils.content_type import entity_ctypes
 
@@ -1559,8 +1564,40 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         cbrick = CustomBrick(cbci.brick_id, cbci)
-        self.assertEqual([FakeOrganisation, Relation], cbrick.dependencies)
+        self.assertListEqual([FakeOrganisation, Relation], cbrick.dependencies)
         self.assertEqual([rtype.id], cbrick.relation_type_deps)
+
+    def test_custom_brick__fk(self):
+        "ForeignKeys/ManyToManyFields + dependencies."
+        cbci = CustomBrickConfigItem.objects.create(
+            name='General', content_type=FakeContact,
+            cells=[
+                EntityCellRegularField.build(FakeContact, fname)
+                for fname in ('last_name', 'address', 'sector', 'languages')
+            ],
+        )
+
+        cbrick = CustomBrick(cbci.brick_id, cbci)
+        self.assertListEqual(
+            [FakeContact, FakeAddress, FakeSector, Language],
+            cbrick.dependencies,
+        )
+
+    def test_custom_brick__fk__subfield(self):
+        "ForeignKey's sub-field + dependencies."
+        cbci = CustomBrickConfigItem.objects.create(
+            name='General', content_type=FakeContact,
+            cells=[
+                EntityCellRegularField.build(FakeContact, fname)
+                for fname in ('last_name', 'address__city', 'user__role', 'languages__name')
+            ],
+        )
+
+        cbrick = CustomBrick(cbci.brick_id, cbci)
+        self.assertListEqual(
+            [FakeContact, FakeAddress, CremeUser, UserRole, Language],
+            cbrick.dependencies,
+        )
 
     def test_paginated_brick01(self):
         user = self.get_root_user()

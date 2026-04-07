@@ -1,3 +1,27 @@
+== Version 2.6.19 ==
+
+  Users side :
+  ------------
+    # An issue with custom-brick reloading: the brick was not reloaded when
+      a related instance is edited (e.g. if you get an Address field in a
+      custom-brick & edit the Address).
+    # Fix drag-n-drop reordering in paginated table bricks : the indices of were
+      form 0 to pagesize, ignoring the current page start index... and the items always move
+      to the first page.
+    # Apps :
+        * Billing :
+            - In the view to create a true Product/Service from a line, the form-field
+              "category" was not required; selecting nothing caused a crash.
+            - Fix drag-n-drop reordering in billing : moving a line at the first position didn't work
+              every time. 
+
+  Developers side :
+  ------------
+    # An exception in 'CreatorEnumerableChoiceField' has been fixed (when the ForeignKey model
+      is declared as a string). The code 'fk.related_field.model' should return a 'Model' but in
+      some cases it is not resolved and return a string.
+
+
 == Version 2.6.18 ==
 
   Users side :

@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2024  Hybird
+ Copyright (C) 2015-2026  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -27,12 +27,12 @@ creme.bricks.dialogCenterPosition = function(dialog) {
      * var outer_height = $('.header-menu').outerHeight();
      * dialog.center({top: outer_height});
      */
-    var outer_height = $('.header-menu').outerHeight();
+    var outerHeight = $('.header-menu').outerHeight();
 
-    if (dialog.dialog().parents('.ui-dialog').first().position().top < outer_height) {
+    if (dialog.dialog().parents('.ui-dialog').first().position().top < outerHeight) {
         dialog.position({
             my: 'center top',
-            at: 'center top+' + (2 * outer_height),
+            at: 'center top+' + (2 * outerHeight),
             of: window
         });
     }
@@ -98,12 +98,12 @@ creme.bricks.BrickMenu = creme.component.Component.sub({
 
         var toggle = this.toggle.bind(this);
         var content = this._menuContent(element);
-        var is_disabled = this._disabled = $('a', content).length < 1;
+        var disabled = this._disabled = $('a', content).length < 1;
 
         this._element = element;
         this._dialog = new creme.dialog.Popover(this._options).fill(content);
 
-        $('.brick-header-menu', element).toggleClass('is-disabled', is_disabled)
+        $('.brick-header-menu', element).toggleClass('is-disabled', disabled)
                                         .on('click', function(e) {
                                             toggle(e.target);
                                          });
@@ -332,7 +332,9 @@ creme.bricks.BrickTable = creme.component.Component.sub({
             });
         });
 
-        $('.brick-reorderable-items', element).sortable({
+        var reorderableItems = element.find('.brick-reorderable-items');
+
+        reorderableItems.sortable({
             placeholder: 'brick-reorderable-placeholder',
             handle:      '[data-reorderable-handle-column]',
             beforeStart: function (e, ui) {
@@ -378,17 +380,26 @@ creme.bricks.BrickTable = creme.component.Component.sub({
         });
 
         events.on('row-drag-stop', function(event, item) {
-            var url  = item.attr('data-reorderable-item-url');
-            var next = item.index() + 1;
-            var prev = parseInt(item.attr('data-reorderable-item-order'));
+            var url  = item.data('reorderableItemUrl');
+            var prev = item.data('reorderableItemOrder');
+            var before = parseInt(item.prev('[data-reorderable-item-order]').data('reorderableItemOrder'));
+            var after = parseInt(item.next('[data-reorderable-item-order]').data('reorderableItemOrder'));
 
-            if (next !== prev) {
-                brick.action('update', url, {}, {target: next})
-                     .on({
-                         done: function() { item.attr('data-reorderable-item-order', next); },
-                         fail: function() { brick.refresh(); }
-                      })
-                     .start();
+            // Moving backward with the actual mechanism of reordering on server side ends
+            // to a strange behaviour : the item is moved BEFORE the target instead of immediately after.
+            // So we get the element after the drop position in this case.
+            var next = (isNaN(before) || before < prev) ? after : before;
+
+            if (!url || isNaN(next)) {
+                $('.brick-reorderable-items', element).sortable('cancel');
+            } else if (next !== prev) {
+                brick.action('update', url, {
+                    warnOnFail: false
+                }, {
+                    target: next
+                }).onFail(function() {
+                    $('.brick-reorderable-items', element).sortable('cancel');
+                }).start();
             }
         });
 
