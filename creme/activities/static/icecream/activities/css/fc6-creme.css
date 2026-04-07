@@ -86,6 +86,7 @@
 .fc-creme .fc-event .fc-event-main-frame {
     margin-left: 2px;
     align-items: stretch;
+    justify-items: stretch;
 }
 
 .fc-creme .fc-event .fc-event-empty-frame {
@@ -93,6 +94,8 @@
     align-items: center;
     padding: 0;
     flex-grow: 1;
+    width: 100%;
+    justify-items: stretch;
 }
 
 .fc-creme .fc-event .fc-event-time {
@@ -185,7 +188,7 @@
 .fc-creme .fc-daygrid-event .fc-event-title {
     white-space: nowrap;
     flex-grow: 1;
-    flex-basis: 100%;
+    /*flex-basis: 100%;*/
     align-self: center;
 }
 
@@ -217,9 +220,11 @@
     display: none;
 }
 
+/*
 .fc-creme .fc-daygrid-dot-event .fc-event-title {
     flex-basis: 70%;
 }
+*/
 
 .fc-creme .fc-timegrid-event-short .fc-event-time:after,
 .fc-creme .fc-daygrid-event-short .fc-event-time:after {
@@ -339,6 +344,11 @@
     margin-left: 20px;
     position: relative;
     top: -2px;
+}
+
+/* HACK : force popover width within a cell and an half to prevent hidding other cells */
+.fc-creme .fc-popover {
+    max-width: calc((100vw - 325px) * 0.205);
 }
 
 /* calendar - end */

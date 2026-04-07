@@ -231,7 +231,7 @@ gettext-collect:
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme && \
-			django-admin makemessages -l ${CREME_LANGUAGE} --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*"  -i "custom_entities/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
 			popd; \
 		pushd ./creme/graphs && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \

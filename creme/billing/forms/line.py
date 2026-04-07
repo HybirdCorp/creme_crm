@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -203,10 +203,7 @@ class LineEditionForm(core_forms.CremeModelForm):
 
 class AddToCatalogForm(core_forms.CremeForm):
     sub_category = SubCategoryField(
-        model=Product,
-        field_name='sub_category',
-        label=_('Sub-category'),
-        required=False
+        model=Product, field_name='sub_category', label=_('Sub-category'),
     )
 
     error_messages = {
@@ -222,15 +219,15 @@ class AddToCatalogForm(core_forms.CremeForm):
         self.line = line
         self.related_item_class = related_item_class
 
-        # HACK : We need to handle the case of SubCategoryField for Service or
+        # HACK: We need to handle the case of SubCategoryField for Service or
         # any other line type and the EnumerableModelChoiceField does not give any
-        # tool for this (rare) usecase.
+        # tool for this (rare) use case.
         if related_item_class != Product:
-            sub_cat = self.fields['sub_category']
-            sub_cat.enum = sub_cat.enumerable(
+            sub_cat_field = self.fields['sub_category']
+            sub_cat_field.enum = sub_cat_field.enumerable(
                 field=related_item_class._meta.get_field('sub_category'),
                 user=user,
-                limit=sub_cat.limit,
+                limit=sub_cat_field.limit,
             )
 
     def clean(self):
@@ -252,11 +249,12 @@ class AddToCatalogForm(core_forms.CremeForm):
     def save(self, *args, **kwargs):
         sub_category = self.cleaned_data['sub_category']
         line = self.line
+        user = self.user
 
         # First create the related item...
         item = self.related_item_class.objects.create(
             name=line.on_the_fly_item,
-            user=self.user,
+            user=user,
             unit_price=line.unit_price,
             unit=line.unit,
             category=sub_category.category,
@@ -272,7 +270,7 @@ class AddToCatalogForm(core_forms.CremeForm):
             subject_entity=line,
             type_id=constants.REL_SUB_LINE_RELATED_ITEM,
             object_entity=item,
-            user=self.user,
+            user=user,
         )
 
 

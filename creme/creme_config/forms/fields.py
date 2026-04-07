@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from copy import deepcopy
 
+from django.apps import apps
 from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
@@ -137,7 +138,12 @@ class CreatorEnumerableModelChoiceField(CreatorChoiceMixin,
         allowed = False
         url = self._create_action_url
         user = self.user
-        model = self._enum.field.related_model
+        model = self._enum.field.remote_field.model
+
+        # In some (few) cases when the foreignkey is defined with a string AND the
+        # apps are not loaded in the right order, the modelfield instance can have an
+        # unresolved related model as a string...
+        model = apps.get_model(model) if isinstance(model, str) else model
 
         if user:
             if url:

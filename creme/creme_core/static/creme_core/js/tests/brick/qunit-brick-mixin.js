@@ -31,9 +31,9 @@
                     return backend.responseJSON(200, self.mockBrickState);
                 },
                 'mock/brick/all/reload': function(url, data, options) {
-                    var brickContents = (data.brick_id || []).map(function(brick_type_id) {
-                        var content = self._brickReloadContent['brick-' + brick_type_id];
-                        return [brick_type_id, content || MOCK_BRICK_CONTENT.template({id: brick_type_id})];
+                    var brickContents = (data.brick_id || []).map(function(typeId) {
+                        var content = self._brickReloadContent['brick-' + typeId];
+                        return [typeId, content || MOCK_BRICK_CONTENT.template({id: typeId})];
                     });
 
                     return backend.responseJSON(200, brickContents);
@@ -59,6 +59,8 @@
                     }
                 },
                 'mock/brick/delete': backend.response(200),
+                'mock/brick/reorder': backend.response(200),
+                'mock/brick/reorder/fail': backend.response(403),
                 'mock/form': backend.response(200),
                 'mock/form/redirect': backend.response(200, 'mock/redirect', {'Content-Type': 'text/plain'}),
                 'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
@@ -171,10 +173,13 @@
             content.push((
                 '<table class="brick-table-content">'
                     + '<thead><tr>${columns}</tr></thead>'
-                    + '<tbody>${rows}</tbody>'
+                    + '<tbody class="${tbodyClasses}">${rows}</tbody>'
               + '</table>').template({
                   columns: options.columns.join(''),
-                  rows: options.rows.map(renderRow).join('')
+                  rows: options.rows.map(renderRow).join(''),
+                  tbodyClasses: [
+                      options.reorderable ? "brick-reorderable-items ui-sortable" : ""
+                  ].join('')
               }));
 
             return this.createBrickHtml($.extend({

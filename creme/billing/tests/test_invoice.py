@@ -1146,18 +1146,26 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_get_lines01(self):
+    def test_get_lines(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         self.assertFalse(invoice.get_lines(ProductLine))
         self.assertFalse(invoice.get_lines(ServiceLine))
 
-        kwargs = {'user': user, 'related_document': invoice}
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
-        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
+        create_pline = partial(
+            ProductLine.objects.create,
+            on_the_fly_item='Flyyy product', user=user, related_document=invoice,
+        )
+        product_line1 = create_pline(order=1)
+        product_line3 = create_pline(order=3)
+        product_line2 = create_pline(order=1)  # <= same order than 'line1', but greater id
+
+        service_line = ServiceLine.objects.create(
+            on_the_fly_item='Flyyy service', user=user, related_document=invoice,
+        )
 
         self.assertListEqual(
-            [product_line.pk],
+            [product_line1.pk, product_line2.pk, product_line3.pk,],
             [*invoice.get_lines(ProductLine).values_list('pk', flat=True)],
         )
         self.assertListEqual(
@@ -1167,7 +1175,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_get_lines02(self):
+    def test_get_lines__cache(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         kwargs = {'user': user, 'related_document': invoice}

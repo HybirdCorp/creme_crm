@@ -714,31 +714,36 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         cat, subcat = self.create_cat_n_subcat()
 
         url = self._build_add2catalog_url(product_line)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Add this on the fly item to your catalog'),
             context.get('title'),
         )
         self.assertEqual(_('Add to the catalog'), context.get('submit_label'))
 
-        enum_choiceset = self.get_form_or_fail(response).fields['sub_category'].enum
-        self.assertEqual(enum_choiceset.field.model, Product)
+        with self.assertNoException():
+            subcat_f = response1.context['form'].fields['sub_category']
+            enum_choices = subcat_f.enum
 
-        # ---
-        response = self.client.post(url, data={"sub_category": subcat.pk})
-        self.assertNoFormError(response)
-        self.assertTrue(Product.objects.exists())
+        self.assertTrue(subcat_f.required)
+        self.assertEqual(Product, enum_choices.field.model)
 
-        self.get_object_or_fail(
+        # POST ---
+        self.assertNoFormError(self.client.post(url, data={"sub_category": subcat.pk}))
+        product = self.get_object_or_fail(
             Product,
-            name=product_name,
-            unit_price=unit_price,
             user=user,
-            category=cat,
-            sub_category=subcat,
+            name=product_name, unit_price=unit_price,
+            category=cat, sub_category=subcat,
+        )
+
+        product_line = self.refresh(product_line)
+        self.assertIsNone(product_line.on_the_fly_item)
+        self.assertHaveRelation(
+            subject=product_line, type=REL_SUB_LINE_RELATED_ITEM, object=product,
         )
 
     @skipIfCustomServiceLine
@@ -1377,14 +1382,15 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             response = self.client.post(url, data={'target': next_order})
             self.assertEqual(response.status_code, 200)
 
-        invoice.refresh_from_db()
+        # invoice.refresh_from_db()
+        invoice = self.refresh(invoice)
         self.assertEqual(
+            expected,
             [
                 (line.order, line.on_the_fly_item)
                 for model in (ProductLine, ServiceLine)
-                for line in invoice.get_lines(model).order_by('order')
+                for line in invoice.get_lines(model)  # .order_by('order')
             ],
-            expected,
         )
 
         # billing document save() is never called !

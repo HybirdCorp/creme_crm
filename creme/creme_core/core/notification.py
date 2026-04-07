@@ -99,7 +99,10 @@ class NotificationContent:
         So it's a deserialization method.
         @raise DeserializationError
         """
-        return cls(**data)
+        try:
+            return cls(**data)
+        except Exception as e:
+            raise cls.DeserializationError(f'DeserializationError: {e}') from e
 
     def get_subject(self, user) -> str:
         raise NotImplementedError
