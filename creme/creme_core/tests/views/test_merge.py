@@ -332,16 +332,16 @@ class MergeTestCase(CremeTestCase):
         create_img(name='Genshiken logo')  # Should not be proposed by the form
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
-        contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
+        contact1 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
+        contact2 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
 
         language1, language2 = Language.objects.all()[:2]
         language3 = Language.objects.create(name='Klingon')  # code='KLN'
 
-        contact01.languages.set([language1])
-        contact02.languages.set([language1, language2])
+        contact1.languages.set([language1])
+        contact2.languages.set([language1, language2])
 
-        url = self.build_merge_url(contact01, contact02)
+        url = self.build_merge_url(contact1, contact2)
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -350,7 +350,8 @@ class MergeTestCase(CremeTestCase):
             languages_f = fields['languages']
 
         self.assertFalse(image_f.required)
-        self.assertEqual([image1.id,  image2.id,  image1.id],  image_f.initial)
+        # self.assertEqual([image1.id,  image2.id,  image1.id],  image_f.initial)
+        self.assertEqual([f'{image1.id}', f'{image2.id}', f'{image1.id}'],  image_f.initial)
 
         self.assertFalse(languages_f.required)
         self.assertListEqual(
@@ -374,13 +375,13 @@ class MergeTestCase(CremeTestCase):
                 'user_2':      user.id,
                 'user_merged': user.id,
 
-                'first_name_1':      contact01.first_name,
-                'first_name_2':      contact02.first_name,
-                'first_name_merged': contact01.first_name,
+                'first_name_1':      contact1.first_name,
+                'first_name_2':      contact2.first_name,
+                'first_name_merged': contact1.first_name,
 
-                'last_name_1':      contact01.last_name,
-                'last_name_2':      contact02.last_name,
-                'last_name_merged': contact01.last_name,
+                'last_name_1':      contact1.last_name,
+                'last_name_2':      contact2.last_name,
+                'last_name_merged': contact1.last_name,
 
                 'languages_1':      [language1.id],
                 'languages_2':      [language1.id, language2.id],
@@ -392,13 +393,13 @@ class MergeTestCase(CremeTestCase):
             },
         )
         self.assertNoFormError(response2)
-        self.assertRedirects(response2, contact01.get_absolute_url())
+        self.assertRedirects(response2, contact1.get_absolute_url())
 
-        self.assertDoesNotExist(contact02)
+        self.assertDoesNotExist(contact2)
 
-        new_contact01 = self.refresh(contact01)
-        self.assertEqual(contact01.first_name, new_contact01.first_name)
-        self.assertEqual(contact01.last_name,  new_contact01.last_name)
+        new_contact01 = self.refresh(contact1)
+        self.assertEqual(contact1.first_name, new_contact01.first_name)
+        self.assertEqual(contact1.last_name,  new_contact01.last_name)
         self.assertListEqual([language3],      [*new_contact01.languages.all()])
         self.assertEqual(image2,               new_contact01.image)
 

@@ -211,7 +211,8 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
         field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
 
         self.assertJSONEqual(
-            raw=field.from_python(('FR', 'fr_FR')),
+            # raw=field.from_python(('FR', 'fr_FR')),
+            raw=field.prepare_value(('FR', 'fr_FR')),
             expected_data={
                 'country': {
                     'country_code': 'FR',
@@ -230,7 +231,8 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
         field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
 
         self.assertJSONEqual(
-            raw=field.from_python(('FR', 'fr_FR')),
+            # raw=field.from_python(('FR', 'fr_FR')),
+            raw=field.prepare_value(('FR', 'fr_FR')),
             expected_data={
                 'country': {
                     'country_code': 'FR',
