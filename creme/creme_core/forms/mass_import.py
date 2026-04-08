@@ -31,8 +31,8 @@ from django.core.validators import EMPTY_VALUES
 from django.db.models import BooleanField as ModelBooleanField
 from django.db.models import ManyToManyField, Model, prefetch_related_objects
 from django.db.transaction import atomic
+from django.forms import widgets
 from django.forms.models import modelform_factory
-from django.forms.widgets import HiddenInput, Widget
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
@@ -121,7 +121,7 @@ def get_header(filedata, has_header):
 
 
 class UploadForm(CremeForm):
-    step = forms.IntegerField(widget=HiddenInput)
+    step = forms.IntegerField(widget=widgets.HiddenInput)
     document = core_fields.CreatorEntityField(
         label=_('File to import'),
         model=Document,
@@ -178,7 +178,7 @@ class SingleColumnExtractor(BaseExtractor):
         self._column_index = column_index
 
 
-class BaseExtractorWidget(Widget):
+class BaseExtractorWidget(widgets.Widget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.column_select = PrettySelect()
@@ -856,7 +856,196 @@ class MultiRelationsExtractor:
         return iter(self._extractors)
 
 
-class RelationExtractorSelector(SelectorList):
+# class RelationExtractorSelector(SelectorList):
+#     template_name = 'creme_core/forms/widgets/mass-import/relations-extractor.html'
+#
+#     def __init__(self, columns=(), relation_types=(), attrs=None):
+#         super().__init__(None, attrs=attrs)
+#         self.columns = columns
+#         self.relation_types = relation_types
+#         # TODO: autocomplete ?
+#
+#     def get_context(self, name, value, attrs):
+#         print('get_context VALUE', value, type(value))
+#         value = value or {}
+#         self.selector = chained_input = ChainedInput(attrs)
+#
+#         # TODO: use GET args instead of using TemplateURLBuilders ?
+#         add_dselect = partial(
+#             chained_input.add_dselect,
+#             attrs={'auto': False, 'autocomplete': True},
+#             avoid_empty=True,
+#         )
+#         add_dselect(
+#             'rtype',
+#             options=self.relation_types, label=gettext('The entity'),
+#         )
+#         add_dselect(
+#             'ctype',
+#             options=TemplateURLBuilder(
+#                 rtype_id=(TemplateURLBuilder.Word, '${rtype}'),
+#             ).resolve('creme_core__ctypes_compatible_with_rtype'),
+#         )
+#         add_dselect(
+#             'searchfield',
+#             options=TemplateURLBuilder(
+#                 ct_id=(TemplateURLBuilder.Int, '${ctype}'),
+#             ).resolve('creme_core__entity_info_fields'),
+#             label=gettext('which field'),
+#         )
+#         add_dselect('column', options=self.columns, label=gettext('equals to'))
+#
+#         context = super().get_context(
+#             name=name,
+#             attrs=attrs,
+#             value=value.get('selectorlist'),
+#         )
+#         widget_cxt = context['widget']
+#         # SelectorList.get_context() does not use 'attrs' (to avoid duplicated "id"?)
+#         widget_cxt['attrs']['id'] = attrs.get('id') or f'id_{name}'
+#         widget_cxt['can_create_checked'] = value.get('can_create', False)
+#
+#         return context
+#
+#     def value_from_datadict(self, data, files, name):
+#         return {
+#             'selectorlist': super().value_from_datadict(
+#                 data=data, files=files, name=name,
+#             ),
+#             'can_create': data.get(f'{name}_can_create', False),
+#         }
+#
+#
+# class RelationExtractorField(core_fields.MultiRelationEntityField):
+#     widget = RelationExtractorSelector
+#     default_error_messages = {
+#         'fielddoesnotexist': _("This field doesn't exist in this ContentType."),
+#         'invalidcolunm':     _('This column is not a valid choice.'),
+#         'forbiddenctype': _(
+#             'The type «%(model)s» is not allowed by the relationship «%(predicate)s».'
+#         ),
+#     }
+#
+#     def __init__(self, *, columns=(), **kwargs):
+#         super().__init__(**kwargs)
+#         self.columns = columns
+#
+#     @property
+#     def columns(self):
+#         return self._columns
+#
+#     @columns.setter
+#     def columns(self, columns):
+#         self._columns = columns
+#         self.widget.columns = columns
+#
+#     def _value_to_jsonifiable(self, value):
+#         selectors = value['selectorlist']
+#         return {
+#             'selectorlist': [] if selectors is None else
+#               super()._value_to_jsonifiable(selectors),
+#             'can_create': value['can_create'],
+#         }
+#
+#     def clean(self, value):
+#         checked = value['can_create']
+#         selector_data = self.clean_json(value['selectorlist'])
+#
+#         if not selector_data:
+#             if self.required:
+#                 raise ValidationError(
+#                     self.error_messages['required'],
+#                     code='required',
+#                 )
+#
+#             return MultiRelationsExtractor([])
+#
+#         if not isinstance(selector_data, list):
+#             raise ValidationError(
+#                 self.error_messages['invalidformat'],
+#                 code='invalidformat',
+#             )
+#
+#         clean_value = self.clean_value
+#         cleaned_entries = [
+#             (
+#                 clean_value(entry, 'rtype',       str),
+#                 clean_value(entry, 'ctype',       int),
+#                 clean_value(entry, 'column',      int),
+#                 clean_value(entry, 'searchfield', str),
+#             ) for entry in selector_data
+#         ]
+#         extractors = []
+#         allowed_columns = frozenset(c[0] for c in self._columns)
+#         rtypes_by_id = self._clean_rtypes({entry[0] for entry in cleaned_entries})
+#
+#         # TODO: factorise?
+#         prefetch_related_objects(
+#             [
+#                 single_rtype
+#                 for rtype in rtypes_by_id.values()
+#                 for single_rtype in (rtype, rtype.symmetric_type)
+#             ],
+#             'subject_ctypes',
+#             'subject_properties',
+#             'subject_forbidden_properties',
+#         )
+#
+#         for rtype_id, ctype_id, column, searchfield in cleaned_entries:
+#             if column not in allowed_columns:
+#                 raise ValidationError(
+#                     self.error_messages['invalidcolunm'],
+#                     params={'column': column},
+#                     code='invalidcolunm',
+#                 )
+#
+#             try:
+#                 ctype = ContentType.objects.get_for_id(ctype_id)
+#             except ContentType.DoesNotExist as e:
+#                 raise ValidationError(str(e)) from e
+#
+#             rtype = rtypes_by_id[rtype_id]
+#
+#             if not rtype.symmetric_type.is_compatible(ctype_id):
+#                 raise ValidationError(
+#                     message=self.error_messages['forbiddenctype'],
+#                     code='forbiddenctype',
+#                     params={
+#                         'model': ctype,
+#                         'predicate': rtype.symmetric_type.predicate,
+#                     },
+#                 )
+#
+#             model = ctype.model_class()
+#
+#             try:
+#                 model._meta.get_field(searchfield)
+#             except FieldDoesNotExist as e:
+#                 raise ValidationError(
+#                     self.error_messages['fielddoesnotexist'],
+#                     params={'field': searchfield},
+#                     code='fielddoesnotexist',
+#                 ) from e
+#
+#             # TODO: creation creds for entity (it is done, but in the form)
+#             # TODO: improve widget to answer for creation only if allowed
+#
+#             extractors.append(RelationExtractor(
+#                 column_index=column,
+#                 rtype=rtype,
+#                 subfield_search=searchfield,
+#                 related_model=model,
+#                 create_if_unfound=checked,
+#             ))
+#
+#         return MultiRelationsExtractor(extractors)
+
+# TODO: complete
+class BasicRelationExtractorSelector(widgets.MultiWidget):
+    pass
+
+
+class MultiRelationExtractorSelector(SelectorList):
     template_name = 'creme_core/forms/widgets/mass-import/relations-extractor.html'
 
     def __init__(self, columns=(), relation_types=(), attrs=None):
@@ -866,6 +1055,7 @@ class RelationExtractorSelector(SelectorList):
         # TODO: autocomplete ?
 
     def get_context(self, name, value, attrs):
+        print('get_context VALUE', value, type(value))
         value = value or {}
         self.selector = chained_input = ChainedInput(attrs)
 
@@ -915,8 +1105,8 @@ class RelationExtractorSelector(SelectorList):
         }
 
 
-class RelationExtractorField(core_fields.MultiRelationEntityField):
-    widget = RelationExtractorSelector
+class BasicMultiRelationExtractorField(core_fields.MultiRelationEntityField):
+    widget = BasicRelationExtractorSelector
     default_error_messages = {
         'fielddoesnotexist': _("This field doesn't exist in this ContentType."),
         'invalidcolunm':     _('This column is not a valid choice.'),
@@ -937,6 +1127,15 @@ class RelationExtractorField(core_fields.MultiRelationEntityField):
     def columns(self, columns):
         self._columns = columns
         self.widget.columns = columns
+
+    # # TODO: remove?
+    # def _value_to_jsonifiable(self, value):
+    #     selectors = value['selectorlist']
+    #     return {
+    #         'selectorlist': [] if selectors is None else
+    #           super()._value_to_jsonifiable(selectors),
+    #         'can_create': value['can_create'],
+    #     }
 
     def clean(self, value):
         checked = value['can_create']
@@ -1030,6 +1229,47 @@ class RelationExtractorField(core_fields.MultiRelationEntityField):
             ))
 
         return MultiRelationsExtractor(extractors)
+
+
+class MultiRelationExtractorField(forms.MultiValueField):
+    widget = MultiRelationExtractorSelector
+
+    def __init__(self, *, columns=(), **kwargs):
+        super().__init__(
+            fields=(
+                forms.BooleanField(required=False),
+                BasicMultiRelationExtractorField(columns=columns),  # TODO: required=False?
+            ),
+            **kwargs
+        )
+        # self.columns = columns
+
+    # TODO: test
+    @property
+    def allowed_rtypes(self):
+        return self.fields[1].allowed_rtypes
+
+    @allowed_rtypes.setter
+    def allowed_rtypes(self, rtypes):
+        self.fields[1].allowed_rtypes = rtypes
+
+    # TODO: test
+    @property
+    def columns(self):
+        return self.fields[1].columns
+
+    @columns.setter
+    def columns(self, columns):
+        self.fields[1].columns = columns
+        # self.widget.columns = columns  TODO?
+
+    # TODO: tests
+    def compress(self, data_list):
+        # NB: data_list = (can_create, extractor)
+        # return date_period_registry.get_period(
+        #     *data_list
+        # ) if data_list and all(data_list) else None
+        pass  # TODO: set 'create_on_unfound' then return extractors
 
 
 # Extractors (and related field/widget) for custom fields ----------------------
@@ -1225,9 +1465,9 @@ class CustomfieldExtractorField(forms.Field):
 # TODO: merge with ImportForm4CremeEntity ?
 #  (no model that is not an entity is imported with csv...)
 class ImportForm(CremeModelForm):
-    step = forms.IntegerField(widget=HiddenInput)
-    document = forms.IntegerField(widget=HiddenInput)
-    has_header = forms.BooleanField(widget=HiddenInput, required=False)
+    step = forms.IntegerField(widget=widgets.HiddenInput)
+    document = forms.IntegerField(widget=widgets.HiddenInput)
+    has_header = forms.BooleanField(widget=widgets.HiddenInput, required=False)
     key_fields = forms.MultipleChoiceField(
         label=_('Key fields'), required=False,
         choices=(),
@@ -1497,7 +1737,8 @@ class ImportForm4CremeEntity(ImportForm):
     fixed_relations = core_fields.MultiRelationEntityField(
         label=_('Fixed relationships'), required=False, autocomplete=True,
     )
-    dyn_relations = RelationExtractorField(
+    # dyn_relations = RelationExtractorField(
+    dyn_relations = MultiRelationExtractorField(
         label=_('Relationships from the file'), required=False,
     )
 
