@@ -781,6 +781,8 @@ class RelationEntityField(EntityCredsJSONField):
         self.widget.autocomplete = autocomplete
 
     def _value_to_jsonifiable(self, value):
+        # print('RelationEntityField._value_to_jsonifiable VALUE', value, type(value), type(self))
+        # return {}  ###################################################
         rtype, entity = value
 
         return {

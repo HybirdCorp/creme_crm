@@ -866,6 +866,7 @@ class RelationExtractorSelector(SelectorList):
         # TODO: autocomplete ?
 
     def get_context(self, name, value, attrs):
+        print('get_context VALUE', value, type(value))
         value = value or {}
         self.selector = chained_input = ChainedInput(attrs)
 
@@ -897,12 +898,14 @@ class RelationExtractorSelector(SelectorList):
         context = super().get_context(
             name=name,
             attrs=attrs,
-            value=value.get('selectorlist'),
+            # value=value.get('selectorlist'),
+            value='',  # TODO
         )
         widget_cxt = context['widget']
         # SelectorList.get_context() does not use 'attrs' (to avoid duplicated "id"?)
         widget_cxt['attrs']['id'] = attrs.get('id') or f'id_{name}'
         widget_cxt['can_create_checked'] = value.get('can_create', False)
+        # widget_cxt['can_create_checked'] = False  # TODO
 
         return context
 
@@ -937,6 +940,14 @@ class RelationExtractorField(core_fields.MultiRelationEntityField):
     def columns(self, columns):
         self._columns = columns
         self.widget.columns = columns
+
+    # TODO: remove?
+    def _value_to_jsonifiable(self, value):
+        selectors = value['selectorlist']
+        return {
+            'selectorlist': [] if selectors is None else super()._value_to_jsonifiable(selectors),
+            'can_create': value['can_create'],
+        }
 
     def clean(self, value):
         checked = value['can_create']
