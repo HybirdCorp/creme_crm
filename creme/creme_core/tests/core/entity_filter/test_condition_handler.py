@@ -800,7 +800,8 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler.accept(entity=c4, user=user), False)
 
     def test_build_condition__operator_id(self):
-        self.assertEqual(5, RegularFieldConditionHandler.type_id)
+        # self.assertEqual(5, RegularFieldConditionHandler.type_id)
+        self.assertEqual('regular_field', RegularFieldConditionHandler.type_id)
 
         fname = 'last_name'
         operator_id = operators.EQUALS

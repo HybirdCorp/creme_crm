@@ -108,7 +108,8 @@ class EntityFilterRegistry:
         self.tag = tag
 
         # We keep the registration order for the form.
-        self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
+        # self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
+        self._handler_classes: dict[str, type[FilterConditionHandler]] = OrderedDict()
 
         # self._operator_classes: dict[int, type[ConditionOperator]] = {}
         self._operator_classes: dict[str, type[ConditionOperator]] = {}
@@ -191,7 +192,8 @@ class EntityFilterRegistry:
         return self
 
     def get_handler(self, *,
-                    type_id: int,
+                    # type_id: int,
+                    type_id: str,
                     model: type[CremeEntity],
                     name: str,
                     data: dict | None,

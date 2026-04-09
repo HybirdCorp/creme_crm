@@ -1669,11 +1669,13 @@ class ExportingTestCase(TransferBaseTestCase):
                     {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
-                        'value': {'operator': 1, 'values': ['Spike']},
+                        # 'value': {'operator': 1, 'values': ['Spike']},
+                        'value': {'operator': 'equals', 'values': ['Spike']},
                     }, {
                         'type':  CustomFieldConditionHandler.type_id,
                         'name':  str(cfield1.uuid),
-                        'value': {'operator': 10, 'values': ['100']},
+                        # 'value': {'operator': 10, 'values': ['100']},
+                        'value': {'operator': 'gte', 'values': ['100']},
                     }, {
                         'type':  DateCustomFieldConditionHandler.type_id,
                         'name':  str(cfield2.uuid),
