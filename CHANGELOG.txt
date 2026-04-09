@@ -1,5 +1,12 @@
 == Version 2.7.8 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # An issue with global search for extended apps has been fixed (exetnded apps were ignored).
+
 
 == Version 2.7.7 ==
 

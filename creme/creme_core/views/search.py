@@ -116,7 +116,7 @@ class SearcherMixin:
     def get_raw_models(self):
         role = self.request.user.role
         models = [*creme_registry.iter_entity_models(
-            app_labels=role.allowed_apps if role else None
+            app_labels=role.extended_allowed_apps if role else None
         )]
         sort_key = collator.sort_key
         # models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
