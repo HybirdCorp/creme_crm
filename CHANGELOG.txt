@@ -1,5 +1,13 @@
 == Version 2.6.20 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # An issue with global search for extended apps has been fixed (exetnded apps were ignored).
+
+
 == Version 2.6.19 ==
 
   Users side :
