@@ -3566,7 +3566,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             'test-filter01-old', name='is valid', model=FakeContact,
             conditions=[
                 EntityFilterCondition(
-                    type=20,
+                    type=CustomFieldConditionHandler.type_id,
                     model=FakeContact,
                     name=str(custom_field.uuid),
                     value={

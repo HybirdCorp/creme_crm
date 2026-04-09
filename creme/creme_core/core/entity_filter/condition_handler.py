@@ -83,7 +83,8 @@ class FilterConditionHandler:
     All child-classes are registered in an instance of
     <creme_core.core.entity_filter._EntityFilterRegistry>.
     """
-    type_id: int
+    # type_id: int
+    type_id: str
 
     class DataError(Exception):
         pass
@@ -216,7 +217,8 @@ class FilterConditionHandler:
 
 class SubFilterConditionHandler(FilterConditionHandler):
     """Filter entities with a (sub) EntityFilter."""
-    type_id = 1
+    # type_id = 1
+    type_id = 'subfilter'
 
     DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
 
@@ -369,7 +371,8 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     """Filter entities by using one of their fields.
     Note: no date field; see <DateRegularFieldConditionHandler>.
     """
-    type_id = 5
+    # type_id = 5
+    type_id = 'regular_field'
 
     def __init__(self, *, model, efilter_type, field_name, operator_id, values) -> None:
         super().__init__(
@@ -743,7 +746,8 @@ class DateFieldHandlerMixin:
 class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
                                        BaseRegularFieldConditionHandler):
     """Filter entities by using one of their date fields."""
-    type_id = 6
+    # type_id = 6
+    type_id = 'regular_date'
 
     def __init__(self, *, efilter_type, model, field_name, **kwargs):
         BaseRegularFieldConditionHandler.__init__(
@@ -913,7 +917,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     """Filter entities by using one of their CustomFields.
     Note: no date field ; see DateCustomFieldConditionHandler
     """
-    type_id = 20
+    # type_id = 20
+    type_id = 'custom_field'
 
     def __init__(self, *,
                  efilter_type,
@@ -1157,7 +1162,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
                                       BaseCustomFieldConditionHandler):
     """Filter entities by using one of their date CustomFields."""
-    type_id = 21
+    # type_id = 21
+    type_id = 'custom_date'
 
     def __init__(self, *,
                  efilter_type, model=None,
@@ -1305,7 +1311,8 @@ class BaseRelationConditionHandler(FilterConditionHandler):
 
 class RelationConditionHandler(BaseRelationConditionHandler):
     """Filter entities which are have (or have not) certain Relations."""
-    type_id = 10
+    # type_id = 10
+    type_id = 'relation'
 
     # NB: True == exclude
     DESCRIPTION_FORMATS = {
@@ -1531,7 +1538,8 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     """Filter entities which are have (or have not) certain Relations.
     with entities filtered by a sub EntityFilter.
     """
-    type_id = 11
+    # type_id = 11
+    type_id = 'related_subfilter'
 
     # NB: True == exclude
     DESCRIPTION_FORMATS = {
@@ -1668,7 +1676,8 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 #     CremePropertyType is deleted.
 class PropertyConditionHandler(FilterConditionHandler):
     """Filter entities which are have (or have not) certain CremeProperties."""
-    type_id = 15
+    # type_id = 15
+    type_id = 'property'
 
     # NB: True == exclude
     DESCRIPTION_FORMATS = {
