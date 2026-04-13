@@ -68,13 +68,15 @@ class ActivityTypePortal(ActivityTypeRelatedMixin, BricksView):
     """Configuration portal to configure the subtypes related to one ActivityType instance"""
     template_name = 'activities/config/activity-type-portal.html'
     permissions = 'activities.can_admin'
-    bricks = [NarrowedSubTypesBrick]
+    # bricks = [NarrowedSubTypesBrick]
+    brick_classes = [NarrowedSubTypesBrick]
 
     def get_bricks(self):
         return {
             'main': [
                 brick_cls(activity_type=self.get_activity_type())
-                for brick_cls in self.bricks
+                # for brick_cls in self.bricks
+                for brick_cls in self.brick_classes
             ],
         }
 
@@ -93,12 +95,14 @@ class ActivityTypePortal(ActivityTypeRelatedMixin, BricksView):
 
 class ActivityTypeBricksReloading(ActivityTypeRelatedMixin, BricksReloading):
     permissions = 'activities.can_admin'
-    bricks = ActivityTypePortal.bricks
+    # bricks = ActivityTypePortal.bricks
+    brick_classes = ActivityTypePortal.brick_classes
 
     def get_bricks(self):
         bricks = []
         atype = self.get_activity_type()
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
 
         for brick_id in self.get_brick_ids():
             try:

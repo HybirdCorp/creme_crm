@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,8 @@ class CTIOrganisationCreation(CTIPersonMixin, OrganisationCreation):
 
 class AnswerToACall(generic.BricksView):
     template_name = 'cti/respond_to_a_call.html'
-    bricks = [CallersBrick]
+    # bricks = [CallersBrick]
+    brick_classes = [CallersBrick]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -76,8 +77,8 @@ class AnswerToACall(generic.BricksView):
     def get_bricks_reload_url(self):
         return reverse('cti__reload_callers_brick', args=(self.get_number(),))
 
-    def get_bricks(self):
-        return {'main': [brick_cls() for brick_cls in self.bricks]}
+    # def get_bricks(self):
+    #     return {'main': [brick_cls() for brick_cls in self.bricks]}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -96,13 +97,14 @@ class AnswerToACall(generic.BricksView):
 
 class CallersBrickReloading(BricksReloading):
     number_url_kwarg = 'number'
-    bricks = AnswerToACall.bricks
+    # bricks = AnswerToACall.bricks
+    brick_classes = AnswerToACall.brick_classes
 
     # TODO: factorise (sms, EmailSending)?
     def get_bricks(self):
-        # return [CallersBrick()]
         bricks = []
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
 
         for brick_id in self.get_brick_ids():
             try:

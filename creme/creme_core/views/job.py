@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from .. import bricks
 from ..auth import SUPERUSER_PERM
 # from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
@@ -42,10 +43,12 @@ logger = logging.getLogger(__name__)
 class Jobs(generic.BricksView):
     template_name = 'creme_core/job/list-all.html'
     permissions = SUPERUSER_PERM
+    brick_classes = [bricks.JobsBrick]
 
 
 class MyJobs(generic.BricksView):
     template_name = 'creme_core/job/list-mine.html'
+    brick_classes = [bricks.MyJobsBrick]
 
 
 # Detail-view ------------------------------------------------------------------

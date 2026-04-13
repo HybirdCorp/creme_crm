@@ -7,7 +7,9 @@
     {{block.super}}{% if user|has_perm_to_access:'creme_config' %}<a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields' %} > </a>{% endif %}{{object.content_type}} > <span class="creme_config-custom-enum{% if object.is_deleted %} creme_config-custom-enum-deleted{% endif %}">{{object}}<span>
 {% endblock %}
 
+{% comment %}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='custom_enums' as enums_brick %}
     {% brick_display enums_brick %}
 {% endblock %}
+{% endcomment %}

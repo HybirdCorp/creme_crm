@@ -26,6 +26,9 @@
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
                       import it from 'creme_core.core.validators' instead'.
+        # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
+          a class attribute 'brick_classes' has been added to facilitate the injection
+          of "static" (i.e. no configuration in DB) Bricks in the related template.
 
     Breaking changes :
     ------------------
@@ -61,11 +64,24 @@
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.
                 - The ContentType for the old model 'ReportGraph' has been removed.
+                - The class attribute 'brick' of the view-classes 'ChartDetail',
+                  'ChartDetailBricksReloading' & 'ChartInstanceBricksInfo' has been renamed 'brick_classes'.
+            * Activities :
+                - In 'views.other_models', the class attribute 'brick' of the view-classes
+                 'ActivityTypePortal' & 'ActivityTypeBricksReloading' has been renamed 'brick_classes'.
             * Products :
                 - The new fields 'Product.default_discount' & 'Service.default_discount' are required.
+                - In 'views.other_models', the class attribute 'brick' of the view-classes
+                 'CategoryPortal' & 'CategoryBricksReloading' has been renamed 'brick_classes'.
             * Billing :
                 - The class 'forms.line._LineMultipleAddForm' has changed ;
                   the field 'discount_value' has been replaced by the field 'discount'.
+            * SMS :
+                - In 'views.sending', the class attribute 'brick' of the view-classes
+                  'Messages' & 'MessagesBrickReloading' has been renamed 'brick_classes'.
+            * CTI :
+                - The class attribute 'brick' of the view-classes 'AnswerToACall'
+                  & 'CallersBrickReloading' has been renamed 'brick_classes'.
 
     Internal breaking changes :
     ---------------------------

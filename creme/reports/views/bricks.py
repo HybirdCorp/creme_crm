@@ -64,17 +64,17 @@ class ChartInstanceBrickCreation(generic.RelatedToEntityEditionPopup):
         return data
 
 
-# TODO: factorise
 class ChartInstanceBricksInfo(generic.RelatedToEntityDetailPopup):
     model = ReportChart
     pk_url_kwarg = 'chart_id'
     bricks_reload_url_name = 'reports__reload_chart_ibci_bricks'
+    # bricks = [InstanceBricksInfoBrick]
+    brick_classes = [InstanceBricksInfoBrick]
 
-    bricks = [InstanceBricksInfoBrick]
-
-    def get_bricks(self):
-        return {'main': [brick_cls() for brick_cls in self.bricks]}
+    # def get_bricks(self):
+    #     return {'main': [brick_cls() for brick_cls in self.bricks]}
 
 
 class ChartInstanceBricksInfoReloading(ChartDetailBricksReloading):
-    bricks = ChartInstanceBricksInfo.bricks
+    # bricks = ChartInstanceBricksInfo.bricks
+    brick_classes = ChartInstanceBricksInfo.brick_classes

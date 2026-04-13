@@ -16,15 +16,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from collections.abc import Collection
 import logging
-from collections.abc import Collection
 
 from django.http.response import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme import reports
-from creme.creme_core.gui.bricks import Brick
+# from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
@@ -53,17 +53,19 @@ class ChartDetail(generic.CremeModelDetail):
     permissions = 'reports'  # TODO: test
     bricks_reload_url_name = 'reports__reload_chart_bricks'
     # TODO: 'main' & 'hat'?
-    bricks: Collection[type[Brick]] = [ReportChartBrick]
+    # bricks: Collection[type[Brick]] = [ReportChartBrick]
+    brick_classes = [ReportChartBrick]
 
-    def get_bricks(self):
-        return {'main': [brick_cls() for brick_cls in self.bricks]}
+    # def get_bricks(self):
+    #     return {'main': [brick_cls() for brick_cls in self.bricks]}
 
 
 # TODO: factorise with other reloading views?
 class ChartDetailBricksReloading(BricksReloading):
     chart_id_url_kwarg = 'chart_id'
     permissions = 'reports'  # TODO: test
-    bricks = ChartDetail.bricks
+    # bricks = ChartDetail.bricks
+    brick_classes = ChartDetail.brick_classes
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -71,7 +73,8 @@ class ChartDetailBricksReloading(BricksReloading):
 
     def get_bricks(self):
         reloaded_bricks = []
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
 
         for brick_id in self.get_brick_ids():
             try:

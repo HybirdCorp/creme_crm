@@ -9,19 +9,23 @@
     <a class="complete-detailview" href="{{object.get_absolute_url}}">{% translate 'Full detailview' %}</a>
 
     {% brick_import object=object as object_brick %}
+{% comment %}
     {% brick_import app='creme_core' name='customfields' as customfields_brick %}
     {% brick_import app='creme_core' name='relations' as relations_brick %}
     {% brick_import app='creme_core' name='properties' as properties_brick %}
     {% brick_import app='activities' name='participants' as participants_brick %}
     {% brick_import app='activities' name='related_calendar' as related_calendar_brick %}
     {% brick_import app='activities' name='subjects' as subjects_brick %}
+{% endcomment %}
+    {% brick_declare bricks.main %}
 
     <div class="column column-first">
         {% brick_display object_brick %}
     </div>
 
     <div class="column column-second">
-        {% brick_display participants_brick subjects_brick related_calendar_brick relations_brick properties_brick customfields_brick %}
+{#        {% brick_display participants_brick subjects_brick related_calendar_brick relations_brick properties_brick customfields_brick %} #}
+        {% brick_display bricks.main %}
     </div>
 
     {% brick_end %}

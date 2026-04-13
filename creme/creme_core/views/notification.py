@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import STAFF_PERM
+from creme.creme_core.bricks import NotificationsBrick
 from creme.creme_core.core.notification import OUTPUT_WEB
 from creme.creme_core.forms.notification import SystemUpgradeAnnouncementForm
 from creme.creme_core.http import CremeJsonResponse
@@ -30,6 +31,7 @@ from creme.creme_core.views import generic
 
 class Notifications(generic.BricksView):
     template_name = 'creme_core/notifications.html'
+    brick_classes = [NotificationsBrick]
 
 
 class LastWebNotifications(generic.CheckedView):

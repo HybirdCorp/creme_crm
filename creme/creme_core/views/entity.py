@@ -46,7 +46,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-from .. import constants
+from .. import bricks, constants
 from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
@@ -1118,6 +1118,7 @@ class Merge(MergeFormMixin, generic.CremeFormView):
 
 class Trash(generic.BricksView):
     template_name = 'creme_core/trash.html'
+    brick_classes = [bricks.TrashBrick]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

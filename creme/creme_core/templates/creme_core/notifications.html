@@ -22,7 +22,11 @@
         </ul>
     </div>
 
+{% comment %}
     {% brick_import app='creme_core' name='notifications' as notif_brick %}
     {% brick_display notif_brick %}
+{% endcomment %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
     {% brick_end %}
 {% endblock %}

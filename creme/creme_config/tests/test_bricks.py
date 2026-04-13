@@ -1823,51 +1823,51 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
         role = self.role
         bricks = [
-            block
-            for brick_id, block in self.brick_registry
-            if hasattr(block, 'home_display')
+            brick
+            for brick_id, brick in self.brick_registry
+            if hasattr(brick, 'home_display')
         ]
         self.assertGreaterEqual(len(bricks), 2)
 
         create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id, order=1)
-        bhl01 = create_bhl()
-        bhl02 = create_bhl(role=role)
-        bhl03 = create_bhl(superuser=True)
-        bhl04 = create_bhl(role=role, brick_id=bricks[1].id, order=2)
+        bhl1 = create_bhl()
+        bhl2 = create_bhl(role=role)
+        bhl3 = create_bhl(superuser=True)
+        bhl4 = create_bhl(role=role, brick_id=bricks[1].id, order=2)
 
         self.assertGET405(reverse('creme_config__delete_home_bricks'))
         self.assertGET405(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
         self.assertPOST404(reverse('creme_config__delete_home_bricks'))
 
         self.assertPOST200(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
-        self.assertDoesNotExist(bhl02)
-        self.assertDoesNotExist(bhl04)
-        self.assertStillExists(bhl01)
-        self.assertStillExists(bhl03)
+        self.assertDoesNotExist(bhl2)
+        self.assertDoesNotExist(bhl4)
+        self.assertStillExists(bhl1)
+        self.assertStillExists(bhl3)
 
     def test_delete_home__for_superuser(self):
         self.login_as_root()
         role = self.role
         bricks = [
-            block
-            for brick_id, block in self.brick_registry
-            if hasattr(block, 'home_display')
+            brick
+            for brick_id, brick in self.brick_registry
+            if hasattr(brick, 'home_display')
         ]
         self.assertGreaterEqual(len(bricks), 2)
 
         create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id, order=1)
-        bhl01 = create_bhl()
-        bhl02 = create_bhl(superuser=True)
-        bhl03 = create_bhl(role=role)
-        bhl04 = create_bhl(superuser=True, brick_id=bricks[1].id, order=2)
+        bhl1 = create_bhl()
+        bhl2 = create_bhl(superuser=True)
+        bhl3 = create_bhl(role=role)
+        bhl4 = create_bhl(superuser=True, brick_id=bricks[1].id, order=2)
 
         self.assertPOST200(
             reverse('creme_config__delete_home_bricks'), data={'role': 'superuser'},
         )
-        self.assertDoesNotExist(bhl02)
-        self.assertDoesNotExist(bhl04)
-        self.assertStillExists(bhl01)
-        self.assertStillExists(bhl03)
+        self.assertDoesNotExist(bhl2)
+        self.assertDoesNotExist(bhl4)
+        self.assertStillExists(bhl1)
+        self.assertStillExists(bhl3)
 
     def test_edit_default_mypage(self):
         self.login_as_root()
