@@ -30,7 +30,8 @@ Organisation = persons.get_organisation_model()
 
 
 class CrmButton(Button):
-    dependencies = (Relation,)  # NB: override 'relation_type_deps' in child classes
+    dependencies = (Relation,)
+    relation_type_deps: tuple[RelationType]   # NB: declare in child classes
     __managed_orga = False
     template_name = 'persons/buttons/become.html'
 
