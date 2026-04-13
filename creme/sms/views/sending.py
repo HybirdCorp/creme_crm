@@ -88,13 +88,14 @@ class Messages(generic.CremeModelDetailPopup):
     pk_url_kwarg = 'id'
     permissions = 'sms'
     bricks_reload_url_name = 'sms__reload_messages_brick'
-    bricks = [MessagesBrick]
+    # bricks = [MessagesBrick]
+    brick_classes = [MessagesBrick]
 
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance.campaign)
 
-    def get_bricks(self):
-        return {'main': [brick_cls() for brick_cls in self.bricks]}
+    # def get_bricks(self):
+    #     return {'main': [brick_cls() for brick_cls in self.bricks]}
 
 
 # TODO: improve Message.delete() instead ?
@@ -121,7 +122,8 @@ def delete_message(request):
 class MessagesBrickReloading(BricksReloading):
     permissions = 'sms'
     sending_id_url_kwarg = 'sending_id'
-    bricks = Messages.bricks
+    # bricks = Messages.bricks
+    brick_classes = Messages.brick_classes
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -129,7 +131,8 @@ class MessagesBrickReloading(BricksReloading):
 
     def get_bricks(self):
         bricks = []
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
 
         for brick_id in self.get_brick_ids():
             try:

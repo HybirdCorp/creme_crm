@@ -426,9 +426,17 @@ class BricksMixin:
                     of Bricks from their ID (see get_brick_ids() & get_bricks()).
     bricks_reload_url_name: Name of the URL used to reload the bricks
                             (see get_bricks_reload_url()).
+    bricks: Classes of the Brick which are returned (see get_bricks()).
+            - If it's <None>, the classes are retrieved from their IDs
+              (see get_brick_ids()).
+            - If it's a list of Brick classes, bricks are built from them &
+              placed in a zone called "main".
+            - It can also be a dictionary: keys are zone, values the
+              corresponding Brick classes.
     """
     brick_registry = brick_registry
     bricks_reload_url_name: str = 'creme_core__reload_bricks'
+    brick_classes: list[type[Brick]] | dict[str, list[type[Brick]]] | None = None
 
     # NB: for linters only
     request: HttpRequest
@@ -441,12 +449,30 @@ class BricksMixin:
         Groups are identified by strings, & can be used in templates to have
         several zones (like 'top', left'...).
         """
-        return {
-            'main': [*self.brick_registry.get_bricks(
-                brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
-                user=self.request.user,
-            )],
-        }
+        # return {
+        #     'main': [*self.brick_registry.get_bricks(
+        #         brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
+        #         user=self.request.user,
+        #     )]
+        # }
+        brick_classes = self.brick_classes
+
+        if brick_classes is None:
+            bricks = {
+                'main': [*self.brick_registry.get_bricks(
+                    brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
+                    user=self.request.user,
+                )],
+            }
+        elif isinstance(brick_classes, list):
+            bricks = {'main': [brick_cls() for brick_cls in brick_classes]}
+        else:
+            bricks = {
+                zone: [brick_class() for brick_class in zone_classes]
+                for zone, zone_classes in brick_classes.items()
+            }
+
+        return bricks
 
     def get_bricks_reload_url(self) -> str:
         name = self.bricks_reload_url_name

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ from creme.documents.models import FolderCategory
 from creme.emails import get_entityemail_model
 from creme.emails.constants import UUID_FOLDER_CAT_EMAILS
 
-from .. import constants
+from .. import bricks, constants
 from ..creme_jobs import entity_emails_sync_type
 from ..forms import synchronization as sync_forms
 from ..models import EmailSyncConfigItem, EmailToSync, EmailToSyncPerson
@@ -49,6 +49,7 @@ EntityEmail = get_entityemail_model()
 class SynchronizationPortal(generic.BricksView):
     template_name = 'emails/synchronization.html'
     permissions = 'emails'
+    brick_classes = [bricks.EmailsToSyncBrick]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

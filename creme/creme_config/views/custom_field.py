@@ -231,6 +231,7 @@ class CustomEnumsDetail(EnumMixin, generic.CremeModelDetail):
     pk_url_kwarg = 'field_id'
     context_object_name = 'custom_field'
     bricks_reload_url_name = 'creme_config__reload_custom_enum_brick'
+    brick_classes = [bricks.CustomEnumsBrick]
 
     def check_instance_permissions(self, instance, user):
         self.check_custom_field(instance)

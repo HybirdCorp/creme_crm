@@ -175,9 +175,7 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
     #                     instance.save(force_update=True, update_fields=('order',))
 
     def get_bricks(self):
-        model_conf = self.get_model_conf()
-
-        return {'main': [model_conf.get_brick()]}
+        return {'main': [self.get_model_conf().get_brick()]}
 
     def get_bricks_reload_url(self):
         return reverse(
@@ -310,7 +308,12 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
     template_name = 'creme_config/generics/app-portal.html'
 
     def get_bricks(self):
-        return {'main': [*self.get_app_registry().bricks]}  # Get config registered bricks
+        # return {'main': [*self.get_app_registry().bricks]}
+        return {
+            'main': [
+                SettingsBrick(),  # TODO: pass argument "app_name"?
+                *self.get_app_registry().bricks],  # Bricks registered in config
+        }
 
     def get_bricks_reload_url(self):
         return reverse(

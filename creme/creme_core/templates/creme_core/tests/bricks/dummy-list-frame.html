@@ -1,5 +1,9 @@
 {% load creme_bricks %}
 
 <button class="block-refresh">Refresh</button>&nbsp;<input type="number" class="test-blocklist-count" value="{{request.GET.count|default:10}}" min="0" max="1000"/>
+{% comment %}
 {% brick_import app='creme_core' name='test_dummy_list' as test_dummy_list_brick %}
 {% brick_display test_dummy_list_brick %}
+{% endcomment %}
+{% brick_declare dummy_brick %}
+{% brick_display dummy_brick %}

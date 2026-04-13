@@ -64,16 +64,18 @@ class CategoryRelatedMixin:
 
 
 class CategoryPortal(CategoryRelatedMixin, BricksView):
-    """Configuration portal to configure the subcategories related to one Category instance"""
+    """Configuration portal to configure the subcategories related to one Category instance."""
     template_name = 'products/config/category-portal.html'
     permissions = 'products.can_admin'
-    bricks = [NarrowedSubCategoriesBrick]
+    # bricks = [NarrowedSubCategoriesBrick]
+    brick_classes = [NarrowedSubCategoriesBrick]
 
     def get_bricks(self):
         return {
             'main': [
                 brick_cls(category=self.get_category())
-                for brick_cls in self.bricks
+                # for brick_cls in self.bricks
+                for brick_cls in self.brick_classes
             ],
         }
 
@@ -92,12 +94,14 @@ class CategoryPortal(CategoryRelatedMixin, BricksView):
 
 class CategoryBricksReloading(CategoryRelatedMixin, BricksReloading):
     permissions = 'products.can_admin'
-    bricks = CategoryPortal.bricks
+    # bricks = CategoryPortal.bricks
+    brick_classes = CategoryPortal.brick_classes
 
     def get_bricks(self):
         bricks = []
         category = self.get_category()
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
 
         for brick_id in self.get_brick_ids():
             try:

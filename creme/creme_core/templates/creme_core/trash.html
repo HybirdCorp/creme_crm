@@ -15,7 +15,11 @@
         {% widget_help_sign message=_('The definitive deletion has been disabled by the administrator.') %}
     {% endif%}
 
+{% comment %}
     {% brick_import app='creme_core' name='trash' as trash_brick %}
     {% brick_display trash_brick %}
+{% endcomment %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
     {% brick_end %}
 {% endblock %}

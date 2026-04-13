@@ -26,6 +26,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core import bricks as core_bricks
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
@@ -35,7 +36,7 @@ from creme.creme_core.utils import bool_from_str_extended, get_from_GET_or_404
 from creme.creme_core.views import generic
 from creme.persons import get_contact_model
 
-from .. import constants, custom_forms, get_activity_model
+from .. import bricks, constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
 from ..utils import ICalEncoder
@@ -226,6 +227,14 @@ class ActivityPopup(generic.EntityDetailPopup):
     model = Activity
     template_name = 'activities/activity-popup.html'
     pk_url_kwarg = 'activity_id'
+    brick_classes = [
+        bricks.ParticipantsBrick,
+        bricks.SubjectsBrick,
+        bricks.RelatedCalendarBrick,
+        core_bricks.RelationsBrick,
+        core_bricks.PropertiesBrick,
+        core_bricks.CustomFieldsBrick,
+    ]
 
 
 class ActivityEdition(generic.EntityEdition):

@@ -6,7 +6,11 @@
 {% block content %}
     {% widget_help_sign message=_('Disabling a job takes effect only after its current execution.') %}
 
+{% comment %}
     {% brick_import app='creme_core' name='jobs' as jobs_brick %}
     {% brick_display jobs_brick %}
+{% endcomment %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
     {% brick_end %}
 {% endblock %}
