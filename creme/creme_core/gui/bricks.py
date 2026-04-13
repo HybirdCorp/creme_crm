@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from collections import defaultdict
-from collections.abc import Collection, Iterable, Iterator
+from collections.abc import Collection, Iterable, Iterator, Sequence
 from typing import DefaultDict, List, Literal, Tuple, Type, Union
 
 from django.conf import settings
@@ -131,7 +131,7 @@ class Brick:
 
     # List of IDs of RelationType objects on which the brick depends ;
     # only used for Bricks which have the model 'Relation' in their dependencies.
-    relation_type_deps: Collection[str] = ()
+    relation_type_deps: Sequence[str] = ()
 
     # 'True' means that the brick will never be used to change the instances
     # of its dependencies models.
