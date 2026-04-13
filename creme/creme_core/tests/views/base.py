@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class AppPermissionBrick(Brick):
     id = Brick.generate_id('creme_core', 'test_views_generic')
-    verbose_name = 'Block which need "persons" permission'
+    verbose_name = 'Block which needs "persons" permission'
     permissions = ['persons']
 
     detail_str = '<div id="brick-{id}" data-brick-id="{id}" class="brick">DETAIL</div>'
