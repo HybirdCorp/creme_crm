@@ -1,11 +1,13 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n commercial_tags %}
+{% load i18n creme_bricks commercial_tags %}
 
 {% block brick_extra_class %}{{block.super}} commercial-matrix-brick commercial-assets-matrix-brick{% endblock %}
 
+{% block brick_header_title %}{% brick_header_title title=verbose_name icon='commercial' %}{% endblock %}
+
 {% block brick_content %}
 <table class="brick-table-content asset-matrix">
-    {% if segment_info and assets %}
+  {% if segment_info and assets %}
     <thead>
         <tr>
             <th>&nbsp;</th>
@@ -30,10 +32,10 @@
             {% endfor %}
         </tr>
     </tbody>
-    {% elif assets %}
+  {% elif assets %}
     <thead><tr><th>{% translate 'No commercial asset for the moment' %}</th></tr><thead>
-    {% else %}
+  {% else %}
     <thead><tr><th>{% translate 'No market segment for the moment' %}</th></tr></thead>
-    {% endif %}
+  {% endif %}
 </table>
 {% endblock %}
