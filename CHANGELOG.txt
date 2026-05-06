@@ -1,3 +1,13 @@
+== Version 2.7.8 ==
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # An issue with global search for extended apps has been fixed (extended apps were ignored).
+
+
 == Version 2.7.7 ==
 
   Users side :
