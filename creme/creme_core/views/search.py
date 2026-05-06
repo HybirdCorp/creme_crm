@@ -142,7 +142,7 @@ class SearcherMixin:
         # models = [*self.searchable_models_registry.iter_entity_models()]
         role = self.request.user.role
         models = [*creme_registry.iter_entity_models(
-            app_labels=role.allowed_apps if role else None
+            app_labels=role.extended_allowed_apps if role else None
         )]
         # models.sort(key=lambda m: m._meta.verbose_name)
         sort_key = collator.sort_key
