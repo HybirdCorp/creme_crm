@@ -836,6 +836,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         url = reverse('emails__fix_email_to_sync', args=(e2s.id,))
         response1 = self.assertGET200(url)
+        self.assertEqual(
+            _('Edit «{object}»').format(object=received_subject),
+            response1.context.get('title'),
+        )
 
         with self.assertNoException():
             form = response1.context['form']
