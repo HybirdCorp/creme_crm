@@ -1,5 +1,12 @@
 == Version 2.6.21 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - The title of the popup which fixes an email-to-sync has ben improved.
+
+
 == Version 2.6.20 ==
 
   Developers side :
