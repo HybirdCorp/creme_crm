@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Creme_config :
+            - The permissions on the users/teams configuration bricks have been fixed.
         * Emails :
             - The title of the popup which fixes an email-to-sync has ben improved.
 
