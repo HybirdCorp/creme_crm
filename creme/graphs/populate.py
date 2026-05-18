@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -64,9 +65,11 @@ class Populator(BasePopulator):
         super().__init__(*args, **kwargs)
         self.Graph = Graph
 
+    @override
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=DEFAULT_HFILTER_GRAPH).exists()
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -79,6 +82,7 @@ class Populator(BasePopulator):
             entry_id=GraphsEntry.id, parent=menu_container, order=50,
         )
 
+    @override
     def _populate_bricks_config(self):
         RIGHT = BrickDetailviewLocation.RIGHT
         Graph = self.Graph

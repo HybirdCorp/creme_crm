@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -59,9 +61,11 @@ class Populator(BasePopulator):
         ),
     ]
 
+    @override
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_RGENERATOR).exists()
 
+    @override
     def _populate_menu_config(self):
         container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2025  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.contrib.auth import get_user_model
 
@@ -46,11 +47,13 @@ class Populator(BasePopulator):
         ),
     ]
 
+    @override
     def _already_populated(self):
         return SettingValue.objects.exists_4_key(
             setting_keys.neighbourhood_distance_key
         )
 
+    @override
     def _first_populate(self):
         super()._first_populate()
         self._populate_towns()
@@ -93,6 +96,7 @@ class Populator(BasePopulator):
                 brick_id=bricks.OpenStreetMapFilteredMapBrick.id, order=20, user=root,
             )
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_persons()
         self._populate_bricks_config_for_mypage()

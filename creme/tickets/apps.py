@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class TicketsConfig(CremeAppConfig):
     verbose_name = _('Tickets')
     dependencies = ['creme.creme_core']
 
+    @override
     def all_apps_ready(self):
         from . import get_ticket_model, get_tickettemplate_model
 
@@ -34,19 +37,23 @@ class TicketsConfig(CremeAppConfig):
         self.TicketTemplate = get_tickettemplate_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Ticket)
 
+    @override
     def register_bricks(self, brick_registry):
         from .bricks import TicketBrick
 
         brick_registry.register_4_model(self.Ticket, TicketBrick)
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
         register(self.Ticket)
         register(self.TicketTemplate)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -60,6 +67,7 @@ class TicketsConfig(CremeAppConfig):
         register_model(models.Priority,  'priority')
         register_model(models.Criticity, 'criticity')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -71,22 +79,26 @@ class TicketsConfig(CremeAppConfig):
             custom_forms.TTEMPLATE_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         entity_cloner_registry.register(model=self.Ticket)
         # NB: TicketTemplates can not be cloned
         #     (because they are closely linked to their RecurrentGenerator)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Ticket)
         # NB: TicketTemplates can not be deleted directly
         #     (because they are closely linked to their RecurrentGenerator)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Ticket,
             self.TicketTemplate,
         )
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -100,11 +112,13 @@ class TicketsConfig(CremeAppConfig):
         ):
             printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
 
+    @override
     def register_function_fields(self, function_field_registry):
         from .function_fields import ResolvingDurationField
 
         function_field_registry.register(self.Ticket, ResolvingDurationField)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Ticket,         'images/ticket_%(size)s.png',
@@ -112,9 +126,11 @@ class TicketsConfig(CremeAppConfig):
             self.TicketTemplate, 'images/ticket_%(size)s.png',
         )
 
+    @override
     def register_mass_import(self, import_form_registry):
         import_form_registry.register(self.Ticket)
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -123,6 +139,7 @@ class TicketsConfig(CremeAppConfig):
             menu.TicketCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'tools', _('Tools'), priority=100,
@@ -130,11 +147,13 @@ class TicketsConfig(CremeAppConfig):
             'tickets-create_ticket', self.Ticket, priority=100,
         )
 
+    @override
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(
             self.Ticket
         ).register_field('title').register_field('status')
 
+    @override
     def register_statistics(self, statistic_registry):
         statistic_registry.register(
             id='tickets-not_closed',

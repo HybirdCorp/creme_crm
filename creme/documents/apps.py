@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class DocumentsConfig(CremeAppConfig):
     verbose_name = _('Documents')
     dependencies = ['creme.creme_core']
 
+    @override
     def all_apps_ready(self):
         from . import get_document_model, get_folder_model
 
@@ -34,9 +37,11 @@ class DocumentsConfig(CremeAppConfig):
         self.Folder   = get_folder_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Document, self.Folder)
 
+    @override
     def register_actions(self, action_registry):
         from . import actions
 
@@ -47,6 +52,7 @@ class DocumentsConfig(CremeAppConfig):
             actions.BulkDownloadAction,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -63,6 +69,7 @@ class DocumentsConfig(CremeAppConfig):
             Document, main_brick_cls=bricks.DocumentBarHatBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms.folder import ParentFolderOverrider
 
@@ -80,6 +87,7 @@ class DocumentsConfig(CremeAppConfig):
         register_model(models.FolderCategory,   'category')
         register_model(models.DocumentCategory, 'doc_category')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -91,6 +99,7 @@ class DocumentsConfig(CremeAppConfig):
             custom_forms.DOCUMENT_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -100,6 +109,7 @@ class DocumentsConfig(CremeAppConfig):
         # TODO?
         #  register(model=self.Document)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         from . import deletors
 
@@ -109,9 +119,11 @@ class DocumentsConfig(CremeAppConfig):
             model=self.Document,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Document, self.Folder)
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.db import models
 
@@ -131,11 +143,13 @@ class DocumentsConfig(CremeAppConfig):
                 enumerator=printer.enumerator_entity,
             )
 
+    @override
     def register_filefields_download(self, filefield_download_registry):
         filefield_download_registry.register(
             model=self.Document, field_name='filedata',
         )
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Document, 'images/document_%(size)s.png',
@@ -143,6 +157,7 @@ class DocumentsConfig(CremeAppConfig):
             self.Folder,   'images/document_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -151,6 +166,7 @@ class DocumentsConfig(CremeAppConfig):
             menu.FoldersEntry,   menu.FolderCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'tools', _('Tools'), priority=100
@@ -160,11 +176,13 @@ class DocumentsConfig(CremeAppConfig):
             'documents-create_folder',   self.Folder,   priority=20,
         )
 
+    @override
     def register_merge_forms(self, merge_form_registry):
         from .forms import folder
 
         merge_form_registry.register(self.Folder, folder.get_merge_form_builder)
 
+    @override
     def register_quickforms(self, quickform_registry):
         from .forms import quick
 

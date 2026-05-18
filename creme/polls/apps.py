@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class PollsConfig(CremeAppConfig):
     verbose_name = _('Polls')
     dependencies = ['creme.persons', 'creme.commercial']
 
+    @override
     def all_apps_ready(self):
         from . import (
             get_pollcampaign_model,
@@ -39,6 +42,7 @@ class PollsConfig(CremeAppConfig):
         self.PollReply    = get_pollreply_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(
             self.PollForm,
@@ -46,6 +50,7 @@ class PollsConfig(CremeAppConfig):
             self.PollCampaign,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -62,6 +67,7 @@ class PollsConfig(CremeAppConfig):
             main_brick_cls=bricks.PollFormBarHatBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms.poll_reply import PersonOverrider
 
@@ -76,6 +82,7 @@ class PollsConfig(CremeAppConfig):
 
         config_registry.register_model(models.PollType, 'poll_type')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -87,6 +94,7 @@ class PollsConfig(CremeAppConfig):
             custom_forms.PFORM_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -96,6 +104,7 @@ class PollsConfig(CremeAppConfig):
         # TODO?
         #  .register(model=self.PollReply).register( model=self.PollCampaign)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.PollForm,
@@ -105,6 +114,7 @@ class PollsConfig(CremeAppConfig):
             model=self.PollCampaign,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.PollForm,
@@ -112,6 +122,7 @@ class PollsConfig(CremeAppConfig):
             self.PollCampaign,
         )
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.PollForm,     'images/poll_%(size)s.png',
@@ -121,6 +132,7 @@ class PollsConfig(CremeAppConfig):
             self.PollCampaign, 'images/poll_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -134,6 +146,7 @@ class PollsConfig(CremeAppConfig):
             menu.PollCampaignCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             group_id='tools', label=_('Tools'), priority=100,

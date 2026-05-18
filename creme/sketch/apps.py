@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.conf import settings
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,6 +30,7 @@ class SketchConfig(CremeAppConfig):
     credentials = CremeAppConfig.CRED_NONE
     dependencies = ["creme.creme_core"]
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,6 +30,7 @@ class CommercialConfig(CremeAppConfig):
     # XXX: remove 'creme.activities' if we remove CommercialApproach?
     dependencies = ['creme.persons', 'creme.activities', 'creme.opportunities']
 
+    @override
     def all_apps_ready(self):
         from django.apps import apps
 
@@ -43,9 +46,11 @@ class CommercialConfig(CremeAppConfig):
         if apps.is_installed('creme.activities'):
             self.hook_activities()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Act, self.Pattern, self.Strategy)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -81,12 +86,14 @@ class CommercialConfig(CremeAppConfig):
             bricks.SegmentsBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
         register(self.Act)
         register(self.Pattern)
         register(self.Strategy)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -97,6 +104,7 @@ class CommercialConfig(CremeAppConfig):
 
         config_registry.register_model(models.ActType, 'act_type')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -111,6 +119,7 @@ class CommercialConfig(CremeAppConfig):
             custom_forms.STRATEGY_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -122,6 +131,7 @@ class CommercialConfig(CremeAppConfig):
         # TODO? (what about charms/assets/... ?)
         # .register(model=self.Strategy)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Act,
@@ -131,6 +141,7 @@ class CommercialConfig(CremeAppConfig):
             model=self.Strategy,
         )
 
+    @override
     def register_enumerable(self, enumerable_registry):
         from creme.creme_core.core import enumerable
 
@@ -140,11 +151,13 @@ class CommercialConfig(CremeAppConfig):
             models.MarketSegment, enumerable.QSEnumerator
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Act, self.Pattern, self.Strategy,
         )
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Act,      'images/commercial_%(size)s.png',
@@ -154,6 +167,7 @@ class CommercialConfig(CremeAppConfig):
             self.Strategy, 'images/commercial_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -170,6 +184,7 @@ class CommercialConfig(CremeAppConfig):
             menu.PatternCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         from django.urls import reverse_lazy as reverse
 
@@ -191,6 +206,7 @@ class CommercialConfig(CremeAppConfig):
             'commercial-create_pattern',  self.Pattern,  priority=60,
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 

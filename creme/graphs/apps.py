@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -28,15 +30,18 @@ class GraphsConfig(CremeAppConfig):
     verbose_name = pgettext_lazy('graphs', 'Graphs')
     dependencies = ['creme.creme_core', 'creme.sketch']
 
+    @override
     def all_apps_ready(self):
         from . import get_graph_model
 
         self.Graph = get_graph_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Graph)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -48,9 +53,11 @@ class GraphsConfig(CremeAppConfig):
             bricks.OrbitalRelationTypesBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Graph)
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -59,6 +66,7 @@ class GraphsConfig(CremeAppConfig):
             custom_forms.GRAPH_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -66,15 +74,19 @@ class GraphsConfig(CremeAppConfig):
             model=self.Graph, cloner_class=cloners.GraphCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Graph)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Graph)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(self.Graph, 'images/graph_%(size)s.png')
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -83,6 +95,7 @@ class GraphsConfig(CremeAppConfig):
             menu.GraphCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'analysis', _('Analysis'), priority=500,

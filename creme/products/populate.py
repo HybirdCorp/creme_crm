@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -216,13 +217,16 @@ class Populator(BasePopulator):
         self.Product = Product
         self.Service = Service
 
+    @override
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PRODUCT).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_doc_categories()
 
+    @override
     def _first_populate(self):
         super()._first_populate()
         self._populate_categories()
@@ -238,6 +242,7 @@ class Populator(BasePopulator):
                 sub_category.category = category
                 sub_category.save()
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -250,6 +255,7 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.ProductsEntry.id, order=20)
         create_mitem(entry_id=menu.ServicesEntry.id, order=25)
 
+    @override
     def _populate_bricks_config(self):
         Product = self.Product
         Service = self.Service

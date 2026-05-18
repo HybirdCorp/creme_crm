@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -110,9 +111,11 @@ class Populator(BasePopulator):
         self.PollForm     = PollForm
         self.PollReply    = PollReply
 
+    @override
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PFORM).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_poll_types()
@@ -120,6 +123,7 @@ class Populator(BasePopulator):
     def _populate_poll_types(self):
         self._save_minions(self.POLL_TYPES)
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -233,6 +237,7 @@ class Populator(BasePopulator):
                 ],
             )
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_pform()
         self._populate_bricks_config_for_preply()

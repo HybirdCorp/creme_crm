@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class ProjectsConfig(CremeAppConfig):
     verbose_name = _('Projects')
     dependencies = ['creme.persons', 'creme.activities']
 
+    @override
     def all_apps_ready(self):
         from . import get_project_model, get_task_model
 
@@ -34,14 +37,17 @@ class ProjectsConfig(CremeAppConfig):
         self.ProjectTask = get_task_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Project, self.ProjectTask)
 
+    @override
     def register_actions(self, action_registry):
         from creme.projects import actions
 
         action_registry.register_instance_actions(actions.ProjectCloseAction)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -55,11 +61,13 @@ class ProjectsConfig(CremeAppConfig):
             bricks.ParentTasksBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
         register(self.Project)
         register(self.ProjectTask)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -72,6 +80,7 @@ class ProjectsConfig(CremeAppConfig):
         register_model(models.ProjectStatus, 'projectstatus')
         register_model(models.TaskStatus,    'taskstatus')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -83,6 +92,7 @@ class ProjectsConfig(CremeAppConfig):
             custom_forms.TASK_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -90,6 +100,7 @@ class ProjectsConfig(CremeAppConfig):
             model=self.Project, cloner_class=cloners.ProjectCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Project,
@@ -97,12 +108,14 @@ class ProjectsConfig(CremeAppConfig):
             model=self.ProjectTask,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Project,
             # TODO: self.ProjectTask ?
         )
 
+    @override
     def register_icons(self, icon_registry):
         from .models import Resource
 
@@ -114,6 +127,7 @@ class ProjectsConfig(CremeAppConfig):
             Resource, 'images/task_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -122,6 +136,7 @@ class ProjectsConfig(CremeAppConfig):
             menu.ProjectCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'tools', label=_('Tools'), priority=100,

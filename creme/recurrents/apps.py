@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class RecurrentsConfig(CremeAppConfig):
     verbose_name = _('Recurrent documents')
     dependencies = ['creme.creme_core']
 
+    @override
     def all_apps_ready(self):
         from . import get_rgenerator_model
 
@@ -34,13 +37,16 @@ class RecurrentsConfig(CremeAppConfig):
 
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.RecurrentGenerator)
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         # TODO: use a custom form that allows the edition when last_generation is None
         bulk_update_registry.register(self.RecurrentGenerator).exclude('first_generation')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -53,17 +59,21 @@ class RecurrentsConfig(CremeAppConfig):
     # def register_cloners(self, entity_cloner_registry):
     #     entity_cloner_registry.register(model=self.RecurrentGenerator)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.RecurrentGenerator)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.RecurrentGenerator)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -72,6 +82,7 @@ class RecurrentsConfig(CremeAppConfig):
             menu.RecurrentGeneratorCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'management', _('Management'), priority=50,

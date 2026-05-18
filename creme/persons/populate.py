@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -289,11 +290,13 @@ class Populator(BasePopulator):
         self.Contact      = Contact
         self.Organisation = Organisation
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_EMPLOYED_BY,
         ).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_doc_categories()
@@ -303,6 +306,7 @@ class Populator(BasePopulator):
         self._populate_legal_forms()
         self._populate_staff_sizes()
 
+    @override
     def _first_populate(self):
         super()._first_populate()
         self._populate_managed_organisation()
@@ -334,6 +338,7 @@ class Populator(BasePopulator):
     def _populate_staff_sizes(self):
         self._save_minions(self.STAFF_SIZES)
 
+    @override
     def _populate_relation_types(self):
         super()._populate_relation_types()
 
@@ -369,10 +374,12 @@ class Populator(BasePopulator):
             ],
         )
 
+    @override
     def _populate_entity_filters(self):
         self._populate_entity_filters_for_contact()
         self._populate_entity_filters_for_organisation()
 
+    @override
     def _populate_menu_config(self):
         directory_entry = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -622,6 +629,7 @@ class Populator(BasePopulator):
             brick_id=bricks.NeglectedOrganisationsBrick.id, order=15,
         )
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_contact()
         self._populate_bricks_config_for_organisation()

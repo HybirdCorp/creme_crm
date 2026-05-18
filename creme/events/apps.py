@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,15 +29,18 @@ class EventsConfig(CremeAppConfig):
     verbose_name = _('Events')
     dependencies = ['creme.persons', 'creme.opportunities']
 
+    @override
     def all_apps_ready(self):
         from . import get_event_model
 
         self.Event = get_event_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Event)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -46,9 +51,11 @@ class EventsConfig(CremeAppConfig):
             self.Event, main_brick_cls=bricks.EventBarHatBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Event)
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -62,18 +69,23 @@ class EventsConfig(CremeAppConfig):
 
         config_registry.register_model(models.EventType, 'event_type')
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         entity_cloner_registry.register(model=self.Event)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Event)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Event)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -82,6 +94,7 @@ class EventsConfig(CremeAppConfig):
             menu.EventCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             group_id='tools', label=_('Tools'), priority=100,

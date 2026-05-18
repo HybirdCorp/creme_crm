@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -153,11 +154,13 @@ class Populator(BasePopulator):
         self.Contact = Contact
         self.Opportunity = Opportunity
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_IS_INVITED_TO,
         ).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_event_types()
@@ -165,6 +168,7 @@ class Populator(BasePopulator):
     def _populate_event_types(self):
         self._save_minions(self.EVENT_TYPES)
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -177,6 +181,7 @@ class Populator(BasePopulator):
             entry_id=EventsEntry.id, parent=menu_container, order=200,
         )
 
+    @override
     def _populate_bricks_config(self):
         Event = self.Event
         RIGHT = BrickDetailviewLocation.RIGHT

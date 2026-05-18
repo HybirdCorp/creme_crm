@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class EmailsConfig(CremeAppConfig):
     verbose_name = _('Emails')
     dependencies = ['creme.persons', 'creme.documents']
 
+    @override
     def all_apps_ready(self):
         from creme import emails
 
@@ -38,6 +41,7 @@ class EmailsConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(
             self.EmailCampaign,
@@ -46,6 +50,7 @@ class EmailsConfig(CremeAppConfig):
             self.EntityEmail,
         )
 
+    @override
     def register_actions(self, action_registry):
         from . import actions
 
@@ -55,6 +60,7 @@ class EmailsConfig(CremeAppConfig):
             actions.BulkEntityEmailResendAction,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -83,6 +89,7 @@ class EmailsConfig(CremeAppConfig):
             main_brick_cls=bricks.EntityEmailBarHatBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         # from . import models
 
@@ -102,11 +109,13 @@ class EmailsConfig(CremeAppConfig):
         #     exclude=('sender', 'recipient', 'subject', 'body'),
         # )
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
         button_registry.register(buttons.EntityEmailLinkButton)
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -121,6 +130,7 @@ class EmailsConfig(CremeAppConfig):
             custom_forms.MAILINGLIST_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -133,6 +143,7 @@ class EmailsConfig(CremeAppConfig):
         )
         # Not self.EntityEmail
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.EntityEmail,
@@ -144,6 +155,7 @@ class EmailsConfig(CremeAppConfig):
             model=self.EmailCampaign,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
@@ -168,6 +180,7 @@ class EmailsConfig(CremeAppConfig):
             bricks.EmailSyncConfigItemsBrick,
         )
 
+    @override
     def register_icons(self, icon_registry):
         from . import models
 
@@ -185,6 +198,7 @@ class EmailsConfig(CremeAppConfig):
             self.EmailTemplate,      'images/email_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -201,6 +215,7 @@ class EmailsConfig(CremeAppConfig):
             menu.EmailSyncEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'marketing', _('Marketing'), priority=200,
@@ -212,6 +227,7 @@ class EmailsConfig(CremeAppConfig):
             'emails-create_template', self.EmailTemplate, priority=20,
         )
 
+    @override
     def register_notification(self, notification_registry):
         from . import notification
 
@@ -219,6 +235,7 @@ class EmailsConfig(CremeAppConfig):
             content_cls=notification.CampaignSentContent,
         )
 
+    @override
     def register_workflows(self, workflow_registry):
         from . import workflows
 

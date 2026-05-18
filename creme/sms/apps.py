@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class SMSConfig(CremeAppConfig):
     verbose_name = _('SMS')
     dependencies = ['creme.persons']
 
+    @override
     def all_apps_ready(self):
         from . import (
             get_messagetemplate_model,
@@ -39,6 +42,7 @@ class SMSConfig(CremeAppConfig):
         self.MessageTemplate = get_messagetemplate_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(
             self.SMSCampaign,
@@ -46,6 +50,7 @@ class SMSConfig(CremeAppConfig):
             self.MessageTemplate,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -59,12 +64,14 @@ class SMSConfig(CremeAppConfig):
             bricks.SendingsBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
         register(self.SMSCampaign).exclude('lists')
         register(self.MessagingList)
         register(self.MessageTemplate)
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -79,6 +86,7 @@ class SMSConfig(CremeAppConfig):
             custom_forms.MESSAGINGLIST_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -90,6 +98,7 @@ class SMSConfig(CremeAppConfig):
             model=self.MessageTemplate,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.SMSCampaign,
@@ -99,6 +108,7 @@ class SMSConfig(CremeAppConfig):
             model=self.MessageTemplate,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
@@ -114,6 +124,7 @@ class SMSConfig(CremeAppConfig):
             'mobile',
         )
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.SMSCampaign,     'images/sms_%(size)s.png',
@@ -123,6 +134,7 @@ class SMSConfig(CremeAppConfig):
             self.MessageTemplate, 'images/sms_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -136,6 +148,7 @@ class SMSConfig(CremeAppConfig):
             menu.MessageTemplateCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             group_id='marketing', label=_('Marketing'), priority=200,

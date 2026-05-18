@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -181,17 +182,20 @@ class Populator(BasePopulator):
         self.Ticket         = Ticket
         self.TicketTemplate = TicketTemplate
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_LINKED_2_TICKET,
         ).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_statuses()
         self._populate_priorities()
         self._populate_criticality()
 
+    @override
     def _first_populate(self):
         super()._first_populate()
         self._populate_fields_config()
@@ -212,6 +216,7 @@ class Populator(BasePopulator):
     def _populate_criticality(self):
         self._save_minions(self.CRITICALITY)
 
+    @override
     def _populate_relation_types(self):
         super()._populate_relation_types()
 
@@ -226,6 +231,7 @@ class Populator(BasePopulator):
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Ticket)
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -238,6 +244,7 @@ class Populator(BasePopulator):
             entry_id=TicketsEntry.id, parent=menu_container, order=100,
         )
 
+    @override
     def _populate_bricks_config(self):
         Ticket = self.Ticket
         rbi = RelationBrickItem.objects.get_or_create(

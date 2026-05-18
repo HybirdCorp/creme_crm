@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,6 +30,7 @@ class CTIConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.activities']
     credentials = CremeAppConfig.CRED_NONE
 
+    @override
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
@@ -39,6 +42,7 @@ class CTIConfig(CremeAppConfig):
             'phone',
         )
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from creme.creme_core.models.fields import PhoneField
 

@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext
@@ -192,9 +193,11 @@ class Populator(BasePopulator):
         self.ActObjectivePattern = ActObjectivePattern
         self.Strategy            = Strategy
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_SOLD).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_market_segments()
@@ -209,6 +212,7 @@ class Populator(BasePopulator):
     def _populate_act_types(self):
         self._save_minions(self.ACT_TYPES)
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -329,6 +333,7 @@ class Populator(BasePopulator):
             ],
         )
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_act()
         self._populate_bricks_config_for_pattern()

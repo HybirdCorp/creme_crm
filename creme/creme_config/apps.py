@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,12 +30,14 @@ class CremeConfigConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
     credentials = CremeAppConfig.CRED_REGULAR
 
+    @override
     def all_apps_ready(self):
         super().all_apps_ready()
 
         from .registry import config_registry
         self.populate_config_registry(config_registry)
 
+    # TODO: staticmethod?
     def populate_config_registry(self, config_registry):
         from creme.creme_core.apps import creme_app_configs
 
@@ -55,6 +59,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.UserSettingValuesBrick,
         )
 
+    @override
     def register_permissions(self, special_perm_registry):
         from . import auth
 
@@ -63,6 +68,7 @@ class CremeConfigConfig(CremeAppConfig):
             auth.role_config_perm,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -100,6 +106,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.FileRefsBrick,
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         import creme.creme_core.menu as core_menu
 
@@ -118,6 +125,7 @@ class CremeConfigConfig(CremeAppConfig):
             menu.MySettingsEntry,
         )
 
+    @override
     def register_notification(self, notification_registry):
         from . import notification
 

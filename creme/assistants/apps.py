@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -32,6 +34,7 @@ class AssistantsConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -58,6 +61,7 @@ class AssistantsConfig(CremeAppConfig):
             bricks.UserMessagesBrick,
         )
 
+    @override
     def register_enumerable(self, enumerable_registry):
         from creme.creme_core.core import enumerable
 
@@ -67,6 +71,7 @@ class AssistantsConfig(CremeAppConfig):
             models.UserMessage, 'priority', enumerable.QSEnumerator
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         from . import models
 
@@ -77,6 +82,7 @@ class AssistantsConfig(CremeAppConfig):
             models.Memo,
         )
 
+    @override
     def register_function_fields(self, function_field_registry):
         from creme.creme_core.models import CremeEntity
 
@@ -94,6 +100,7 @@ class AssistantsConfig(CremeAppConfig):
 
         config_registry.register_model(models.UserMessagePriority, 'message_priority')
 
+    @override
     def register_notification(self, notification_registry):
         from . import notification
 
@@ -107,6 +114,7 @@ class AssistantsConfig(CremeAppConfig):
             content_cls=notification.MessageSentContent,
         )
 
+    @override
     def register_reminders(self, reminder_registry):
         from . import reminders
 
@@ -116,6 +124,7 @@ class AssistantsConfig(CremeAppConfig):
             reminders.ReminderTodo,
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from .setting_keys import todo_reminder_key
 
