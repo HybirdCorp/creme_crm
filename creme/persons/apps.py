@@ -17,6 +17,7 @@
 ################################################################################
 
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext_lazy as _
@@ -32,6 +33,7 @@ class PersonsConfig(CremeAppConfig):
     verbose_name = _('Accounts and Contacts')
     dependencies = ['creme.creme_core']
 
+    @override
     def all_apps_ready(self):
         # NB: check MIGRATION_MODE to avoid error with empty SECRET_KEY with
         #     the command 'creme_start_project'
@@ -50,9 +52,11 @@ class PersonsConfig(CremeAppConfig):
             if apps.is_installed('creme.reports'):
                 self.register_reports_chart_fetchers()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -75,11 +79,13 @@ class PersonsConfig(CremeAppConfig):
             secondary_brick_classes=(bricks.OrganisationCardHatBrick,),
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
         register(self.Organisation)
         register(self.Contact)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -105,6 +111,7 @@ class PersonsConfig(CremeAppConfig):
 
         config_registry.register_portal_bricks(bricks.ManagedOrganisationsBrick)
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -116,6 +123,7 @@ class PersonsConfig(CremeAppConfig):
             custom_forms.ORGANISATION_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -125,6 +133,7 @@ class PersonsConfig(CremeAppConfig):
             model=self.Organisation, cloner_class=cloners.OrganisationCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         from . import deletors
 
@@ -134,6 +143,7 @@ class PersonsConfig(CremeAppConfig):
             model=self.Organisation, deletor_class=deletors.OrganisationDeletor,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Contact,
@@ -141,6 +151,7 @@ class PersonsConfig(CremeAppConfig):
             self.Address,
         )
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.contrib.auth import get_user_model
         from django.db import models
@@ -185,6 +196,7 @@ class PersonsConfig(CremeAppConfig):
                     ),
                 )
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Contact,      'images/contact_%(size)s.png'
@@ -192,9 +204,11 @@ class PersonsConfig(CremeAppConfig):
             self.Organisation, 'images/organisation_%(size)s.png'
         )
 
+    @override
     def register_imprints(self, imprint_manager):
         imprint_manager.register(self.Contact, hours=1)
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import (
             get_massimport_form_builder as form_builder,
@@ -208,6 +222,7 @@ class PersonsConfig(CremeAppConfig):
             Organisation, partial(form_builder, model=Organisation),
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         import creme.creme_core.menu as core_menu
 
@@ -229,6 +244,7 @@ class PersonsConfig(CremeAppConfig):
             menu.UserContactEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             group_id='persons-directory', label=_('Directory'), priority=10,
@@ -238,6 +254,7 @@ class PersonsConfig(CremeAppConfig):
             'create_organisation', self.Organisation, priority=5,
         )
 
+    @override
     def register_merge_forms(self, merge_form_registry):
         from .forms.merge import get_merge_form_builder as form_builder
 
@@ -249,6 +266,7 @@ class PersonsConfig(CremeAppConfig):
             Organisation, partial(form_builder, model=Organisation),
         )
 
+    @override
     def register_quickforms(self, quickform_registry):
         from .forms import quick
 
@@ -258,6 +276,7 @@ class PersonsConfig(CremeAppConfig):
             self.Organisation, quick.OrganisationQuickForm,
         )
 
+    @override
     def register_search_fields(self, search_field_registry):
         from django.db.models import ForeignKey
 
@@ -271,6 +290,7 @@ class PersonsConfig(CremeAppConfig):
             ForeignKey
         ).register_related_model(model=self.Address, sfield_builder=AddressFKField)
 
+    @override
     def register_smart_columns(self, smart_columns_registry):
         register = smart_columns_registry.register_model
         register(self.Contact).register_field('first_name') \
@@ -281,6 +301,7 @@ class PersonsConfig(CremeAppConfig):
                                    .register_field('billing_address__city') \
                                    .register_relationtype(constants.REL_OBJ_EMPLOYED_BY)
 
+    @override
     def register_statistics(self, statistic_registry):
         from . import statistics
 

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class ReportsConfig(CremeAppConfig):
     verbose_name = _('Reports')
     dependencies = ['creme.creme_core', 'creme.sketch']
 
+    @override
     def ready(self):
         self.register_reports_aggregations()
         self.register_reports_plots()
@@ -35,20 +38,24 @@ class ReportsConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def all_apps_ready(self):
         from . import get_report_model
 
         self.Report = get_report_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
 
+    @override
     def register_actions(self, action_registry):
         from . import actions
 
         action_registry.register_instance_actions(actions.ExportReportAction)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -81,6 +88,7 @@ class ReportsConfig(CremeAppConfig):
             main_brick_cls=bricks.ReportBarHatBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms import bulk
 
@@ -97,6 +105,7 @@ class ReportsConfig(CremeAppConfig):
             bricks.ReportEntityFiltersBrick,
         )
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -105,6 +114,7 @@ class ReportsConfig(CremeAppConfig):
             custom_forms.REPORT_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -112,15 +122,18 @@ class ReportsConfig(CremeAppConfig):
             model=self.Report, cloner_class=cloners.ReportCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Report)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Report,
             # TODO: self.ReportGraph ?
         )
 
+    @override
     def register_icons(self, icon_registry):
         from creme.reports.models import ReportChart
 
@@ -130,6 +143,7 @@ class ReportsConfig(CremeAppConfig):
             ReportChart, 'images/graph_%(size)s.png',
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -138,6 +152,7 @@ class ReportsConfig(CremeAppConfig):
             menu.ReportCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             group_id='analysis', label=_('Analysis'), priority=500,

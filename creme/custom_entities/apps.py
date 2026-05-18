@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -27,11 +29,13 @@ class CustomEntitiesConfig(CremeAppConfig):
     name = 'creme.custom_entities'
     verbose_name = _('Custom entities')
 
+    @override
     def all_apps_ready(self):
         super().all_apps_ready()
 
         from . import signals  # NOQA
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -41,6 +45,7 @@ class CustomEntitiesConfig(CremeAppConfig):
         for descriptor in custom_forms.edition_descriptors.values():
             cform_registry.register(descriptor)
 
+    @override
     def register_icons(self, icon_registry):
         from .models import all_custom_models
 
@@ -48,6 +53,7 @@ class CustomEntitiesConfig(CremeAppConfig):
         for model in all_custom_models:
             register(model, 'images/wall_%(size)s.png')
 
+    @override
     def register_menu_entries(self, menu_registry):
         from creme.creme_core.gui import menu
         from creme.creme_core.models import CustomEntityType

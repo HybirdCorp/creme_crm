@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.core import checks
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import npgettext, pgettext
@@ -30,6 +32,7 @@ class BillingConfig(CremeAppConfig):
     verbose_name = _('Billing')
     dependencies = ['creme.persons', 'creme.products']
 
+    @override
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django:
@@ -72,6 +75,7 @@ class BillingConfig(CremeAppConfig):
 
             return errors
 
+    @override
     def all_apps_ready(self):
         from creme import billing
 
@@ -91,6 +95,7 @@ class BillingConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(
             self.Invoice,
@@ -101,6 +106,7 @@ class BillingConfig(CremeAppConfig):
             self.ProductLine,
         )
 
+    @override
     def register_actions(self, action_registry):
         from . import actions
 
@@ -114,6 +120,7 @@ class BillingConfig(CremeAppConfig):
             actions.BulkExportQuoteAction,
         )
 
+    @override
     def register_aggregators(self, aggregator_registry):
         for model in [self.Invoice, self.Quote, self.SalesOrder, self.CreditNote]:
             aggregator_registry.model(model).add_aggregator(
@@ -184,6 +191,7 @@ class BillingConfig(CremeAppConfig):
             model=self.CreditNote, cloner_class=spawners.CreditNoteSpawner,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -229,6 +237,7 @@ class BillingConfig(CremeAppConfig):
             # secondary_brick_classes=[bricks.TemplateBaseCardHatBrick],
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms.number_generation import NumberOverrider
 
@@ -240,6 +249,7 @@ class BillingConfig(CremeAppConfig):
         register(self.ProductLine).exclude('on_the_fly_item')
         register(self.ServiceLine).exclude('on_the_fly_item')
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -271,6 +281,7 @@ class BillingConfig(CremeAppConfig):
             bricks.BillingExportersBrick,
         )
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -291,6 +302,7 @@ class BillingConfig(CremeAppConfig):
             custom_forms.BTEMPLATE_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -310,6 +322,7 @@ class BillingConfig(CremeAppConfig):
         # NB: TemplateBase can not be cloned
         #     (because it is closely linked to its RecurrentGenerator)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Invoice,
@@ -327,6 +340,7 @@ class BillingConfig(CremeAppConfig):
         # NB: TemplateBase can not be deleted directly
         #     (because it is closely linked to its RecurrentGenerator)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Invoice,
@@ -342,6 +356,7 @@ class BillingConfig(CremeAppConfig):
             # models.PaymentInformation,
         )
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -366,6 +381,7 @@ class BillingConfig(CremeAppConfig):
             ):
                 printer.register(model=model, printer=FKPrinter.print_fk_colored_html)
 
+    @override
     def register_function_fields(self, function_field_registry):
         from creme import persons
 
@@ -382,6 +398,7 @@ class BillingConfig(CremeAppConfig):
                 ffields._TotalWonQuoteLastYear,
             )
 
+    @override
     def register_icons(self, icon_registry):
         icon_fmt = 'images/invoice_%(size)s.png'
         icon_registry.register(
@@ -400,6 +417,7 @@ class BillingConfig(CremeAppConfig):
             self.ServiceLine,  icon_fmt,
         )
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_import_form_builder
 
@@ -411,6 +429,7 @@ class BillingConfig(CremeAppConfig):
             self.SalesOrder, get_import_form_builder,
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -428,6 +447,7 @@ class BillingConfig(CremeAppConfig):
             menu.SalesOrderCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'management', _('Management'), priority=50,
@@ -441,6 +461,7 @@ class BillingConfig(CremeAppConfig):
             'billing-create_order',   self.SalesOrder, priority=55,
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
@@ -450,6 +471,7 @@ class BillingConfig(CremeAppConfig):
             setting_keys.emitter_edition_key,
         )
 
+    @override
     def register_smart_columns(self, smart_columns_registry):
         from . import constants
 
@@ -462,6 +484,7 @@ class BillingConfig(CremeAppConfig):
                 'status',
             ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
+    @override
     def register_statistics(self, statistic_registry):
         Invoice = self.Invoice
         Quote = self.Quote

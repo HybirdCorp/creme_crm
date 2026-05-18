@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -392,11 +393,13 @@ class Populator(BasePopulator):
         self.Organisation = Organisation
         self.Activity = Activity
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_LINKED_2_ACTIVITY,
         ).exists()
 
+    @override
     def _populate(self):
         self._populate_activity_types_and_sub_types()
         self._populate_status()
@@ -445,6 +448,7 @@ class Populator(BasePopulator):
         # Create default calendar configuration
         CalendarConfigItem.objects.get_or_create(role=None, superuser=False)
 
+    @override
     def _populate_entity_filters(self):
         Activity = self.Activity
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -481,6 +485,7 @@ class Populator(BasePopulator):
             ],
         )
 
+    @override
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create
         menu_container = create_mitem(
@@ -582,6 +587,7 @@ class Populator(BasePopulator):
         create_bhl(brick_id=bricks.FutureActivitiesBrick.id, order=20)
         create_bhl(brick_id=bricks.PastActivitiesBrick.id,   order=21)
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_activity()
 

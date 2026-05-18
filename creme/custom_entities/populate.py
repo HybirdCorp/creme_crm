@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import CustomFormConfigItem
@@ -29,9 +30,11 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    @override
     def _already_populated(self):
         return False
 
+    @override
     def _populate_custom_forms(self):
         create_cfci = CustomFormConfigItem.objects.create_if_needed
 

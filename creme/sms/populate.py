@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -88,9 +89,11 @@ class Populator(BasePopulator):
         self.MessagingList   = MessagingList
         self.MessageTemplate = MessageTemplate
 
+    @override
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_MLIST).exists()
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,

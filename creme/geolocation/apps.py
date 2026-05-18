@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -29,15 +31,18 @@ class GeolocationConfig(CremeAppConfig):
     dependencies = ['creme.persons']
     credentials = CremeAppConfig.CRED_NONE
 
+    @override
     def ready(self):
         super().ready()
         self.register_geomarker_icons()
 
+    @override
     def all_apps_ready(self):
         super().all_apps_ready()
 
         from . import signals  # NOQA
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -78,6 +83,7 @@ class GeolocationConfig(CremeAppConfig):
             enable_func=lambda instance, user: False
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 

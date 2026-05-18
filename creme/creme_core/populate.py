@@ -17,6 +17,7 @@
 ################################################################################
 
 from decimal import Decimal
+from typing import override
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -220,9 +221,11 @@ class Populator(BasePopulator):
         super().__init__(*args, **kwargs)
         self.root = None
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
 
+    @override
     def _populate(self):
         get_world_settings_model().objects.get_or_create(pk=1)
 
@@ -239,6 +242,7 @@ class Populator(BasePopulator):
             from .tests import fake_populate
             fake_populate.populate()
 
+    @override
     def _first_populate(self):
         self._populate_root()
         super()._first_populate()
@@ -347,6 +351,7 @@ class Populator(BasePopulator):
         }:
             create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
+    @override
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create
         create_mitem(entry_id=menu.CremeEntry.id, order=1)
@@ -377,12 +382,14 @@ class Populator(BasePopulator):
 
         create_mitem(entry_id=menu.QuickAccessEntry.id, order=1020)
 
+    @override
     def _populate_buttons_config(self):
         if not ButtonMenuItem.objects.filter(content_type=None).exists():
             ButtonMenuItem.objects.create(
                 content_type=None, button_id='', order=1,
             )
 
+    @override
     def _populate_bricks_config(self):
         BrickDetailviewLocation.objects.multi_create(
             defaults={'zone': BrickDetailviewLocation.LEFT},

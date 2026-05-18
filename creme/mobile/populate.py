@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SettingValue
@@ -36,5 +37,6 @@ class Populator(BasePopulator):
         ),
     ]
 
+    @override
     def _already_populated(self):
         return SettingValue.objects.exists_4_key(setting_keys.location_map_url_key)

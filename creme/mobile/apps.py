@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,6 +30,7 @@ class MobileConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.activities']
     credentials = CremeAppConfig.CRED_NONE
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -36,6 +39,7 @@ class MobileConfig(CremeAppConfig):
             bricks.FavoritePersonsBrick,
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 

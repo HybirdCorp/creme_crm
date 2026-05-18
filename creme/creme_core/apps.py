@@ -19,7 +19,7 @@
 import logging
 from collections.abc import Collection
 from sys import argv
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from django.apps import AppConfig, apps
 from django.conf import settings
@@ -104,6 +104,7 @@ class MediaGeneratorConfig(AppConfig):
     name = 'mediagenerator'
     verbose_name = 'Media generator'  # _('Media generator')
 
+    @override
     def ready(self):
         self._build_MEDIA_BUNDLES()
 
@@ -150,6 +151,7 @@ class MediaGeneratorConfig(AppConfig):
 
 
 class ContentTypesConfig(VanillaContentTypesConfig):
+    @override
     def ready(self):
         super().ready()
         self.hook_order()
@@ -220,6 +222,7 @@ class CremeAppConfig(AppConfig):
     def url_root(self):
         return self.label + '/'
 
+    @override
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django:
@@ -454,6 +457,7 @@ class CremeCoreConfig(CremeAppConfig):
     def url_root(self):
         return ''  # We want to catch some URLs which do not start by 'creme_core/'
 
+    @override
     def ready(self):
         super().ready()
 
@@ -462,6 +466,7 @@ class CremeCoreConfig(CremeAppConfig):
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
 
+    @override
     def all_apps_ready(self):
         if self.MIGRATION_MODE:
             return  # pragma: no cover
@@ -481,6 +486,7 @@ class CremeCoreConfig(CremeAppConfig):
 
         super().all_apps_ready()
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -492,6 +498,7 @@ class CremeCoreConfig(CremeAppConfig):
             menu.EntitiesCreationEntry,
         )
 
+    @override
     def register_actions(self, action_registry):
         from . import actions
 
@@ -508,6 +515,7 @@ class CremeCoreConfig(CremeAppConfig):
             actions.MergeAction,
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -552,17 +560,20 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.NotificationsBrick,
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .models import CustomEntityType
 
         for kls in CustomEntityType.custom_classes.values():
             bulk_update_registry.register(model=kls)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
         button_registry.register(buttons.Restrict2SuperusersButton)
 
+    @override
     def register_credentials(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators
 
@@ -579,18 +590,21 @@ class CremeCoreConfig(CremeAppConfig):
             *operands.all_operands,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from .models import CustomEntityType
 
         for kls in CustomEntityType.custom_classes.values():
             entity_cloner_registry.register(model=kls)
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         from .models import CustomEntityType
 
         for kls in CustomEntityType.custom_classes.values():
             entity_deletor_registry.register(kls)
 
+    @override
     def register_entity_filter(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators
 
@@ -602,6 +616,7 @@ class CremeCoreConfig(CremeAppConfig):
             *operands.all_operands,
         )
 
+    @override
     def register_enumerable(self, enumerable_registry):
         from django.contrib.auth import get_user_model
         from django.contrib.contenttypes.models import ContentType
@@ -645,12 +660,14 @@ class CremeCoreConfig(CremeAppConfig):
 
         # TODO: register_related_model(models.HeaderFilter, ...) ?
 
+    @override
     def register_function_fields(self, function_field_registry):
         from .function_fields import PropertiesField
         from .models.entity import CremeEntity
 
         function_field_registry.register(CremeEntity, PropertiesField)
 
+    @override
     def register_filefields_download(self, filefield_download_registry):
         from .models import FileRef
 
@@ -660,12 +677,14 @@ class CremeCoreConfig(CremeAppConfig):
             basename_builder=(lambda instance, field, file_obj: instance.basename),
         )
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .models import CustomEntityType
 
         for kls in CustomEntityType.custom_classes.values():
             import_form_registry.register(kls)
 
+    @override
     def register_notification(self, notification_registry):
         from . import notification as core_notif
         from .core import notification
@@ -740,11 +759,13 @@ class CremeCoreConfig(CremeAppConfig):
             config_registry.register_portal_bricks(fake_bricks.FakePortalBrick)
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 
+    @override
     def register_sandboxes(self, sandbox_type_registry):
         from . import sandboxes
 
         sandbox_type_registry.register(sandboxes.OnlySuperusersType)
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
@@ -755,6 +776,7 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.currency_symbol_key,
         )
 
+    @override
     def register_workflows(self, workflow_registry):
         from . import workflows
 

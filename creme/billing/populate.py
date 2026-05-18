@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.conf import settings
@@ -496,11 +497,13 @@ class Populator(BasePopulator):
         self.ProductLine = ProductLine
         self.ServiceLine = ServiceLine
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_BILL_ISSUED,
         ).exists()
 
+    @override
     def _populate(self):
         # NB: Statuses could be used by EntityFilters, Workflows etc...
         self._populate_creditnote_statuses()
@@ -514,6 +517,7 @@ class Populator(BasePopulator):
         self._populate_settlement_terms()
         self._populate_additional_information()
 
+    @override
     def _first_populate(self):
         super()._first_populate()
 
@@ -573,6 +577,7 @@ class Populator(BasePopulator):
     def _populate_order_statuses(self):
         self._save_minions(self.SALES_ORDER_STATUSES)
 
+    @override
     def _populate_relation_types(self):
         super()._populate_relation_types()
 
@@ -588,6 +593,7 @@ class Populator(BasePopulator):
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Invoice, self.Quote, self.SalesOrder)
 
+    @override
     def _populate_workflows(self):
         # NB:
         #  - The target of a Quote becomes a prospect of the emitter
@@ -646,6 +652,7 @@ class Populator(BasePopulator):
                 }
             )
 
+    @override
     def _populate_entity_filters(self):
         Invoice = self.Invoice
 
@@ -708,6 +715,7 @@ class Populator(BasePopulator):
             ],
         )
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -911,6 +919,7 @@ class Populator(BasePopulator):
         )
         self._create_bricks_config(model=TemplateBase, cbci=cbci, has_credit_notes=False)
 
+    @override
     def _populate_bricks_config(self):
         self._populate_bricks_config_for_invoice()
         self._populate_bricks_config_for_quote()

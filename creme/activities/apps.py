@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -29,6 +31,7 @@ class ActivitiesConfig(CremeAppConfig):
     verbose_name = _('Activities')
     dependencies = ['creme.persons']  # 'creme.assistants' is optional
 
+    @override
     def all_apps_ready(self):
         from . import get_activity_model
 
@@ -37,14 +40,17 @@ class ActivitiesConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
 
+    @override
     def register_actions(self, action_registry):
         from creme.activities import actions
 
         action_registry.register_bulk_actions(actions.BulkExportICalAction)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -80,6 +86,7 @@ class ActivitiesConfig(CremeAppConfig):
             secondary_brick_classes=(bricks.ActivityCardHatBrick,),
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms import bulk_update
 
@@ -90,6 +97,7 @@ class ActivitiesConfig(CremeAppConfig):
             bulk_update.TypeOverrider,
         )
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -147,6 +155,7 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.UnsuccessfulButtonConfigBrick,
         )
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -157,6 +166,7 @@ class ActivitiesConfig(CremeAppConfig):
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -164,9 +174,11 @@ class ActivitiesConfig(CremeAppConfig):
             model=self.Activity, cloner_class=cloners.ActivityCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Activity)
 
+    @override
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
 
@@ -181,9 +193,11 @@ class ActivitiesConfig(CremeAppConfig):
             enumerator_class=enumerators.CalendarOwnerEnumerator,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Activity)
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -197,6 +211,7 @@ class ActivitiesConfig(CremeAppConfig):
         ):
             printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
 
+    @override
     def register_icons(self, icon_registry):
         Activity = self.Activity
         get_icon = constants.ICONS.get
@@ -206,11 +221,13 @@ class ActivitiesConfig(CremeAppConfig):
             Activity, lambda instance: get_icon(str(instance.type.uuid)),
         )
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .forms import mass_import
 
         import_form_registry.register(self.Activity, mass_import.get_massimport_form_builder)
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -226,6 +243,7 @@ class ActivitiesConfig(CremeAppConfig):
             menu.MeetingCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         from django.urls import reverse_lazy as reverse
 
@@ -266,6 +284,7 @@ class ActivitiesConfig(CremeAppConfig):
             priority=25,
         )
 
+    @override
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(self.Activity) \
                               .register_field('title') \
@@ -273,6 +292,7 @@ class ActivitiesConfig(CremeAppConfig):
                               .register_relationtype(constants.REL_OBJ_PART_2_ACTIVITY) \
                               .register_relationtype(constants.REL_OBJ_ACTIVITY_SUBJECT)
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
@@ -286,6 +306,7 @@ class ActivitiesConfig(CremeAppConfig):
             setting_keys.unsuccessful_duration_key,
         )
 
+    @override
     def register_statistics(self, statistic_registry):
         from .statistics import AveragePerMonthStatistics
 

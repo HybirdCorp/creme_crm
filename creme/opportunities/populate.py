@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -309,14 +310,17 @@ class Populator(BasePopulator):
 
         self.Opportunity = Opportunity
 
+    @override
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
 
+    @override
     def _populate(self):
         super()._populate()
         self._populate_phases()
         self._populate_origins()
 
+    @override
     def _first_populate(self):
         super()._first_populate()
 
@@ -333,6 +337,7 @@ class Populator(BasePopulator):
     def _populate_origins(self):
         self._save_minions(self.ORIGINS)
 
+    @override
     def _populate_relation_types(self):
         super()._populate_relation_types()
 
@@ -348,6 +353,7 @@ class Populator(BasePopulator):
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(Opportunity)
 
+    @override
     def _populate_workflows(self):
         # NB: the target of an Opportunity becomes a prospect of the emitter.
         # NB: we create 2 Workflows with RelationAddingTrigger & 1 Actions
@@ -444,6 +450,7 @@ class Populator(BasePopulator):
             },
         )
 
+    @override
     def _populate_entity_filters(self):
         create_efilter = partial(
             EntityFilter.objects.smart_update_or_create,
@@ -492,6 +499,7 @@ class Populator(BasePopulator):
             ],
         )
 
+    @override
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
@@ -514,6 +522,7 @@ class Populator(BasePopulator):
                 order=30, parent=creations_entry,
             )
 
+    @override
     def _populate_bricks_config(self):
         Opportunity = self.Opportunity
         LEFT = BrickDetailviewLocation.LEFT
@@ -638,7 +647,7 @@ class Populator(BasePopulator):
         )
 
     def _populate_report_n_charts(self):
-        "Create the report 'Opportunities' and 2 ReportCharts."
+        """Create the report 'Opportunities' and 2 ReportCharts."""
         from django.contrib.auth import get_user_model
 
         from creme import reports

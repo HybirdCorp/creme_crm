@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -31,12 +32,14 @@ class OpportunitiesConfig(CremeAppConfig):
     verbose_name = _('Opportunities')
     dependencies = ['creme.persons', 'creme.products']
 
+    @override
     def ready(self):
         super().ready()
 
         from django.apps import apps
         self.billing_installed = apps.is_installed('creme.billing')
 
+    @override
     def all_apps_ready(self):
         from . import get_opportunity_model
 
@@ -51,9 +54,11 @@ class OpportunitiesConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Opportunity)
 
+    @override
     def register_aggregators(self, aggregator_registry):
         aggregator_registry.model(self.Opportunity).add_aggregator(
             field='estimated_sales', label='Σ', function='Sum',
@@ -65,6 +70,7 @@ class OpportunitiesConfig(CremeAppConfig):
             field='made_sales', label='μ', function='Avg',
         )
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -79,9 +85,11 @@ class OpportunitiesConfig(CremeAppConfig):
             secondary_brick_classes=(bricks.OpportunityCardHatBrick,),
         )
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Opportunity)
 
+    @override
     def register_buttons(self, button_registry):
         from . import buttons
 
@@ -94,6 +102,7 @@ class OpportunitiesConfig(CremeAppConfig):
         register_model(models.Origin,     'origin')
         register_model(models.SalesPhase, 'sales_phase')
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -102,6 +111,7 @@ class OpportunitiesConfig(CremeAppConfig):
             custom_forms.OPPORTUNITY_EDITION_CFORM,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         from . import cloners
 
@@ -109,12 +119,15 @@ class OpportunitiesConfig(CremeAppConfig):
             model=self.Opportunity, cloner_class=cloners.OpportunityCloner,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Opportunity)
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Opportunity)
 
+    @override
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -128,19 +141,23 @@ class OpportunitiesConfig(CremeAppConfig):
         ):
             printer.register(model=SalesPhase, printer=FKPrinter.print_fk_colored_html)
 
+    @override
     def register_function_fields(self, function_field_registry):
         from .function_fields import TurnoverField
 
         function_field_registry.register(self.Opportunity, TurnoverField)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(self.Opportunity, 'images/opportunity_%(size)s.png')
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .forms import mass_import
 
         import_form_registry.register(self.Opportunity, mass_import.get_mass_form_builder)
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -149,6 +166,7 @@ class OpportunitiesConfig(CremeAppConfig):
             menu.OpportunityCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'opportunities-commercial', _('Commercial'), priority=20,
@@ -156,6 +174,7 @@ class OpportunitiesConfig(CremeAppConfig):
             'opportunities-create_opportunity', self.Opportunity, priority=3,
         )
 
+    @override
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
@@ -166,6 +185,7 @@ class OpportunitiesConfig(CremeAppConfig):
             setting_keys.unsuccessful_key,
         )
 
+    @override
     def register_smart_columns(self, smart_columns_registry):
         from .constants import REL_SUB_TARGETS
 
@@ -174,6 +194,7 @@ class OpportunitiesConfig(CremeAppConfig):
                               .register_field('sales_phase') \
                               .register_relationtype(REL_SUB_TARGETS)
 
+    @override
     def register_statistics(self, statistic_registry):
         from creme.persons import get_organisation_model
 

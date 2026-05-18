@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from functools import partial
+from typing import override
 
 from django.utils.translation import gettext as _
 
@@ -68,9 +69,11 @@ class Populator(BasePopulator):
         ),
     ]
 
+    @override
     def _already_populated(self):
         return UserMessagePriority.objects.exists()
 
+    @override
     def _populate(self):
         self._populate_message_priorities()
         super()._populate()
@@ -78,6 +81,7 @@ class Populator(BasePopulator):
     def _populate_message_priorities(self):
         self._save_minions(self.PRIORITIES)
 
+    @override
     def _populate_bricks_config(self):
         create_bdl = partial(
             BrickDetailviewLocation.objects.create_if_needed,

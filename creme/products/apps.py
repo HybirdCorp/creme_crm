@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -27,6 +29,7 @@ class ProductsConfig(CremeAppConfig):
     verbose_name = _('Products and services')
     dependencies = ['creme.documents']
 
+    @override
     def all_apps_ready(self):
         from . import get_product_model, get_service_model
 
@@ -34,15 +37,18 @@ class ProductsConfig(CremeAppConfig):
         self.Service = get_service_model()
         super().all_apps_ready()
 
+    @override
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Product, self.Service)
 
+    @override
     def register_bricks(self, brick_registry):
         from . import bricks
 
         # brick_registry.register(bricks.ImagesBrick)
         brick_registry.register(brick_registry.Tag.DETAIL, bricks.ImagesBrick)
 
+    @override
     def register_bulk_update(self, bulk_update_registry):
         from .forms.bulk_update import CategoryOverrider
 
@@ -70,6 +76,7 @@ class ProductsConfig(CremeAppConfig):
             form_class=category.SubCategoryForm,
         )
 
+    @override
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 
@@ -81,6 +88,7 @@ class ProductsConfig(CremeAppConfig):
             custom_forms.SERVICE_EDITION_CFORM,
         )
 
+    @override
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
 
@@ -94,6 +102,7 @@ class ProductsConfig(CremeAppConfig):
             enumerators.SubCategoryEnumerator,
         )
 
+    @override
     def register_cloners(self, entity_cloner_registry):
         entity_cloner_registry.register(
             model=self.Product,
@@ -101,6 +110,7 @@ class ProductsConfig(CremeAppConfig):
             model=self.Service,
         )
 
+    @override
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Product,
@@ -108,9 +118,11 @@ class ProductsConfig(CremeAppConfig):
             model=self.Service,
         )
 
+    @override
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Product, self.Service)
 
+    @override
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Product, 'images/product_%(size)s.png',
@@ -118,6 +130,7 @@ class ProductsConfig(CremeAppConfig):
             self.Service, 'images/service_%(size)s.png',
         )
 
+    @override
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_massimport_form_builder
 
@@ -127,6 +140,7 @@ class ProductsConfig(CremeAppConfig):
             self.Service, get_massimport_form_builder,
         )
 
+    @override
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -135,6 +149,7 @@ class ProductsConfig(CremeAppConfig):
             menu.ServicesEntry, menu.ServiceCreationEntry,
         )
 
+    @override
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(
             'management', label=_('Management'), priority=50,
