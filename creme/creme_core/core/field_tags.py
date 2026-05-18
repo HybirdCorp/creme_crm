@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,12 @@
 # SOFTWARE.
 ################################################################################
 
-from enum import Enum
+# from enum import Enum
+from enum import StrEnum
 
 
-class FieldTag(Enum):
+# class FieldTag(Enum):
+class FieldTag(StrEnum):
     CLONABLE = 'clonable'
     VIEWABLE = 'viewable'
     ENUMERABLE = 'enumerable'
@@ -39,8 +41,8 @@ class FieldTag(Enum):
 
         return True
 
-    def __str__(self):
-        return self.value
+    # def __str__(self):
+    #     return self.value
 
 
 class InvalidFieldTag(Exception):
@@ -49,7 +51,7 @@ class InvalidFieldTag(Exception):
 
 def _add_tags_to_fields():
     """Hook Django models.Field to add a tag system.
-    DO NOT CALL THIS METHOD, CREME DOES IT FOR YOU !!
+    DO NOT CALL THIS METHOD, CREME DOES IT FOR YOU!!
     """
     from django.db.models import (
         AutoField,

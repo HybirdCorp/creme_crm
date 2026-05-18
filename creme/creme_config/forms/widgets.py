@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -147,7 +147,8 @@ class MenuEditionWidget(Widget):
 class BricksConfigWidget(forms.Widget):
     template_name = "creme_config/forms/widgets/bricksconfig-editor.html"
 
-    class zones(enum.Enum):
+    # class zones(enum.Enum):
+    class zones(enum.StrEnum):
         TOP = "top"
         LEFT = "left"
         RIGHT = "right"

@@ -22,7 +22,7 @@ import logging
 import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator, Sequence
-from enum import Enum
+from enum import StrEnum
 from typing import DefaultDict, List, Literal, Self, Tuple, Type, Union
 
 from django.conf import settings
@@ -772,7 +772,7 @@ class BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
     """
-    class Tag(Enum):
+    class Tag(StrEnum):
         DETAIL = 'DETAIL'  # Detail-view, related to a specific instance
         HOME = 'HOME'  # Home view
         MY_PAGE = 'MY_PAGE'  # "My Page" view
