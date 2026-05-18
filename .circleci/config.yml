@@ -164,9 +164,9 @@ orbs:
   browser-tools: circleci/browser-tools@2.4.2
 
 jobs:
-  python310-lint-isort:
+  python312-lint-isort:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
     steps:
       - checkout-creme
       - install-system-packages
@@ -174,9 +174,9 @@ jobs:
       - run: make -C << pipeline.parameters.source_path >> isort-check
 
 
-  python310-lint-flake8:
+  python312-lint-flake8:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
     steps:
       - checkout-creme
       - install-system-packages
@@ -184,9 +184,9 @@ jobs:
       - run: flake8 << pipeline.parameters.source_path >>/creme/ --config << pipeline.parameters.source_path >>/setup.cfg
 
 
-  python310-tests-mysql:
+  python312-tests-mysql:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
       - image: cimg/mysql:8.0
         environment:
           MYSQL_ROOT_PASSWORD: creme
@@ -208,9 +208,9 @@ jobs:
       - run-creme-unit-tests
 
 
-  python310-tests-pgsql:
+  python312-tests-pgsql:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
       - image: cimg/postgres:14.17
         environment:
           POSTGRES_USER: creme
@@ -231,9 +231,9 @@ jobs:
           local_settings: 'pgsql_settings'
       - run-creme-unit-tests
 
-  python310-tests-sqlite3:
+  python312-tests-sqlite3:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
     resource_class: large
     steps:
       - checkout-creme
@@ -249,7 +249,7 @@ jobs:
 
   run-coverage:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
       - image: cimg/postgres:14.17
         environment:
           POSTGRES_USER: creme
@@ -270,9 +270,9 @@ jobs:
           local_settings: 'pgsql_settings'
       - run-creme-coverage
 
-  python311-tests-mariadb:
+  python312-tests-mariadb:
     docker:
-      - image: cimg/python:3.11
+      - image: cimg/python:3.12
       - image: cimg/mariadb:10.5
         environment:
           MYSQL_ROOT_PASSWORD: creme
@@ -291,21 +291,6 @@ jobs:
       - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'mysql_settings'
-      - run-creme-unit-tests
-
-  python312-tests-sqlite3:
-    docker:
-      - image: cimg/python:3.12
-    resource_class: large
-    steps:
-      - checkout-creme
-      - setup-locale:
-          language: fr_FR
-          encoding: UTF-8
-      - install-system-packages
-      - install-py-dev-env
-      - create-creme-project
-      - setup-creme-unit-tests
       - run-creme-unit-tests
 
   python313-tests-sqlite3:
@@ -341,7 +326,7 @@ jobs:
 
   javascript-lint:
     docker:
-     - image: cimg/python:3.10-node
+     - image: cimg/python:3.12-node
     steps:
       - checkout-creme
       - install-system-packages
@@ -377,7 +362,7 @@ jobs:
 
   javascript-tests:
     docker:
-     - image: cimg/python:3.10-browsers
+     - image: cimg/python:3.12-browsers
     steps:
       - browser-tools/install_browser_tools
       - checkout-creme
@@ -447,7 +432,7 @@ jobs:
 
   creme-package:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.12
     steps:
       - checkout-creme
       - run: pip install -U pip setuptools wheel
@@ -496,51 +481,50 @@ workflows:
               only: /.*/
           requires:
             - javascript-lint
-      - python310-lint-isort:
+      - python312-lint-isort:
           filters:
             tags:
               only: /.*/
-      - python310-lint-flake8:
+      - python312-lint-flake8:
           filters:
             tags:
               only: /.*/
-      - python310-tests-mysql:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - python310-lint-isort
-            - python310-lint-flake8
-      - python310-tests-pgsql:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - python310-lint-isort
-            - python310-lint-flake8
-      - python310-tests-sqlite3:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - python310-lint-isort
-            - python310-lint-flake8
-      - python311-tests-mariadb:
-          requires:
-            - python310-lint-isort
-            - python310-lint-flake8
       - python312-tests-sqlite3:
+          filters:
+            tags:
+              only: /.*/
           requires:
-            - python310-lint-isort
-            - python310-lint-flake8
+            - python312-lint-isort
+            - python312-lint-flake8
+      - python312-tests-mysql:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - python312-lint-isort
+            - python312-lint-flake8
+      - python312-tests-pgsql:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - python312-lint-isort
+            - python312-lint-flake8
+      - python312-tests-mariadb:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - python312-lint-isort
+            - python312-lint-flake8
       - python313-tests-sqlite3:
           requires:
-            - python310-lint-isort
-            - python310-lint-flake8
+            - python312-lint-isort
+            - python312-lint-flake8
       - python314-tests-sqlite3:
           requires:
-            - python310-lint-isort
-            - python310-lint-flake8
+            - python312-lint-isort
+            - python312-lint-flake8
       - docker-build-creme-demo:
           filters:
             tags:
@@ -554,9 +538,9 @@ workflows:
           requires:
             - docker-build-creme-demo
             - javascript-tests
-            - python310-tests-sqlite3
-            - python310-tests-mysql
-            - python310-tests-pgsql
+            - python312-tests-sqlite3
+            - python312-tests-mysql
+            - python312-tests-pgsql
       - creme-package:
           filters:
             tags:
@@ -565,6 +549,6 @@ workflows:
               ignore: /.*/
           requires:
             - javascript-tests
-            - python310-tests-sqlite3
-            - python310-tests-mysql
-            - python310-tests-pgsql
+            - python312-tests-sqlite3
+            - python312-tests-mysql
+            - python312-tests-pgsql

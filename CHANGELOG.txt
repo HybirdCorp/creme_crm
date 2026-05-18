@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+      # The minimal version of Python is now '3.12'.
       # Apps :
         * Creme_config :
             - A new action for the workflows is available: sending a notification.
