@@ -27,7 +27,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import Any, DefaultDict
+from typing import Any, DefaultDict, Self
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import (
@@ -321,7 +321,7 @@ class PreFetcher:
 
         return prefetched[model].get(pk)
 
-    def order(self, model: type[Model], pks: Iterable) -> PreFetcher:
+    def order(self, model: type[Model], pks: Iterable) -> Self:
         if self._prefetched is not None:
             raise RuntimeError('PreFetcher already (hint: call order() before proceed() only)')
 
@@ -329,7 +329,7 @@ class PreFetcher:
 
         return self
 
-    def proceed(self) -> PreFetcher:
+    def proceed(self) -> Self:
         if self._prefetched is not None:
             raise RuntimeError('PreFetcher already (hint: call proceed() only once)')
 

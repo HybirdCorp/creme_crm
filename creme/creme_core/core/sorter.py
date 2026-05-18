@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 from functools import partial
+from typing import Self
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -178,7 +179,7 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
     def register(self, *,
                  model: type[Model],
                  sorter_cls: type[AbstractCellSorter],
-                 ) -> ForeignKeySorterRegistry:
+                 ) -> Self:
         self._sorters[model] = sorter_cls()
 
         return self
@@ -284,7 +285,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
                              model: type[Model],
                              field_name: str,
                              sorter_cls: type[AbstractCellSorter],
-                             ):
+                             ) -> Self:
         field = model._meta.get_field(field_name)
         self._sorters_4_modelfields[field] = sorter_cls()
 
@@ -301,7 +302,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
     def register_model_field_type(self, *,
                                   type: type[Field],
                                   sorter_cls: type[AbstractCellSorter],
-                                  ):
+                                  ) -> Self:
         self._sorters_4_modelfieldtypes[type] = sorter_cls()
 
         return self
@@ -346,7 +347,10 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
 
-    def register(self, *, ffield: FunctionField, sorter_cls: type[AbstractCellSorter]):
+    def register(self, *,
+                 ffield: FunctionField,
+                 sorter_cls: type[AbstractCellSorter],
+                 ) -> Self:
         self._sorters[ffield.name] = sorter_cls()
 
         return self
@@ -407,7 +411,7 @@ class CellSorterRegistry(AbstractCellSorter):
 
         return res
 
-    def register(self, *, cell_id, registry_class):
+    def register(self, *, cell_id, registry_class) -> Self:
         self._registries[cell_id] = registry_class()
 
         return self

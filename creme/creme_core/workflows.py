@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Self
 from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -1162,9 +1162,7 @@ class UserSourceRegistry:
 
         return type_id
 
-    def register(self,
-                 *user_source_classes: type[UserSource],
-                 ) -> UserSourceRegistry:
+    def register(self, *user_source_classes: type[UserSource]) -> Self:
         set_cls = self._user_source_classes.setdefault
 
         for user_src_cls in user_source_classes:
@@ -1175,9 +1173,7 @@ class UserSourceRegistry:
 
         return self
 
-    def unregister(self,
-                   *user_source_classes: type[UserSource],
-                   ) -> UserSourceRegistry:
+    def unregister(self, *user_source_classes: type[UserSource]) -> Self:
         for user_src_cls in user_source_classes:
             try:
                 del self._user_source_classes[user_src_cls.type_id]

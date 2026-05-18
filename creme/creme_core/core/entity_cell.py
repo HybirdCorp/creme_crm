@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable
-from typing import DefaultDict
+from typing import DefaultDict, Self
 
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
@@ -381,7 +381,7 @@ class EntityCellRegistry:
     def cell_classes(self):
         return iter(self._cell_classes.values())
 
-    def register(self, *cell_classes: type[EntityCell]):
+    def register(self, *cell_classes: type[EntityCell]) -> Self:
         store = self._cell_classes.setdefault
 
         for cls in cell_classes:

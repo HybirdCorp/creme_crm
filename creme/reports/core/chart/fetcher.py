@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist
@@ -339,7 +339,7 @@ class ChartFetcherRegistry:
 
         return fetcher
 
-    def register(self, *fetcher_classes: type[ChartFetcher]) -> ChartFetcherRegistry:
+    def register(self, *fetcher_classes: type[ChartFetcher]) -> Self:
         set_default = self._fetcher_classes.setdefault
 
         for fetcher_cls in fetcher_classes:

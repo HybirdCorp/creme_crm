@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Self
 
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
@@ -168,7 +169,7 @@ class ConverterRegistry:
                  source_model: type[Base],
                  target_model: type[Base],
                  converter_class=Converter,
-                 ) -> ConverterRegistry:
+                 ) -> Self:
         """Hint: register a child class of Converter if you want to
         customise the conversion behaviour.
         """
@@ -185,7 +186,7 @@ class ConverterRegistry:
     def unregister(self, *,
                    source_model: type[Base],
                    target_model: type[Base],
-                   ) -> ConverterRegistry:
+                   ) -> Self:
         try:
             del self._converter_classes[(source_model, target_model)]
         except KeyError as e:

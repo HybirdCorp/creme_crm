@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
 from django.db.models import Model
@@ -225,7 +225,7 @@ class FunctionFieldRegistry:
     def register(self,
                  model: type[Model],
                  *function_field_classes: type[FunctionField],
-                 ) -> FunctionFieldRegistry:
+                 ) -> Self:
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.

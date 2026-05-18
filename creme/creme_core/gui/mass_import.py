@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ..models import CremeEntity
 
@@ -45,7 +45,7 @@ class FormRegistry:
     def register(self,
                  model: type[CremeEntity],
                  factory: FormFactory | None = None,
-                 ) -> FormRegistry:
+                 ) -> Self:
         """Register a form factory for a model.
         @param model: Class inheriting CremeEntity.
         @param factory: None or callable which takes 2 parameters
@@ -65,7 +65,7 @@ class FormRegistry:
 
         return self
 
-    def unregister(self, model: type[CremeEntity]) -> FormRegistry:
+    def unregister(self, model: type[CremeEntity]) -> Self:
         try:
             del self._form_factories[model]
         except KeyError as e:

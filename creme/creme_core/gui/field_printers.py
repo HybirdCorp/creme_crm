@@ -21,7 +21,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from functools import partial
 from os.path import splitext
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -308,7 +308,7 @@ class FKPrinter:
 
         return sub_printer(instance=instance, value=value, user=user, field=field)
 
-    def register(self, model: type[Model], printer: FieldPrinter) -> FKPrinter:
+    def register(self, model: type[Model], printer: FieldPrinter) -> Self:
         self._sub_printers[model] = printer
         return self
 
@@ -356,7 +356,7 @@ class BaseM2MPrinter:
                  model: type[Model],
                  printer: M2MInstancePrinter,
                  enumerator: M2MEnumerator,
-                 ) -> BaseM2MPrinter:
+                 ) -> Self:
         self._sub_printers[model] = (printer, enumerator)
         return self
 
@@ -726,7 +726,7 @@ class FieldPrinterRegistry:
                                   type: type[models.Field],
                                   printer: FieldPrinter,
                                   tags: ViewTag | Iterable[ViewTag] | str,
-                                  ) -> FieldPrinterRegistry:
+                                  ) -> Self:
         """Register a printer for a class of model-field.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
@@ -743,7 +743,7 @@ class FieldPrinterRegistry:
                              field_name: str,
                              printer: FieldPrinter,
                              tags: ViewTag | Iterable[ViewTag] | str,
-                             ) -> FieldPrinterRegistry:
+                             ) -> Self:
         """Register a printer for a specific model-field <MyModel.my_field>.
         @param model: A class inheriting <django.models.Model>.
         @param field_name: The name of a valid field of "model".
@@ -762,7 +762,7 @@ class FieldPrinterRegistry:
     def register_choice_printer(self,
                                 printer: FieldPrinter,
                                 tags: ViewTag | Iterable[ViewTag] | str,
-                                ) -> FieldPrinterRegistry:
+                                ) -> Self:
         """Register a printer for fields with a "choices" attribute.
         Notice that a field-with-a-choices-attribute which has a registered
         specific printer (see register_model_field()) will be renderer with
@@ -780,7 +780,7 @@ class FieldPrinterRegistry:
                                     field: type[models.Field],
                                     css_class: str,
                                     header_css_class: str,
-                                    ) -> FieldPrinterRegistry:
+                                    ) -> Self:
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.

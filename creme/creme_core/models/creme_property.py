@@ -22,6 +22,7 @@ import logging
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from functools import cached_property
+from typing import Self
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
@@ -86,12 +87,12 @@ class CremePropertyTypeProxy:
     def subject_models(self) -> Iterator[type[CremeEntity]]:
         yield from self._subject_models
 
-    def add_models(self, *models: type[CremeEntity]) -> CremePropertyTypeProxy:
+    def add_models(self, *models: type[CremeEntity]) -> Self:
         self._subject_models.update(models)
 
         return self
 
-    def remove_models(self, *models: type[CremeEntity]) -> CremePropertyTypeProxy:
+    def remove_models(self, *models: type[CremeEntity]) -> Self:
         remove = self._subject_models.remove
         for model in models:
             remove(model)
@@ -348,7 +349,7 @@ class CremePropertyType(CremeModel):
 
     def set_subject_ctypes(self,
                            *ctypes_or_models: Iterable[ContentType | type[CremeEntity]],
-                           ) -> CremePropertyType:
+                           ) -> Self:
         """Helper to set the ManyToManyField <subject_ctypes> which accepts models too."""
         get_ct = ContentType.objects.get_for_model
         self.subject_ctypes.set([

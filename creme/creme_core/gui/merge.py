@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from creme.creme_core.models import CremeEntity
 
@@ -48,7 +48,7 @@ class _MergeFormRegistry:
     def register(self,
                  model: type[CremeEntity],
                  form_factory: FormFactory,
-                 ) -> _MergeFormRegistry:
+                 ) -> Self:
         """Register a form factory for a model.
         @param model: Class inheriting CremeEntity.
         @param form_factory: A callable with no parameter & which returns a form
@@ -64,7 +64,7 @@ class _MergeFormRegistry:
 
         return self
 
-    def unregister(self, model: type[CremeEntity]) -> _MergeFormRegistry:
+    def unregister(self, model: type[CremeEntity]) -> Self:
         try:
             del self._form_factories[model]
         except KeyError as e:

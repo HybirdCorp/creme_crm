@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Self
 
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
@@ -124,7 +125,7 @@ class EntityClonerRegistry:
     def register(self,
                  model: type[CremeEntity],
                  cloner_class=EntityCloner,
-                 ) -> EntityClonerRegistry:
+                 ) -> Self:
         """Hint: register a child class of EntityCloner if you want to
         customise the cloning behaviour.
         """
@@ -133,7 +134,7 @@ class EntityClonerRegistry:
 
         return self
 
-    def unregister(self, model: type[CremeEntity]) -> EntityClonerRegistry:
+    def unregister(self, model: type[CremeEntity]) -> Self:
         try:
             del self._cloner_classes[model]
         except KeyError as e:

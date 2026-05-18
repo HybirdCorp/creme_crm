@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from datetime import datetime
+from typing import Self
 
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -96,7 +97,7 @@ class ReminderRegistry:
     def __init__(self) -> None:
         self._reminders: dict[str, Reminder] = {}
 
-    def register(self, reminder_class: type[Reminder]) -> ReminderRegistry:
+    def register(self, reminder_class: type[Reminder]) -> Self:
         """Register a class of Reminder.
         @type reminder_class: Class "inheriting" <creme_core.core.reminder.Reminder>.
         """

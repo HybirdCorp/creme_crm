@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 from uuid import UUID
 
 from django.conf import settings
@@ -469,9 +469,7 @@ class ActionRecipientsRegistry:
 
         return type_id
 
-    def register(self,
-                 *recipient_classes: type[ActionRecipient],
-                 ) -> ActionRecipientsRegistry:
+    def register(self, *recipient_classes: type[ActionRecipient]) -> Self:
         set_cls = self._recipient_classes.setdefault
 
         for recipient_cls in recipient_classes:
@@ -482,9 +480,7 @@ class ActionRecipientsRegistry:
 
         return self
 
-    def unregister(self,
-                   *recipient_classes: type[ActionRecipient],
-                   ) -> ActionRecipientsRegistry:
+    def unregister(self, *recipient_classes: type[ActionRecipient]) -> Self:
         for recipient_cls in recipient_classes:
             try:
                 del self._recipient_classes[recipient_cls.type_id]

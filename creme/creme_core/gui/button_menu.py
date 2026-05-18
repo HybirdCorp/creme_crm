@@ -22,7 +22,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
 from heapq import heappop, heappush
-from typing import DefaultDict, Literal
+from typing import DefaultDict, Literal, Self
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model
@@ -147,7 +147,7 @@ class ButtonRegistry:
         for button_id, button_cls in self._button_classes.items():
             yield button_id, button_cls()
 
-    def register(self, *button_classes: type[Button]) -> ButtonRegistry:
+    def register(self, *button_classes: type[Button]) -> Self:
         """Register several classes of Button at once.
         @return The registry instance to chain calls in a fluent way.
         """
@@ -178,7 +178,7 @@ class ButtonRegistry:
     def register_mandatory(self,
                            button_class: type[Button],
                            priority: int = 0,
-                           ) -> ButtonRegistry:
+                           ) -> Self:
         """Register a class of Button which is mandatory.
         It means an instance of this class will be displayed in the button menu
         whatever is the button configuration.
@@ -222,7 +222,7 @@ class ButtonRegistry:
 
         return self
 
-    def unregister(self, *button_classes: type[Button]) -> ButtonRegistry:
+    def unregister(self, *button_classes: type[Button]) -> Self:
         """Unregister several Button classes at once.
         All classes must be registered.
         """
@@ -241,7 +241,7 @@ class ButtonRegistry:
 
         return self
 
-    def unregister_mandatory(self, button_class: type[Button]) -> ButtonRegistry:
+    def unregister_mandatory(self, button_class: type[Button]) -> Self:
         """Unregister several Button classes at once.
         All classes must be registered with <register_mandatory()>.
         """

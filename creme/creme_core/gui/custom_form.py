@@ -24,6 +24,7 @@ from collections import OrderedDict
 from collections.abc import Collection, Container, Iterable, Iterator
 from copy import deepcopy
 from itertools import chain
+from typing import Self
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -1125,7 +1126,7 @@ class CustomFormDescriptorRegistry:
     def get(self, id: str) -> CustomFormDescriptor | None:
         return self._descriptors.get(id)
 
-    def register(self, *descriptors: CustomFormDescriptor) -> CustomFormDescriptorRegistry:
+    def register(self, *descriptors: CustomFormDescriptor) -> Self:
         setdefault = self._descriptors.setdefault
 
         for desc in descriptors:
@@ -1136,7 +1137,7 @@ class CustomFormDescriptorRegistry:
 
         return self
 
-    def unregister(self, *descriptors: CustomFormDescriptor) -> CustomFormDescriptorRegistry:
+    def unregister(self, *descriptors: CustomFormDescriptor) -> Self:
         for desc in descriptors:
             try:
                 del self._descriptors[desc.id]

@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Self
 
 from django.db import models
 from django.db.models.aggregates import Aggregate
@@ -46,7 +47,7 @@ class FieldAggregationRegistry:
     def __init__(self) -> None:
         self._aggregations: dict[str, FieldAggregation] = {}
 
-    def register(self, field_aggregation: FieldAggregation) -> FieldAggregationRegistry:
+    def register(self, field_aggregation: FieldAggregation) -> Self:
         """Register a type of aggregation for reports.
         @param field_aggregation: Instance of FieldAggregation.
         @return A reference to self, to allow fluent chaining of 'register()' calls.

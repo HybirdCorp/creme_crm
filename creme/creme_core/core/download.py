@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from os.path import basename
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model
@@ -141,7 +141,7 @@ class FileFieldDownLoadRegistry:
             field_name: str,
             permission_checker: PermissionChecker | None = None,
             basename_builder: BasenameBuilder | None = None,
-    ) -> FileFieldDownLoadRegistry:
+    ) -> Self:
         """Register FileField which can be downloaded.
         @param model: Class inheriting django.db.models.
         @param field_name: Name of one FileField of the 'model'.
@@ -183,7 +183,7 @@ class FileFieldDownLoadRegistry:
     def unregister(
             self,
             model: type[Model],
-            *field_names: str) -> FileFieldDownLoadRegistry:
+            *field_names: str) -> Self:
         registered_fnames = self._models_fields.get(model)
 
         if registered_fnames:

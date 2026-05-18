@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2022-2025 Hybird
+# Copyright (c) 2022-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ import socket
 from collections.abc import Iterator
 from email import message_from_bytes, policy
 from email.message import EmailMessage
-from typing import Union
+from typing import Self, Union
 
 from django.utils.translation import gettext
 
@@ -107,7 +107,7 @@ class MailBox:
         self._email_ids = None
         self._client_cls = None
 
-    def __enter__(self) -> MailBox:
+    def __enter__(self) -> Self:
         assert self._email_ids is None  # Only enter once
         assert self._client_cls is not None
 

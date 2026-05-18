@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Self
 
 from django.utils.timezone import now
 
@@ -32,7 +33,7 @@ class ImprintManager:
     def __init__(self) -> None:
         self._granularities: dict[type[CremeEntity], timedelta] = {}
 
-    def register(self, model: type[CremeEntity], **timedelta_kwargs) -> ImprintManager:
+    def register(self, model: type[CremeEntity], **timedelta_kwargs) -> Self:
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:

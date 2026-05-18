@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 ################################################################################
 
 from __future__ import annotations
+
+from typing import Self
 
 from django.db import models
 
@@ -174,7 +176,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register_default(self, sfield_builder) -> RegularRelatedFieldSearchRegistry:
+    def register_default(self, sfield_builder) -> Self:
         self._default_builder = self._instantiate_builder(sfield_builder)
 
         return self
@@ -182,7 +184,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def register_related_model(self, *,
                                model: type[models.Model],
                                sfield_builder,
-                               ) -> RegularRelatedFieldSearchRegistry:
+                               ) -> Self:
         self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
 
         # TODO ?
@@ -309,7 +311,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register_choice_builder(self, sfield_builder) -> RegularFieldSearchRegistry:
+    def register_choice_builder(self, sfield_builder) -> Self:
         self._choice_builder = self._instantiate_builder(sfield_builder)
 
         return self
@@ -318,7 +320,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
                              model: type[models.Model],
                              field_name: str,
                              sfield_builder,
-                             ) -> RegularFieldSearchRegistry:
+                             ) -> Self:
         field = model._meta.get_field(field_name)
         self._builders_4_modelfields[field] = self._instantiate_builder(sfield_builder)
 
@@ -335,7 +337,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def register_model_field_type(self, *,
                                   type: type[models.Field],
                                   sfield_builder,
-                                  ) -> RegularFieldSearchRegistry:
+                                  ) -> Self:
         self._builders_4_modelfieldtypes[type] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -402,7 +404,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register(self, *, type: int, sfield_builder) -> CustomFieldSearchRegistry:
+    def register(self, *, type: int, sfield_builder) -> Self:
         self._builders[type] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -457,7 +459,7 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def register(self, *,
                  ffield: FunctionField,
                  sfield_builder,
-                 ) -> FunctionFieldSearchRegistry:
+                 ) -> Self:
         self._builders[ffield.name] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -510,12 +512,12 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register(self, *, rtype_id: str, sfield_builder) -> RelationSearchRegistry:
+    def register(self, *, rtype_id: str, sfield_builder) -> Self:
         self._builders[rtype_id] = self._instantiate_builder(sfield_builder)
 
         return self
 
-    def register_default(self, sfield_builder) -> RelationSearchRegistry:
+    def register_default(self, sfield_builder) -> Self:
         self._default_builder = self._instantiate_builder(sfield_builder)
 
         return self
@@ -574,7 +576,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
             registry.get_field(cell=cell, user=user, **kwargs)
         )
 
-    def register(self, *, cell_id: str, registry_class) -> ListViewSearchFieldRegistry:
+    def register(self, *, cell_id: str, registry_class) -> Self:
         self._registries[cell_id] = registry_class()
 
         return self

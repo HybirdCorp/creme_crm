@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -132,7 +132,7 @@ class EntityFilterRegistry:
 
     def register_condition_handlers(self,
                                     *classes: type[FilterConditionHandler],
-                                    ) -> EntityFilterRegistry:
+                                    ) -> Self:
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -152,7 +152,7 @@ class EntityFilterRegistry:
 
     def register_operands(self,
                           *classes: type[ConditionDynamicOperand],
-                          ) -> EntityFilterRegistry:
+                          ) -> Self:
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -170,9 +170,7 @@ class EntityFilterRegistry:
 
         return self
 
-    def register_operators(self,
-                           *classes: type[ConditionOperator],
-                           ) -> EntityFilterRegistry:
+    def register_operators(self, *classes: type[ConditionOperator]) -> Self:
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -284,7 +282,7 @@ class EntityFilterSuperRegistry:
     def __iter__(self) -> Iterator[EntityFilterRegistry]:
         return iter(self._registries.values())
 
-    def register(self, *registries: EntityFilterRegistry) -> EntityFilterSuperRegistry:
+    def register(self, *registries: EntityFilterRegistry) -> Self:
         set_default = self._registries.setdefault
 
         for registry in registries:

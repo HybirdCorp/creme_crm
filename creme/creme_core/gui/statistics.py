@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
+from typing import Self
 
 StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)
@@ -54,7 +55,7 @@ class StatisticRegistry:
     def _add_item(self,
                   new_item: _StatisticsItem,
                   priority: int | None,
-                  ) -> StatisticRegistry:
+                  ) -> Self:
         items = self._items
 
         if priority is None:

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from creme.creme_core.models import CremeEntity
 
@@ -50,7 +50,7 @@ class QuickFormRegistry:
     def register(self,
                  model: type[CremeEntity],
                  form: type[CremeEntityQuickForm],
-                 ) -> QuickFormRegistry:
+                 ) -> Self:
         """Register a form for a given model.
         @raise RegistrationError if a form is already registered.
         """

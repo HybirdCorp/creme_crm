@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
@@ -117,7 +118,7 @@ class NumberGeneratorRegistry:
     def register(self,
                  model: type[Base],
                  generator_cls: type[NumberGenerator],
-                 ) -> NumberGeneratorRegistry:
+                 ) -> Self:
         if self._generator_classes.setdefault(model, generator_cls) is not generator_cls:
             raise self.RegistrationError(
                 f'The model {model} has already a registered generator class.'
@@ -128,7 +129,7 @@ class NumberGeneratorRegistry:
     def registered_items(self) -> Iterator[tuple[type[Base], type[NumberGenerator]]]:
         yield from self._generator_classes.items()
 
-    def unregister(self, model: type[Base]) -> NumberGeneratorRegistry:
+    def unregister(self, model: type[Base]) -> Self:
         try:
             del self._generator_classes[model]
         except KeyError as e:

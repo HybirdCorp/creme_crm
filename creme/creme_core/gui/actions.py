@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Type
+from typing import Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
@@ -53,7 +53,7 @@ class UIAction:
           the user (not allowed, some business logic not OK…).
     """
     id: str = ''
-    model: Type[Model] = Model
+    model: type[Model] = Model
 
     type: str = ''
     url_name: str | None = None
@@ -71,7 +71,7 @@ class UIAction:
         return f'{app_label}-{name}'
 
     def __init__(self, user,
-                 model: Type[Model] | None = None,
+                 model: type[Model] | None = None,
                  instance: CremeEntity | None = None,
                  **kwargs):
         self.user = user
@@ -341,7 +341,7 @@ class ActionRegistry:
         for action_class in self.bulk_action_classes(model):
             yield action_class(**ctxt)
 
-    def register_instance_actions(self, *action_classes: type[UIAction]) -> ActionRegistry:
+    def register_instance_actions(self, *action_classes: type[UIAction]) -> Self:
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
         @return: Self to chain calls.
@@ -349,7 +349,7 @@ class ActionRegistry:
         self._instance_action_classes.register_actions(*action_classes)
         return self
 
-    def register_bulk_actions(self, *action_classes: type[BulkAction]) -> ActionRegistry:
+    def register_bulk_actions(self, *action_classes: type[BulkAction]) -> Self:
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
         @return: Self to chain calls.
@@ -360,7 +360,7 @@ class ActionRegistry:
     def void_instance_actions(self,
                               model: type[Model],
                               *action_classes: type[UIAction],
-                              ) -> ActionRegistry:
+                              ) -> Self:
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -377,7 +377,7 @@ class ActionRegistry:
     def void_bulk_actions(self,
                           model: type[Model],
                           *action_classes: type[UIAction],
-                          ) -> ActionRegistry:
+                          ) -> Self:
         """Like void_instance_actions() but for bulk actions."""
         self._bulk_action_classes.void_actions(model, *action_classes)
         return self

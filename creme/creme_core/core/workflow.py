@@ -26,7 +26,7 @@ import enum
 import logging
 import re
 from collections.abc import Iterable, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet, signals
@@ -181,7 +181,7 @@ class WorkflowEventQueue:
     def __len__(self):
         return len(self._events)
 
-    def append(self, event: WorkflowEvent) -> WorkflowEventQueue:
+    def append(self, event: WorkflowEvent) -> Self:
         """Append a new event:
             - if not already here.
             - if not inhibited by another event in the queue.
@@ -606,7 +606,7 @@ class WorkflowConditions:
     def add(self,
             source: WorkflowSource,
             conditions: Iterable[EntityFilterCondition],
-            ) -> WorkflowConditions:
+            ) -> Self:
         """Add the conditions related to a WorkflowSource.
         @return "self" to chain calls.
         """
@@ -792,7 +792,7 @@ class WorkflowRegistry:
 
         return action
 
-    def register_actions(self, *action_classes: type[WorkflowAction]) -> WorkflowRegistry:
+    def register_actions(self, *action_classes: type[WorkflowAction]) -> Self:
         set_action = self._action_classes.setdefault
 
         for action_cls in action_classes:
@@ -803,9 +803,7 @@ class WorkflowRegistry:
 
         return self
 
-    def unregister_actions(self,
-                           *action_classes: type[WorkflowAction],
-                           ) -> WorkflowRegistry:
+    def unregister_actions(self, *action_classes: type[WorkflowAction]) -> Self:
         for action_cls in action_classes:
             try:
                 del self._action_classes[action_cls.type_id]
@@ -883,9 +881,7 @@ class WorkflowRegistry:
 
         return source
 
-    def register_sources(self,
-                         *source_classes: type[WorkflowSource],
-                         ) -> WorkflowRegistry:
+    def register_sources(self, *source_classes: type[WorkflowSource]) -> Self:
         set_source = self._source_classes.setdefault
 
         for source_cls in source_classes:
@@ -896,9 +892,7 @@ class WorkflowRegistry:
 
         return self
 
-    def unregister_sources(self,
-                           *source_classes: type[WorkflowSource],
-                           ) -> WorkflowRegistry:
+    def unregister_sources(self, *source_classes: type[WorkflowSource]) -> Self:
         for source_cls in source_classes:
             try:
                 del self._source_classes[source_cls.type_id]
@@ -936,9 +930,7 @@ class WorkflowRegistry:
 
         return trigger
 
-    def register_triggers(self,
-                          *trigger_classes: type[WorkflowTrigger],
-                          ) -> WorkflowRegistry:
+    def register_triggers(self, *trigger_classes: type[WorkflowTrigger]) -> Self:
         set_trigger = self._trigger_classes.setdefault
 
         for trigger_cls in trigger_classes:
@@ -949,9 +941,7 @@ class WorkflowRegistry:
 
         return self
 
-    def unregister_triggers(self,
-                            *trigger_classes: type[WorkflowTrigger],
-                            ) -> WorkflowRegistry:
+    def unregister_triggers(self, *trigger_classes: type[WorkflowTrigger]) -> Self:
         for trigger_cls in trigger_classes:
             try:
                 del self._trigger_classes[trigger_cls.type_id]
@@ -1095,7 +1085,7 @@ class WorkflowEngine:
 
         return wf
 
-    def append_event(self, event: WorkflowEvent) -> WorkflowEngine:
+    def append_event(self, event: WorkflowEvent) -> Self:
         """Append a new event to the queue.
         See WorkflowEventQueue.append().
         @return Self to chain calls.

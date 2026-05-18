@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.db.models import Model
 from django.utils.html import format_html
@@ -301,7 +301,7 @@ class IconRegistry:
         self._icons: dict[type[Model], str] = {}
         self._icons_4_objects: dict[type[Model], IconInfoFunc] = {}
 
-    def register(self, model: type[Model], path: str) -> IconRegistry:
+    def register(self, model: type[Model], path: str) -> Self:
         """Example: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
@@ -310,7 +310,7 @@ class IconRegistry:
     def register_4_instance(self,
                             model: type[Model],
                             info_function: IconInfoFunc,
-                            ) -> IconRegistry:
+                            ) -> Self:
         """Set up the registry in order to retrieve an Icon corresponding to an
         instance of a model.
         Ie: instances of a same type can have different Icons.

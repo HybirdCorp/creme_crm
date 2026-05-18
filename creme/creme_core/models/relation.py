@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
+from typing import Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -150,7 +151,7 @@ class RelationTypeBuilder:
                   models: Iterable[type[CremeEntity]] = (),
                   properties: Iterable[str | CremePropertyType] = (),
                   forbidden_properties: Iterable[str | CremePropertyType] = (),
-                  ) -> RelationTypeBuilder:
+                  ) -> Self:
         """Constructor of the symmetric builder (see 'main()')."""
         if self._sym is not None:
             raise RuntimeError(
@@ -272,7 +273,7 @@ class RelationTypeBuilder:
         """
         yield from self._forbidden_properties
 
-    def add_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
+    def add_subject_models(self, *models: type[CremeEntity]) -> Self:
         """Add some models to the ContentType constraints
         (i.e. 'RelationType.subject_ctypes') of the underlying instance.
 
@@ -281,7 +282,7 @@ class RelationTypeBuilder:
         self._models.update(models)
         return self
 
-    def add_subject_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+    def add_subject_properties(self, *ptype_uuids: str) -> Self:
         """Add some CremePropertyTypes to the allowed properties
         (i.e. 'RelationType.subject_properties') of the underlying instance.
 
@@ -291,7 +292,7 @@ class RelationTypeBuilder:
         self._properties.add(*ptype_uuids)
         return self
 
-    def add_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+    def add_subject_forbidden_properties(self, *ptype_uuids: str) -> Self:
         """Add some CremePropertyTypes to the forbidden properties
         (i.e. 'RelationType.subject_forbidden_properties') of the underlying instance.
 
@@ -301,7 +302,7 @@ class RelationTypeBuilder:
         self._forbidden_properties.add(*ptype_uuids)
         return self
 
-    def remove_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
+    def remove_subject_models(self, *models: type[CremeEntity]) -> Self:
         """Remove some models to the ContentType constraints
         (i.e. 'RelationType.subject_ctypes') of the underlying instance.
 
@@ -310,7 +311,7 @@ class RelationTypeBuilder:
         self._models.difference_update(models)
         return self
 
-    def remove_subject_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+    def remove_subject_properties(self, *ptype_uuids: str) -> Self:
         """Remove some CremePropertyTypes to the allowed properties
         (i.e. 'RelationType.subject_properties') of the underlying instance.
 
@@ -319,7 +320,7 @@ class RelationTypeBuilder:
         self._properties.remove(*ptype_uuids)
         return self
 
-    def remove_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+    def remove_subject_forbidden_properties(self, *ptype_uuids: str) -> Self:
         """Remove some CremePropertyTypes to the forbidden properties
         (i.e. 'RelationType.subject_properties') of the underlying instance.
 

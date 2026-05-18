@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from dataclasses import dataclass
+from typing import Self
 
 from . import _SPECIAL_PREFIX
 
@@ -103,7 +104,7 @@ class SpecialPermissionRegistry:
 
         return perm
 
-    def register(self, *perms: SpecialPermission) -> SpecialPermissionRegistry:
+    def register(self, *perms: SpecialPermission) -> Self:
         reg_perms = self._perms
 
         for perm in perms:

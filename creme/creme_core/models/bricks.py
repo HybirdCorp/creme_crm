@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Collection, Iterable, Iterator
 from functools import partial
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, Self, TypedDict
 from uuid import UUID, uuid4
 
 from django.conf import settings
@@ -607,7 +607,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
     # TODO: accept model too ?
-    def set_cells(self, ctype: ContentType, cells: list[EntityCell]) -> RelationBrickItem:
+    def set_cells(self, ctype: ContentType, cells: list[EntityCell]) -> Self:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
 
