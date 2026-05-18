@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         parser.add_argument(
             'start',
             help=f"Date-time of the system upgrade (it's displayed in the notification). "
-                 f"Format is '{self.DT_FORMAT.replace('%','%%')}'. "
+                 f"Format is '{self.DT_FORMAT.replace('%', '%%')}'. "
                  f"Example: '{now().strftime(self.DT_FORMAT)}'.",
         )
         parser.add_argument(

@@ -496,9 +496,9 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_orga(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_orga(name=f'Orga #{i + 1}') for i in range(2))
         entity3, entity4 = (
-            create_orga(name=f'Del Orga #{i+1}', is_deleted=True) for i in range(2)
+            create_orga(name=f'Del Orga #{i + 1}', is_deleted=True) for i in range(2)
         )
 
         url = self.DEL_ENTITIES_URL
@@ -526,7 +526,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         create_entity = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         response = self.assertPOST404(
             self.DEL_ENTITIES_URL,
@@ -639,7 +639,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         create_entity = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         url = self.DEL_ENTITIES_URL
         data = {'ids': f'{entity1.id},{entity2.id}'}
@@ -672,7 +672,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_super(is_staff=True)
 
         create_entity = partial(FakeOrganisation.objects.create, user=user, is_deleted=True)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         response = self.assertPOST200(
             self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id},{entity2.id}'},
