@@ -23,6 +23,7 @@ from collections.abc import Collection
 from datetime import date
 from functools import partial
 from types import GeneratorType
+from typing import Self
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
@@ -291,7 +292,9 @@ class ActionButtonList(widgets.Widget):
         obj.actions = copy.deepcopy(self.actions)
         return obj
 
-    def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
+    def add_action(self, name, label,
+                   enabled=True, icon: str | None = None,
+                   **attrs) -> Self:
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon,
             enabled=enabled,
@@ -299,7 +302,7 @@ class ActionButtonList(widgets.Widget):
         ))
         return self
 
-    def clear_actions(self):
+    def clear_actions(self) -> Self:
         self.actions.clear()
         return self
 
@@ -521,13 +524,15 @@ class SelectorList(widgets.TextInput):
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
 
-    def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
+    def add_action(self, name, label,
+                   enabled=True, icon: str | None = None,
+                   **attrs) -> Self:
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon, enabled=enabled, **attrs
         ))
         return self
 
-    def clear_actions(self):
+    def clear_actions(self) -> Self:
         self.actions[:] = ()
         return self
 

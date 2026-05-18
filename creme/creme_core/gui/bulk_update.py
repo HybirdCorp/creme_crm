@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain
+from typing import Self
 
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -175,7 +176,7 @@ class BulkUpdateRegistry:
         # TODO: manage inheritance?
         #      (e.g. if 'user' is excluded in CremeEntity's config, it is
         #       excluded in Document's config automatically)
-        def exclude(self, *field_names: str) -> BulkUpdateRegistry._ModelConfig:
+        def exclude(self, *field_names: str) -> Self:
             """Indicate that some regular model fields cannot be edited.
             @param field_names: Names (string) of the fields to exclude.
             @return: The 'self' instance to allow chained calls.
@@ -200,9 +201,7 @@ class BulkUpdateRegistry:
         # TODO: manage inheritance?
         #      (e.g. if 'user' is overridden in CremeEntity's config, it is
         #       overridden in Document's config automatically)
-        def add_overriders(self,
-                           *overriders: type[FieldOverrider],
-                           ) -> BulkUpdateRegistry._ModelConfig:
+        def add_overriders(self, *overriders: type[FieldOverrider]) -> Self:
             """
             Indicates that some regular model fields should not use their natural
             form-field, & use instead a specific form-field.

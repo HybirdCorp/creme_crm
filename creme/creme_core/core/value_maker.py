@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from decimal import Decimal, DecimalException
+from typing import Self
 
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime, now
@@ -360,7 +361,7 @@ class ValueMakerRegistry:
 
         return cls.from_dict(data)
 
-    def register(self, *maker_classes: type[ValueMaker]) -> ValueMakerRegistry:
+    def register(self, *maker_classes: type[ValueMaker]) -> Self:
         """Register the classes which the registry is able to deserialize."""
         classes = self._maker_classes
 

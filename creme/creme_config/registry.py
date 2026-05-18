@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import Iterable, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied
@@ -212,7 +212,7 @@ class _ModelConfig:
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls: type[GenericModelBrick] = GenericModelBrick
 
-    def brick_class(self, brick_cls: type[GenericModelBrick]) -> _ModelConfig:
+    def brick_class(self, brick_cls: type[GenericModelBrick]) -> Self:
         """ Set the Brick class to use ; can be used in a fluent way.
 
         @param brick_cls: Class inheriting GenericModelBrick.
@@ -232,7 +232,7 @@ class _ModelConfig:
                  form_class: type[ModelForm] | None = None,
                  url_name: str | None = None,
                  enable_func=None,
-                 ) -> _ModelConfig:
+                 ) -> Self:
         """ Set the creation behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -259,7 +259,7 @@ class _ModelConfig:
                 form_class: type[ModelForm] | None = None,
                 url_name: str | None = None,
                 enable_func=None,
-                ) -> _ModelConfig:
+                ) -> Self:
         """ Set the edition behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -287,7 +287,7 @@ class _ModelConfig:
                  form_class: type[DeletionForm] | None = None,
                  url_name: str | None = None,
                  enable_func=None,
-                 ) -> _ModelConfig:
+                 ) -> Self:
         """ Set the deletion behaviour ; can be used in a fluent way.
 
         @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.

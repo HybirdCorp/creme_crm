@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import Self
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.media import creme_media_themed_url
@@ -9,7 +10,7 @@ from creme.creme_core.utils.media import creme_media_themed_url
 logger = logging.getLogger(__name__)
 
 
-# TODO : Add more properties here like icon size or shadow.
+# TODO: Add more properties here like icon size or shadow.
 @dataclass
 class GeoMarkerIcon:
     path: str = ''
@@ -33,7 +34,7 @@ class GeoMarkerIconRegistry:
         self,
         model: type[CremeEntity],
         icon: GeoMarkerIcon | str
-    ) -> GeoMarkerIconRegistry:
+    ) -> Self:
         self._icons[model] = GeoMarkerIcon(path=icon) if isinstance(icon, str) else icon
         return self
 

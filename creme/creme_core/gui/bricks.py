@@ -23,7 +23,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator, Sequence
 from enum import Enum
-from typing import DefaultDict, List, Literal, Tuple, Type, Union
+from typing import DefaultDict, List, Literal, Self, Tuple, Type, Union
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -811,7 +811,7 @@ class BrickRegistry:
     #             raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
     #
     #     return self
-    def register(self, tags: Tag | tuple[Tag, ...], *brick_classes: type[Brick]) -> BrickRegistry:
+    def register(self, tags: Tag | tuple[Tag, ...], *brick_classes: type[Brick]) -> Self:
         # TODO: remove in Creme 3.1
         assert isinstance(tags, self.Tag | tuple), \
             f'The argument "tag" is a {type(tags)} ' \
@@ -856,7 +856,7 @@ class BrickRegistry:
     #     return self
     def register_4_instance(self,
                             tags: Tag | tuple[Tag, ...],
-                            *brick_classes: type[InstanceBrick]) -> BrickRegistry:
+                            *brick_classes: type[InstanceBrick]) -> Self:
         # TODO: remove in Creme 3.1
         assert isinstance(tags, self.Tag | tuple), \
             f'The argument "tag" is a {type(tags)} ' \
@@ -884,7 +884,7 @@ class BrickRegistry:
 
         return self
 
-    def register_invalid_models(self, *models: type[CremeEntity]) -> BrickRegistry:
+    def register_invalid_models(self, *models: type[CremeEntity]) -> Self:
         """Register some models which cannot have a configuration for Bricks on
         their detail-views (e.g. they have no detail-view, or they are not 'classical' ones).
         @param models: Classes inheriting CremeEntity.
@@ -897,11 +897,10 @@ class BrickRegistry:
 
         return self
 
-    # TODO: had a boolean argument "override" ??
     def register_4_model(self,
                          model: type[CremeEntity],
                          brick_cls: type[Brick],
-                         ) -> BrickRegistry:
+                         ) -> Self:
         assert brick_cls.id == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -913,7 +912,7 @@ class BrickRegistry:
     def register_hat(self, model: type[CremeEntity],
                      main_brick_cls: type[Brick] | None = None,
                      secondary_brick_classes: Iterable[type[Brick]] = (),
-                     ) -> BrickRegistry:
+                     ) -> Self:
         brick_classes = self._hat_brick_classes[model]
 
         if main_brick_cls is not None:
@@ -958,7 +957,7 @@ class BrickRegistry:
     #             )
     #
     #     return self
-    def unregister(self, tag: Tag, *brick_classes: type[Brick]) -> BrickRegistry:
+    def unregister(self, tag: Tag, *brick_classes: type[Brick]) -> Self:
         pop = self._regular_brick_classes[tag].pop
 
         for brick_cls in brick_classes:
@@ -974,7 +973,7 @@ class BrickRegistry:
 
         return self
 
-    def unregister_4_model(self, model: type[CremeEntity]) -> BrickRegistry:
+    def unregister_4_model(self, model: type[CremeEntity]) -> Self:
         if self._object_brick_classes.pop(model, None) is None:
             raise self.UnRegistrationError(
                 f"Invalid Brick for model {model} (already unregistered?)"
@@ -985,7 +984,7 @@ class BrickRegistry:
     def unregister_hat(self, model: type[CremeEntity],
                        main_brick: bool = False,
                        secondary_brick_classes: Iterable[type[Brick]] = (),
-                       ) -> BrickRegistry:
+                       ) -> Self:
         brick_classes = self._hat_brick_classes[model]
 
         if main_brick:

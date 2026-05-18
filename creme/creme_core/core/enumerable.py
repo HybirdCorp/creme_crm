@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Collection, Iterable, Iterator
+from typing import Self
 
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q
@@ -326,7 +327,7 @@ class EnumerableRegistry:
                        model: type[Model],
                        field_name: str,
                        enumerator_class: type[Enumerator],
-                       ) -> EnumerableRegistry:
+                       ) -> Self:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
@@ -352,7 +353,7 @@ class EnumerableRegistry:
     def register_field_type(self,
                             field_class: type[Field],
                             enumerator_class: type[Enumerator],
-                            ) -> EnumerableRegistry:
+                            ) -> Self:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
@@ -371,7 +372,7 @@ class EnumerableRegistry:
     def register_related_model(self,
                                model: type[Model],
                                enumerator_class: type[Enumerator],
-                               ) -> EnumerableRegistry:
+                               ) -> Self:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for ForeignKeys/ManyToManyFields
         which reference a specific model.

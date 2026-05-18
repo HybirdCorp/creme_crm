@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
+from typing import Self
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.template.loader import get_template
@@ -558,7 +559,7 @@ class MenuRegistry:
     def __init__(self) -> None:
         self._entry_classes: dict[str, type[MenuEntry]] = {}
 
-    def register(self, *entry_classes: type[MenuEntry]) -> MenuRegistry:
+    def register(self, *entry_classes: type[MenuEntry]) -> Self:
         setdefault = self._entry_classes.setdefault
 
         for entry_cls in entry_classes:
@@ -662,7 +663,7 @@ class _PriorityList:
     def __len__(self):
         return len(self._items)
 
-    def add(self, *items, **kwargs) -> _PriorityList:
+    def add(self, *items, **kwargs) -> Self:
         """Adds several items at once.
 
         @param items: Instances.
@@ -859,7 +860,7 @@ class _CreationViewLinksGroup:
                  id: str,
                  model=None,
                  priority=None,
-                 **kwargs) -> _CreationViewLinksGroup:
+                 **kwargs) -> Self:
         """Add a link to a creation view.
         @param id: unique (in this group) string, which allows to do queries
                (change property, remove...).

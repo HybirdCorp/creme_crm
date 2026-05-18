@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -184,7 +184,7 @@ class ListViewButtonList(FluentList):
         super().__init__(*args, **kwargs)
         self._context = {}
 
-    def update_context(self, **kwargs) -> ListViewButtonList:
+    def update_context(self, **kwargs) -> Self:
         """Add information items in the context passed to the button instances."""
         self._context.update(**kwargs)
         return self

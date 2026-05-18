@@ -27,7 +27,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator
 from functools import partial
 from itertools import chain
-from typing import Type
+from typing import Self, Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
@@ -339,7 +339,7 @@ class ModelFieldEnumerator:
 
         return fields_info
 
-    def filter(self, function: FieldFilterFunctionType | None = None, **kwargs):
+    def filter(self, function: FieldFilterFunctionType | None = None, **kwargs) -> Self:
         """Filter the field sequence.
         @param function: (optional) Callable which takes 3 keyword arguments
                ("model", "field" & "depth"), and returns a boolean
@@ -350,7 +350,7 @@ class ModelFieldEnumerator:
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
         return self
 
-    def exclude(self, function: FieldFilterFunctionType | None = None, **kwargs):
+    def exclude(self, function: FieldFilterFunctionType | None = None, **kwargs) -> Self:
         """Exclude some fields from the sequence.
         @see ModelFieldEnumerator.filter()
         """

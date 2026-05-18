@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2025  Hybird
+#    Copyright (C) 2020-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection, Container, Iterable, Iterator
+from typing import Self
 
 from django import forms
 from django.db import models
@@ -239,7 +240,7 @@ class ChartHandConstraintsRegistry:
     def register_cell_constraint(self, *,
                                  constraint_class: type[ChartHandCellConstraint],
                                  chart_types: Iterable[int],
-                                 ) -> ChartHandConstraintsRegistry:
+                                 ) -> Self:
         set_constr_by_type_id = self._constraints_by_type_id.setdefault
         set_constr_by_chart_type = self._constraints_by_chart_type.setdefault
 
@@ -264,7 +265,7 @@ class ChartHandConstraintsRegistry:
     def register_parameter_validator(self, *,
                                      chart_types: Iterable[int],
                                      formfield: forms.Field,
-                                     ) -> ChartHandConstraintsRegistry:
+                                     ) -> Self:
         set_validator = self._param_validators.setdefault
 
         for chart_type in chart_types:
@@ -494,7 +495,7 @@ class AggregatorConstraintsRegistry:
     def register_cell_constraints(
             self,
             *constraint_classes: type[AggregatorCellConstraint],
-    ) -> AggregatorConstraintsRegistry:
+    ) -> Self:
         for constraint_cls in constraint_classes:
             if self._constraints_by_type_id.setdefault(
                     constraint_cls.type_id, constraint_cls,

@@ -22,7 +22,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import DefaultDict
+from typing import DefaultDict, Self
 
 from django.db.models import aggregates, fields
 from django.utils.formats import number_format
@@ -111,7 +111,7 @@ class _ModelAggregatorsRegistry:
                        label: str,
                        verbose_label: str = '',
                        function: str,
-                       ) -> _ModelAggregatorsRegistry:
+                       ) -> Self:
         """Add an aggregator to the related model.
         @param field: Field name.
                Notice that it can be a "deep" field (i.e. "a_fk__a_field").
@@ -149,7 +149,7 @@ class _ModelAggregatorsRegistry:
     def remove_aggregator(self, *,
                           field: str,
                           function: str,
-                          ) -> _ModelAggregatorsRegistry:
+                          ) -> Self:
         """Remove a registered aggregator.
         @param field: Field name.
         @param function: Function name.

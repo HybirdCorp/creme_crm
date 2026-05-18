@@ -22,7 +22,7 @@ import logging
 from collections.abc import Callable, Iterator
 from functools import partial
 from json import loads as json_load
-from typing import Any
+from typing import Any, Self
 
 from django import forms
 from django.db.models import Model, TextField
@@ -169,7 +169,7 @@ class SettingKeyRegistry:
     def __iter__(self) -> Iterator[_SettingKey]:
         return iter(self._skeys.values())
 
-    def register(self, *skeys: _SettingKey) -> SettingKeyRegistry:
+    def register(self, *skeys: _SettingKey) -> Self:
         setdefault = self._skeys.setdefault
         key_class = self._key_class
 
@@ -186,7 +186,7 @@ class SettingKeyRegistry:
 
         return self
 
-    def unregister(self, *skeys: _SettingKey) -> SettingKeyRegistry:
+    def unregister(self, *skeys: _SettingKey) -> Self:
         pop = self._skeys.pop
 
         for skey in skeys:

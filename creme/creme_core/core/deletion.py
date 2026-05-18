@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from collections.abc import Iterable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -286,7 +286,7 @@ class EntityDeletorRegistry:
     def register(self,
                  model: type[CremeEntity],
                  deletor_class=EntityDeletor,
-                 ) -> EntityDeletorRegistry:
+                 ) -> Self:
         """Hint: register a child class of EntityDeletor if you want to
         customise the deletion behaviour.
         """
@@ -295,7 +295,7 @@ class EntityDeletorRegistry:
 
         return self
 
-    def unregister(self, model: type[CremeEntity]) -> EntityDeletorRegistry:
+    def unregister(self, model: type[CremeEntity]) -> Self:
         try:
             del self._deletor_classes[model]
         except KeyError as e:

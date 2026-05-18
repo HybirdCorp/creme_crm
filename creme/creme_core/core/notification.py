@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import NewType
+from typing import NewType, Self
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -407,7 +407,7 @@ class NotificationRegistry:
     def register_channel_types(
         self,
         *channel_types: type[NotificationChannelType],
-    ) -> NotificationRegistry:
+    ) -> Self:
         current_types = self._channel_classes
 
         for channel_type in channel_types:
@@ -429,7 +429,7 @@ class NotificationRegistry:
 
     def register_content(
         self, *, content_cls: type[NotificationContent], output: Output = _DEFAULT_OUTPUT,
-    ) -> NotificationRegistry:
+    ) -> Self:
         content_id = content_cls.id
         if not content_id:
             raise self.RegistrationError(
@@ -456,7 +456,7 @@ class NotificationRegistry:
 
         return self
 
-    def register_output(self, value: Output, label: str) -> NotificationRegistry:
+    def register_output(self, value: Output, label: str) -> Self:
         if not value:
             raise self.RegistrationError('Notification output is empty')
 

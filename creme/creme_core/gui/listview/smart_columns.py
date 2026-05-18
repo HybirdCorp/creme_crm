@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import DefaultDict, Literal
+from typing import DefaultDict, Literal, Self
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
@@ -83,22 +83,22 @@ class _ModelSmartColumnsRegistry:
 
         return rtype
 
-    def register_field(self, field_name: str) -> _ModelSmartColumnsRegistry:
+    def register_field(self, field_name: str) -> Self:
         """Register a field by its name."""
         self._cells.append((EntityCellRegularField, field_name))
         return self
 
-    def register_function_field(self, func_field_name: str) -> _ModelSmartColumnsRegistry:
+    def register_function_field(self, func_field_name: str) -> Self:
         """Register a function field by its name."""
         self._cells.append((EntityCellFunctionField, func_field_name))
         return self
 
-    def register_relationtype(self, rtype_id: str) -> _ModelSmartColumnsRegistry:
+    def register_relationtype(self, rtype_id: str) -> Self:
         """Register a RelationType by its ID."""
         self._cells.append((EntityCellRelation, rtype_id))
         return self
 
-    def _unregister(self, cell_type, cell_name, error_message) -> _ModelSmartColumnsRegistry:
+    def _unregister(self, cell_type, cell_name, error_message) -> Self:
         try:
             self._cells.remove((cell_type, cell_name))
         except ValueError as e:

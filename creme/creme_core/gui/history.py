@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable, Iterator, Sequence
 from functools import partial
+from typing import Self
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
@@ -752,7 +753,7 @@ class HistoryRegistry:
     def register_line_explainer(self,
                                 htype: int,
                                 explainer_class: type[HistoryLineExplainer],
-                                ) -> HistoryRegistry:
+                                ) -> Self:
         self._line_explainer_classes[htype] = explainer_class
 
         return self
@@ -761,7 +762,7 @@ class HistoryRegistry:
     def register_field_explainers(
         self,
         *explainer_classes: tuple[type[Field], type[FieldChangeExplainer]],
-    ):
+    ) -> Self:
         existing_classes = self._field_explainer_classes
         for field_cls, explainer_cls in explainer_classes:
             existing_classes[field_cls] = explainer_cls
