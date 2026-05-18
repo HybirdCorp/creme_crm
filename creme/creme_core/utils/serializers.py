@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, time, timezone
+# from datetime import datetime, time, timezone
+from datetime import UTC, datetime, time
 from decimal import Decimal
 from json import dumps as json_dumps
 from types import GeneratorType
@@ -66,7 +67,8 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             dt_value = datetime.combine(self._today(), value)
 
             if is_aware(dt_value):
-                dt_value = make_aware(to_utc(dt_value), timezone.utc)
+                # dt_value = make_aware(to_utc(dt_value), timezone.utc)
+                dt_value = make_aware(to_utc(dt_value), UTC)
 
             r = dt_value.isoformat(timespec='milliseconds')[11:]
         else:
@@ -86,7 +88,8 @@ class CremeJSONEncoder(DjangoJSONEncoder):
     def _encode_datetime(self, value):
         if self.use_utc:
             if is_aware(value):
-                value = make_aware(to_utc(value), timezone.utc)
+                # value = make_aware(to_utc(value), timezone.utc)
+                value = make_aware(to_utc(value), UTC)
 
             r = value.isoformat(timespec='milliseconds')
 

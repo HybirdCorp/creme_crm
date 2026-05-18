@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from functools import partial
 from json import loads as json_load
@@ -497,7 +498,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
             ),
         )
 
-        now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)
+        # now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)
+        now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=UTC)
         self._assertJsonifyFilter(
             {
                 'a': 12,
@@ -512,7 +514,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 'b': Decimal('0.47'),
                 'c': _('User'),
                 'd': now.date(),
-                'e': now.time().replace(tzinfo=timezone.utc),
+                # 'e': now.time().replace(tzinfo=timezone.utc),
+                'e': now.time().replace(tzinfo=UTC),
                 'f': now,
             },
         )
