@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,8 @@
 # SOFTWARE.
 ################################################################################
 
-from datetime import date, datetime, timedelta, timezone
+# from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from time import strptime as time_strptime
 
 from django.utils import formats
@@ -50,7 +51,8 @@ def dt_from_ISO8601(dt_str: str) -> datetime:
     @return A datetime instance.
     @throws ValueError
     """
-    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=timezone.utc)
+    # return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=timezone.utc)
+    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=UTC)
 
 
 def dt_to_ISO8601(dt: datetime) -> str:
@@ -104,7 +106,7 @@ def dt_from_str(dt_str: str) -> datetime | None:
 
 
 def date_from_str(d_str: str) -> date | None:
-    "Returns a datetime.date from filled formats in settings, or None."
+    """Returns a datetime.date from filled formats in settings, or None."""
     for fmt in formats.get_format('DATE_INPUT_FORMATS'):
         try:
             return date(*time_strptime(d_str, fmt)[:3])
@@ -117,10 +119,13 @@ def date_from_str(d_str: str) -> date | None:
 
 
 def to_utc(dt: datetime) -> datetime:
-    "Returns a naive datetime from an aware one (converted in UTC)."
-    return make_naive(dt, timezone=timezone.utc)
+    """Returns a naive datetime from an aware one (converted in UTC)."""
+    # return make_naive(dt, timezone=timezone.utc)
+    return make_naive(dt, timezone=UTC)
 
 
 def round_hour(dt: datetime) -> datetime:
-    "Returns a datetime truncated to the passed hour (i.e. minutes, seconds, … are set to 0)."
+    """Returns a datetime truncated to the passed hour.
+    It means minutes, seconds, … are set to 0.
+    """
     return dt - timedelta(minutes=dt.minute, seconds=dt.second, microseconds=dt.microsecond)

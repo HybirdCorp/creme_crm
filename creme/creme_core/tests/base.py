@@ -2,7 +2,8 @@ import sys
 import warnings
 from collections.abc import Iterable
 from contextlib import ContextDecorator
-from datetime import date, datetime, timedelta, timezone
+# from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from functools import reduce
 from json import dumps as json_dump
 from operator import or_
@@ -979,7 +980,8 @@ class _CremeTestCase:
 
     @staticmethod
     def create_datetime(*args, **kwargs):
-        tz = timezone.utc if kwargs.pop('utc', False) else get_current_timezone()
+        # tz = timezone.utc if kwargs.pop('utc', False) else get_current_timezone()
+        tz = UTC if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 
     @staticmethod
