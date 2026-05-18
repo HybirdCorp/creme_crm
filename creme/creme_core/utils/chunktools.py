@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ def iter_splitchunks(chunks: Iterable[str],
         yield last
 
 
-def iter_as_chunk(iterable: Iterable[T], step: int) -> Iterator[list[T]]:
+def iter_as_chunk[T](iterable: Iterable[T], step: int) -> Iterator[list[T]]:
     """Iterator which returns chunks from an iterable.
     @param iterable: iterator.
     @param step: chunks size.

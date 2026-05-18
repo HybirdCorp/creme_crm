@@ -32,7 +32,7 @@ from collections.abc import (
     ValuesView,
 )
 from sys import maxsize
-from typing import Generic, TypeVar
+from typing import TypeVar  # Generic
 
 T = TypeVar('T')
 
@@ -66,7 +66,7 @@ class LimitedList:
 
 
 class FluentList(list):
-    "Enhanced list with fluent methods (i.e. can be chained) and a new method."
+    """Enhanced list with fluent methods (i.e. can be chained) and a new method."""
     def append(self, x):
         super().append(x)
         return self
@@ -110,7 +110,8 @@ class FluentList(list):
         return self
 
 
-class ClassKeyedMap(Generic[T]):
+# class ClassKeyedMap(Generic[T]):
+class ClassKeyedMap[T]:
     """A kind of dictionary where key must be classes (with single inheritance).
     When a value is not found, the value of the nearest parent (in the class
     inheritance meaning), in the map, is used. If there is no parent class,
@@ -121,7 +122,6 @@ class ClassKeyedMap(Generic[T]):
                  items: Iterable[tuple[type, T]] = (),
                  default: T | None = None,
                  ):
-        # self._data: dict[type, T | None] = OrderedDict(items)
         self._data: dict[type, T | None] = dict(items)
         self._default = default
 
@@ -202,7 +202,8 @@ class ClassKeyedMap(Generic[T]):
         return self._data.values()
 
 
-class InheritedDataChain(Generic[T]):
+# class InheritedDataChain(Generic[T]):
+class InheritedDataChain[T]:
     """An associative collection where:
      - keys are classes
      - values are instances built by the collection itself
