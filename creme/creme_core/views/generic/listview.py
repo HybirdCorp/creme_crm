@@ -17,7 +17,8 @@
 ################################################################################
 
 import logging
-from enum import Enum
+# from enum import Enum
+from enum import StrEnum
 from functools import partial
 from json import JSONDecodeError
 from json import loads as json_load
@@ -59,7 +60,8 @@ from . import base
 logger = logging.getLogger(__name__)
 
 
-class SelectionMode(Enum):
+# class SelectionMode(Enum):
+class SelectionMode(StrEnum):
     NONE = 'none'
     SINGLE = 'single'
     MULTIPLE = 'multiple'
