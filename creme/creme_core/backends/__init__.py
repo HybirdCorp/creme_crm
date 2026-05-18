@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2025  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 # TODO: move to 'core/' ??
 
 from collections.abc import Iterable, Iterator
-from typing import Generic, TypeVar
+from typing import TypeVar  # Generic
 
 from django.conf import settings
 
@@ -30,7 +30,8 @@ from . import base
 BackendBaseClass = TypeVar('BackendBaseClass')
 
 
-class _BackendRegistry(Generic[BackendBaseClass]):
+# class _BackendRegistry(Generic[BackendBaseClass]):
+class _BackendRegistry[BackendBaseClass]:
     class InvalidClass(Exception):
         pass
 
