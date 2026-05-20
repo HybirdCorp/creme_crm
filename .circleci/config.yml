@@ -392,7 +392,8 @@ jobs:
 
   docker-build-creme-demo:
     machine:
-      image: ubuntu-2204:current
+#      image: ubuntu-2204:current
+      image: ubuntu-2404:current
       docker_layer_caching: true
     environment:
       DOCKER_BUILDKIT: 1
@@ -412,7 +413,8 @@ jobs:
 
   docker-push-creme-demo:
     machine:
-      image: ubuntu-2204:current
+#      image: ubuntu-2204:current
+      image: ubuntu-2404:current
       docker_layer_caching: true
     environment:
       DOCKER_BUILDKIT: 1
