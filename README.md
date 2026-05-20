@@ -108,8 +108,9 @@ Installation with 'pip':
    - python-dev
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
    - redis-server
-   - libjpeg-dev
+   - libjpeg-dev, libpng-dev, libtiff-dev, libgif-dev (to manage these different formats)
    - libcairo-dev
+   Notice that you could need a compilator, like 'gcc'.
 
 
 ### Install
