@@ -25,8 +25,8 @@ NO_SQL_COMMANDS = (
 
 # People who get code error notifications.
 # ADMINS = [
-#     ('Full Name', 'email@example.com'),
-#     ('Full Name', 'anotheremail@example.com')
+#     'admin@example.com',
+#     '"John Doe" <jdoe@example.com>',
 # ]
 
 # BASE_DIR should be defined in the project's settings
@@ -43,7 +43,7 @@ CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
 DATABASES = {
     'default': {
         # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
-        # NB: 'oracle' backend is not working with creme for now.
+        # NB: 'oracle' backend is not working with Creme for now.
         'ENGINE': 'django.db.backends.sqlite3',
 
         # Name of the database, or path to the database file if using 'sqlite3'.

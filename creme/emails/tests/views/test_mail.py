@@ -169,7 +169,8 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         self.assertIn('Message-ID', message.extra_headers)
 
         self.assertBodiesEqual(message, body=body, body_html=body_html)
-        self.assertEqual(1, len(message.attachments))
+        # self.assertEqual(1, len(message.attachments))
+        self.assertFalse(message.attachments)
 
         self.assertEqual([], queue.refreshed_jobs)
 
@@ -283,7 +284,8 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
                 (basename(doc1.filedata.name), content1.decode(), 'text/plain'),
                 (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
             ],
-            message.attachments[1:],  # 0 is for bodies
+            # message.attachments[1:],  # 0 is for bodies
+            message.attachments,
         )
 
     @skipIfCustomContact

@@ -3,6 +3,10 @@
   Users side :
   ------------
       # The minimal version of Python is now '3.12'.
+      # The version of Django has been upgraded to '6.0' ; for users it means that :
+        - The minimal version of MariaDB is now '10.6'.
+        - The settings 'ADMINS' & 'MANAGERS' should be list of simple strings, like :
+          ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
       # Apps :
         * Creme_config :
             - A new action for the workflows is available: sending a notification.
@@ -14,6 +18,12 @@
 
   Developers side :
   -----------------
+    # The version of 'Django' is now "6.0".
+      You should probably read the following releases notes for Django versions :
+        - https://docs.djangoproject.com/en/6.0/releases/6.0/
+          Some important items :
+            - Some changes in email management; eg.in 'django.core.mail',
+              'SafeMIMEText' & 'SafeMIMEMultipart' are now deprecated.
     # The 'Brick' class has now only one 'render()' method, and the registration
       methods take a tag ('DETAIL', 'HOME', 'MY_PAGE', 'STATIC').
        - It would be easier to remove a render target (detail-view, home etc..) of an

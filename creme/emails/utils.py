@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable, Iterator
+from email.message import MIMEPart
 from email.mime.image import MIMEImage
 from email.utils import make_msgid, parseaddr
 from os.path import basename, join
@@ -29,7 +30,8 @@ from string import ascii_letters, digits
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.core.mail import EmailMessage, SafeMIMEMultipart, SafeMIMEText
+# from django.core.mail import EmailMessage, SafeMIMEMultipart, SafeMIMEText
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.utils.timezone import now
 
@@ -206,17 +208,40 @@ class EMailSender:
         else:
             body, body_html = self._process_bodies(mail)
 
-            # In order to improve the render of inlined images inline (on some
-            # mail clients, they can be not displayed & added as attachment instead)
-            # we group the HTML parts & images in "multipart/related" part.
-            # - msg - multipart/mixed
-            #    - related_part - multipart/related
-            #        - alt_part - multipart/alternative
-            #            - text_part - text/plain
-            #            - html_part - text/html
-            #        - inline images mime parts - image/png etc...
-            #    - attachments parts - application/pdf ...
-            msg = EmailMessage(
+            # # In order to improve the render of inlined images inline (on some
+            # # mail clients, they can be not displayed & added as attachment instead)
+            # # we group the HTML parts & images in "multipart/related" part.
+            # # - msg - multipart/mixed
+            # #    - related_part - multipart/related
+            # #        - alt_part - multipart/alternative
+            # #            - text_part - text/plain
+            # #            - html_part - text/html
+            # #        - inline images mime parts - image/png etc...
+            # #    - attachments parts - application/pdf ...
+            # msg = EmailMessage(
+            #     subject=self.get_subject(mail),
+            #     body='',
+            #     from_email=mail.sender,
+            #     to=[mail.recipient],
+            #     connection=connection,
+            #     headers={
+            #         'Message-ID': make_msgid(idstring=str(mail.pk), domain=self._domain),
+            #     },
+            # )
+            #
+            # related_part = SafeMIMEMultipart(_subtype='related', type='multipart/alternative')
+            #
+            # alt_part = SafeMIMEMultipart(_subtype='alternative')
+            # alt_part.attach(SafeMIMEText(body, _subtype='plain', _charset='utf-8'))
+            # alt_part.attach(SafeMIMEText(body_html, _subtype='html', _charset='utf-8'))
+            # related_part.attach(alt_part)
+            #
+            # if self._signature_renderer:
+            #     for image in self._signature_renderer.images:
+            #         related_part.attach(image.mime)
+            #
+            # msg.attach(related_part)
+            msg = EmailMultiAlternatives(
                 subject=self.get_subject(mail),
                 body='',
                 from_email=mail.sender,
@@ -227,18 +252,26 @@ class EMailSender:
                 },
             )
 
-            related_part = SafeMIMEMultipart(_subtype='related', type='multipart/alternative')
-
-            alt_part = SafeMIMEMultipart(_subtype='alternative')
-            alt_part.attach(SafeMIMEText(body, _subtype='plain', _charset='utf-8'))
-            alt_part.attach(SafeMIMEText(body_html, _subtype='html', _charset='utf-8'))
-            related_part.attach(alt_part)
+            msg.attach_alternative(content=body, mimetype='text/plain')
 
             if self._signature_renderer:
                 for image in self._signature_renderer.images:
-                    related_part.attach(image.mime)
+                    # related_part.attach(image.mime)
+                    # TODO: the file is read twice with this way => improve?
+                    inline_image = MIMEPart()
+                    main_type, sub_type = image.mime.get_content_type().split('/')
+                    with image.entity.filedata.open() as f:
+                        inline_image.set_content(
+                            f.read(),
+                            # image.mime.get_payload(decode=True), TODO ??
+                            maintype=main_type,
+                            subtype=sub_type,
+                            disposition='inline',
+                            cid=image.content_id,
+                        )
+                    msg.attach(inline_image)
 
-            msg.attach(related_part)
+            msg.attach_alternative(content=body_html, mimetype='text/html')
 
             MEDIA_ROOT = settings.MEDIA_ROOT
             for attachment in self._attachments:

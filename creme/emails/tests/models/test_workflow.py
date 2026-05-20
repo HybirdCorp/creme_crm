@@ -48,5 +48,6 @@ class WorkflowEmailTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertBodiesEqual(message, body=body, body_html=body_html)
         self.assertListEqual(
             [(basename(doc.filedata.name), f'{doc.title}: Content', 'text/plain')],
-            message.attachments[1:],  # 0 is for bodies
+            # message.attachments[1:],  # 0 is for bodies
+            message.attachments,
         )

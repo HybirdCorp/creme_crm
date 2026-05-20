@@ -1,4 +1,4 @@
-from email.mime.image import MIMEImage
+# from email.mime.image import MIMEImage
 from functools import partial
 from unittest import skipIf
 
@@ -66,25 +66,50 @@ class _EmailsTestCase(CremeTestCase):
         )
 
     def assertBodiesEqual(self, message, body, body_html, signature_images_types=()):
-        bodies_attachment = message.attachments[0]
-        self.assertTrue(bodies_attachment.is_multipart())
+        # bodies_attachment = message.attachments[0]
+        # self.assertTrue(bodies_attachment.is_multipart())
+        #
+        # alt_attachment = bodies_attachment.get_payload(0)
+        # body_payload = alt_attachment.get_payload(0)
+        # self.assertEqual('text/plain', body_payload.get_content_type())
+        # self.assertEqual(body,         body_payload.get_payload())
+        #
+        # body_html_payload = alt_attachment.get_payload(1)
+        # self.assertEqual('text/html', body_html_payload.get_content_type())
+        # self.assertHTMLEqual(body_html, body_html_payload.get_payload())
+        #
+        # for i, img_type in enumerate(signature_images_types):
+        #     img = bodies_attachment.get_payload(1 + i)
+        #     self.assertIsInstance(img, MIMEImage)
+        #     self.assertEqual(img_type, img.get_content_type())
+        #
+        # with self.assertRaises(IndexError):
+        #     alt_attachment.get_payload(2 + len(signature_images_types))
 
-        alt_attachment = bodies_attachment.get_payload(0)
-        body_payload = alt_attachment.get_payload(0)
-        self.assertEqual('text/plain', body_payload.get_content_type())
-        self.assertEqual(body,         body_payload.get_payload())
+        body_alt = self.get_alone_element(
+            alt
+            for alt in message.alternatives
+            if alt.mimetype == 'text/plain'
+        )
+        self.assertEqual(body_alt.content, body)
 
-        body_html_payload = alt_attachment.get_payload(1)
-        self.assertEqual('text/html', body_html_payload.get_content_type())
-        self.assertHTMLEqual(body_html, body_html_payload.get_payload())
+        html_alt = self.get_alone_element(
+            alt
+            for alt in message.alternatives
+            if alt.mimetype == 'text/html'
+        )
+        self.assertHTMLEqual(html_alt.content, body_html)
 
-        for i, img_type in enumerate(signature_images_types):
-            img = bodies_attachment.get_payload(1 + i)
-            self.assertIsInstance(img, MIMEImage)
-            self.assertEqual(img_type, img.get_content_type())
-
-        with self.assertRaises(IndexError):
-            alt_attachment.get_payload(2 + len(signature_images_types))
+        # TODO: improve?
+        self.assertCountEqual(
+            signature_images_types,
+            [
+                attachment.get_content_type()
+                for attachment in message.attachments
+                if hasattr(attachment, 'get_content_disposition')
+                and attachment.get_content_disposition() == 'inline'
+            ],
+        )
 
     @staticmethod
     def _build_create_entitymail_url(entity):
