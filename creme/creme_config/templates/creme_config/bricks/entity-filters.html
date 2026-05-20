@@ -8,6 +8,24 @@
     {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurable types of resource') icon='config' %}
 {% endblock %}
 
+{% partialdef efilter-actions %}
+    {% with edition_error=efilter|efilter_edition_forbidden:user %}
+     {% if edition_error %}
+      {% brick_action id='edit' url='#' enabled=False help_text=edition_error %}
+     {% else %}
+      {% brick_action id='edit' url=edition_url_name|url:efilter.id %}
+     {% endif %}
+    {% endwith %}
+
+    {% with deletion_error=efilter|efilter_deletion_forbidden:user %}
+     {% if deletion_error %}
+      {% brick_action id='delete' url='#' enabled=False help_text=deletion_error %}
+     {% else %}
+      {% brick_action id='delete' url=efilter.get_delete_absolute_url %}
+     {% endif %}
+    {% endwith %}
+{% endpartialdef %}
+
 {% block brick_content %}
   {% for ctw in page.object_list %}
    {% with ctype=ctw.ctype %}
@@ -32,21 +50,7 @@
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
 {% endcomment %}
-                        {% with edition_error=efilter|efilter_edition_forbidden:user %}
-                         {% if edition_error %}
-                          {% brick_action id='edit' url='#' enabled=False help_text=edition_error %}
-                         {% else %}
-                          {% brick_action id='edit' url=edition_url_name|url:efilter.id %}
-                         {% endif %}
-                        {% endwith %}
-
-                        {% with deletion_error=efilter|efilter_deletion_forbidden:user %}
-                         {% if deletion_error %}
-                          {% brick_action id='delete' url='#' enabled=False help_text=deletion_error %}
-                         {% else %}
-                          {% brick_action id='delete' url=efilter.get_delete_absolute_url %}
-                         {% endif %}
-                        {% endwith %}
+                        {% partial efilter-actions %}
                     </li>
                   {% endfor %}
                 </ul>
@@ -63,22 +67,7 @@
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
 {% endcomment %}
-                        {# TODO: factorise #}
-                        {% with edition_error=efilter|efilter_edition_forbidden:user %}
-                         {% if edition_error %}
-                          {% brick_action id='edit' url='#' enabled=False help_text=edition_error %}
-                         {% else %}
-                          {% brick_action id='edit' url=edition_url_name|url:efilter.id %}
-                         {% endif %}
-                        {% endwith %}
-
-                        {% with deletion_error=efilter|efilter_deletion_forbidden:user %}
-                         {% if deletion_error %}
-                          {% brick_action id='delete' url='#' enabled=False help_text=deletion_error %}
-                         {% else %}
-                          {% brick_action id='delete' url=efilter.get_delete_absolute_url %}
-                         {% endif %}
-                        {% endwith %}
+                        {% partial efilter-actions %}
                     </li>
                   {% endfor %}
                 </ul>

@@ -7,13 +7,13 @@
         <div class="config-deletion-job-info-tile">
             <span class="config-deletion-job-tile-name">{% translate 'Description' %}</span>
             <span class="config-deletion-job-tile-value">
-            {% with description=job.description %}{# TODO: factorise #}
-                {% if description|length > 1 %}
-                    <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
-                {% else %}
-                    {{description.0}}
-                {% endif %}
-            {% endwith %}
+             {% with description=job.description %}{# TODO: factorise #}
+              {% if description|length > 1 %}
+                <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
+              {% else %}
+                {{description.0}}
+              {% endif %}
+             {% endwith %}
             </span>
         </div>
         <div class="config-deletion-job-info-tile">

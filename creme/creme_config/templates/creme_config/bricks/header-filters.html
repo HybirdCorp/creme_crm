@@ -8,6 +8,21 @@
     {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurable types of resource') icon='config' %}
 {% endblock %}
 
+{% partialdef hfilter-actions %}
+    {% with edition_error=hfilter|hfilter_edition_forbidden:user deletion_error=hfilter|hfilter_deletion_forbidden:user %}
+     {% if edition_error %}
+      {% brick_action id='edit' url='#' label=edition_error enabled=False %}
+     {% else %}
+      {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id %}
+     {% endif %}
+     {% if deletion_error %}
+      {% brick_action id='delete' url='#' label=deletion_error enabled=False %}
+     {% else %}
+      {% brick_action id='delete' url=deletion_url __id=hfilter.id %}
+     {% endif %}
+    {% endwith %}
+{% endpartialdef %}
+
 {% block brick_content %}
 {% url 'creme_core__delete_hfilter' as deletion_url %}
     {% for ctw in page.object_list %}
@@ -34,18 +49,7 @@
                         {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
                         {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
 {% endcomment %}
-                        {% with edition_error=hfilter|hfilter_edition_forbidden:user deletion_error=hfilter|hfilter_deletion_forbidden:user %}
-                         {% if edition_error %}
-                          {% brick_action id='edit' url='#' label=edition_error enabled=False %}
-                         {% else %}
-                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id %}
-                         {% endif %}
-                         {% if deletion_error %}
-                          {% brick_action id='delete' url='#' label=deletion_error enabled=False %}
-                         {% else %}
-                          {% brick_action id='delete' url=deletion_url __id=hfilter.id %}
-                         {% endif %}
-                        {% endwith %}
+                        {% partial hfilter-actions %}
                     </li>
                   {% endfor %}
                 </ul>
@@ -62,19 +66,7 @@
                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
                          {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
 {% endcomment %}
-                        {# TODO: factorise #}
-                        {% with edition_error=hfilter|hfilter_edition_forbidden:user deletion_error=hfilter|hfilter_deletion_forbidden:user %}
-                         {% if edition_error %}
-                          {% brick_action id='edit' url='#' label=edition_error enabled=False %}
-                         {% else %}
-                          {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id %}
-                         {% endif %}
-                         {% if deletion_error %}
-                          {% brick_action id='delete' url='#' label=deletion_error enabled=False %}
-                         {% else %}
-                          {% brick_action id='delete' url=deletion_url __id=hfilter.id %}
-                         {% endif %}
-                        {% endwith %}
+                        {% partial hfilter-actions %}
                     </li>
                   {% endfor %}
                 </ul>
