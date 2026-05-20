@@ -99,7 +99,8 @@ class GeoAddress(models.Model):
 
     @classmethod
     def populate_geoaddresses(cls, addresses):
-        for addresses in iter_as_slices(addresses, 50):
+        # for addresses in iter_as_slices(addresses, 50):
+        for addresses in iter_as_slices(addresses, size=50):
             create = []
             update = []
 

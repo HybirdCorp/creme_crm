@@ -23,7 +23,7 @@
 ################################################################################
 
 from collections.abc import Callable, Iterable, Iterator
-from typing import Literal, TypeVar
+from typing import Literal, Sequence, TypeVar
 
 T = TypeVar('T')
 
@@ -81,18 +81,21 @@ def iter_as_chunk[T](iterable: Iterable[T], step: int) -> Iterator[list[T]]:
         yield chunk
 
 
-def iter_as_slices(iterable, step):
-    """Iterator that returns chunks from an iterable using slices.
-    @param iterable: iterator.
-    @param step: chunks size.
+# def iter_as_slices(iterable, step):
+def iter_as_slices[T](sequence: Sequence[T], /, *, size) -> Iterator[Sequence[T]]:
+    """Iterator that returns chunks from a sequence using slices.
+    @param sequence: data to be sliced.
+    @param size: chunks size. Notice that the last chunk can be shorter.
     """
     index = 0
 
     while index != -1:
-        chunk = iterable[index:index + step]
+        # chunk = iterable[index:index + step]
+        chunk = sequence[index:index + size]
         chunk_length = len(chunk)
 
-        index = index + step if chunk_length == step else -1
+        # index = index + step if chunk_length == step else -1
+        index = index + size if chunk_length == size else -1
 
         if chunk_length:
             yield chunk

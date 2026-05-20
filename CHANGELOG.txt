@@ -92,8 +92,11 @@
                 - The methods 'get_bricks()' & 'get_brick_4_instance' take now their arguments
                   as keyword only now, & a new mandatory argument "tag" has been added.
                 - The method '__getitem__' has been removed.
-        # In 'creme_core.utils.meta', the classes 'Order' & 'OrderedField' are now "immutable"
-          (you should not write the internal attributes).
+        # In 'creme_core.utils' :
+            - In 'meta', the classes 'Order' & 'OrderedField' are now "immutable"
+              (you should not write the internal attributes).
+            - The function 'chunktools.iter_as_slices()' takes now a positional-only & a keyword-only arguments.
+              The second argument has been renamed too, so you'll have to update to code.
         # In 'creme_core.views.bricks.BricksReloading', the attribute 'brick_render_method' has
           been removed ; define 'brick_tag' instead.
         # In 'creme_core.templatetags' :
