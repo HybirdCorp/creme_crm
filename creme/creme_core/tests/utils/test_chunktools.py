@@ -52,14 +52,16 @@ s556"""
         return ''.join(char for char in entry if char.isdigit())
 
     def test_iter_as_slices__one_slice(self):
-        chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 1000)]
+        # chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 1000)]
+        chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, size=1000)]
 
         self.assertEqual(1, len(chunks))
         self.assertEqual(self.DATA_UNIX, ''.join(chunks))
 
     def test_iter_as_slices__several_slices(self):
         assert len(self.DATA_UNIX) % 5 == 0
-        chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 5)]
+        # chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 5)]
+        chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, size=5)]
 
         self.assertEqual(16, len(chunks))
 
@@ -71,7 +73,8 @@ s556"""
     def test_iter_as_slices__remaining_slice(self):
         data = self.DATA_UNIX + '9'
         assert len(data) % 5 == 1
-        chunks = [*chunktools.iter_as_slices(data, 5)]
+        # chunks = [*chunktools.iter_as_slices(data, 5)]
+        chunks = [*chunktools.iter_as_slices(data, size=5)]
 
         self.assertEqual(17, len(chunks))
 
