@@ -78,7 +78,7 @@ class ExportButtonBrick(SimpleBrick):
 class GenericModelBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('creme_config', 'model_config')
     verbose_name = 'Model configuration'
-    dependencies: Collection[type[core_models.CremeModel], ...] = (core_models.CremeModel,)
+    dependencies: Collection[type[core_models.CremeModel]] = (core_models.CremeModel,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/configurable-model.html'
     configurable = False
