@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable
-from typing import DefaultDict, Self
+from typing import DefaultDict, Iterator, Self
 
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
@@ -378,8 +378,9 @@ class EntityCellRegistry:
         return cells, errors
 
     @property
-    def cell_classes(self):
-        return iter(self._cell_classes.values())
+    def cell_classes(self) -> Iterator[type[EntityCell]]:
+        # return iter(self._cell_classes.values())
+        yield from self._cell_classes.values()
 
     def register(self, *cell_classes: type[EntityCell]) -> Self:
         store = self._cell_classes.setdefault
