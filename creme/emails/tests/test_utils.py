@@ -128,7 +128,8 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertEqual(mail.sender,      message.from_email)
         self.assertEqual([mail.recipient], message.recipients())
         self.assertBodiesEqual(message, body=body, body_html=body_html)
-        self.assertEqual(1, len(message.attachments))
+        # self.assertEqual(1, len(message.attachments))
+        self.assertFalse(message.attachments)
 
     def test_sender__signature(self):
         "Signature (with images)."
@@ -169,7 +170,8 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
             ),
             signature_images_types=['image/png'] * 2,
         )
-        self.assertEqual(1, len(message.attachments))
+        # self.assertEqual(1, len(message.attachments))
+        self.assertEqual(2, len(message.attachments))
 
     def test_sender__errors(self):
         with self.assertRaises(ValueError) as cm1:

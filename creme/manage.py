@@ -43,16 +43,12 @@ def execute():
 
     argv = sys.argv
     if is_test_mode(argv) and is_parallel_mode(argv):
+        # TODO: fix & remove ths workaround
         if os.name == 'posix':
-            # TODO: (genglert, 26 february 2026) it seems Django 6.0 fixed the forkserver mode
-            # NB: (genglert, 19 february 2026, creme 2.8 beta)
-            #     with Python 3.14, 'forkserver' became the default mode, but
-            #      - it's not compatible with the sqlite backend
-            #       See django/db/backends/sqlite3/creation.py => get_test_db_clone_settings()
-            #      - it seems to not working well with mariadb on the CI
-            #      - (not tested: mysql, pgsql)
-            #   It seems 'spawn' does not work either => what about parallel testing
-            #   on Windows/macOS?
+            # NB1: with Python 3.14, 'forkserver' became the default mode, but
+            #      it's currently broken with Creme (Django 6.0 seems OK)
+            # NB1: it seems 'spawn' does not work either => what about parallel
+            #      testing on Windows/macOS?
             import multiprocessing as mp
             mp.set_start_method('fork')
 

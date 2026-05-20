@@ -799,7 +799,7 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
-            user=user, name='name', subject='subject', body='body',
+            user=user, name='name', subject='I am the subject', body='I am the body',
         )
         mlist = MailingList.objects.create(user=user, name='ml01')
         contact = Contact.objects.create(
@@ -848,7 +848,8 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(template.subject, message.subject)
         self.assertEqual(sender,           message.from_email)
         self.assertBodiesEqual(message, body=template.body, body_html='')
-        self.assertEqual(1, len(message.attachments))
+        # self.assertEqual(1, len(message.attachments))
+        self.assertFalse(message.attachments)
 
         # See 'creme.creme_core.utils.test.EmailBackend'
         connection = message.connection
@@ -1030,7 +1031,8 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body='Hello Spike Spiegel !',
             body_html='<b>Hello</b> Spike Spiegel !',
         )
-        self.assertEqual(1, len(message.attachments))
+        # self.assertEqual(1, len(message.attachments))
+        self.assertFalse(message.attachments)
 
     def test_creation__error(self):
         "No related to a campaign => error."

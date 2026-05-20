@@ -273,7 +273,7 @@ jobs:
   python312-tests-mariadb:
     docker:
       - image: cimg/python:3.12
-      - image: cimg/mariadb:10.5
+      - image: cimg/mariadb:10.6
         environment:
           MYSQL_ROOT_PASSWORD: creme
           MYSQL_DATABASE: cremecrm
