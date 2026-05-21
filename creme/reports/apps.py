@@ -31,6 +31,7 @@ class ReportsConfig(CremeAppConfig):
 
     @override
     def ready(self):
+        super().ready()
         self.register_reports_aggregations()
         self.register_reports_plots()
         self.register_reports_chart_fetchers()
