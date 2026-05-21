@@ -148,7 +148,7 @@ class BricksConfigWidget(forms.Widget):
     template_name = "creme_config/forms/widgets/bricksconfig-editor.html"
 
     # class zones(enum.Enum):
-    class zones(enum.StrEnum):
+    class Zone(enum.StrEnum):
         TOP = "top"
         LEFT = "left"
         RIGHT = "right"
@@ -181,12 +181,13 @@ class BricksConfigWidget(forms.Widget):
         try:
             value = json.loads(value)
         except (ValueError, TypeError):
-            return
+            return None
 
         if not isinstance(value, dict):
-            return
+            return None
 
-        for zone in self.zones.values():
+        # for zone in self.zones.values():
+        for zone in self.Zone.values():
             if zone not in value:
                 continue
             if not isinstance(value[zone], list):
@@ -201,7 +202,8 @@ class BricksConfigWidget(forms.Widget):
             brick_zone = None
             order = 0
             if cleaned_value:
-                for zone in self.zones.values():
+                # for zone in self.zones.values():
+                for zone in self.Zone.values():
                     brick_ids = cleaned_value.get(zone)
                     if brick_ids is not None and brick_id in brick_ids:
                         brick_zone = zone
