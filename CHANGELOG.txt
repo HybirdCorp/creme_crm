@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # A validation error was never raised in mass-import.
     # Apps :
         * Creme_config :
             - The permissions on the users/teams configuration bricks have been fixed.
