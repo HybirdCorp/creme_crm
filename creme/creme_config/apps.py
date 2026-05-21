@@ -23,11 +23,11 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.apps import CremeAppConfig
 
 if TYPE_CHECKING:
-    from .registry import _ConfigRegistry
+    from .registry import ConfigRegistry
 
 
 class CremeConfigConfigMixin:
-    def register_creme_config(self, config_registry: '_ConfigRegistry') -> None:
+    def register_creme_config(self, config_registry: 'ConfigRegistry') -> None:
         raise NotImplementedError
 
 

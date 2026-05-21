@@ -39,7 +39,7 @@ from .checks import (  # NB: it registers other checks too
 from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
-    from creme.creme_config.registry import _ConfigRegistry
+    from creme.creme_config.registry import ConfigRegistry
 
     from .auth.special import SpecialPermissionRegistry
     from .core.cloning import EntityClonerRegistry
@@ -711,7 +711,7 @@ class CremeCoreConfig(CremeAppConfig):
             content_cls=core_notif.MassImportDoneContent,
         )
 
-    def register_creme_config(self, config_registry: '_ConfigRegistry'):
+    def register_creme_config(self, config_registry: 'ConfigRegistry'):
         from . import models
 
         register_model = config_registry.register_model

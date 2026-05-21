@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import re
+import warnings
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, Self
 
@@ -349,7 +350,7 @@ class _AppConfigRegistry:
     def __init__(self,
                  name: str,
                  verbose_name: str,
-                 config_registry: _ConfigRegistry,
+                 config_registry: ConfigRegistry,
                  ):
         self.name = name
         self.verbose_name = verbose_name
@@ -466,7 +467,7 @@ class _AppConfigRegistry:
             self._models
             or self._brick_classes
             # TODO: factorise with SettingsBrick ;
-            #       pass the _ConfigRegistry to SettingsBrick everywhere
+            #       pass the ConfigRegistry to SettingsBrick everywhere
             or any(
                 skey.app_label == self.name and not skey.hidden
                 for skey in self._config_registry._skey_registry
@@ -474,7 +475,8 @@ class _AppConfigRegistry:
         )
 
 
-class _ConfigRegistry:
+# class _ConfigRegistry:
+class ConfigRegistry:
     """ Registry to customise the app 'creme_config'.
 
     You can register:
@@ -828,4 +830,17 @@ class _ConfigRegistry:
         return url, allowed
 
 
-config_registry = _ConfigRegistry()
+# config_registry = _ConfigRegistry()
+config_registry = ConfigRegistry()
+
+
+def __getattr__(name):
+    if name == '_ConfigRegistry':
+        warnings.warn(
+            '"_ConfigRegistry" has been renamed "ConfigRegistry"',
+            DeprecationWarning,
+        )
+
+        return ConfigRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

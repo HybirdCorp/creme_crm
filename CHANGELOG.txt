@@ -52,6 +52,8 @@
                - Not passing a "tag" parameter to the following templatetags is deprecated :
                  '{% brick_get_by_ids %}', '{% brick_import %}'.
             - Apps :
+                * Creme_config :
+                    - The class 'registry._ConfigRegistry' has been renamed 'ConfigRegistry'.
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
                       import it from 'creme_core.core.validators' instead'.
