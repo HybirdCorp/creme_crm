@@ -146,6 +146,7 @@
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :
             * Creme_config :
+                - The method 'apps.CremeConfigConfig.populate_config_registry()' is now static.
                 - In 'bricks', the template contexts of 'EntityFiltersBrick' &
                   'HeaderFiltersBrick' have changed.
             * Persons :
