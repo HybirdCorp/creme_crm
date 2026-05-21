@@ -105,6 +105,9 @@
             - In 'creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
               do not inject the keys "edition_*" & "deletion_*" anymore.
         # Apps :
+            * Creme_config :
+                - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
+                  So the attribute 'forms.fields.BricksConfigField.zones' has been renamed 'Zone'.
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.

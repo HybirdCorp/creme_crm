@@ -428,7 +428,8 @@ class MenuEntriesField(fields.JSONField):
 
 class BricksConfigField(fields.JSONField):
     widget = widgets.BricksConfigWidget
-    zones = widgets.BricksConfigWidget.zones
+    # zones = widgets.BricksConfigWidget.zones
+    Zone = widgets.BricksConfigWidget.Zone
 
     default_error_messages = {
         'invalid_format': _("The value doesn't match the expected format."),
@@ -446,7 +447,8 @@ class BricksConfigField(fields.JSONField):
             raise NotImplementedError("BricksConfigField is a required field.")
 
         if 'initial' not in kwargs:
-            kwargs['initial'] = {zone: [] for zone in self.zones.values()}
+            # kwargs['initial'] = {zone: [] for zone in self.zones.values()}
+            kwargs['initial'] = {zone: [] for zone in self.Zone.values()}
 
         super().__init__(**kwargs)
         self.choices = choices
@@ -488,7 +490,8 @@ class BricksConfigField(fields.JSONField):
         bricks = set()
 
         cleaned_value = {}
-        for zone in self.zones.values():
+        # for zone in self.zones.values():
+        for zone in self.Zone.values():
             zone_value = value.get(zone, [])
             if not isinstance(zone_value, list):
                 raise ValidationError(

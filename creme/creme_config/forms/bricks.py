@@ -137,10 +137,14 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
     locations = BricksConfigField(label=_("Blocks"), required=True)
 
     locations_map = {
-        BrickDetailviewLocation.TOP: BricksConfigField.zones.TOP,
-        BrickDetailviewLocation.LEFT: BricksConfigField.zones.LEFT,
-        BrickDetailviewLocation.RIGHT: BricksConfigField.zones.RIGHT,
-        BrickDetailviewLocation.BOTTOM: BricksConfigField.zones.BOTTOM,
+        # BrickDetailviewLocation.TOP: BricksConfigField.zones.TOP,
+        # BrickDetailviewLocation.LEFT: BricksConfigField.zones.LEFT,
+        # BrickDetailviewLocation.RIGHT: BricksConfigField.zones.RIGHT,
+        # BrickDetailviewLocation.BOTTOM: BricksConfigField.zones.BOTTOM,
+        BrickDetailviewLocation.TOP:    BricksConfigField.Zone.TOP,
+        BrickDetailviewLocation.LEFT:   BricksConfigField.Zone.LEFT,
+        BrickDetailviewLocation.RIGHT:  BricksConfigField.Zone.RIGHT,
+        BrickDetailviewLocation.BOTTOM: BricksConfigField.Zone.BOTTOM,
     }
 
     def __init__(self, ctype=None, *args, **kwargs):
