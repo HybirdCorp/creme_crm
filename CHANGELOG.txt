@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # A validation error was never raised in mass-import.
     # Apps :
         * Emails :
             - The title of the popup which fixes an email-to-sync has ben improved.
