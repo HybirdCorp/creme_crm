@@ -45,8 +45,9 @@ class CremeConfigConfig(CremeConfigConfigMixin, CremeAppConfig):
         from .registry import config_registry
         self.populate_config_registry(config_registry)
 
-    # TODO: staticmethod?
-    def populate_config_registry(self, config_registry):
+    # def populate_config_registry(self, config_registry):
+    @staticmethod
+    def populate_config_registry(config_registry):
         from creme.creme_core.apps import creme_app_configs
 
         for app_config in creme_app_configs():
