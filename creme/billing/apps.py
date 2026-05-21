@@ -22,11 +22,12 @@ from django.core import checks
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import npgettext, pgettext
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 from creme.creme_core.checks import Tags
 
 
-class BillingConfig(CremeAppConfig):
+class BillingConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.billing'
     verbose_name = _('Billing')
@@ -265,17 +266,18 @@ class BillingConfig(CremeAppConfig):
             buttons.ConvertToQuoteButton,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks, models
 
         register_model = config_registry.register_model
-        register_model(models.InvoiceStatus,         'invoice_status')
-        register_model(models.QuoteStatus,           'quote_status')
-        register_model(models.CreditNoteStatus,      'credit_note_status')
-        register_model(models.SalesOrderStatus,      'sales_order_status')
-        register_model(models.AdditionalInformation, 'additional_information')
-        register_model(models.PaymentTerms,          'payment_terms')
-        register_model(models.SettlementTerms,       'invoice_payment_type')
+        register_model(models.InvoiceStatus,         model_name='invoice_status')
+        register_model(models.QuoteStatus,           model_name='quote_status')
+        register_model(models.CreditNoteStatus,      model_name='credit_note_status')
+        register_model(models.SalesOrderStatus,      model_name='sales_order_status')
+        register_model(models.AdditionalInformation, model_name='additional_information')
+        register_model(models.PaymentTerms,          model_name='payment_terms')
+        register_model(models.SettlementTerms,       model_name='invoice_payment_type')
 
         config_registry.register_app_bricks(
             'billing',

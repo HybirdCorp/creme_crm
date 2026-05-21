@@ -20,11 +20,12 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 from creme.persons import get_contact_model, get_organisation_model
 
 
-class GeolocationConfig(CremeAppConfig):
+class GeolocationConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.geolocation'
     verbose_name = _('Geolocation')
@@ -68,13 +69,14 @@ class GeolocationConfig(CremeAppConfig):
             bricks.OpenStreetMapFilteredMapBrick,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Town, 'town')
+        register_model(models.Town, model_name='town')
         register_model(
-            models.GeoAddress, 'geoaddress',
+            models.GeoAddress, model_name='geoaddress',
         ).creation(
             enable_func=lambda user: False
         ).edition(

@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class EventsConfig(CremeAppConfig):
+class EventsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.events'
     verbose_name = _('Events')
@@ -64,10 +65,11 @@ class EventsConfig(CremeAppConfig):
             custom_forms.EVENT_EDITION_CFORM,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
-        config_registry.register_model(models.EventType, 'event_type')
+        config_registry.register_model(models.EventType, model_name='event_type')
 
     @override
     def register_cloners(self, entity_cloner_registry):

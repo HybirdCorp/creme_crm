@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class DocumentsConfig(CremeAppConfig):
+class DocumentsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.documents'
     verbose_name = _('Documents')
@@ -80,12 +81,13 @@ class DocumentsConfig(CremeAppConfig):
         #     Should we implement a file versioning system?
         register(self.Document).exclude('filedata')
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.FolderCategory,   'category')
-        register_model(models.DocumentCategory, 'doc_category')
+        register_model(models.FolderCategory,   model_name='category')
+        register_model(models.DocumentCategory, model_name='doc_category')
 
     @override
     def register_custom_forms(self, cform_registry):

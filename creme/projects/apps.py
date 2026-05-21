@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class ProjectsConfig(CremeAppConfig):
+class ProjectsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.projects'
     verbose_name = _('Projects')
@@ -73,12 +74,13 @@ class ProjectsConfig(CremeAppConfig):
 
         button_registry.register_mandatory(buttons.CloseProjectButton)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.ProjectStatus, 'projectstatus')
-        register_model(models.TaskStatus,    'taskstatus')
+        register_model(models.ProjectStatus, model_name='projectstatus')
+        register_model(models.TaskStatus,    model_name='taskstatus')
 
     @override
     def register_custom_forms(self, cform_registry):

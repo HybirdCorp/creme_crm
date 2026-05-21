@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class ReportsConfig(CremeAppConfig):
+class ReportsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.reports'
     verbose_name = _('Reports')
@@ -98,6 +99,7 @@ class ReportsConfig(CremeAppConfig):
         ).exclude('ct').add_overriders(bulk.ReportFilterOverrider)
         # TODO: self.ReportGraph? (beware to 'chart')
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks
 

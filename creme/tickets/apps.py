@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class TicketsConfig(CremeAppConfig):
+class TicketsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.tickets'
     verbose_name = _('Tickets')
@@ -59,13 +60,14 @@ class TicketsConfig(CremeAppConfig):
 
         button_registry.register(buttons.Linked2TicketButton)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Status,    'status')
-        register_model(models.Priority,  'priority')
-        register_model(models.Criticity, 'criticity')
+        register_model(models.Status,    model_name='status')
+        register_model(models.Priority,  model_name='priority')
+        register_model(models.Criticity, model_name='criticity')
 
     @override
     def register_custom_forms(self, cform_registry):

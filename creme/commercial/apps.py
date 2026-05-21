@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class CommercialConfig(CremeAppConfig):
+class CommercialConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.commercial'
     verbose_name = _('Commercial strategy')
@@ -99,10 +100,11 @@ class CommercialConfig(CremeAppConfig):
 
         button_registry.register(buttons.CompleteGoalButton)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
-        config_registry.register_model(models.ActType, 'act_type')
+        config_registry.register_model(models.ActType, model_name='act_type')
 
     @override
     def register_custom_forms(self, cform_registry):
