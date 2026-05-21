@@ -28,6 +28,7 @@ class ReportsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core', 'creme.sketch']
 
     def ready(self):
+        super().ready()
         self.register_reports_aggregations()
         # self.register_reports_charts()
         self.register_reports_plots()
