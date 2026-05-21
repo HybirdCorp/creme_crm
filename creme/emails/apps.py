@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class EmailsConfig(CremeAppConfig):
+class EmailsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.emails'
     verbose_name = _('Emails')
@@ -170,6 +171,7 @@ class EmailsConfig(CremeAppConfig):
             'emails', persons.get_organisation_model(), 'email',
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks
 

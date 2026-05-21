@@ -21,12 +21,13 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 logger = logging.getLogger(__name__)
 
 
-class OpportunitiesConfig(CremeAppConfig):
+class OpportunitiesConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.opportunities'
     verbose_name = _('Opportunities')
@@ -95,12 +96,13 @@ class OpportunitiesConfig(CremeAppConfig):
 
         button_registry.register(*buttons.button_classes)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Origin,     'origin')
-        register_model(models.SalesPhase, 'sales_phase')
+        register_model(models.Origin,     model_name='origin')
+        register_model(models.SalesPhase, model_name='sales_phase')
 
     @override
     def register_custom_forms(self, cform_registry):

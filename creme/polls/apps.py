@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class PollsConfig(CremeAppConfig):
+class PollsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.polls'
     verbose_name = _('Polls')
@@ -77,10 +78,11 @@ class PollsConfig(CremeAppConfig):
         register(self.PollCampaign)
         # bulk_update_registry.register(PollFormLine).exclude('type') TODO ??
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
-        config_registry.register_model(models.PollType, 'poll_type')
+        config_registry.register_model(models.PollType, model_name='poll_type')
 
     @override
     def register_custom_forms(self, cform_registry):

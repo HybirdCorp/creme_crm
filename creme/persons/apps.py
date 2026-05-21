@@ -22,12 +22,13 @@ from typing import override
 from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 from . import constants
 
 
-class PersonsConfig(CremeAppConfig):
+class PersonsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.persons'
     verbose_name = _('Accounts and Contacts')
@@ -99,15 +100,16 @@ class PersonsConfig(CremeAppConfig):
             buttons.TransformIntoUserButton,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks, models
 
         register_model = config_registry.register_model
-        register_model(models.Position,  'position')
-        register_model(models.Sector,    'sector')
-        register_model(models.LegalForm, 'legal_form')
-        register_model(models.StaffSize, 'staff_size')
-        register_model(models.Civility,  'civility')
+        register_model(models.Position,  model_name='position')
+        register_model(models.Sector,    model_name='sector')
+        register_model(models.LegalForm, model_name='legal_form')
+        register_model(models.StaffSize, model_name='staff_size')
+        register_model(models.Civility,  model_name='civility')
 
         config_registry.register_portal_bricks(bricks.ManagedOrganisationsBrick)
 

@@ -16,14 +16,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
+if TYPE_CHECKING:
+    from .registry import _ConfigRegistry
 
-class CremeConfigConfig(CremeAppConfig):
+
+class CremeConfigConfigMixin:
+    def register_creme_config(self, config_registry: '_ConfigRegistry') -> None:
+        raise NotImplementedError
+
+
+class CremeConfigConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.creme_config'
     verbose_name = _('General configuration')
@@ -49,6 +57,7 @@ class CremeConfigConfig(CremeAppConfig):
             if register_creme_config is not None:
                 register_creme_config(config_registry)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks
 

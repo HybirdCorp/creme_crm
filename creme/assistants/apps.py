@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class AssistantsConfig(CremeAppConfig):
+class AssistantsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.assistants'
     verbose_name = _('Assistants (Todos, Memos, …)')
@@ -95,10 +96,11 @@ class AssistantsConfig(CremeAppConfig):
             ffields.TodosField,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import models
 
-        config_registry.register_model(models.UserMessagePriority, 'message_priority')
+        config_registry.register_model(models.UserMessagePriority, model_name='message_priority')
 
     @override
     def register_notification(self, notification_registry):

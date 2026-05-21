@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class ProductsConfig(CremeAppConfig):
+class ProductsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.products'
     verbose_name = _('Products and services')
@@ -56,18 +57,19 @@ class ProductsConfig(CremeAppConfig):
         register(self.Product).add_overriders(CategoryOverrider)
         register(self.Service).add_overriders(CategoryOverrider)
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks, models
         from .forms import category
 
         register_model = config_registry.register_model
         register_model(
-            models.Category, 'category',
+            models.Category, model_name='category',
         ).brick_class(
             bricks.CategoriesBrick
         )
         register_model(
-            models.SubCategory, 'subcategory',
+            models.SubCategory, model_name='subcategory',
         ).brick_class(
             bricks.SubCategoriesBrick
         ).creation(

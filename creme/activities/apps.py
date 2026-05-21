@@ -20,12 +20,13 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 from . import constants
 
 
-class ActivitiesConfig(CremeAppConfig):
+class ActivitiesConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.activities'
     verbose_name = _('Activities')
@@ -109,6 +110,7 @@ class ActivitiesConfig(CremeAppConfig):
             buttons.AddUnsuccessfulPhoneCallButton,
         )
 
+    @override
     def register_creme_config(self, config_registry):
         from . import bricks, models
         from .forms import activity_type as type_forms

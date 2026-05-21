@@ -39,6 +39,8 @@ from .checks import (  # NB: it registers other checks too
 from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
+    from creme.creme_config.registry import _ConfigRegistry
+
     from .auth.special import SpecialPermissionRegistry
     from .core.cloning import EntityClonerRegistry
     from .core.deletion import EntityDeletorRegistry
@@ -709,13 +711,13 @@ class CremeCoreConfig(CremeAppConfig):
             content_cls=core_notif.MassImportDoneContent,
         )
 
-    def register_creme_config(self, config_registry):
+    def register_creme_config(self, config_registry: '_ConfigRegistry'):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Language, 'language')
-        register_model(models.Currency, 'currency')
-        register_model(models.Vat,      'vat_value').edition(
+        register_model(models.Language, model_name='language')
+        register_model(models.Currency, model_name='currency')
+        register_model(models.Vat,      model_name='vat_value').edition(
             # TODO: should we provide a customised error message?
             #       (e.g. which instances are blocking edition)
             enable_func=lambda instance, user: not instance.is_referenced
@@ -725,35 +727,35 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests import fake_bricks, fake_models
 
             # NB: see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase
-            register_model(fake_models.FakeDocumentCategory, 'fake_documentcat')
-            register_model(fake_models.FakeCivility,         'fake_civility')
-            register_model(fake_models.FakeSector,           'fake_sector')
-            register_model(fake_models.FakeProductType,      'fake_product_type')
-            register_model(fake_models.FakeActivityType,     'fake_activity_type')
-            register_model(fake_models.FakeTicketStatus,     'fake_ticket_status')
-            register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
-            register_model(fake_models.FakeIngredient,       'fake_ingredient')
-            register_model(fake_models.FakeIngredientGroup,  'fake_ingredient_group')
-            register_model(fake_models.FakeSkill,            'fake_skill')
-            register_model(fake_models.FakeTraining,         'fake_training')
+            register_model(fake_models.FakeDocumentCategory, model_name='fake_documentcat')
+            register_model(fake_models.FakeCivility,         model_name='fake_civility')
+            register_model(fake_models.FakeSector,           model_name='fake_sector')
+            register_model(fake_models.FakeProductType,      model_name='fake_product_type')
+            register_model(fake_models.FakeActivityType,     model_name='fake_activity_type')
+            register_model(fake_models.FakeTicketStatus,     model_name='fake_ticket_status')
+            register_model(fake_models.FakeTicketPriority,   model_name='fake_ticket_priority')
+            register_model(fake_models.FakeIngredient,       model_name='fake_ingredient')
+            register_model(fake_models.FakeIngredientGroup,  model_name='fake_ingredient_group')
+            register_model(fake_models.FakeSkill,            model_name='fake_skill')
+            register_model(fake_models.FakeTraining,         model_name='fake_training')
 
             # NB: we just need another URLs for creation/edition/deletion
             # (even if these are stupid)
             register_model(
-                fake_models.FakePosition, 'fake_position',
+                fake_models.FakePosition, model_name='fake_position',
             ).creation(
                 enable_func=lambda user: False,
             ).edition(url_name='creme_core__edit_fake_contact')
             register_model(
-                fake_models.FakeLegalForm, 'fake_legalform',
+                fake_models.FakeLegalForm, model_name='fake_legalform',
             ).creation(
                 url_name='creme_core__create_fake_contact',
             ).edition(enable_func=lambda instance, user: False)
             register_model(
-                fake_models.FakeFolderCategory, 'fake_foldercat',
+                fake_models.FakeFolderCategory, model_name='fake_foldercat',
             ).deletion(enable_func=lambda instance, user: False)
             register_model(
-                fake_models.FakeImageCategory, 'fake_img_cat',
+                fake_models.FakeImageCategory, model_name='fake_img_cat',
             ).deletion(url_name='creme_core__edit_fake_organisation')
 
             config_registry.register_portal_bricks(fake_bricks.FakePortalBrick)
