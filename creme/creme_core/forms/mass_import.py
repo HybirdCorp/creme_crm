@@ -36,13 +36,13 @@ from django.forms.widgets import HiddenInput, Widget
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.text import Truncator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_config.registry import NotRegisteredInConfig, config_registry
 from creme.documents import get_document_model
 
-from .. import utils
 from ..backends import import_backend_registry
 from ..core.field_tags import FieldTag
 from ..core.workflow import WorkflowEngine
@@ -838,7 +838,7 @@ class RelationExtractor(SingleColumnExtractor):
                     'Raw error: [{raw_error}]'
                 ).format(
                     # raw_error=e,
-                    raw_error=utils.ellipsis(str(e), length=50),
+                    raw_error=Truncator(str(e)).chars(50),
                     column=self._column_index,
                     field=self._subfield_search,
                     value=value,

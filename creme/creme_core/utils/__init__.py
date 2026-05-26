@@ -25,11 +25,13 @@
 import logging
 import sys
 import traceback
+import warnings
 from collections.abc import Iterable
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 from django.utils.translation import gettext as _
 
 from ..signals import pre_replace_related
@@ -238,9 +240,13 @@ def truncate_str(str: str, max_length: int, suffix: str = '') -> str:
         return str[:max_length]
 
 
-# TODO: use django.utils.text.Truncator.chars() instead ??
 def ellipsis(s: str, length: int) -> str:
     "Ensures that a string has a maximum length."
+    warnings.warn(
+        'ellipsis() is deprecated; '
+        'use django.utils.text.Truncator.chars() instead.',
+        DeprecationWarning,
+    )
     if len(s) > length:
         s = s[:length - 1] + '…'
 
@@ -280,7 +286,8 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
 
         str_2_truncate[max_idx].length -= 1
 
-    return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
+    # return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
+    return [Truncator(elt.data).chars(elt.length) for elt in str_2_truncate]
 
 
 def prefixed_truncate(s: str, prefix, length: int) -> str:

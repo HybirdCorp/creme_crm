@@ -47,6 +47,7 @@
                   use the methods 'check_*()' instead.
                 - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
+            - The function 'utils.ellipsis() is deprecated; use 'django.utils.text.Truncator.chars()' instead.
             - In the templatetags libray "creme_bricks" :
                - The argument "render" of '{% brick_display %}' is deprecated & ignored.
                - Not passing a "tag" parameter to the following templatetags is deprecated :

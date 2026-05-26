@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -233,7 +233,8 @@ def multi_save_lines(request, document_id):
 
     if errors:
         return render(
-            request, 'billing/frags/lines-errors.html',
+            request,
+            template_name='billing/frags/lines-errors.html',  # TODO: frags?
             context={'errors': errors}, status=409,
         )
 
