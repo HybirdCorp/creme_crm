@@ -25,6 +25,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.transaction import atomic
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
+from django.utils.text import Truncator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -34,7 +35,7 @@ from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import FileRef, Relation
-from creme.creme_core.utils import ellipsis
+# from creme.creme_core.utils import ellipsis
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.utils.translation import smart_model_verbose_name
@@ -140,9 +141,12 @@ class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
                 )[0]
 
                 return get_or_create_folder(
-                    title=ellipsis(
-                        f'{entity.id}_{entity}',
-                        length=Folder._meta.get_field('title').max_length,
+                    # title=ellipsis(
+                    #     f'{entity.id}_{entity}',
+                    #     length=Folder._meta.get_field('title').max_length,
+                    # ),  # Meh
+                    title=Truncator(f'{entity.id}_{entity}').chars(
+                        Folder._meta.get_field('title').max_length,
                     ),  # Meh
                     parent_folder=model_folder,
                 )[0]

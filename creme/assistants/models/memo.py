@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,12 @@
 
 from django.db import models
 from django.urls import reverse
+from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.models as core_models
+# from creme.creme_core.utils import ellipsis
 import creme.creme_core.models.fields as core_fields
-from creme.creme_core.utils import ellipsis
 
 
 class MemoManager(models.Manager):
@@ -61,7 +62,8 @@ class Memo(core_models.CremeModel):
 
     def __str__(self):
         # NB: translate for unicode can not take 2 arguments...
-        return ellipsis(self.content.strip().replace('\n', ''), 25)
+        # return ellipsis(self.content.strip().replace('\n', ''), 25)
+        return Truncator(self.content.strip().replace('\n', '')).chars(25)
 
     def get_edit_absolute_url(self):
         return reverse('assistants__edit_memo', args=(self.id,))

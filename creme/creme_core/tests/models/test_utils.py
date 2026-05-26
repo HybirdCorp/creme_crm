@@ -26,7 +26,7 @@ class Assign2CharFieldTestCase(CremeTestCase):
         )
 
     def test_truncate_policy(self):
-        "Other truncate policy"
+        """Other truncate policy."""
         addr = FakeAddress()
 
         val = 'A country with a very very very long name'
@@ -36,4 +36,4 @@ class Assign2CharFieldTestCase(CremeTestCase):
         self.assertEqual(
             'A country with a very very very long nam',
             addr.country,
-        ),
+        )

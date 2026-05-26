@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.timezone import make_aware, zoneinfo
 from django.utils.translation import gettext, gettext_lazy, ngettext
 from django.utils.translation import override as override_language
+from django.utils.translation import pgettext
 from PIL.Image import open as open_img
 
 from creme.creme_core.models import FakeContact, FakeOrganisation
@@ -210,14 +211,27 @@ class MiscTestCase(CremeTestCase):
         self.assertListEqual(
             ['123456789', 'b'], ellipsis_multi(['123456789', 'b'], 10),
         )
-        self.assertListEqual(
-            ['1234567…', 'b'], ellipsis_multi(['123456789', 'b'], 9),
+
+        msg = pgettext(
+            "String to return when truncating text", "%(truncated_text)s…"
         )
         self.assertListEqual(
-            ['1234…', '12', '12'], ellipsis_multi(['123456', '12', '12'], 9),
+            # ['1234567…', 'b'],
+            [msg % {'truncated_text': '1234567'}, 'b'],
+            ellipsis_multi(['123456789', 'b'], 9),
         )
         self.assertListEqual(
-            ['12…', '12', '123…'],  # ['123…', '12', '12…'] would be better...
+            # ['1234…', '12', '12'],
+            [msg % {'truncated_text': '1234'}, '12', '12'],
+            ellipsis_multi(['123456', '12', '12'], 9),
+        )
+        self.assertListEqual(
+            # ['12…', '12', '123…'],
+            [
+                msg % {'truncated_text': '12'},
+                '12',
+                msg % {'truncated_text': '123'},
+            ],  # ['123…', '12', '12…'] would be better...
             ellipsis_multi(['123456', '12', '12345'], 9),
         )
 

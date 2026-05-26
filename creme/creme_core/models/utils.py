@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2025 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,32 @@
 from collections.abc import Callable
 
 from django.db.models import Model
+from django.utils.text import Truncator
 from django.utils.translation import gettext
 
-from ..utils import ellipsis
+# from ..utils import ellipsis
 from .custom_entity import CustomEntityType
 
 
 def assign_2_charfield(instance: Model,
                        field_name: str,
                        value: str,
-                       truncate: Callable[[str, int], str] = ellipsis,
+                       # truncate: Callable[[str, int], str] = ellipsis,
+                       truncate: Callable[[str, int], str] | None = None,
                        ) -> None:
     field = instance._meta.get_field(field_name)
-    setattr(instance, field_name, truncate(value, field.max_length))
 
+    setattr(
+        instance,
+        field_name,
+        Truncator(value).chars(field.max_length)
+        if truncate is None else
+        truncate(value, field.max_length)
+    )
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by

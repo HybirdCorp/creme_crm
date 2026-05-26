@@ -19,12 +19,13 @@
 from django.conf import settings
 from django.db import models
 from django.utils.formats import date_format
+from django.utils.text import Truncator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.utils import chunktools, ellipsis
+from creme.creme_core.utils import chunktools  # ellipsis
 
 from ..webservice.backend import WSException
 from ..webservice.samoussa import (
@@ -143,9 +144,12 @@ class Message(CremeModel):
         try:
             ws.connect()
         except WSException as err:
-            msg = ellipsis(
-                str(err),
-                length=cls._meta.get_field('status_message').max_length,
+            # msg = ellipsis(
+            #     str(err),
+            #     length=cls._meta.get_field('status_message').max_length,
+            # )
+            msg = Truncator(str(err)).chars(
+                cls._meta.get_field('status_message').max_length,
             )
             sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=msg)
             return None
