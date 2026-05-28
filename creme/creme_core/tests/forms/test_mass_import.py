@@ -1413,7 +1413,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
         field = MultiRelationsExtractorField(columns=columns1)
         self.assertTrue(field.required)
         self.assertIsNone(field.user)
-        self.assertListEqual(columns1, field.columns)
+        self.assertListEqual(columns1, [*field.columns])
         self.assertFalse([*field.allowed_rtypes])
 
         widget = field.widget
@@ -1423,7 +1423,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
 
         columns2 = [*columns1, (3, 'Column #3')]
         field.columns = columns2
-        self.assertListEqual(columns2, field.columns)
+        self.assertListEqual(columns2, [*field.columns])
         self.assertListEqual(columns2, widget.columns)
 
         rtypes = [self.rtype1, self.rtype2]

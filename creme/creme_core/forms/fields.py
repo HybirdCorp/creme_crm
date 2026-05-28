@@ -772,12 +772,13 @@ class RelationEntityField(EntityCredsJSONField):
         self.allowed_rtypes = allowed_rtypes
 
     @property
-    def allowed_rtypes(self):
+    def allowed_rtypes(self) -> QuerySet:
         # TODO: .all()?
         return self._allowed_rtypes
 
     @allowed_rtypes.setter
-    def allowed_rtypes(self, allowed):
+    def allowed_rtypes(self, allowed: QuerySet[RelationType] | Iterable[str]) -> None:
+        """@param allowed: QuerySet of RelationType, or RelationType IDs."""
         self._allowed_rtypes = (
             allowed if isinstance(allowed, QuerySet) else
             RelationType.objects.filter(id__in=allowed)
