@@ -79,7 +79,8 @@ urlpatterns = [
         name='billing__add_to_catalog',
     ),
     re_path(
-        r'^(?P<document_id>\d+)/line/(?P<line_id>\d+)/reorder[/]?$',
+        # r'^(?P<document_id>\d+)/line/(?P<line_id>\d+)/reorder[/]?$',
+        r'^(?P<document_id>\d+)/line/(?P<line_ct_id>\d+)/(?P<line_id>\d+)/reorder[/]?$',
         line.ReorderLines.as_view(),
         name='billing__reorder_line',
     ),

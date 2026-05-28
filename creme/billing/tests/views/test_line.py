@@ -996,6 +996,13 @@ class MultiLinesSavingTestCase(base.BrickTestCaseMixin, _BillingTestCase):
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LinesReorderingTestCase(_BillingTestCase):
+    @staticmethod
+    def _build_url(invoice, line):
+        return reverse(
+            'billing__reorder_line',
+            args=(invoice.id, line.entity_type_id, line.id),
+        )
+
     @parameterized.expand([
         ('Product 1', 3, [
             (1, 'Product 2'),
@@ -1050,12 +1057,10 @@ class LinesReorderingTestCase(_BillingTestCase):
                 for order in range(1, 3)
             }
         }
-
-        url = reverse('billing__reorder_line', args=(invoice.pk, lines[target_name].pk))
+        url = self._build_url(invoice, lines[target_name])
 
         with patch('creme.billing.models.Invoice.save') as fake_invoice_save:
-            response = self.client.post(url, data={'target': next_order})
-            self.assertEqual(response.status_code, 200)
+            self.assertPOST200(url, data={'target': next_order})
 
         # invoice.refresh_from_db()
         invoice = self.refresh(invoice)
@@ -1082,22 +1087,29 @@ class LinesReorderingTestCase(_BillingTestCase):
         data = {'target': 1}
 
         self.assertPOST404(
-            reverse('billing__reorder_line', args=(line.pk, line.pk)), data=data
+            self._build_url(invoice=line, line=line), data=data,
         )
         self.assertPOST404(
-            reverse('billing__reorder_line', args=(invoice.pk, invoice.pk)), data=data
+            self._build_url(invoice=invoice, line=invoice), data=data,
         )
         self.assertPOST404(
-            reverse('billing__reorder_line', args=(999999, line.pk)), data=data
+            # reverse('billing__reorder_line', args=(self.UNUSED_PK, line.pk)),
+            reverse('billing__reorder_line', args=(self.UNUSED_PK, line.entity_type_id, line.pk)),
+            data=data,
         )
         self.assertPOST404(
-            reverse('billing__reorder_line', args=(invoice.pk, 9999999)), data=data
+            # reverse('billing__reorder_line', args=(invoice.pk, self.UNUSED_PK)),
+            reverse(
+                'billing__reorder_line',
+                args=(invoice.id, line.entity_type_id, self.UNUSED_PK),
+            ),
+            data=data,
         )
 
     def test_invalid_perms(self):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
-            creatable_models=[Invoice, Organisation]
+            creatable_models=[Invoice, Organisation],
         )
         self.add_credentials(user.role, own='!CHANGE')
 
@@ -1106,23 +1118,19 @@ class LinesReorderingTestCase(_BillingTestCase):
 
         line = ProductLine.objects.create(
             user=user, related_document=invoice, vat_value=Vat.objects.default(),
-            unit_price=Decimal('10'), on_the_fly_item='Product A'
+            unit_price=Decimal('10'), on_the_fly_item='Product A',
         )
-
         self.assertPOST403(
-            reverse('billing__reorder_line', args=(invoice.pk, line.pk)), data={'target': 1}
+            self._build_url(invoice=invoice, line=line), data={'target': 1},
         )
 
     def test_invalid_target(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
-
         line = ProductLine.objects.create(
             user=user, related_document=invoice, vat_value=Vat.objects.default(),
             unit_price=Decimal('10'), on_the_fly_item='Product A'
         )
-
-        url = reverse('billing__reorder_line', args=(invoice.pk, line.pk))
-
+        url = self._build_url(invoice=invoice, line=line)
         self.assertPOST404(url, data={})
         self.assertPOST409(url, data={'target': 0})

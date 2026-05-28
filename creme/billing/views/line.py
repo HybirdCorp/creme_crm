@@ -131,21 +131,29 @@ class ReorderLines(EntityRelatedMixin, ReorderInstances):
     order_field_name: str = 'order'
     use_raw_update = True
 
+    line_ct_id_url_kwarg: str = 'line_ct_id'
     pk_url_kwarg: str = 'line_id'
 
     def get_line_model(self):
-        get_for_ct = ContentType.objects.get_for_model
-        entity_id = self.kwargs[self.pk_url_kwarg]
+        # get_for_ct = ContentType.objects.get_for_model
+        # line_id = self.kwargs[self.pk_url_kwarg]
+        #
+        # try:
+        #     entity_type_id = CremeEntity.objects.filter(
+        #         id=line_id,
+        #         entity_type__in=[get_for_ct(c) for c in line_registry],
+        #     ).values_list('entity_type', flat=True)[0]
+        # except IndexError:
+        #     raise Http404("No CremeEntity matches the given query.")
+        #
+        # return ContentType.objects.get_for_id(entity_type_id).model_class()
+        ct_id = self.kwargs[self.line_ct_id_url_kwarg]
+        model = ContentType.objects.get_fresh_for_id(int(ct_id)).model_class()
 
-        try:
-            entity_type_id = CremeEntity.objects.filter(
-                id=entity_id,
-                entity_type__in=[get_for_ct(c) for c in line_registry],
-            ).values_list('entity_type', flat=True)[0]
-        except IndexError:
-            raise Http404("No CremeEntity matches the given query.")
+        if model not in line_registry:
+            raise Http404('Not a line ContentType.')
 
-        return ContentType.objects.get_for_id(entity_type_id).model_class()
+        return model
 
     def get_queryset(self):
         document = self.get_related_entity()
