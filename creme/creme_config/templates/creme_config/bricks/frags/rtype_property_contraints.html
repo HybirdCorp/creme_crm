@@ -1,4 +1,5 @@
-{% load i18n creme_widgets %}{% load uca_sort from creme_core_tags %}
+{% load i18n creme_widgets %}{% load log uca_sort from creme_core_tags %}
+{% log "The template creme_config/bricks/frags/rtype_property_contraints.html is deprecated" level='WARN' %}
 {% if not mandatory and not forbidden %}
     <span title="{% translate 'No property constraint' %}" >—</span>
 {% else %}
