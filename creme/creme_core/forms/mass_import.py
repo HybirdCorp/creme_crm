@@ -803,8 +803,7 @@ class RelationExtractor(SingleColumnExtractor):
     #     self._related_form = modelform_factory(
     #         related_model, fields='__all__',
     #     ) if create_if_unfound else None
-    # TODO: keyword-only arguments
-    def __init__(self,
+    def __init__(self, *,
                  column_index: int,
                  rtype: RelationType,
                  subfield_search: str,
