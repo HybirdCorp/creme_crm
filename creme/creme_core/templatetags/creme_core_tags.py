@@ -145,13 +145,13 @@ def get_meta_value(obj, key, default=''):
     return default
 
 
-_log_levels = {
-    'CRITICAL': logging.CRITICAL,
-    'ERROR':    logging.ERROR,
-    'WARN':     logging.WARNING,
-    'INFO':     logging.INFO,
-    'DEBUG':    logging.DEBUG,
-}
+# _log_levels = {
+#     'CRITICAL': logging.CRITICAL,
+#     'ERROR':    logging.ERROR,
+#     'WARN':     logging.WARNING,
+#     'INFO':     logging.INFO,
+#     'DEBUG':    logging.DEBUG,
+# }
 
 
 @register.simple_tag
@@ -159,7 +159,18 @@ def log(msg, level='INFO'):
     """Log a string using the logging system.
     It's useful to indicate that a template file is deprecated for example.
     """
-    logger.log(_log_levels.get(level, logging.INFO), msg)
+    # logger.log(_log_levels.get(level, logging.INFO), msg)
+    level_mapping = logging.getLevelNamesMapping()
+    try:
+        level = level_mapping[level]
+    except KeyError:
+        logger.critical(
+            '{%% log %%}: level "%s" is not defined; use %s',
+            level, [*level_mapping],
+        )
+        level = logging.INFO
+    logger.log(level, msg)
+
     return ''
 
 

@@ -284,6 +284,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
             ).render(Context({'msg': msg2}))
         self.assertIn(msg2, logs_manager2.output[0])
 
+        # ---
+        msg3 = 'Message using an invalid level'
+        with self.assertLogs(level='CRITICAL') as logs_manager3:
+            Template(
+                "{% load creme_core_tags %}{% log msg level='INVALID' %}"
+            ).render(Context({'msg': msg3}))
+        self.assertIn(r'{% log %}: level "INVALID" is not defined;', logs_manager3.output[0])
+
     def test_uca_sort(self):
         with self.assertNoException():
             render1 = Template(
