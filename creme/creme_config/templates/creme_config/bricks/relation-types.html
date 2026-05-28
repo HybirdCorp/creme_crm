@@ -29,6 +29,17 @@
     {% endif %}
 {% endblock %}
 
+{% partialdef properties-constraints %}
+    {% if not mandatory and not forbidden %}
+        <span title="{% translate 'No property constraint' %}" >—</span>
+    {% else %}
+      <ul>
+          <li>{% widget_enumerator mandatory|uca_sort threshold=1 empty=_('No mandatory property type') summary=_('{count} mandatory type(s) of property') %}</li>
+          <li>{% widget_enumerator forbidden|uca_sort threshold=1 empty=_('No forbidden property type') summary=_('{count} forbidden type(s) of property') %}</li>
+      </ul>
+    {% endif %}
+{% endpartialdef %}
+
 {% block brick_table_rows %}
  {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_rtype'|url %}
   {% for relation_type in page.object_list %}
@@ -36,14 +47,20 @@
     <tr {% if not relation_type.enabled %}class="relation-type-disabled"{% endif %} >
         <td class="relation-subject-ctypes">{% widget_enumerator relation_type.subject_ctypes.all|uca_sort threshold=5 empty=_('No type') summary=_('{count} types of resource') %}</td>
         <td class="relation-subject-properties">
-            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.subject_properties.all forbidden=relation_type.subject_forbidden_properties.all %}
+{#            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.subject_properties.all forbidden=relation_type.subject_forbidden_properties.all %} #}
+            {% with mandatory=relation_type.subject_properties.all forbidden=relation_type.subject_forbidden_properties.all %}
+                {% partial properties-constraints %}
+            {% endwith %}
         </td>
         <td class="relation-subject-copiable">{% if not relation_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the subject entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if relation_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of subject) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
         <td class="relation-predicate">{{relation_type.predicate}} — {{sym_type.predicate}}</td>
         <td class="relation-object-ctypes">{% widget_enumerator relation_type.object_ctypes.all|uca_sort threshold=5 empty=_('No type') summary=_('{count} types of resource') %}</td>
         <td class="relation-object-properties">
-            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.object_properties.all forbidden=relation_type.object_forbidden_properties.all %}
+{#            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.object_properties.all forbidden=relation_type.object_forbidden_properties.all %} #}
+            {% with mandatory=relation_type.object_properties.all forbidden=relation_type.object_forbidden_properties.all %}
+                {% partial properties-constraints %}
+            {% endwith %}
         </td>
         <td class="relation-object-copiable">{% if not sym_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the object entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if sym_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of object) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
