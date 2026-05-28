@@ -80,7 +80,8 @@ if TYPE_CHECKING:
     from typing import Any, List, Optional, Tuple
 
     Line = Sequence[str]
-    Choices = List[Tuple[int, str]]
+    Choice = Tuple[int, str]
+    Choices = List[Choice]
     ExtractedTuple = Tuple[Any, Optional[str]]
     ValueCastor = Callable[[str], Any]
 
@@ -1165,17 +1166,17 @@ class BasicMultiRelationsExtractorField(core_fields.MultiRelationEntityField):
         ),
     }
 
-    def __init__(self, *, columns=(), **kwargs):
+    def __init__(self, *, columns: Choices, **kwargs):
         super().__init__(**kwargs)
         self.columns = columns
 
     @property
-    def columns(self):
-        return self._columns
+    def columns(self) -> Iterator[Choice]:
+        yield from self._columns
 
     @columns.setter
-    def columns(self, columns):
-        self._columns = columns
+    def columns(self, columns: Choices) -> None:
+        self._columns = [*columns]
         self.widget.columns = columns
 
     def clean(self, value):
@@ -1275,7 +1276,7 @@ class MultiRelationsExtractorField(forms.MultiValueField):
     widget = MultiRelationsExtractorSelector
 
     def __init__(self, *,
-                 columns=(),
+                 columns: Choices | None = None,
                  allowed_rtypes=(),
                  user=None,
                  required=True,
@@ -1283,14 +1284,14 @@ class MultiRelationsExtractorField(forms.MultiValueField):
         super().__init__(
             fields=(
                 forms.BooleanField(required=False),
-                BasicMultiRelationsExtractorField(required=required),
+                BasicMultiRelationsExtractorField(columns=[], required=required),
             ),
             require_all_fields=False,
             required=required,
             **kwargs
         )
         self.user = user  # TODO: property?
-        self.columns = columns
+        self.columns = [] if columns is None else columns
         self.allowed_rtypes = allowed_rtypes
 
     @property
@@ -1298,16 +1299,17 @@ class MultiRelationsExtractorField(forms.MultiValueField):
         return self.fields[1].allowed_rtypes
 
     @allowed_rtypes.setter
-    def allowed_rtypes(self, rtypes):
-        self.fields[1].allowed_rtypes = rtypes
-        self.widget.relation_types = self.fields[1]._get_options()
+    def allowed_rtypes(self, allowed):
+        sub_field = self.fields[1]
+        sub_field.allowed_rtypes = allowed
+        self.widget.relation_types = sub_field._get_options()
 
     @property
-    def columns(self):
+    def columns(self) -> Choices:
         return self.fields[1].columns
 
     @columns.setter
-    def columns(self, columns):
+    def columns(self, columns: Choices) -> None:
         self.fields[1].columns = columns
         self.widget.columns = columns
 
