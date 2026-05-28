@@ -240,6 +240,9 @@ class EntityRelatedMixin:
                 for app_label in {c._meta.app_label for c in entity_classes}:
                     has_perm(app_label)
 
+    def get_entity_classes(self) -> type[CremeEntity] | Collection[type[CremeEntity]] | None:
+        return self.entity_classes
+
     def get_related_entity_id(self) -> str:
         return self.kwargs[self.entity_id_url_kwarg]
 
@@ -251,7 +254,8 @@ class EntityRelatedMixin:
         try:
             entity = self.related_entity  # NOQA
         except AttributeError:
-            entity_classes = self.entity_classes
+            # entity_classes = self.entity_classes
+            entity_classes = self.get_entity_classes()
             entity_id = self.get_related_entity_id()
 
             if entity_classes is None:

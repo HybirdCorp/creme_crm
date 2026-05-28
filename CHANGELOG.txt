@@ -138,6 +138,8 @@
             * Billing :
                 - The class 'forms.line._LineMultipleAddForm' has changed ;
                   the field 'discount_value' has been replaced by the field 'discount'.
+                - The URL named "billing__reorder_line" has been modified to take include the line ContentType's ID;
+                  the related class 'views.line.ReorderLines' has been modfied to use this new information.
             * SMS :
                 - In 'views.sending', the class attribute 'brick' of the view-classes
                   'Messages' & 'MessagesBrickReloading' has been renamed 'brick_classes'.
