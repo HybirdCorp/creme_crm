@@ -1415,8 +1415,8 @@ class ExportingTestCase(TransferBaseTestCase):
 
         create_cf = partial(CustomField.objects.create, content_type=ct_contact)
         cfield1 = create_cf(name='Rating',    field_type=CustomField.INT)
-        cfield2 = create_cf(name='Use OS ?',  field_type=CustomField.BOOL, content_type=ct_orga)
-        cfield3 = create_cf(name='Languages', field_type=CustomField.ENUM)
+        cfield2 = create_cf(name='OS',        field_type=CustomField.BOOL, content_type=ct_orga)
+        cfield3 = create_cf(name='Languages', field_type=CustomField.ENUM, is_required=True)
         cfield4 = create_cf(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
 
         create_evalue = CustomFieldEnumValue.objects.create
@@ -1442,6 +1442,7 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield3.uuid), 'ctype': ct_str1,
                     'name': cfield3.name, 'type': cfield3.field_type,
+                    'is_required': True,
                     'choices': [
                         {
                             'uuid': str(eval1.uuid),
