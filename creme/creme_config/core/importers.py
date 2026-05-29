@@ -880,6 +880,7 @@ class CustomFieldsImporter(Importer):
             'name': name,
             'field_type': field_type,
             'content_type': ctype,
+            'is_required': cfield_info.get('is_required', False),
         }
 
         if field_type in self.ENUM_TYPES:

@@ -1393,11 +1393,13 @@ class ImportingTestCase(TransferBaseTestCase):
                 'uuid': str(uuid_01), 'ctype': ct_str_c, 'name': 'Rating',
                 'type': CustomField.INT,
             }, {
-                'uuid': str(uuid_02), 'ctype': ct_str_o, 'name': 'Use OS ?',
-                'type': CustomField.BOOL
+                'uuid': str(uuid_02), 'ctype': ct_str_o, 'name': 'OS',
+                'type': CustomField.BOOL,
+                'is_required': False,
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages',
                 'type': CustomField.ENUM,
+                'is_required': True,
                 'choices': [
                     {
                         'uuid': str(uuid_enum11),
@@ -1428,44 +1430,43 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        cfield_data = cfields_data[0]
-        self.get_object_or_fail(
-            CustomField,
-            content_type=get_ct(FakeContact),
-            uuid=cfield_data['uuid'],
-            name=cfield_data['name'], field_type=cfield_data['type'],
-        )
+        cfield_data1 = cfields_data[0]
+        cfield1 = self.get_object_or_fail(CustomField, uuid=cfield_data1['uuid'])
+        self.assertEqual(get_ct(FakeContact), cfield1.content_type)
+        self.assertEqual(cfield_data1['name'], cfield1.name)
+        self.assertEqual(cfield_data1['type'], cfield1.field_type)
+        self.assertFalse(cfield1.is_required)
 
-        cfield_data = cfields_data[1]
-        self.get_object_or_fail(
-            CustomField,
-            content_type=get_ct(FakeOrganisation),
-            uuid=cfield_data['uuid'],
-            name=cfield_data['name'], field_type=cfield_data['type'],
-        )
+        cfield_data2 = cfields_data[1]
+        cfield2 = self.get_object_or_fail(CustomField, uuid=cfield_data2['uuid'])
+        self.assertEqual(get_ct(FakeOrganisation), cfield2.content_type)
+        self.assertEqual(cfield_data2['name'], cfield2.name)
+        self.assertEqual(cfield_data2['type'], cfield2.field_type)
+        self.assertFalse(cfield2.is_required)
 
-        cfield_data = cfields_data[2]
-        cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
+        cfield_data3 = cfields_data[2]
+        cfield3 = self.get_object_or_fail(CustomField, name=cfield_data3['name'])
+        self.assertTrue(cfield3.is_required)
         self.assertCountEqual(
-            cfield_data['choices'],
+            cfield_data3['choices'],
             [
                 {
                     'uuid': str(uid),
                     'value': value,
                 } for uid, value in cfield3.customfieldenumvalue_set.values_list('uuid', 'value')
-            ]
+            ],
         )
 
-        cfield_data = cfields_data[3]
-        cfield4 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
+        cfield_data4 = cfields_data[3]
+        cfield4 = self.get_object_or_fail(CustomField, name=cfield_data4['name'])
         self.assertCountEqual(
-            cfield_data['choices'],
+            cfield_data4['choices'],
             [
                 {
                     'uuid': str(uid),
                     'value': value,
                 } for uid, value in cfield4.customfieldenumvalue_set.values_list('uuid', 'value')
-            ]
+            ],
         )
 
     def test_customfields__invalid_type(self):
