@@ -57,17 +57,17 @@ button_classes: list[type[Button]] = [
 
 
 if apps.is_installed('creme.activities'):
+    # from creme.activities import get_activity_model
+    from creme.activities import buttons as act_buttons
     from creme.activities import constants as activity_constants
-    from creme.activities import get_activity_model
 
-    Activity = get_activity_model()
-
-    # TODO: inherit from <activities.buttons.AddUnsuccessfulPhoneCallButton> ?
-    class AddUnsuccessfulPhoneCallButton(Button):
+    # Activity = get_activity_model()
+    # class AddUnsuccessfulPhoneCallButton(Button):
+    class AddUnsuccessfulPhoneCallButton(act_buttons.AddUnsuccessfulPhoneCallButton):
         id = Button.generate_id('opportunities', 'add_unsuccessful_phonecall')
-        verbose_name = _('Create an unsuccessful phone call')
+        # verbose_name = _('Create an unsuccessful phone call')
         template_name = 'opportunities/buttons/add-unsuccessful-phonecall.html'
-        permissions = build_creation_perm(Activity)
+        # permissions = build_creation_perm(Activity)
         description = _(
             'This button creates a short phone call (kind of activity) which was '
             'not successful (in order to keep an history).\n'
@@ -76,7 +76,6 @@ if apps.is_installed('creme.activities'):
             'The fields values can be set in the configuration of «Activities».\n'
             'App: Opportunities'
         )
-        # dependencies = (Activity,)
         dependencies = [Relation]
         relation_type_deps = (
             activity_constants.REL_SUB_LINKED_2_ACTIVITY,
@@ -84,9 +83,9 @@ if apps.is_installed('creme.activities'):
             activity_constants.REL_SUB_PART_2_ACTIVITY,
         )
 
-        def check_permissions(self, *, entity, request):
-            super().check_permissions(entity=entity, request=request)
-            request.user.has_perm_to_link_or_die(entity)
+        # def check_permissions(self, *, entity, request):
+        #     super().check_permissions(entity=entity, request=request)
+        #     request.user.has_perm_to_link_or_die(entity)
 
         def get_ctypes(self):
             return [Opportunity]

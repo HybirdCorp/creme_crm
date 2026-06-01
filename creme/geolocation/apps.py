@@ -74,7 +74,11 @@ class GeolocationConfig(CremeConfigConfigMixin, CremeAppConfig):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Town, model_name='town')
+        register_model(
+            models.Town, model_name='town',
+        ).disabling(
+            enable_func=lambda instance, user: False
+        )
         register_model(
             models.GeoAddress, model_name='geoaddress',
         ).creation(
@@ -82,6 +86,8 @@ class GeolocationConfig(CremeConfigConfigMixin, CremeAppConfig):
         ).edition(
             enable_func=lambda instance, user: False
         ).deletion(
+            enable_func=lambda instance, user: False
+        ).disabling(
             enable_func=lambda instance, user: False
         )
 

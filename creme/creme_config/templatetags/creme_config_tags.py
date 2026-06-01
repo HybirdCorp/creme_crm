@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 # TODO: make public ?
 from creme.creme_core.templatetags.creme_bricks import _brick_menu_state_action
 
+# TODO: unit test this module
 register = Library()
 
 
@@ -43,6 +44,14 @@ def config_model_edition_url(*, model_config, instance, user):
 @register.simple_tag
 def config_model_deletion_url(*, model_config, instance, user):
     return model_config.deletor.get_url(instance=instance, user=user)
+
+
+@register.simple_tag
+def config_model_disabling_info(*, model_config, instance, user):
+    return {
+        'url': model_config.disablor.get_url(instance=instance, user=user),
+        'needing_apps': model_config.disablor.get_needing_apps(instance),
+    }
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)

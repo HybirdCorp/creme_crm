@@ -26,6 +26,7 @@ from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db.models import Field, FileField, Model
 from django.urls import reverse
+from django.utils.text import get_text_list
 from django.utils.translation import gettext as _
 
 from ..core.entity_cell import (
@@ -34,7 +35,7 @@ from ..core.entity_cell import (
     EntityCellRegularField,
 )
 from ..forms import base
-from ..models import CremeEntity, CustomField, FieldsConfig
+from ..models import CremeEntity, CustomField, FieldsConfig, MinionModel
 
 
 class FieldOverrider:
@@ -382,6 +383,38 @@ class BulkUpdateRegistry:
                 instance = this.instance
                 get_data = this.cleaned_data.get
 
+                # ManyToManyFields ---
+                # TODO: beware to bulk?
+                # TODO: factorise with 'CremeEntityForm.clean()'
+                for field in type(instance)._meta.many_to_many:
+                    if issubclass(field.related_model, MinionModel):
+                        # TODO: ? (issue: in bulk-update, the update of an entity is totally
+                        #      cancelled if a disabled instance -- not already used by this
+                        #      entity -- is selected)
+                        #   # todo: regroup queries when bulk update (how?)?
+                        #   # NB: when we inner-edit several fields at once, an already
+                        #   #     used disabled instance could block the edition if we don't
+                        #   #     ignore it. Maybe ignoring it is not the best thing to do
+                        #   #     if we only edit one field :thinking: ...
+                        #   used_disabled_ids = set(
+                        #       getattr(instance, field.name).exclude(disabled=None)
+                        #       .values_list('id', flat=True)
+                        #   )
+                        disabled_instances = [
+                            o
+                            for o in get_data(field.name, ())
+                            if o.disabled  # and o.id not in used_disabled_ids
+                        ]
+
+                        if disabled_instances:
+                            this.add_error(
+                                field=field.name,
+                                error=_('Some instances are disabled: {}').format(
+                                    get_text_list(disabled_instances, last_word=_('and'))
+                                ),
+                            )
+
+                # Overriders ---
                 for overrider in overriders:
                     key = overrider.key
 

@@ -22,9 +22,10 @@ from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, SettingValue
 
-from . import constants, get_activity_model
+from . import constants, get_activity_model, setting_keys
+from .models import ActivitySubType, ActivityType, Status
 
 Activity = get_activity_model()
 
@@ -44,6 +45,11 @@ class AddRelatedActivityButton(Button):
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
         request.user.has_perm_to_link_or_die(entity)
+
+        type_uuid = self.activity_type_uuid
+        if type_uuid:
+            atype = ActivityType.objects.get_by_uuid(type_uuid, conflict_error=True)
+            atype.is_enabled_or_die()
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
@@ -67,7 +73,7 @@ class AddRelatedActivityButton(Button):
 
 
 class AddMeetingButton(AddRelatedActivityButton):
-    id = Button.generate_id('activities', 'add_meeting')
+    id = AddRelatedActivityButton.generate_id('activities', 'add_meeting')
     verbose_name = _('Create a related meeting')
     description = _(
         'This button displays the creation form for meetings (kind of activity). '
@@ -78,7 +84,7 @@ class AddMeetingButton(AddRelatedActivityButton):
 
 
 class AddPhoneCallButton(AddRelatedActivityButton):
-    id = Button.generate_id('activities', 'add_phonecall')
+    id = AddRelatedActivityButton.generate_id('activities', 'add_phonecall')
     verbose_name = _('Create a related phone call')
     description = _(
         'This button displays the creation form for phone calls (kind of activity). '
@@ -117,6 +123,7 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
         constants.REL_SUB_ACTIVITY_SUBJECT,
         constants.REL_SUB_PART_2_ACTIVITY,
     )
+    activity_type_uuid = constants.UUID_TYPE_PHONECALL
 
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
@@ -126,6 +133,20 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
 
         if entity == user.linked_contact:
             raise ConflictError(_('You cannot call yourself'))
+
+        s_values = SettingValue.objects.get_4_keys(
+            {'key': setting_keys.unsuccessful_subtype_key},
+            {'key': setting_keys.unsuccessful_status_key},
+        )
+        sub_type = ActivitySubType.objects.get_by_uuid(
+            s_values[setting_keys.unsuccessful_subtype_key.id].value,
+        )
+        status = Status.objects.get(
+            uuid=s_values[setting_keys.unsuccessful_status_key.id].value,
+        )
+
+        sub_type.is_enabled_or_die()
+        status.is_enabled_or_die()
 
     def get_ctypes(self):
         from creme.persons import get_contact_model

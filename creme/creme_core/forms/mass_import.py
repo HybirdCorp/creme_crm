@@ -59,6 +59,7 @@ from ..models import (
     FieldsConfig,
     Job,
     MassImportJobResult,
+    MinionModel,
     Relation,
     RelationType,
 )
@@ -1646,12 +1647,41 @@ class ImportForm(CremeModelForm):
             if fname in field_names
         })
 
+    def _pre_instance_save(self, instance, line):  # Override me
+        get_cleaned = self.cleaned_data.get
+        user = self.user
+
+        updated = instance.pk is not None
+        # TODO: better instance data system?
+        instance._m2m_values_to_set = m2m_values = []
+
+        for m2m in type(instance)._meta.many_to_many:
+            extractor = get_cleaned(m2m.name)  # Can be a regular_field ?
+            if not extractor:
+                continue
+
+            extr_values, err_msg = extractor.extract_value(line, user)
+            self.append_error(err_msg)  # TODO: test
+            if not extr_values:
+                continue
+
+            if issubclass(m2m.related_model, MinionModel):   # TODO: unit test not-minion case
+                for extr_value in extr_values:
+                    if extr_value.disabled:
+                        if updated:
+                            # TODO: group queries?
+                            if not getattr(instance, m2m.name).filter(pk=extr_value.pk).exists():
+                                self.append_error(extr_value.message_for_disabled)
+                        else:
+                            # NB: ValidationError 'printing' is ugly when forging job error
+                            raise ValueError(extr_value.message_for_disabled)
+                    else:
+                        m2m_values.append((m2m.name, extr_values))
+
     # def _post_instance_creation(self, instance, line, updated):
     def _post_instance_save(self, instance, line, updated):  # Override me
-        pass
-
-    def _pre_instance_save(self, instance, line):  # Override me
-        pass
+        for m2m_name, values in instance._m2m_values_to_set:
+            getattr(instance, m2m_name).set(values)
 
     def process(self, job: Job):
         model_class = self._meta.model
@@ -1749,6 +1779,7 @@ class ImportForm(CremeModelForm):
                                         # TODO: unit test
                                         pass
                                     else:
+                                        job_result.real_entity = instance  # TODO: unit test
                                         job_result.updated = updated = True
                                 else:
                                     append_error(gettext(
@@ -1774,13 +1805,12 @@ class ImportForm(CremeModelForm):
                         # self._post_instance_creation(instance, line, updated)
                         self._post_instance_save(instance, line, updated)
 
-                        for m2m in model_class._meta.many_to_many:
-                            extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
-                            if extractor:
-                                # TODO: factorise
-                                extr_value, err_msg = extractor.extract_value(line, user)
-                                getattr(instance, m2m.name).set(extr_value)
-                                append_error(err_msg)  # TODO: test
+                        # for m2m in model_class._meta.many_to_many:
+                        #     extractor = get_cleaned(m2m.name)
+                        #     if extractor:
+                        #         extr_value, err_msg = extractor.extract_value(line, user)
+                        #         getattr(instance, m2m.name).set(extr_value)
+                        #         append_error(err_msg)
 
                         job_result.real_entity = instance
                         if self.import_errors:
@@ -1898,6 +1928,8 @@ class ImportForm4CremeEntity(ImportForm):
 
     @override
     def _pre_instance_save(self, instance, line):
+        super()._pre_instance_save(instance=instance, line=line)
+
         cdata = self.cleaned_data
         user = instance.user
 
@@ -1925,6 +1957,8 @@ class ImportForm4CremeEntity(ImportForm):
     @override
     # def _post_instance_creation(self, instance, line, updated):
     def _post_instance_save(self, instance, line, updated):
+        super()._post_instance_save(instance=instance, line=line, updated=updated)
+
         cdata = self.cleaned_data
         user = instance.user
 

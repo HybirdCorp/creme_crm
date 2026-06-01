@@ -3,6 +3,7 @@ from functools import partial
 from django.conf import settings
 from django.urls import reverse
 from django.utils.encoding import force_str
+from django.utils.timezone import now
 
 from creme.activities import bricks, constants
 from creme.activities.models import Calendar
@@ -180,6 +181,23 @@ class ActivityMiscViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             meetings_page = response.context['page_obj']
 
         self.assertListEqual([acts[1]], [*meetings_page.object_list])
+
+    def test_list_view__phone_calls__disabled(self):
+        self.login_as_root()
+        atype = self._get_type(constants.UUID_TYPE_PHONECALL)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.client.post(reverse('activities__list_phone_calls'))
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertContains(
+            response, text=atype.message_for_disabled, status_code=409, html=True,
+        )
 
     def test_dl_ical(self):
         user = self.login_as_root_and_get()

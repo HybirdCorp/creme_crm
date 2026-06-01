@@ -107,6 +107,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-align: center;
 }
 
+.creme_config-configurable-model-brick .configurable-instance-disabled {
+    background: #e5ecef !important;
+    color: #818485;
+}
+
 /* PropertyTypes & RelationTypes brick */
 
 .creme_config-property-types-brick .property-label,

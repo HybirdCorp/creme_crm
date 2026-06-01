@@ -967,6 +967,11 @@ urlpatterns = [
                 name='creme_config__reorder_instance',
             ),
             re_path(
+                r'^disable/(?P<object_id>[\w-]+)[/]?$',
+                generics_views.GenericDisabling.as_view(),
+                name='creme_config__disable_instance',
+            ),
+            re_path(
                 r'^delete/(?P<object_id>[\w-]+)[/]?$',
                 generics_views.GenericDeletion.as_view(),
                 name='creme_config__delete_instance',

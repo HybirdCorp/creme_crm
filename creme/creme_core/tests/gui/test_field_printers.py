@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
@@ -70,6 +70,8 @@ from creme.creme_core.models import (
     FakeSector,
     FakeTicket,
     FakeTicketStatus,
+    Language,
+    MinionModel,
 )
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -684,6 +686,26 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=None, user=user, field=field3),
         )
 
+    def test_fk_printer_html__colored(self):
+        t = FakeTicket()
+        field = t._meta.get_field('status')
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(MinionModel, FKPrinter.print_fk_colored_html)
+
+        status = FakeTicketStatus.objects.create(name='Error', color='ff0000')
+
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};">'
+            f' </div>'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            printer(instance=t, value=status, user=self.user, field=field),
+        )
+
     def test_fk_printer_html__creme_entity(self):
         user = self.get_root_user()
         c = FakeContact()
@@ -700,7 +722,59 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=img, user=user, field=field),
         )
 
-    def test_fk_printer_html__content_type01(self):
+    def test_fk_printer_html__minion(self):
+        user = self.get_root_user()
+        c = FakeContact()
+        field = c._meta.get_field('sector')
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(MinionModel, FKPrinter.print_fk_minion_html)
+
+        sector = FakeSector.objects.create(title='Art')
+        self.assertHTMLEqual(
+            sector.title, printer(instance=c, value=sector, user=user, field=field),
+        )
+
+        # ---
+        sector.disabled = now()
+        self.assertHTMLEqual(
+            f'<span class="minion-is_disabled">{sector.title}</span>',
+            printer(instance=c, value=sector, user=user, field=field),
+        )
+
+    def test_fk_printer_html__minion__color(self):
+        t = FakeTicket()
+        field = t._meta.get_field('status')
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(MinionModel, FKPrinter.print_fk_minion_html)
+
+        status = FakeTicketStatus.objects.create(name='Error', color='ff0000')
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};">'
+            f' </div>'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            printer(instance=t, value=status, user=self.user, field=field),
+        )
+
+        # ---
+        status.disabled = now()
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};">'
+            f' </div>'
+            f' <span class="minion-is_disabled">{status.name}</span>'
+            f'</div>',
+            printer(instance=t, value=status, user=self.user, field=field),
+        )
+
+    def test_fk_printer_html__content_type(self):
         self.assertHasAttr(FakeContact, 'get_lv_absolute_url')
 
         user = self.get_root_user()
@@ -718,7 +792,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=report, value=report.ctype, user=user, field=field),
         )
 
-    def test_fk_printer_html__content_type02(self):
+    def test_fk_printer_html__content_type__no_listview(self):
         "Model without related list-view."
         self.assertHasNoAttr(FakeTicket, 'get_lv_absolute_url')
 
@@ -737,7 +811,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_fk_printer_html__content_type03(self):
+    def test_fk_printer_html__content_type__forbidden(self):
         "No app perm."
         user = self.create_user(
             role=self.create_role(name='No core', allowed_apps=['documents']),
@@ -920,7 +994,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=prod, value=prod.images, user=user, field=field),
         )
 
-    def test_many2many_printer_html__entity_printer(self):
+    def test_many2many_printer_html__creme_entity(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -948,6 +1022,33 @@ class FieldsPrintersTestCase(CremeTestCase):
             f' <li>{settings.HIDDEN_VALUE}</li>'
             f'</ul>',
             printer(instance=prod, value=prod.images, user=user, field=field),
+        )
+
+    def test_many2many_printer_html__minion(self):
+        user = self.get_root_user()
+
+        c = FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+        field = c._meta.get_field('languages')
+
+        create_lang = Language.objects.create
+        l1 = create_lang(name='<b>English</b>')
+        l2 = create_lang(name='Latin', disabled=now())
+        c.languages.set([l1, l2])
+
+        printer = M2MPrinterForHTML(
+            default_printer=M2MPrinterForHTML.printer_simple,
+            default_enumerator=M2MPrinterForHTML.enumerator_all,
+        ).register(
+            MinionModel,
+            printer=M2MPrinterForHTML.printer_minion,
+            enumerator=M2MPrinterForHTML.enumerator_all,
+        )
+        self.assertHTMLEqual(
+            f'<ul class="limited-list">'
+            f' <li>{escape(l1.name)}</li>'
+            f' <li><span class="minion-is_disabled">{l2.name}</span></li>'
+            f'</ul>',
+            printer(instance=c, value=c.languages, user=user, field=field),
         )
 
     def test_many2many_printer_text(self):

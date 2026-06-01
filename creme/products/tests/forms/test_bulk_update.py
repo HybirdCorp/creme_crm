@@ -1,8 +1,11 @@
 from decimal import Decimal
 from functools import partial
 
+from django.utils.timezone import now
+from parameterized import parameterized
+
 from creme.products.forms.fields import SubCategoryField
-from creme.products.models import SubCategory
+from creme.products.models import Category, SubCategory
 
 from ..base import Product, _ProductsTestCase, skipIfCustomProduct
 
@@ -43,6 +46,60 @@ class CategoryOverriderTestCase(_ProductsTestCase):
         product = self.refresh(product)
         self.assertEqual(next_sub_cat, product.sub_category)
         self.assertEqual(next_sub_cat.category, product.category)
+
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_edit_inner__category__disabled(self, enabled_category, enabled_sub_category):
+        user = self.login_as_root_and_get()
+
+        sub_cat = SubCategory.objects.order_by('category')[0]
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        new_cat = Category.objects.create(
+            name='Mecha', disabled=None if enabled_category else now(),
+        )
+        new_sub_cat = SubCategory.objects.create(
+            name='EVA',
+            category=new_cat,
+            disabled=None if enabled_sub_category else now(),
+        )
+
+        field_name = 'category'
+        formfield_name = f'override-{field_name}'
+        response = self.assertPOST200(
+            self.build_inneredit_uri(product, field_name),
+            data={formfield_name: str(new_sub_cat.pk)},
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=formfield_name,
+            errors=SubCategoryField.default_error_messages['invalid_choice'],
+        )
+
+    def test_edit_inner__category__disabled__no_change(self):
+        user = self.login_as_root_and_get()
+
+        cat = Category.objects.create(name='Mecha', disabled=now())
+        sub_cat = SubCategory.objects.create(
+            name='EVA', category=cat, disabled=now(),
+        )
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        field_name = 'category'
+        self.assertNoFormError(self.client.post(
+            self.build_inneredit_uri(product, field_name),
+            data={f'override-{field_name}': str(sub_cat.pk)},
+        ))
 
     def test_bulk_update__category(self):
         user = self.login_as_root_and_get()

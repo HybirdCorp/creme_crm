@@ -144,6 +144,7 @@ class Calendar(CremeModel):
     # Not viewable by users, For administrators currently.
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+    # TODO: disabled? (see MinionModel)
 
     user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     name = models.CharField(_('Name'), max_length=100)

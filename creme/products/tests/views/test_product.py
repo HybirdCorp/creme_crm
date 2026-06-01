@@ -2,7 +2,9 @@ from decimal import Decimal
 from functools import partial
 
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core import workflows
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -14,6 +16,7 @@ from creme.creme_core.models import (
     SetCredentials,
     Workflow,
 )
+from creme.products.forms.fields import SubCategoryField
 from creme.products.models import Category, SubCategory
 
 from ..base import (
@@ -164,6 +167,39 @@ class ProductViewsTestCase(_ProductsTestCase):
         self.assertCountEqual([img_1, img_2], product.images.all())
         self.assertEqual(Decimal('10.5'), product.default_discount)
 
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_creation__disabled_minions(self, enabled_category, enabled_sub_category):
+        user = self.login_as_root_and_get()
+
+        cat = Category.objects.create(
+            name='Mecha', disabled=None if enabled_category else now(),
+        )
+        sub_cat = SubCategory.objects.create(
+            name='EVA', category=cat,
+            disabled=None if enabled_sub_category else now(),
+        )
+        response = self.assertPOST200(
+            reverse('products__create_product'),
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': 'Eva00',
+                'code': 42,
+                'unit_price': '1.23',
+                'default_discount': Decimal('10'),
+
+                self.EXTRA_CATEGORY_KEY: sub_cat.id,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_CATEGORY_KEY,
+            errors=SubCategoryField.default_error_messages['invalid_choice'],
+        )
+
     def test_edition(self):
         user = self.login_as_root_and_get()
 
@@ -212,6 +248,91 @@ class ProductViewsTestCase(_ProductsTestCase):
         self.assertEqual(name,                product.name)
         self.assertEqual(Decimal(unit_price), product.unit_price)
         self.assertEqual(Decimal(discount),   product.default_discount)
+
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_edition__disabled_minion(self, enabled_category, enabled_sub_category):
+        user = self.login_as_root_and_get()
+
+        sub_cat = SubCategory.objects.first()
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        new_cat = Category.objects.create(
+            name='Mecha', disabled=None if enabled_category else now(),
+        )
+        new_sub_cat = SubCategory.objects.create(
+            name='EVA',
+            category=new_cat,
+            disabled=None if enabled_sub_category else now(),
+        )
+        response = self.assertPOST200(
+            product.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': f'{product.name}_edited',
+                'code': product.code,
+
+                'description': product.description,
+
+                'unit_price':       '4.53',
+                'unit':             'anything',
+                'default_discount': '5.00',
+
+                self.EXTRA_CATEGORY_KEY: str(new_sub_cat.pk),
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_CATEGORY_KEY,
+            errors=SubCategoryField.default_error_messages['invalid_choice'],
+        )
+
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_edition__disabled_minion__no_change(self, enabled_category, enabled_sub_category):
+        user = self.login_as_root_and_get()
+
+        cat = Category.objects.create(
+            name='Mecha', disabled=None if enabled_category else now(),
+        )
+        sub_cat = SubCategory.objects.create(
+            name='EVA',
+            category=cat,
+            disabled=None if enabled_sub_category else now(),
+        )
+
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+        response = self.client.post(
+            product.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': f'{product.name}_edited',
+                'code': product.code,
+
+                'description': product.description,
+
+                'unit_price':       '4.53',
+                'unit':             'anything',
+                'default_discount': '5.00',
+
+                self.EXTRA_CATEGORY_KEY: str(sub_cat.pk),
+            },
+        )
+        self.assertNoFormError(response)
 
     def test_listview(self):
         user = self.login_as_root_and_get()

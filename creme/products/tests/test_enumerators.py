@@ -1,5 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
 from creme.products.models import Category, SubCategory
 
@@ -53,3 +55,22 @@ class SubCategoryEnumeratorTestCase(_ProductsTestCase):
         self.assertEqual(index11 + 1, index12)
         self.assertEqual(index12 + 1, index13)
         self.assertGreater(index2, index13)
+
+    def test_disabled(self):
+        self.login_as_root()
+
+        create_cat = Category.objects.create
+        cat1 = create_cat(name='Category A', disabled=now())
+        cat2 = create_cat(name='Category B')
+
+        create_sub_cat = SubCategory.objects.create
+        sub_cat1 = create_sub_cat(name='Sub cat A1', category=cat1)
+        sub_cat2 = create_sub_cat(name='Sub cat B1', category=cat2, disabled=now())
+
+        response = self.assertGET200(self._build_choices_url())
+        choices = [
+            (c['value'], c['label'], c['group']) for c in response.json()
+        ]
+        fmt_dis = _('{} (disabled)').format
+        self.assertIn((sub_cat1.id, sub_cat1.name, fmt_dis(cat1.name)), choices)
+        self.assertIn((sub_cat2.id, fmt_dis(sub_cat2.name), cat2.name), choices)

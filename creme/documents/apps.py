@@ -86,7 +86,14 @@ class DocumentsConfig(CremeConfigConfigMixin, CremeAppConfig):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.FolderCategory,   model_name='category')
+        register_model(
+            models.FolderCategory, model_name='category',
+        ).disabling(
+            # NB: currently the not custom categories are used in a hard-coded
+            #     way by specific views.
+            # TODO: deactivate the view/buttons instead?
+            enable_func=lambda instance, user: instance.is_custom,
+        )
         register_model(models.DocumentCategory, model_name='doc_category')
 
     @override

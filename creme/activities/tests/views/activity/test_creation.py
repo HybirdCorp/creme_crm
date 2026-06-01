@@ -650,6 +650,45 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
             rtype.enabled = True
             rtype.save()
 
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_disabled__types(self, enabled_type, enabled_sub_type):
+        user = self.login_as_root_and_get()
+        def_calendar = Calendar.objects.get_default_calendar(user)
+        atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=None if enabled_type else now(),
+        )
+        sub_type = ActivitySubType.objects.create(
+            name='Kick session',
+            type=atype,
+            is_custom=True,
+            disabled=None if enabled_sub_type else now(),
+        )
+        response = self.assertPOST200(
+            reverse('activities__create_activity'),
+            data={
+                'user': user.pk,
+                'title': 'Subtype is disabled!!',
+                'status': Status.objects.first().pk,
+
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
+
+                f'{self.EXTRA_MYPART_KEY}_0': True,
+                f'{self.EXTRA_MYPART_KEY}_1': def_calendar.pk,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
     @skipIfCustomContact
     def test_is_staff(self):
         user = self.login_as_super(is_staff=True)
@@ -1129,6 +1168,30 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
         self.assertHaveRelation(ranma,               constants.REL_SUB_ACTIVITY_SUBJECT,  meeting)
         self.assertHaveRelation(dojo,                constants.REL_SUB_LINKED_2_ACTIVITY, meeting)
 
+    def test_meeting__disabled(self):
+        user = self.login_as_root_and_get()
+        atype = self._get_type(constants.UUID_TYPE_MEETING)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.client.post(
+                reverse('activities__create_activity', args=('meeting',)),
+                data={
+                    'user': user.pk,
+                    'title': 'Type is disabled!!',
+                    'status': Status.objects.first().pk,
+                },
+            )
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertContains(
+            response, text=atype.message_for_disabled, status_code=409, html=True,
+        )
+
     def test_phonecall(self):
         user = self.login_as_root_and_get()
         subtype = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
@@ -1397,6 +1460,21 @@ class ActivityRelatedCreationTestCase(_ActivitiesTestCase):
         self.assertGET200(build_url(type_uuid=constants.UUID_TYPE_PHONECALL))
         self.assertGET200(build_url(type_uuid=constants.UUID_TYPE_TASK))
         self.assertGET404(build_url(type_uuid=str(uuid.uuid4())))
+
+    def test_disabled_type(self):
+        user = self.login_as_root_and_get()
+        atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=1,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=now(),
+        )
+        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        response = self.client.post(self._build_add_related_uri(ryoga, type_uuid=atype.uuid))
+        self.assertContains(
+            response, text=atype.message_for_disabled, status_code=409, html=True,
+        )
 
 
 @skipIfCustomActivity
@@ -1842,3 +1920,36 @@ class UnavailabilityCreationTestCase(_ActivitiesTestCase):
         msg = _('This field is required.')
         self.assertFormError(form, field=self.EXTRA_START_KEY, errors=msg)
         self.assertFormError(form, field=self.EXTRA_END_KEY,   errors=msg)
+
+    def test_disabled_subtype(self):
+        user = self.login_as_root_and_get()
+
+        unav_type = self._get_type(constants.UUID_TYPE_UNAVAILABILITY)
+        sub_type = ActivitySubType.objects.create(
+            name='Holidays', type=unav_type, disabled=now(),
+        )
+
+        key = f'cform_extra-{UnavailabilityTypeSubCell.sub_type_id}'
+        response = self.assertPOST200(
+            self.ADD_UNAVAILABILITY_URL,
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': 'Away',
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2026, 6, 15),
+                f'{self.EXTRA_START_KEY}_1': '08:00:00',
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2026, 6, 20),
+                f'{self.EXTRA_END_KEY}_1': '08:00:00',
+
+                self.EXTRA_PARTUSERS_KEY: [user.id],
+
+                key: sub_type.id,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=key,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )

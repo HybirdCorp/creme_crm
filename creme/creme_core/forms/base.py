@@ -22,7 +22,7 @@ import logging
 from collections import OrderedDict
 from copy import copy
 from functools import partial
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, override
 
 from django import forms
 from django.conf import settings
@@ -30,6 +30,7 @@ from django.db.models import Q
 from django.forms.boundfield import BoundField
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+from django.utils.text import get_text_list
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -41,6 +42,7 @@ from ..models import (
     CustomField,
     CustomFieldValue,
     FieldsConfig,
+    MinionModel,
     Relation,
     RelationType,
     SemiFixedRelationType,
@@ -460,6 +462,7 @@ class CremeForm(HookableFormMixin, forms.Form):
 
         self._creme_post_init()
 
+    @override
     def clean(self, *args, **kwargs):
         res = super().clean()
         self._creme_post_clean()
@@ -502,6 +505,7 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
         #     SimpleLazyObject for User, which causes an error.
         self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self)
 
+    @override
     def clean(self):
         res = super().clean()
         self._creme_post_clean()
@@ -510,6 +514,7 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
     def get_blocks(self) -> BoundFieldBlocks:
         return self.blocks.build(self)
 
+    @override
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         self._creme_post_save()
@@ -766,6 +771,45 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         return owner
 
+    @override
+    def clean(self):
+        cdata = super().clean()
+
+        if not self._errors:
+            instance = self.instance
+
+            # NB: we forbid using disabled instances in ManyToManyFields;
+            #     it cannot be done in 'CremeEntity.clean()' because M2M are set
+            #     after because of their nature.
+            # TODO: should we force using a MinionManyToManyField when
+            #       referencing Minions & check errors in the related form-field?
+            for field in type(instance)._meta.many_to_many:
+                if issubclass(field.related_model, MinionModel):
+                    posted_instances = cdata.get(field.name)
+                    if posted_instances is None:
+                        continue
+
+                    used_disabled_ids = () if instance.pk is None else set(
+                        getattr(instance, field.name).exclude(disabled=None)
+                                                     .values_list('id', flat=True)
+                    )
+                    disabled_instances = [
+                        o
+                        for o in posted_instances
+                        if o.disabled and o.id not in used_disabled_ids
+                    ]
+
+                    if disabled_instances:
+                        self.add_error(
+                            field=field.name,
+                            # TODO: message in self.error_messages? (+ code)
+                            error=gettext('Some instances are disabled: {}').format(
+                                get_text_list(disabled_instances, last_word=_('and'))
+                            ),
+                        )
+
+        return cdata
+
     # TODO: -> FluentList[Relation]
     def _get_relations_to_create(self):
         cdata = self.cleaned_data
@@ -817,6 +861,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                         ) -> None:
         Relation.objects.safe_multi_save(relations, check_existing=check_existing)
 
+    @override
     def save(self, *args, **kwargs):
         created = self.instance.pk is None  # TODO: attribute in CremeModelForm ?
         instance = super().save(*args, **kwargs)
@@ -853,6 +898,7 @@ class CremeEntityQuickForm(CustomFieldsMixin, CremeModelForm):
 
         self._build_customfields(only_required=True)
 
+    @override
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         self._save_customfields()

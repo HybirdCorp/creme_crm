@@ -1,9 +1,11 @@
 from copy import deepcopy
 from datetime import date, time
+from functools import partial
 
 from django.db.models.expressions import Q
 from django.forms import Field
 from django.test.utils import override_settings
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.activities import constants
@@ -46,6 +48,23 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
             ],
             [(c.value, c.label, c.group) for c in field.choices],
         )
+
+    def test_choices__disabled_minions(self):
+        create_atype = partial(
+            ActivityType.objects.create,
+            default_day_duration=0, default_hour_duration='00:15:00', is_custom=True,
+        )
+        atype1 = create_atype(name='Karate session', disabled=now())
+        atype2 = create_atype(name='Kungfu session')
+
+        create_stype = ActivitySubType.objects.create
+        sub_type1 = create_stype(name='Kick session', type=atype1)
+        sub_type2 = create_stype(name='Bo session', type=atype2, disabled=now())
+
+        choices = [(c.value, c.label, c.group) for c in ActivitySubTypeField().choices]
+        fmt_dis = _('{} (disabled)').format
+        self.assertIn((sub_type1.id, sub_type1.name, fmt_dis(atype1.name)), choices)
+        self.assertIn((sub_type2.id, fmt_dis(sub_type2.name), atype2.name), choices)
 
     def test_limit_choices_to(self):
         field = ActivitySubTypeField(

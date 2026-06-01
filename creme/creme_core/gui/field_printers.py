@@ -41,7 +41,7 @@ from ..core.download import (
     FileFieldDownLoadRegistry,
     filefield_download_registry,
 )
-from ..models import CremeEntity, CremeUser, EntityFilter, fields
+from ..models import CremeEntity, CremeUser, EntityFilter, MinionModel, fields
 from ..templatetags.creme_widgets import (
     widget_ctype_hyperlink,
     widget_entity_hyperlink,
@@ -280,6 +280,7 @@ class FKPrinter:
             ),
         )
 
+    # TODO: deprecate?
     @staticmethod
     def print_fk_colored_html(*, instance: Model, value, user, field: Field) -> str:
         """Printer for models with a 'color' field."""
@@ -290,6 +291,31 @@ class FKPrinter:
             '</div>',
             value.color,
             str(value),
+        )
+
+    @staticmethod
+    def print_fk_minion_html(*, instance: Model, value, user, field: Field) -> str:
+        """Printer for models inheriting MinionModel.
+        It manages correctly the field 'disabled', & the optional field 'color'.
+        """
+        color = getattr(value, 'color', None)
+
+        if color is None:
+            return format_html(
+                '<span class="minion-is_disabled">{}</span>',
+                str(value),
+            ) if value.disabled else str(value)
+
+        return format_html(
+            '<div class="ui-creme-colored_status">'
+            ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
+            ' <span class="minion-is_disabled">{label}</span>'
+            '</div>' if value.disabled else
+            '<div class="ui-creme-colored_status">'
+            ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
+            ' <span>{label}</span>'
+            '</div>',
+            color=color, label=str(value),
         )
 
     def __init__(self,
@@ -380,6 +406,17 @@ class M2MPrinterForHTML(BaseM2MPrinter):
             attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
             content=instance.get_entity_summary(user),
         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+
+    @staticmethod
+    def printer_minion(*, instance: Model, related_instance: Model,
+                       value: Manager, user: CremeUser, field: Field,
+                       ) -> str:
+        assert isinstance(instance, MinionModel)
+
+        return format_html(
+            '<span class="minion-is_disabled">{}</span>',
+            str(instance),
+        ) if instance.disabled else escape(instance)
 
     def __call__(self, *, instance: Model, value, user: CremeUser, field: Field) -> str:
         assert isinstance(value, Manager)
@@ -595,6 +632,9 @@ class FieldPrinterRegistry:
                 none_printer=FKPrinter.print_fk_null_html,
                 default_printer=simple_print_html,
             ).register(
+                model=MinionModel,
+                printer=FKPrinter.print_fk_minion_html,
+            ).register(
                 model=CremeEntity,
                 printer=(
                     FKPrinter.print_fk_entity_html
@@ -620,6 +660,10 @@ class FieldPrinterRegistry:
             return M2MPrinterForHTML(
                 default_printer=M2MPrinterForHTML.printer_simple,
                 default_enumerator=M2MPrinterForHTML.enumerator_all,
+            ).register(
+                MinionModel,
+                printer=M2MPrinterForHTML.printer_minion,
+                enumerator=M2MPrinterForHTML.enumerator_all,
             ).register(
                 CremeEntity,
                 printer=M2MPrinterForHTML.printer_entity,

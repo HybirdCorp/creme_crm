@@ -19,11 +19,13 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied  # FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
+from django.db.models import DateTimeField
 # from django.db.models import IntegerField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -31,13 +33,14 @@ import creme.creme_core.views.bricks as bricks_views
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
 from creme.creme_core.models import DeletionCommand, Job, JobResult
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import SettingsBrick
-from ..registry import config_registry
+from ..registry import _AppConfigRegistry, _ModelConfig, config_registry
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +49,7 @@ class AppRegistryMixin:
     app_name_url_kwarg = 'app_name'
     config_registry = config_registry
 
-    def get_app_registry(self):
+    def get_app_registry(self) -> _AppConfigRegistry:
         try:
             app_registry = self.app_registry  # NOQA
         except AttributeError:
@@ -66,7 +69,7 @@ class AppRegistryMixin:
 class ModelConfMixin(AppRegistryMixin):
     model_name_url_kwarg = 'model_name'
 
-    def get_model_conf(self):
+    def get_model_conf(self) -> _ModelConfig:
         try:
             mconf = self.model_conf  # NOQA
         except AttributeError:
@@ -198,6 +201,49 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         context['app_verbose_name'] = app_registry.verbose_name
 
         return context
+
+
+class GenericDisabling(ModelConfMixin, generic.CheckedView):
+    pk_url_kwarg = 'object_id'
+    action_arg = 'action'
+
+    def post(self, *args, **kwargs):
+        disablor = self.get_model_conf().disablor
+        if disablor.url_name is not None:
+            raise ConflictError('This model does not use this disabling view.')
+
+        model = disablor.model
+
+        try:
+            disabled_f = model._meta.get_field('disabled')
+        except FieldDoesNotExist as e:
+            raise ConflictError('This model has no "disabled" field.') from e
+        else:
+            # TODO: unit test
+            if not isinstance(disabled_f, DateTimeField):
+                raise ConflictError('This model has no "disabled" field.')
+
+        request = self.request
+        instance = get_object_or_404(model, pk=kwargs[self.pk_url_kwarg])
+        if not disablor.enable_func(instance=instance, user=request.user):
+            raise ConflictError(gettext('Disabling is not possible for this instance.'))
+
+        action = get_from_POST_or_404(request.POST, self.action_arg)
+        match action:
+            case 'disable':
+                if instance.disabled is None:
+                    instance.disabled = now()
+                    instance.save(update_fields=['disabled'])
+
+            case 'enable':
+                if instance.disabled:
+                    instance.disabled = None
+                    instance.save(update_fields=['disabled'])
+
+            case _:
+                raise Http404(f'Invalid action: {action}')
+
+        return HttpResponse()
 
 
 class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):

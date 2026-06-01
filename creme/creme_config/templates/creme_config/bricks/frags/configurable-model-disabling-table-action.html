@@ -1,0 +1,14 @@
+{% load i18n creme_bricks creme_config_tags %}
+{% config_model_disabling_info model_config=model_config instance=object user=user as dis_info %}
+{% if dis_info.url %}
+  {% if object.disabled %}
+    {% brick_table_action id='update' url=dis_info.url label=_('Enable') __action='enable' display='text' %}
+    {% if dis_info.needing_apps %}
+    <ul class="warninglist">
+        {% for app_conf in dis_info.needing_apps %}<li>{% blocktranslate with app=app_conf.verbose_name %}This choice is used by the app «{{app}}»{% endblocktranslate %}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  {% else %}
+    {% brick_table_action id='update' url=dis_info.url label=_('Disable') __action='disable' display='text' %}
+  {% endif %}
+{% endif %}

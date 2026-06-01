@@ -22,6 +22,10 @@ It allows to create a not successful Phone Call in one click.{% endblocktranslat
             <div class="brick-kv-key">{% translate 'Sub-type' %}</div>
             {% if sub_type is None %}
              <div class="brick-kv-value brick-kv-value-error">{% translate 'The recorded sub-type is invalid (it may have been deleted)' %}</div>
+            {% elif sub_type.disabled %}
+             <div class="brick-kv-value brick-kv-value-error">{{sub_type}} {% translate '(disabled sub-type)' context 'activities-type' %}</div>
+            {% elif sub_type.type.disabled %}
+             <div class="brick-kv-value brick-kv-value-error">{{sub_type}} {% translate '(beware the parent type is disabled)' context 'activities-type' %}</div>
             {% else %}
              <div class="brick-kv-value">{{sub_type}}</div>
             {% endif %}
@@ -34,6 +38,8 @@ It allows to create a not successful Phone Call in one click.{% endblocktranslat
             <div class="brick-kv-key">{% translate 'Status' %}</div>
             {% if status is None %}
              <div class="brick-kv-value brick-kv-value-error">{% translate 'The recorded status is invalid (it may have been deleted)' %}</div>
+            {% elif status.disabled %}
+             <div class="brick-kv-value brick-kv-value-error">{{status}} {% translate '(disabled status)' context 'activities-status' %}</div>
             {% else %}
              <div class="brick-kv-value">{{status}}</div>
             {% endif %}

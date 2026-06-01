@@ -65,7 +65,14 @@ class TicketsConfig(CremeConfigConfigMixin, CremeAppConfig):
         from . import models
 
         register_model = config_registry.register_model
-        register_model(models.Status,    model_name='status')
+        register_model(
+            models.Status, model_name='status'
+        ).disabling(
+            # NB: it's mainly an issue to disable the status "open" which is
+            #     used as fallback value.
+            # TODO: allow to disable some 'system' status?
+            enable_func=lambda instance, user: instance.is_custom,
+        )
         register_model(models.Priority,  model_name='priority')
         register_model(models.Criticity, model_name='criticity')
 
@@ -100,19 +107,18 @@ class TicketsConfig(CremeConfigConfigMixin, CremeAppConfig):
             self.TicketTemplate,
         )
 
-    @override
-    def register_field_printers(self, field_printer_registry):
-        from django.db.models import ForeignKey
-
-        from creme.creme_core.gui.field_printers import FKPrinter
-
-        from .models import Status
-
-        # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printer_registry.printers_for_field_type(
-            type=ForeignKey, tags='html*',
-        ):
-            printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
+    # @override
+    # def register_field_printers(self, field_printer_registry):
+    #     from django.db.models import ForeignKey
+    #
+    #     from creme.creme_core.gui.field_printers import FKPrinter
+    #
+    #     from .models import Status
+    #
+    #     for printer in field_printer_registry.printers_for_field_type(
+    #         type=ForeignKey, tags='html*',
+    #     ):
+    #         printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
 
     @override
     def register_function_fields(self, function_field_registry):

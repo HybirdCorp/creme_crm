@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,10 +61,11 @@ class UnsuccessfulPhoneCallConfigForm(CremeForm):
         )
         fields = self.fields
 
+        # ---
         # TODO: add argument "limit_choices_to" to CreatorEnumerableModelChoiceField()?
         sub_type_f = fields['sub_type']
         sub_type_f.enum.enumerator.limit_choices_to = Q(
-            type__uuid=constants.UUID_TYPE_PHONECALL,
+            type__uuid=constants.UUID_TYPE_PHONECALL, disabled=None,
         )
 
         try:
@@ -74,13 +75,17 @@ class UnsuccessfulPhoneCallConfigForm(CremeForm):
         except (ActivitySubType.DoesNotExist, ValidationError):
             pass
 
+        # ---
+        status_f = fields['status']
+        status_f.enum.enumerator.limit_choices_to = Q(disabled=None)
         try:
-            fields['status'].initial = Status.objects.get(
+            status_f.initial = Status.objects.get(
                 uuid=svalues[unsuccessful_status_key.id].value,
             ).id
         except (Status.DoesNotExist, ValidationError):
             pass
 
+        # ---
         fields['title'].initial = svalues[unsuccessful_title_key.id].value
         fields['duration'].initial = svalues[unsuccessful_duration_key.id].value
 

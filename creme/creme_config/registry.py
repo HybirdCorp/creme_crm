@@ -21,10 +21,12 @@ from __future__ import annotations
 import logging
 import re
 import warnings
+from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, Self
+from uuid import UUID
 
-from django.apps import apps
+from django.apps import AppConfig, apps
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db.models import Model
 from django.forms.models import ModelForm, modelform_factory
@@ -52,9 +54,52 @@ class RegistrationError(Exception):
     pass
 
 
+# class _ModelConfigAction:
+#     """Action (creation/edition/deletion) on a configured model."""
+#     __slots__ = ('_model', '_model_name', '_form_class', 'url_name')
+#
+#     def __init__(self, *,
+#                  model: type[Model],
+#                  model_name: str,
+#                  ):
+#         self._model = model
+#         self._model_name = model_name
+#         self._form_class: type[ModelForm] | None = None
+#         self.url_name: str | None = None
+#
+#     def _default_form_class(self) -> type[ModelForm]:
+#         model = self._model
+#         get_field = model._meta.get_field
+#
+#         try:
+#             get_field('is_custom')
+#         except FieldDoesNotExist:
+#             exclude = None
+#         else:
+#             exclude = ('is_custom',)
+#
+#         return modelform_factory(model, form=CremeModelForm, exclude=exclude)
+#
+#     @property
+#     def form_class(self) -> type[ModelForm]:
+#         form_class = self._form_class
+#         return self._default_form_class() if form_class is None else form_class
+#
+#     @form_class.setter
+#     def form_class(self, form_cls: type[ModelForm] | None) -> None:
+#         self._form_class = form_cls
+#
+#     @property
+#     def model(self) -> type[Model]:
+#         return self._model
+#
+#     @property
+#     def model_name(self) -> str:
+#         return self._model_name
+
 class _ModelConfigAction:
     """Action (creation/edition/deletion) on a configured model."""
-    __slots__ = ('_model', '_model_name', '_form_class', 'url_name')
+    __slots__ = ('_model', '_model_name', 'url_name')
 
     def __init__(self, *,
                  model: type[Model],
@@ -62,8 +107,27 @@ class _ModelConfigAction:
                  ):
         self._model = model
         self._model_name = model_name
-        self._form_class: type[ModelForm] | None = None
         self.url_name: str | None = None
+
+    @property
+    def model(self) -> type[Model]:
+        return self._model
+
+    @property
+    def model_name(self) -> str:
+        return self._model_name
+
+
+class _FormModelConfigAction(_ModelConfigAction):
+    """Action (creation/edition/deletion) on a configured model which uses a form."""
+    __slots__ = (*_ModelConfigAction.__slots__, '_form_class')
+
+    def __init__(self, *,
+                 model: type[Model],
+                 model_name: str,
+                 ):
+        super().__init__(model=model, model_name=model_name)
+        self._form_class: type[ModelForm] | None = None
 
     def _default_form_class(self) -> type[ModelForm]:
         model = self._model
@@ -89,17 +153,11 @@ class _ModelConfigAction:
     def form_class(self, form_cls: type[ModelForm] | None) -> None:
         self._form_class = form_cls
 
-    @property
-    def model(self) -> type[Model]:
-        return self._model
 
-    @property
-    def model_name(self) -> str:
-        return self._model_name
-
-
-class _ModelConfigCreator(_ModelConfigAction):
-    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+# class _ModelConfigCreator(_ModelConfigAction):
+class _ModelConfigCreator(_FormModelConfigAction):
+    # __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+    __slots__ = (*_FormModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
                  model: type[Model],
@@ -124,8 +182,10 @@ class _ModelConfigCreator(_ModelConfigAction):
         return None
 
 
-class _ModelConfigEditor(_ModelConfigAction):
-    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+# class _ModelConfigEditor(_ModelConfigAction):
+class _ModelConfigEditor(_FormModelConfigAction):
+    # __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+    __slots__ = (*_FormModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
                  model: type[Model],
@@ -153,8 +213,10 @@ class _ModelConfigEditor(_ModelConfigAction):
 
 
 # TODO: factorise with _ModelConfigEditor
-class _ModelConfigDeletor(_ModelConfigAction):
-    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+# class _ModelConfigDeletor(_ModelConfigAction):
+class _ModelConfigDeletor(_FormModelConfigAction):
+    # __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
+    __slots__ = (*_FormModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
                  model: type[Model],
@@ -184,16 +246,69 @@ class _ModelConfigDeletor(_ModelConfigAction):
         return None
 
 
+class _ModelConfigDisablor(_ModelConfigAction):
+    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func', '_needed_instances')
+
+    def __init__(self, *,
+                 model: type[Model],
+                 model_name: str,
+                 ):
+        super().__init__(model=model, model_name=model_name)
+        self.enable_func = lambda instance, user: True
+        # Structure: uuid object -> set of app_labels
+        self._needed_instances = defaultdict(set)
+
+    def get_url(self, instance, user) -> str | None:
+        if self.enable_func(instance=instance, user=user):
+            url_name = self.url_name
+            return reverse(
+                'creme_config__disable_instance',
+                args=(
+                    self._model._meta.app_label,
+                    self.model_name,
+                    instance.pk,
+                ),
+            ) if url_name is None else reverse(url_name, args=(instance.pk,))
+
+        return None
+
+    def get_needing_apps(self, instance) -> list[AppConfig]:
+        uid = getattr(instance, 'uuid', None)
+
+        return [
+            apps.get_app_config(app_label)
+            for app_label in self._needed_instances[uid]
+        ] if uid else []
+
+    # NB: why do we just WARN users that an instance is disabled instead of
+    #     FORBID them to disable this instance (with a black list of UUIDs for
+    #     example)? Because the needing app could be installed _after_ the
+    #     instance has been disabled (& automatically re-enabling the instance
+    #     in the populate script would be crappy -- e.g. the instance would not
+    #     be disabled again if the app is finally uninstalled).
+    def register_needed_instances(self, app_label: str, *uuids: str | UUID) -> None:
+        """Register some instances (indeed their uuid) as needed by a specific app.
+
+        It's used by the configuration to warn the administrator of the model's
+        app that a disabled instance is needed by another app to work correctly.
+        """
+        needed_instances = self._needed_instances
+        for uid in uuids:
+            needed_instances[uid if isinstance(uid, UUID) else UUID(uid)].add(app_label)
+
+
 class _ModelConfig:
     """ Contains the configuration information for a model :
-     - Creation form/URL  (the creation can be disabled too).
-     - Edition form/URL  (the creation can be disabled too).
+     - Creation form/URL (the creation can be disabled too).
+     - Edition form/URL (the edition can be disabled too).
+     - Deletion form/URL (the deletion can be disabled too).
+     - Disabling URL (the creation can be disabled too).
      - Brick.
 
      These different information are created automatically, but you can
      customise them.
     """
-    __slots__ = ('creator', 'editor', 'deletor', 'brick_cls')
+    __slots__ = ('creator', 'editor', 'disablor', 'deletor', 'brick_cls')
 
     _SHORT_NAME_RE = re.compile(r'^\w+$')
 
@@ -210,6 +325,7 @@ class _ModelConfig:
 
         self.creator = _ModelConfigCreator(model=model, model_name=model_name)
         self.editor  = _ModelConfigEditor(model=model, model_name=model_name)
+        self.disablor = _ModelConfigDisablor(model=model, model_name=model_name)
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls: type[GenericModelBrick] = GenericModelBrick
 
@@ -234,15 +350,16 @@ class _ModelConfig:
                  url_name: str | None = None,
                  enable_func=None,
                  ) -> Self:
-        """ Set the creation behaviour ; can be used in a fluent way.
+        """ Set the creation behaviour; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
-               (tips: use creme.creme_core.forms.CremeModelForm) ;
-               None means a form is generated.
-        @param url_name: Name of a URL (without argument)
-               None means "creme_config__create_instance" will be used.
+               (tips: use 'creme.creme_core.forms.CremeModelForm');
+               <None> means a form is generated.
+        @param url_name: Name of a URL (the related URL must take no argument).
+               <None> means "creme_config__create_instance" will be used.
         @param enable_func: Function which takes 1 argument (the user doing the request)
-               & return a boolean (False means the user cannot create an instance of the model).
+               & return a boolean (<False> means the user cannot create an
+               instance of the model).
                <None> means the user can always create.
         @return: The ModelConfig instance.
         """
@@ -264,13 +381,14 @@ class _ModelConfig:
         """ Set the edition behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
-               (tips: use creme.creme_core.forms.CremeModelForm) ;
-               None means a form is generated.
-        @param url_name: Name of a URL (without 1 argument, the edited instance's ID)
-               None means "creme_config__edit_instance" will be used.
+               (tips: use 'creme.creme_core.forms.CremeModelForm');
+               <None> means a form is generated.
+        @param url_name: Name of a URL; the related URL must take 1 argument:
+               the edited instance's ID.
+               <None> means "creme_config__edit_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
-               (False means the user cannot edit this instance).
+               (<False> means the user cannot edit this instance).
                <None> means instances can always be edited.
         @return: The ModelConfig instance.
         """
@@ -292,12 +410,13 @@ class _ModelConfig:
         """ Set the deletion behaviour ; can be used in a fluent way.
 
         @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.
-               None means that <DeletionForm> will be used.
-        @param url_name: Name of a URL (without 1 argument, the deleted instance's ID)
-               None means "creme_config__delete_instance" will be used.
+               <None> means that <DeletionForm> will be used.
+        @param url_name: Name of a URL; the related URL must take 1 argument:
+               the ID of the instance to delete.
+               <None> means "creme_config__delete_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
-               (False means the user cannot delete this instance).
+               (<False> means the user cannot delete this instance).
                <None> means instances can always be deleted.
         @return: The ModelConfig instance.
         """
@@ -307,6 +426,29 @@ class _ModelConfig:
 
         if enable_func is not None:
             deletor.enable_func = enable_func
+
+        return self
+
+    def disabling(self, *,
+                  url_name: str | None = None,
+                  enable_func=None,
+                  ) -> Self:
+        """ Set the disabling behaviour ; can be used in a fluent way.
+
+        @param url_name: Name of a URL; the related URL must take 1 argument:
+               the ID of the instance to disable.
+               <None> means "creme_config__disable_instance" will be used.
+        @param enable_func: Function which takes 2 arguments (an instance of the
+               configured model & the user doing the request) & return a boolean
+               (<False> means the user cannot disable this instance).
+               <None> means instances can always be disabled.
+        @return: The ModelConfig instance.
+        """
+        disablor = self.disablor
+        disablor.url_name = url_name
+
+        if enable_func is not None:
+            disablor.enable_func = enable_func
 
         return self
 

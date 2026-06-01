@@ -136,17 +136,24 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
     def build_phonecall(self):
         now_value = now()
+
+        # TODO: deactivate buttons in UI too
         sub_type = get_object_or_404(ActivitySubType, uuid=self.get_phonecall_subtype_uuid())
+        sub_type.is_enabled_or_die()
+        sub_type.type.is_enabled_or_die()
+
+        status = get_object_or_404(Status, uuid=self.get_phonecall_status_uuid())
+        status.is_enabled_or_die()
 
         return Activity(
             user=self.request.user,
             title=self.get_title(),
             description=_('Automatically created by CTI'),
-            status=get_object_or_404(Status, uuid=self.get_phonecall_status_uuid()),
+            status=status,
             type_id=sub_type.type_id,
             sub_type=sub_type,
             start=now_value,
-            # TODO: attribute ? ActivityType.default_hour_duration ?
+            # TODO: attribute? <ActivityType.default_hour_duration>?
             end=now_value + timedelta(minutes=5),
         )
 

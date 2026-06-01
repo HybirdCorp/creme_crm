@@ -8,6 +8,7 @@ from django.db import models
 from django.forms.fields import InvalidJSONInput
 from django.urls import reverse
 from django.utils.choices import CallableChoiceIterator
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -459,7 +460,6 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(label, str(field.widget.creation_label))
 
     def test_actions_admin(self):
-        # admin = create_user()
         admin = self.admin
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -535,6 +535,16 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
 
         render_str = field.widget.render('Sector', None)
         self.assertIn(str(FakeSector.creation_label), render_str)
+
+    def test_disabled_minion(self):
+        sector = FakeSector.objects.create(title='Stone axes', disabled=now())
+        field = CreatorModelMultipleChoiceField(
+            queryset=FakeSector.objects.filter(id=sector.id),
+        )
+        self.assertListEqual(
+            [(sector.pk, _('{} (disabled)').format(sector.title))],
+            [*field.choices],
+        )
 
     def test_set_queryset_property_no_action(self):
         "No action."

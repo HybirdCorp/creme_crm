@@ -18,6 +18,7 @@
 
 from datetime import time
 from functools import partial
+from typing import override
 
 from django.db.models import Q
 from django.forms.forms import BaseForm
@@ -59,46 +60,66 @@ class ActivityCreation(generic.EntityCreation):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.type_uuid = None
+        # self.type_uuid = None
+        self.activity_type = None
 
     def get(self, request, *args, **kwargs):
-        self.type_uuid = self.get_type_uuid()
+        # self.type_uuid = self.get_type_uuid()
+        self.activity_type = self.get_type()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.type_uuid = self.get_type_uuid()
+        # self.type_uuid = self.get_type_uuid()
+        self.activity_type = self.get_type()
         return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        type_uuid = self.type_uuid
-        if type_uuid:
-            kwargs['sub_type'] = ActivitySubType.objects.filter(type__uuid=type_uuid).first()
+        # type_uuid = self.type_uuid
+        # if type_uuid:
+        #     kwargs['sub_type'] = ActivitySubType.objects.filter(type__uuid=type_uuid).first()
+        act_type = self.activity_type
+        if act_type:
+            kwargs['sub_type'] = ActivitySubType.objects.filter(type=act_type).first()
 
         return kwargs
 
     def get_type_uuid(self):
-        act_type = self.kwargs.get(self.type_name_url_kwarg)
+        type_name = self.kwargs.get(self.type_name_url_kwarg)
 
-        if act_type is None:
+        if type_name is None:
             type_uuid = None
         else:
-            type_uuid = self.allowed_activity_types.get(act_type)
+            type_uuid = self.allowed_activity_types.get(type_name)
 
             if not type_uuid:
-                raise Http404(f'No activity type matches with: {act_type}')
+                raise Http404(f'No activity type matches with: {type_name}')
 
         return type_uuid
 
+    def get_type(self):
+        type_uuid = self.get_type_uuid()
+
+        if type_uuid is None:
+            act_type = None
+        else:
+            act_type = get_object_or_404(ActivityType, uuid=type_uuid)
+            act_type.is_enabled_or_die()
+
+        return act_type
+
     def get_title(self):
-        return Activity.get_creation_title(self.type_uuid)
+        # return Activity.get_creation_title(self.type_uuid)
+        act_type = self.activity_type
+        return Activity.get_creation_title(str(act_type.uuid) if act_type else None)
 
 
 class ActivityCreationPopup(generic.EntityCreationPopup):
     model = Activity
     form_class = custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM
 
+    @override
     def get_initial(self):
         initial = super().get_initial()
         request = self.request
@@ -137,6 +158,7 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 class UnavailabilityCreation(ActivityCreation):
     form_class = custom_forms.UNAVAILABILITY_CREATION_CFORM
 
+    @override
     def get_type_uuid(self):
         return constants.UUID_TYPE_UNAVAILABILITY
 
@@ -161,6 +183,7 @@ class RelatedActivityCreation(ActivityCreation):
         self.rtype_id = self.get_rtype_id()
         return super().post(request, *args, **kwargs)
 
+    @override
     def get_initial(self):
         initial = super().get_initial()
 
@@ -208,11 +231,12 @@ class RelatedActivityCreation(ActivityCreation):
 
         return rtype_id
 
+    @override
     def get_type_uuid(self):
         type_uuid = self.request.GET.get('activity_type')  # TODO: attribute
 
-        if type_uuid:
-            get_object_or_404(ActivityType, uuid=type_uuid)
+        # if type_uuid:
+        #     get_object_or_404(ActivityType, uuid=type_uuid)
 
         return type_uuid
 
@@ -249,9 +273,19 @@ class ActivitiesList(generic.EntitiesList):
 
 
 class TypedActivitiesList(ActivitiesList):
+    type_uuid = ''
     creation_label = 'Create a typed activity'
     creation_url = '/activities/typed_activity/create/'
 
+    def get(self, request, *args, **kwargs):
+        self.build_internal_q()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.build_internal_q()
+        return super().post(request, *args, **kwargs)
+
+    @override
     def get_buttons(self):
         class TypedActivityCreationButton(CreationButton):
             def get_label(this, request, model):
@@ -264,19 +298,29 @@ class TypedActivitiesList(ActivitiesList):
             old=CreationButton, new=TypedActivityCreationButton,
         )
 
+    def build_internal_q(self):
+        type_uuid = self.type_uuid
+
+        act_type = get_object_or_404(ActivityType, uuid=type_uuid)
+        act_type.is_enabled_or_die()
+
+        self.internal_q = Q(type=act_type)
+
 
 class PhoneCallsList(TypedActivitiesList):
+    type_uuid = constants.UUID_TYPE_PHONECALL
     title = _('List of phone calls')
     creation_label = _('Create a phone call')
     creation_url = reverse_lazy('activities__create_activity', args=('phonecall',))
-    internal_q = Q(type__uuid=constants.UUID_TYPE_PHONECALL)
+    # internal_q = Q(type__uuid=constants.UUID_TYPE_PHONECALL)
 
 
 class MeetingsList(TypedActivitiesList):
+    type_uuid = constants.UUID_TYPE_MEETING
     title = _('List of meetings')
     creation_label = _('Create a meeting')
     creation_url = reverse_lazy('activities__create_activity', args=('meeting',))
-    internal_q = Q(type__uuid=constants.UUID_TYPE_MEETING)
+    # internal_q = Q(type__uuid=constants.UUID_TYPE_MEETING)
 
 
 class ICalExport(generic.CheckedView):
@@ -289,9 +333,10 @@ class ICalExport(generic.CheckedView):
         return self.request.GET.getlist(self.id_arg)
 
     def get_activities(self):
-        # TODO: is_deleted=False ?
-        # TODO: remove duplicates ?
-        # TODO: ignore floating activities ?
+        # TODO: <is_deleted=False>?
+        # TODO: remove duplicates?
+        # TODO: ignore floating activities?
+        # TODO: ignore disabled types/sub_types?
         return Activity.objects.filter(pk__in=self.get_activity_ids())
 
     def get_encoder(self):

@@ -1,6 +1,7 @@
 from datetime import date, time
 from functools import partial
 
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
@@ -548,6 +549,105 @@ class ActivitySubTypeInnerEditionTestCase(_ActivitiesTestCase):
             field=form_field_name,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
+
+    def test_inner_edit__type__disabled_type__change(self):
+        user = self.login_as_root_and_get()
+
+        create_dt = self.create_datetime
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
+        activity = Activity.objects.create(
+            user=user, title='Inner edited act',
+            start=create_dt(year=2026, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2026, month=1, day=1, hour=15, minute=0),
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        new_type = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=1,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=now(),
+        )
+        new_sub_type = ActivitySubType.objects.create(
+            type=new_type, name='Kick session', is_custom=True,
+        )
+
+        field_name = 'type'
+        form_field_name = f'override-{field_name}'
+        response = self.assertPOST200(
+            self.build_inneredit_uri(activity, field_name),
+            data={form_field_name: new_sub_type.id},
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=form_field_name,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
+    def test_inner_edit__type__disabled_sub_type__change(self):
+        user = self.login_as_root_and_get()
+
+        create_dt = self.create_datetime
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
+        activity = Activity.objects.create(
+            user=user, title='Inner edited act',
+            start=create_dt(year=2026, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2026, month=1, day=1, hour=15, minute=0),
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        new_sub_type = ActivitySubType.objects.create(
+            type=sub_type.type,
+            name='Smalltalk', is_custom=True,
+            disabled=now(),
+        )
+
+        field_name = 'type'
+        form_field_name = f'override-{field_name}'
+        response = self.assertPOST200(
+            self.build_inneredit_uri(activity, field_name),
+            data={form_field_name: new_sub_type.id},
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=form_field_name,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_inner_edit__type__disabled_type__no_change(self, enabled_type, enabled_sub_type):
+        user = self.login_as_root_and_get()
+
+        create_dt = self.create_datetime
+        a_type = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=1,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=None if enabled_type else now(),
+        )
+        sub_type = ActivitySubType.objects.create(
+            type=a_type,
+            name='Kick session',
+            is_custom=True,
+            disabled=None if enabled_sub_type else now(),
+        )
+        activity = Activity.objects.create(
+            user=user, title='Inner edited act',
+            start=create_dt(year=2026, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2026, month=1, day=1, hour=15, minute=0),
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        field_name = 'type'
+        self.assertNoFormError(self.client.post(
+            self.build_inneredit_uri(activity, field_name),
+            data={f'override-{field_name}': sub_type.id},
+        ))
 
     def test_inner_edit__type__unavailability(self):
         "Unavailability type cannot be changed, the sub_type can."

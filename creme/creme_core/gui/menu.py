@@ -37,6 +37,7 @@ from creme.creme_core.gui.icons import (
 )
 
 from .. import auth
+from ..core.exceptions import ConflictError
 from ..forms import menu as menu_forms
 from ..models import CremeEntity, CremeUser, CustomEntityType, MenuConfigItem
 from ..models.utils import model_verbose_name
@@ -185,7 +186,7 @@ class FixedURLEntry(MenuEntry):
 
         try:
             self.check_permissions(context['user'])
-        except PermissionDenied as e:
+        except (PermissionDenied, ConflictError) as e:
             return format_html(
                 '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
                 '{label}'

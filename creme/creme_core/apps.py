@@ -642,6 +642,9 @@ class CremeCoreConfig(CremeAppConfig):
             model=models.EntityFilter,
             enumerator_class=enumerators.EntityFilterEnumerator,
         ).register_related_model(
+            model=models.MinionModel,
+            enumerator_class=enumerators.MinionEnumerator,
+        ).register_related_model(
             model=models.Vat,
             enumerator_class=enumerators.VatEnumerator,
         ).register_field_type(
@@ -750,10 +753,18 @@ class CremeCoreConfig(CremeAppConfig):
             ).edition(enable_func=lambda instance, user: False)
             register_model(
                 fake_models.FakeFolderCategory, model_name='fake_foldercat',
-            ).deletion(enable_func=lambda instance, user: False)
+            ).deletion(
+                enable_func=lambda instance, user: False,
+            ).disabling(
+                url_name='creme_core__edit_fake_organisation',
+            )
             register_model(
                 fake_models.FakeImageCategory, model_name='fake_img_cat',
-            ).deletion(url_name='creme_core__edit_fake_organisation')
+            ).deletion(
+                url_name='creme_core__edit_fake_organisation',
+            ).disabling(
+                enable_func=lambda instance, user: False,
+            )
 
             config_registry.register_portal_bricks(fake_bricks.FakePortalBrick)
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
@@ -904,19 +915,20 @@ class CremeCoreConfig(CremeAppConfig):
 
         original_m2m_formfield = ManyToManyField.formfield
 
-        def new_m2m_formfield(self, **kwargs):
-            model = self.remote_field.model
+        def new_m2m_formfield(this, **kwargs):
+            model = this.remote_field.model
 
             if issubclass(model, CremeEntity):
                 return MultiCreatorEntityField(
-                    label=self.verbose_name,
+                    label=this.verbose_name,
                     model=model,
-                    required=not self.blank,
-                    q_filter=self.remote_field.limit_choices_to,
+                    required=not this.blank,
+                    q_filter=this.remote_field.limit_choices_to,
                 )
 
             return original_m2m_formfield(
-                self, **{'form_class': CreatorModelMultipleChoiceField, **kwargs})
+                this, **{'form_class': CreatorModelMultipleChoiceField, **kwargs}
+            )
 
         ManyToManyField.formfield = new_m2m_formfield
 

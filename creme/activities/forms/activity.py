@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,14 +60,32 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
     def formfield(self, instance, user, **kwargs):
         type_id = instance.type_id
 
-        if type_id and (
-            instance.pk is None
-            or str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY
-        ):
+        # if type_id and (
+        #     instance.pk is None
+        #     or str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY
+        # ):
+        #     limit_choices_to = Q(type_id=type_id)
+        # else:
+        #     limit_choices_to = ~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
+        if instance.pk is None:
+            # NB: this field MUST not be used to create an unavailability
+            #     (see UnavailabilityTypeSubCell)...
+            limit_choices_to = ~Q(
+                type__uuid=constants.UUID_TYPE_UNAVAILABILITY,
+            ) & Q(disabled=None, type__disabled=None)
+        elif str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY:
+            # ... but there is only one form to edit, so we have to manage the
+            # unavailability case.
             # TODO: improve help_text of end (we know the type default duration)
-            limit_choices_to = Q(type_id=type_id)
+            limit_choices_to = Q(type_id=type_id) & (
+                Q(id=instance.sub_type_id) | Q(disabled=None)
+            )
         else:
-            limit_choices_to = ~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
+            limit_choices_to = ~Q(
+                type__uuid=constants.UUID_TYPE_UNAVAILABILITY,
+            ) & (
+                Q(id=instance.sub_type_id) | Q(disabled=None, type__disabled=None)
+            )
 
         return ActivitySubTypeField(
             model=type(instance),
@@ -93,7 +111,11 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
             user=user,
             label=self.verbose_name,
             required=True,
-            limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
+            # limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
+            limit_choices_to=Q(
+                type__uuid=constants.UUID_TYPE_UNAVAILABILITY,
+                disabled=None,
+            ),
         )
 
 

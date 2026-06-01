@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.bulk_update import FieldOverrider
@@ -27,17 +27,23 @@ class CategoryOverrider(FieldOverrider):
     field_names = ['category', 'sub_category']
 
     def formfield(self, instances, user, **kwargs):
+        first = instances[0]
         field = SubCategoryField(
-            model=type(instances[0]),
+            model=type(first),
             field_name='sub_category',
             label=_('Sub-category'),
-            user=user
+            user=user,
         )
 
+        # if len(instances) == 1:
+        #     instance = instances[0]
+        #     if instance.pk:
+        #         field.initial = instance.sub_category
         if len(instances) == 1:
-            instance = instances[0]
-            if instance.pk:
-                field.initial = instance.sub_category
+            field.initial = first.sub_category
+            field.limit_choices_to = Q(
+                disabled=None, category__disabled=None,
+            ) | Q(id=first.sub_category_id)
 
         return field
 

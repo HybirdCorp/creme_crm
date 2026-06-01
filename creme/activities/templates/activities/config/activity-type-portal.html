@@ -1,5 +1,5 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_bricks creme_perms %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration' %} > {% blocktranslate %}Sub types of «{{activity_type}}»{% endblocktranslate %} - {% endblock %}
 
@@ -8,6 +8,13 @@
     <a href="{% url 'creme_config__app_portal' 'activities' %}">{{app_verbose_name}} > </a>
     <a href="{% url 'creme_config__model_portal' 'activities' 'activity_sub_type' %}">{% translate 'Sub-types' %} > </a>
     {% blocktranslate %}Sub types of «{{activity_type}}»{% endblocktranslate %}
+{% endblock %}
+
+{% block portal_help %}
+    {% if activity_type.disabled %}
+        {% blocktranslate asvar help_msg %}Beware: the type «{{activity_type}}» is disabled.{% endblocktranslate %}
+        {% widget_help_sign message=help_msg %}
+    {% endif %}
 {% endblock %}
 
 {% block portal_bricks %}

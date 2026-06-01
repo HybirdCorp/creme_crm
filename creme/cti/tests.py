@@ -7,7 +7,12 @@ from django.utils.translation import gettext as _
 
 import creme.activities.constants as a_constants
 from creme.activities import get_activity_model
-from creme.activities.models import ActivitySubType, ActivityType, Calendar
+from creme.activities.models import (
+    ActivitySubType,
+    ActivityType,
+    Calendar,
+    Status,
+)
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
@@ -334,6 +339,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(filter_calendars(pk=get_cal(user).id).exists())
         self.assertTrue(filter_calendars(pk=get_cal(other_user).id).exists())
 
+    @skipIfCustomContact
     @skipIfCustomActivity
     def test_create_phonecall__is_staff(self):
         self.login_as_super(is_staff=True)
@@ -341,3 +347,69 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
             user=self.get_root_user(), first_name='Bean', last_name='Bandit',
         )
         self.assertPOST404(self._build_add_pcall_url(contact))
+
+    @skipIfCustomContact
+    @skipIfCustomActivity
+    def test_create_phonecall__disabled_subtype(self):
+        user = self.login_as_root_and_get()
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
+        subtype = self.get_object_or_fail(
+            ActivitySubType, uuid=a_constants.UUID_SUBTYPE_PHONECALL_INCOMING,
+        )
+
+        try:
+            subtype.disabled = now()
+            subtype.save()
+
+            response = self.client.post(self._build_add_pcall_url(contact), follow=True)
+        finally:
+            subtype.disabled = None
+            subtype.save()
+
+        self.assertContains(
+            response, text=subtype.message_for_disabled, status_code=409, html=True,
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomActivity
+    def test_create_phonecall__disabled_type(self):
+        user = self.login_as_root_and_get()
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
+        atype = self.get_object_or_fail(
+            ActivityType, uuid=a_constants.UUID_TYPE_PHONECALL,
+        )
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.client.post(self._build_add_pcall_url(contact), follow=True)
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertContains(
+            response, text=atype.message_for_disabled, status_code=409, html=True,
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomActivity
+    def test_create_phonecall__disabled_status(self):
+        user = self.login_as_root_and_get()
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
+        status = self.get_object_or_fail(
+            Status, uuid=a_constants.UUID_STATUS_IN_PROGRESS,
+        )
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            response = self.client.post(self._build_add_pcall_url(contact), follow=True)
+        finally:
+            status.disabled = None
+            status.save()
+
+        self.assertContains(
+            response, text=status.message_for_disabled, status_code=409, html=True,
+        )

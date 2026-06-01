@@ -18,7 +18,12 @@ from creme.creme_core.core.setting_key import SettingKey, SettingKeyRegistry
 from creme.creme_core.forms import CremeModelForm
 # from creme.creme_core.gui.bricks import SimpleBrick
 from creme.creme_core.gui.bricks import Brick, BrickRegistry, VoidBrick
-from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
+from creme.creme_core.models import (
+    FakeCivility,
+    FakeDocumentCategory,
+    FakePosition,
+    FakeSector,
+)
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents.models import DocumentCategory
 
@@ -99,6 +104,16 @@ class RegistryTestCase(CremeTestCase):
             editor.get_url(civ, user),
             reverse(
                 'creme_config__edit_instance', args=('creme_core', 'civility', civ.id),
+            ),
+        )
+
+        # Disablor ---
+        disablor = model_config.disablor
+        self.assertIsNone(disablor.url_name)
+        self.assertEqual(
+            disablor.get_url(civ, user),
+            reverse(
+                'creme_config__disable_instance', args=('creme_core', 'civility', civ.id),
             ),
         )
 
@@ -219,11 +234,13 @@ class RegistryTestCase(CremeTestCase):
         creation_url_name = 'creme_config__create_team'
         edition_url_name = 'creme_config__edit_team'  # NB: need a URL with an int arg
         deletion_url_name = 'creme_config__edit_user'  # idem
+        disabling_url_name = 'creme_config__disable_ptype'  # idem
 
         registry.register_model(FakeCivility) \
                 .edition(url_name=edition_url_name) \
                 .deletion(url_name=deletion_url_name) \
-                .creation(url_name=creation_url_name)
+                .creation(url_name=creation_url_name) \
+                .disabling(url_name=disabling_url_name)
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
         creator = model_config.creator
@@ -241,6 +258,12 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(
             deletor.get_url(civ, user=user),
             reverse(deletion_url_name, args=(civ.id,)),
+        )
+
+        disablor = model_config.disablor
+        self.assertEqual(
+            disablor.get_url(civ, user=user),
+            reverse(disabling_url_name, args=(civ.id,)),
         )
 
         # Back to default
@@ -369,6 +392,62 @@ class RegistryTestCase(CremeTestCase):
             deletor.get_url(instance=civ2, user=user1),
         )
         self.assertIsNone(deletor.get_url(instance=civ1, user=user2))
+
+    def test_register_model__disable_url__disabling(self):
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
+        registry = ConfigRegistry()
+
+        civ1, civ2 = FakeCivility.objects.all()[:2]
+        registry.register_model(FakeCivility).disabling(
+            enable_func=lambda instance, user: instance.id == civ1.id
+        )
+
+        model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
+
+        disablor = model_config.disablor
+
+        url1 = reverse(
+            'creme_config__disable_instance',
+            args=('creme_core', 'fakecivility', civ1.id),
+        )
+        self.assertEqual(url1, disablor.get_url(instance=civ1, user=user1))
+        self.assertEqual(url1, disablor.get_url(instance=civ1, user=user2))
+        self.assertIsNone(disablor.get_url(instance=civ2, user=user1))
+
+        # Disable with user
+        user_name = user1.username
+        disablor.enable_func = lambda instance, user: user.username == user_name
+        self.assertEqual(url1, disablor.get_url(instance=civ1, user=user1))
+        self.assertIsNone(disablor.get_url(instance=civ1, user=user2))
+
+    def test_register_model__needing_apps__disabling(self):
+        registry = ConfigRegistry()
+
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+        registry.register_model(FakeSector)
+
+        disablor = registry.get_app_registry('creme_core').get_model_conf(FakeSector).disablor
+        self.assertEqual([], disablor.get_needing_apps(sector1))
+        self.assertEqual([], disablor.get_needing_apps(sector2))
+        self.assertEqual([], disablor.get_needing_apps(sector3))
+
+        # ---
+        disablor.register_needed_instances('persons', sector2.uuid, str(sector3.uuid))
+        disablor.register_needed_instances('documents', sector3.uuid)
+        self.assertEqual([], disablor.get_needing_apps(sector1))
+        self.assertListEqual(
+            ['persons'],
+            [app.label for app in disablor.get_needing_apps(sector2)],
+        )
+        self.assertCountEqual(
+            ['persons', 'documents'],
+            [app.label for app in disablor.get_needing_apps(sector3)],
+        )
+
+        # Model without uuid ---
+        cat = FakeDocumentCategory.objects.create(name='Book')
+        self.assertEqual([], disablor.get_needing_apps(cat))
 
     def test_register_model__brick(self):
         "Register specific Brick."

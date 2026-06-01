@@ -93,6 +93,10 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
                 'fix it in the configuration of «Activities».'
             ))
 
+        sub_type.is_enabled_or_die()
+        sub_type.type.is_enabled_or_die()
+        status.is_enabled_or_die()
+
         now_value = now()
 
         # NB: notice that we do not check FieldsConfig for required fields;
