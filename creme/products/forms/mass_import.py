@@ -176,7 +176,10 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
             for sub_cat in SubCategory.objects.filter(
                 category__in=[c[0] for c in cat_choices],
             ):
-                sub_cat_map[sub_cat.category_id].append((sub_cat.id, sub_cat.name))
+                # sub_cat_map[sub_cat.category_id].append((sub_cat.id, sub_cat.name))
+                sub_cat_map[sub_cat.category_id].append(
+                    (sub_cat.id, sub_cat.get_enabled_label())
+                )
 
         # NB: we need to work with an int, in order to not mix int & str as keys
         #     for 'sub_cat_map'.
@@ -227,6 +230,7 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         }
 
 
+# TODO: use lazy/dynamic loading of choices to be more scalable as usual
 class CategoriesExtractorField(Field):
     widget = CategoriesExtractorWidget
     default_error_messages = {
@@ -251,7 +255,9 @@ class CategoriesExtractorField(Field):
     @categories.setter
     def categories(self, categories):
         self._categories = categories
-        self.widget.categories = ChoiceModelIterator(categories)
+        self.widget.categories = ChoiceModelIterator(
+            queryset=categories, render_label=Category.get_enabled_label,
+        )
 
     @property
     def user(self):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-29 16:57+0200\n"
+"POT-Creation-Date: 2026-06-17 11:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -448,6 +448,10 @@ msgid ""
 msgstr ""
 "Vous pouvez copier un formulaire existant pour éviter de créer votre nouveau "
 "formulaire depuis zéro."
+
+# Already in core
+msgid "{} (disabled)"
+msgstr ""
 
 msgid "Create a choice"
 msgstr "Créer un choix"
@@ -1246,6 +1250,9 @@ msgstr ""
 msgid "New value"
 msgstr "Nouvelle valeur"
 
+msgid "Deactivation"
+msgstr "Désactivation"
+
 #, python-format
 msgid "Drag and drop to re-order this «%(type)s»"
 msgstr "Glissez-déposez pour réordonner ce(tte) «%(type)s»"
@@ -1540,6 +1547,18 @@ msgstr ""
 msgid "No file for the moment"
 msgstr "Aucun fichier pour le moment"
 
+# Already in creme_core
+msgid "Enable"
+msgstr ""
+
+#, python-format
+msgid "This choice is used by the app «%(app)s»"
+msgstr ""
+
+# Already in creme_core
+msgid "Disable"
+msgstr ""
+
 msgid "No property constraint"
 msgstr "Pas de contrainte de propriété"
 
@@ -1734,14 +1753,6 @@ msgid "%(count)s entity with this property"
 msgid_plural "%(count)s entities with this property"
 msgstr[0] ""
 msgstr[1] ""
-
-# Already in creme_core
-msgid "Disable"
-msgstr ""
-
-# Already in creme_core
-msgid "Enable"
-msgstr ""
 
 # Already in core
 msgid "You are not allowed to edit this property type"
@@ -2307,6 +2318,10 @@ msgstr "Application"
 #, python-format
 msgid "Type: %(model_name)s"
 msgstr "Type : %(model_name)s"
+
+msgid "A disabled choice will not be usable in new entities"
+msgstr ""
+"Un choix désactivé ne pourra pas être utilisé dans les nouvelles fiches"
 
 msgid "Creme configuration portal"
 msgstr "Portail de Configuration de Creme"
@@ -2924,6 +2939,9 @@ msgstr "Nouvelle valeur : {model}"
 
 msgid "Edition is disabled for this instance."
 msgstr "La modification est désactivée pour cette instance."
+
+msgid "Disabling is not possible for this instance."
+msgstr "La désactivation n'est pas possible pour cette instance."
 
 msgid ""
 "The deleted value can be replaced in existing entities by another value. If "

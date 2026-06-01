@@ -9,6 +9,10 @@
           ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
       # Apps :
         * Creme_config :
+            - Many Minions (the small models like "Sector" or "Activity status" can now be disabled;
+                - A disabled cannot be used in new entities.
+                - An existing entity using a Minion which has been disabled later can continue to use it
+                  (but the disabled choices are displayed differently).
             - The custom-fields can now be configured to be required only at creation.
             - A new action for the workflows is available: sending a notification.
               You can now create customised notification channels, which are the
@@ -63,6 +67,15 @@
         # When registering an enumerator class related to a model with
           'creme_core.core.enumerable.EnumerableRegistry.register_related_model()',
           this class is used as fallback for child models.
+        # A new class 'creme_core.enumerators.MinionEnumerator' has been created ; you should use it
+          has base class for your own enumerators for Minion models (e.g. 'VatEnumerator' inherits it now).
+        # In 'creme_core.gui.field_printers', if a Minion model has a 'color' field, the color is
+          now used by the default printer. So you do not have to register a printer like
+          'FKPrinter.print_fk_colored_html' anymore ; indeed you should probably just keep the
+          default printer which uses the new field "disabled" too.
+        # The method 'creme_core.models.CremeEntity.clean()' is not empty anymore (it checks if
+          referenced Minions are disabled). So you should call it in the 'clean()' of your own
+          entity models (i.e. <super().clean()>) if you did not call it in previous version.
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
           a class attribute 'brick_classes' has been added to facilitate the injection
           of "static" (i.e. no configuration in DB) Bricks in the related template.
@@ -89,6 +102,8 @@
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' has been removed.
+        # The model 'creme_core.models.MinionModel' gets a new field : 'disabled' (a nullable datetime field).
+          So you have to generate the corresponding  migration files for your apps defining child models.
         # In 'creme_core.forms' :
             - The method 'fields.JSONField.from_python()' has been removed; the classical Django method
               'prepare_value()' has been implemented instead, & is used in child fields & related widgets.
@@ -154,8 +169,12 @@
                   'ChartDetailBricksReloading' & 'ChartInstanceBricksInfo' has been renamed 'brick_classes'.
             * Activities :
                 - In the method 'models.AbstractActivity.get_creation_title()', the only argument has been renamed "type__uuid".
-                - In 'views.other_models', the class attribute 'brick' of the view-classes
-                 'ActivityTypePortal' & 'ActivityTypeBricksReloading' has been renamed 'brick_classes'.
+                - In 'views' :
+                    - In 'activity' :
+                        - The class-view 'ActivityCreation', the attribute 'type_uuid' has been replaced by an attribute 'activity_type'.
+                        - The base class-view 'TypedActivitiesList' needs the class attrinute 'type_uuid' to be defined in child classes.
+                    - In 'other_models', the class attribute 'brick' of the view-classes
+                      'ActivityTypePortal' & 'ActivityTypeBricksReloading' has been renamed 'brick_classes'.
             * Products :
                 - The new fields 'Product.default_discount' & 'Service.default_discount' are required.
                 - In 'views.other_models', the class attribute 'brick' of the view-classes

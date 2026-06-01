@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.gui import menu
 
-from . import get_activity_model
+from . import constants, get_activity_model
+from .models import ActivityType
 
 Activity = get_activity_model()
 creation_perm = build_creation_perm(Activity)
@@ -43,16 +46,31 @@ class ActivitiesEntry(menu.ListviewEntry):
     model = Activity
 
 
-class PhoneCallsEntry(_ActivitiesURLEntry):
+class _TypedActivitiesEntry(_ActivitiesURLEntry):
+    type_uuid = ''
+
+    @override
+    def check_permissions(self, user):
+        super().check_permissions(user=user)
+        ActivityType.objects.get_by_uuid(
+            self.type_uuid, conflict_error=True,
+        ).is_enabled_or_die()
+
+
+# class PhoneCallsEntry(_ActivitiesURLEntry):
+class PhoneCallsEntry(_TypedActivitiesEntry):
     id = 'activities-phone_calls'
     label = _('Phone calls')
     url_name = 'activities__list_phone_calls'
+    type_uuid = constants.UUID_TYPE_PHONECALL
 
 
-class MeetingsEntry(_ActivitiesURLEntry):
+# class MeetingsEntry(_ActivitiesURLEntry):
+class MeetingsEntry(_TypedActivitiesEntry):
     id = 'activities-meetings'
     label = _('Meetings')
     url_name = 'activities__list_meetings'
+    type_uuid = constants.UUID_TYPE_MEETING
 
 
 class ActivityCreationEntry(menu.CreationEntry):

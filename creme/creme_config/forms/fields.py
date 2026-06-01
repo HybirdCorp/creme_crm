@@ -17,6 +17,7 @@
 ################################################################################
 
 from copy import deepcopy
+from typing import override
 
 # from django.apps import apps
 from django.db.models.base import Model
@@ -80,8 +81,6 @@ class CreatorChoiceMixin:
 
 
 class CreatorModelChoiceMixin(CreatorChoiceMixin):
-    # _create_action_url = None
-
     @property
     def creation_url_n_allowed(self):
         """Get the creation URL & if the creation is allowed.
@@ -117,6 +116,10 @@ class CreatorModelChoiceField(modelforms.ModelChoiceField,
         self.creation_info(create_action_url, user)
 
 
+# TODO: add a feature 'limit_choices_to' (see ActivitySubTypeField). Then :
+#       - Rework child fields which already implement a simplified version.
+#       - Use it to hide disabled minions (excepted the ones already referenced).
+#       - Rework the replace & delete feature (creme_config) to use this field.
 class CreatorEnumerableModelChoiceField(CreatorChoiceMixin,
                                         enum_forms.EnumerableModelChoiceField):
     def __init__(self, model: type[Model], field_name: str, *, user=None,
@@ -165,6 +168,10 @@ class CreatorModelMultipleChoiceField(modelforms.ModelMultipleChoiceField,
     def __init__(self, *, queryset, create_action_url='', user=None, **kwargs):
         super().__init__(queryset, **kwargs)
         self.creation_info(create_action_url, user)
+
+    @override
+    def label_from_instance(self, obj):
+        return _('{} (disabled)').format(obj) if getattr(obj, 'disabled', None) else str(obj)
 
 
 class CreatorCustomEnumChoiceMixin(CreatorChoiceMixin):
@@ -368,6 +375,7 @@ class MenuEntriesField(fields.JSONField):
             params={'error': error},
         )
 
+    @override
     def to_python(self, value):
         decoded_value = super().to_python(value)
         entries = []
@@ -475,6 +483,7 @@ class BricksConfigField(fields.JSONField):
             choice_id for choice_id, choice_label in value
         }
 
+    @override
     def clean(self, value: str):
         value = super().clean(value)
 

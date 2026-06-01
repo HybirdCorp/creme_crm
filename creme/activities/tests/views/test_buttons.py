@@ -196,6 +196,31 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
             },
         )
 
+    def test_edition__disabled_minions(self):
+        self.login_as_root()
+
+        atype = self._get_type(constants.UUID_TYPE_PHONECALL)
+        sub_type = ActivitySubType.objects.create(
+            name='Disabled', type=atype, disabled=now(),
+        )
+        status = Status.objects.create(name='Disabled', disabled=now())
+
+        response = self.assertPOST200(
+            self.CONFIG_EDITION_URL,
+            data={
+                'sub_type': sub_type.id,
+                'title': 'Fail',
+                'status': status.id,
+                'duration': '2',
+            },
+        )
+        form = response.context['form']
+        msg = _(
+            'Select a valid choice. That choice is not one of the available choices.'
+        )
+        self.assertFormError(form, field='status', errors=msg)
+        self.assertFormError(form, field='sub_type', errors=msg)
+
     def test_edition__invalid_initial__sub_type(self):
         self.login_as_root()
 
@@ -282,7 +307,8 @@ class UnsuccessfulPhoneCallTestCase(view_base.ButtonTestCaseMixin,
             user=cls.get_root_user(), first_name='Musashi', last_name='Miyamoto',
         )
 
-    def _build_creation_url(self, contact):
+    @staticmethod
+    def _build_creation_url(contact):
         return reverse('activities__create_unsuccessful_phone_call', args=(contact.id,))
 
     def test_default(self):
@@ -369,18 +395,36 @@ class UnsuccessfulPhoneCallTestCase(view_base.ButtonTestCaseMixin,
         self.assertDatetimesAlmostEqual(end, now())
         self.assertEqual(end - timedelta(minutes=duration), activity.start)
 
-    def test_type_error(self):
+    def test_type__disabled(self):
+        self.login_as_root()
+
+        atype = self._get_type(constants.UUID_TYPE_PHONECALL)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.client.post(self._build_creation_url(self.contact))
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertContains(
+            response,
+            text=atype.message_for_disabled, status_code=409, html=True,
+        )
+
+    def test_subtype__deleted(self):
         self.login_as_root()
 
         sub_type_uuid = uuid4()
         self.assertFalse(ActivitySubType.objects.filter(uuid=sub_type_uuid))
+
         SettingValue.objects.set_4_key(
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
-
-        response = self.client.post(self._build_creation_url(self.contact))
         self.assertContains(
-            response,
+            self.client.post(self._build_creation_url(self.contact)),
             _(
                 'The configuration of the button is broken; '
                 'fix it in the configuration of «Activities».'
@@ -389,22 +433,54 @@ class UnsuccessfulPhoneCallTestCase(view_base.ButtonTestCaseMixin,
             html=True,
         )
 
-    def test_status_error(self):
+    def test_subtype__disabled(self):
+        self.login_as_root()
+
+        atype = self._get_type(constants.UUID_TYPE_PHONECALL)
+        sub_type = ActivitySubType.objects.create(
+            type=atype, name='SMS', disabled=now(),
+        )
+
+        SettingValue.objects.set_4_key(
+            key=setting_keys.unsuccessful_subtype_key, value=str(sub_type.uuid),
+        )
+        self.assertContains(
+            self.client.post(self._build_creation_url(self.contact)),
+            text=sub_type.message_for_disabled,
+            status_code=409,
+            html=True,
+        )
+
+    def test_status__deleted(self):
         self.login_as_root()
 
         status_uuid = uuid4()
         self.assertFalse(Status.objects.filter(uuid=status_uuid))
+
         SettingValue.objects.set_4_key(
             key=setting_keys.unsuccessful_status_key, value=str(status_uuid),
         )
-
-        response = self.client.post(self._build_creation_url(self.contact))
         self.assertContains(
-            response,
+            self.client.post(self._build_creation_url(self.contact)),
             _(
                 'The configuration of the button is broken; '
                 'fix it in the configuration of «Activities».'
             ),
+            status_code=409,
+            html=True,
+        )
+
+    def test_status__disabled(self):
+        self.login_as_root()
+
+        status = Status.objects.create(name='No success', disabled=now())
+        SettingValue.objects.set_4_key(
+            key=setting_keys.unsuccessful_status_key, value=str(status.uuid),
+        )
+
+        self.assertContains(
+            self.client.post(self._build_creation_url(self.contact)),
+            text=status.message_for_disabled,
             status_code=409,
             html=True,
         )

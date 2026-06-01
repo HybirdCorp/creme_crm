@@ -375,6 +375,10 @@ span.disabled-link {
     color: #777;
 }
 
+span.minion-is_disabled {
+    text-decoration: line-through;
+}
+
 div.efilter-summary {
     display: flex;
     flex-direction: column;

@@ -57,7 +57,9 @@ class SalesPhase(core_models.MinionModel):
         super().clean()
 
         if self.won and self.lost:
-            raise ValidationError(gettext('A phase can not be won and lost at the same time.'))
+            raise ValidationError(
+                gettext('A phase can not be won and lost at the same time.')
+            )
 
 
 class Origin(core_models.MinionModel):

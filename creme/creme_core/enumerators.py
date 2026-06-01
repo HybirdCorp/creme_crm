@@ -100,6 +100,17 @@ class UserEnumerator(enumerable.QSEnumerator):
         return choices[:limit] if limit else choices
 
 
+# TODO: improve enumerators system to exclude disabled items in creation forms
+#       & disabled items excepted used ones in edition forms.
+class MinionEnumerator(enumerable.QSEnumerator):
+    @classmethod
+    def instance_as_dict(cls, instance):
+        return {
+            'value': instance.pk,
+            'label': instance.get_enabled_label(),
+        }
+
+
 class EntityFilterEnumerator(enumerable.QSEnumerator):
     search_fields = ('name',)
 
@@ -205,13 +216,13 @@ class CTypeForeignKeyEnumerator(enumerable.Enumerator):
 #         return [c for c in entity_ctypes() if c.id in values]
 
 
-class VatEnumerator(enumerable.QSEnumerator):
+# class VatEnumerator(enumerable.QSEnumerator):
+class VatEnumerator(MinionEnumerator):
     search_fields = ('value',)
 
 
 class CustomFieldEnumerator(enumerable.Enumerator):
-    """Similar to QSEnumerator but only for CustomField values"""
-
+    """Similar to QSEnumerator but only for CustomField values."""
     search_fields = ('value',)
     limit_choices_to = None
 

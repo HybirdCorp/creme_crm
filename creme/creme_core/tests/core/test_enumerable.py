@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connection, models
 from django.db.models import ForeignKey
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
@@ -30,6 +31,7 @@ from creme.creme_core.models import (
     FakeInvoiceLine,
     FakeOrganisation,
     FakeReport,
+    FakeSector,
     FakeTodo,
     HistoryLine,
     Language,
@@ -649,6 +651,27 @@ class EnumerableTestCase(CremeTestCase):
         #     enumerators.EntityEnumerator,
         # )
 
+    def test_minion_enumerator(self):
+        user = self.get_root_user()
+        sector1, sector2 = FakeSector.objects.all()[:2]
+        dis_sector = FakeSector.objects.create(title='Horses', disabled=now())
+
+        e = enumerators.MinionEnumerator(FakeContact._meta.get_field('sector'))
+        choices = e.choices(user)
+        self.assertEqual(len(choices), FakeSector.objects.count())
+        self.assertIn({'value': sector1.id, 'label': sector1.title}, choices)
+        self.assertIn({'value': sector2.id, 'label': sector2.title}, choices)
+        self.assertIn(
+            {'value': dis_sector.id, 'label': _('{} (disabled)').format(dis_sector.title)},
+            choices,
+        )
+
+        # ---
+        self.assertListEqual(
+            [{'value': sector1.id, 'label': sector1.title}],
+            e.choices(user, term=sector1.title[:-1]),
+        )
+
     def test_user_enumerator(self):
         user = self.user
         other_user = self.create_user()
@@ -949,6 +972,13 @@ class EnumerableTestCase(CremeTestCase):
                 [*enum.choices(user, term='20')],
             )
 
+        # ---
+        dis_vat = Vat.objects.create(value=Decimal('50.00'), disabled=now())
+        self.assertIn(
+            {'label': _('{} (disabled)').format(dis_vat), 'value': dis_vat.pk},
+            [*enum.choices(user)],
+        )
+
     def test_customfield_enumerator(self):
         user = self.user
 
@@ -1168,4 +1198,10 @@ class EnumerableTestCase(CremeTestCase):
                 model=FakeContact, field_name='image',
             ),
             enumerators.EntityEnumerator,
+        )
+        self.assertIsInstance(
+            enumerable_registry.enumerator_by_fieldname(
+                model=FakeContact, field_name='sector',
+            ),
+            enumerators.MinionEnumerator,
         )

@@ -398,6 +398,8 @@ else:
             return '{} {} {}'.format(self.civility or '', self.first_name, self.last_name).strip()
 
         def clean(self):
+            super().clean()
+
             if self.is_user_id and not self.first_name:
                 raise ValidationError(
                     gettext('This Contact is related to a user and must have a first name.')

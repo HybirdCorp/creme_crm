@@ -19,7 +19,12 @@ from creme.activities.constants import (
     UUID_SUBTYPE_PHONECALL_OUTGOING,
     UUID_TYPE_PHONECALL,
 )
-from creme.activities.models import Calendar, Status
+from creme.activities.models import (
+    ActivitySubType,
+    ActivityType,
+    Calendar,
+    Status,
+)
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.models import Relation
 from creme.persons.tests.base import (
@@ -178,6 +183,27 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST200(self._build_start_url(meeting), follow=True)
 
     @skipIfCustomActivity
+    def test_start_activity__disabled_status(self):
+        user = self.login_as_root_and_get()
+
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_IN_PROGRESS)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            meeting = self._create_meeting(
+                user=user, title='Meeting#1',
+                participant=user.linked_contact,
+                start=now() - timedelta(hours=2),
+            )
+            # TODO: test error message
+            self.assertPOST409(self._build_start_url(meeting), follow=True)
+        finally:
+            status.disabled = None
+            status.save()
+
+    @skipIfCustomActivity
     def test_stop_activity(self):
         user = self.login_as_root_and_get()
 
@@ -232,6 +258,27 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             start=now() - timedelta(minutes=30),
         )
         self.assertPOST200(self._build_stop_url(meeting), follow=True)
+
+    @skipIfCustomActivity
+    def test_stop_activity__disabled_status(self):
+        user = self.login_as_root_and_get()
+
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            meeting = self._create_meeting(
+                user=user, title='Meeting#1',
+                participant=user.linked_contact,
+                start=now() - timedelta(minutes=30),
+            )
+            # TODO: test error message
+            self.assertPOST409(self._build_stop_url(meeting), follow=True)
+        finally:
+            status.disabled = None
+            status.save()
 
     @skipIfCustomActivity
     def test_activities_portal(self):
@@ -527,7 +574,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_done(self):
+    def test_phone_call_wf__done(self):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
@@ -570,6 +617,26 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
+    def test_phone_call_wf__done__disabled_status(self):
+        user = self.login_as_root_and_get()
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+        pcall = self._create_pcall(
+            user=user, title='Phone call#1', participant=user.linked_contact,
+        )
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            self.assertPOST409(
+                reverse('mobile__pcall_wf_done', args=(pcall.id,)),
+                follow=True,
+            )
+        finally:
+            status.disabled = None
+            status.save()
+
+    @skipIfCustomActivity
     def test_phone_call_wf__failed__update(self):
         "Existing Phone call (with no minutes)."
         user = self.login_as_root_and_get()
@@ -605,7 +672,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(start, pcall.end)
 
     @skipIfCustomActivity
-    def test_phone_call_wf__failed__bad_type(self):
+    def test_phone_call_wf__failed__update__bad_type(self):
         "Not a Phone call => error."
         user = self.login_as_root_and_get()
 
@@ -613,6 +680,95 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             user=user, title='Meeting#1', participant=user.linked_contact,
         )
         self.assertPOST404(self.WF_FAILED_URL, data={'pcall_id': meeting.id})
+
+    @skipIfCustomActivity
+    def test_phone_call_wf__failed__update__disabled__status(self):
+        user = self.login_as_root_and_get()
+
+        pcall = self._create_pcall(
+            user=user, title='Phone call#1',
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
+            participant=user.linked_contact,
+        )
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'pcall_id':   str(pcall.id),
+                    'call_start': '2026-06-22T16:34:28.0Z',
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            status.disabled = None
+            status.save()
+
+        self.assertEqual(status.message_for_disabled, response.text)
+
+    @skipIfCustomActivity
+    def test_phone_call_wf__failed__update__disabled__sub_type(self):
+        user = self.login_as_root_and_get()
+
+        pcall = self._create_pcall(
+            user=user, title='Phone call#1',
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
+            participant=user.linked_contact,
+        )
+        sub_type = self.get_object_or_fail(
+            ActivitySubType, uuid=UUID_SUBTYPE_PHONECALL_FAILED,
+        )
+
+        try:
+            sub_type.disabled = now()
+            sub_type.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'pcall_id':   str(pcall.id),
+                    'call_start': '2026-06-22T16:34:28.0Z',
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            sub_type.disabled = None
+            sub_type.save()
+
+        self.assertEqual(sub_type.message_for_disabled, response.text)
+
+    @skipIfCustomActivity
+    def test_phone_call_wf__failed__update__disabled__type(self):
+        user = self.login_as_root_and_get()
+
+        pcall = self._create_pcall(
+            user=user, title='Phone call#1',
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
+            participant=user.linked_contact,
+        )
+        atype = self.get_object_or_fail(ActivityType, uuid=UUID_TYPE_PHONECALL)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'pcall_id':   str(pcall.id),
+                    'call_start': '2026-06-22T16:34:28.0Z',
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertEqual(atype.message_for_disabled, response.text)
 
     @skipIfCustomActivity
     @override_settings(SOFTWARE_LABEL='My CRM')
@@ -688,7 +844,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             [r.real_object for r in pcall.get_subject_relations()],
         )
 
-    def test_phone_call_wf__failed__error(self):
+    def test_phone_call_wf__failed__create__error(self):
         "Second participant == first participant."
         user = self.login_as_root_and_get()
         self.assertPOST409(
@@ -698,6 +854,84 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 'person_id':  str(user.linked_contact.id),
             },
         )
+
+    @skipIfCustomContact
+    def test_phone_call_wf__failed__create__disabled__status(self):
+        user = self.login_as_root_and_get()
+        other_part = Contact.objects.create(
+            user=user, first_name='Gally', last_name='Alita',
+        )
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'call_start': '2026-06-18T16:17:28.0Z',
+                    'person_id':  other_part.id,
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            status.disabled = None
+            status.save()
+
+        self.assertEqual(status.message_for_disabled, response.text)
+
+    @skipIfCustomContact
+    def test_phone_call_wf__failed__create__disabled__sub_type(self):
+        user = self.login_as_root_and_get()
+        other_part = Contact.objects.create(
+            user=user, first_name='Gally', last_name='Alita',
+        )
+        sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_PHONECALL_FAILED)
+
+        try:
+            sub_type.disabled = now()
+            sub_type.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'call_start': '2026-06-18T16:17:28.0Z',
+                    'person_id':  other_part.id,
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            sub_type.disabled = None
+            sub_type.save()
+
+        self.assertEqual(sub_type.message_for_disabled, response.text)
+
+    @skipIfCustomContact
+    def test_phone_call_wf__failed__create__disabled__type(self):
+        user = self.login_as_root_and_get()
+        other_part = Contact.objects.create(
+            user=user, first_name='Gally', last_name='Alita',
+        )
+        atype = self.get_object_or_fail(ActivityType, uuid=UUID_TYPE_PHONECALL)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.assertPOST409(
+                self.WF_FAILED_URL,
+                data={
+                    'call_start': '2026-06-18T16:17:28.0Z',
+                    'person_id':  other_part.id,
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertEqual(atype.message_for_disabled, response.text)
 
     @skipIfCustomActivity
     def test_phone_call_wf__postponed__update(self):
@@ -754,6 +988,38 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(23, end.hour)
         self.assertEqual(59, end.minute)
         self.assertEqual(tomorrow, end.day)
+
+    @skipIfCustomActivity
+    def test_phone_call_wf__postponed__update__disabled__status(self):
+        user = self.login_as_root_and_get()
+        contact = user.linked_contact
+        pcall = self._create_pcall(
+            user=user,
+            title='Phone call#1',
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
+            participant=contact,
+            description='blablabla',
+            floating_type=Activity.FloatingType.FLOATING_TIME,
+        )
+
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            response = self.assertPOST409(
+                self.WF_POSTPONED_URL,
+                data={
+                    'pcall_id':   pcall.id,
+                    'call_start': '2026-06-22T16:17:28.0Z',
+                },
+            )
+        finally:
+            status.disabled = None
+            status.save()
+
+        self.assertEqual(status.message_for_disabled, response.text)
 
     @skipIfCustomContact
     @override_settings(SOFTWARE_LABEL='My CRM')
@@ -832,6 +1098,32 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             ),
             pp_pcall.title,
         )
+
+    @skipIfCustomContact
+    def test_phone_call_wf__postponed__create__disabled__sub_type(self):
+        "Phone calls are created (with contact)."
+        user = self.login_as_root_and_get()
+        other_part = Contact.objects.create(
+            user=user, first_name='Gally', last_name='Alita',
+        )
+
+        sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_PHONECALL_OUTGOING)
+
+        try:
+            sub_type.disabled = now()
+            sub_type.save()
+            response = self.assertPOST409(
+                self.WF_POSTPONED_URL,
+                data={
+                    'call_start': '2026-06-22T11:54:28.0Z',
+                    'person_id':  other_part.id,
+                },
+            )
+        finally:
+            sub_type.disabled = None
+            sub_type.save()
+
+        self.assertEqual(sub_type.message_for_disabled, response.text)
 
     @skipIfCustomActivity
     def test_phone_call_wf__lasted5min__update(self):
@@ -958,6 +1250,85 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         # NB: MySQL does not record milliseconds...
         self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
+
+    @skipIfCustomActivity
+    def test_phone_call_wf__lasted5min__disabled__status(self):
+        user = self.login_as_root_and_get()
+        pcall = self._create_pcall(
+            user=user, title='Phone call#1',
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
+            participant=user.linked_contact,
+        )
+        status = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
+
+        try:
+            status.disabled = now()
+            status.save()
+
+            response = self.assertPOST409(
+                self.WF_LASTED5MIN_URL,
+                data={
+                    'pcall_id':   pcall.id,
+                    'call_start': '2026-06-10T11:30:28.0Z',
+                },
+            )
+        finally:
+            status.disabled = None
+            status.save()
+
+        self.assertEqual(status.message_for_disabled, response.text)
+
+    @skipIfCustomContact
+    def test_phone_call_wf__lasted5min__disabled__sub_type(self):
+        user = self.login_as_root_and_get()
+        other_contact = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
+
+        sub_type = self.get_object_or_fail(
+            ActivitySubType, uuid=UUID_SUBTYPE_PHONECALL_OUTGOING,
+        )
+
+        try:
+            sub_type.disabled = now()
+            sub_type.save()
+
+            response = self.assertPOST409(
+                self.WF_LASTED5MIN_URL,
+                data={
+                    'call_start': '2026-06-18T16:17:28.0Z',
+                    'person_id':  other_contact.id,
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            sub_type.disabled = None
+            sub_type.save()
+
+        self.assertEqual(sub_type.message_for_disabled, response.text)
+
+    @skipIfCustomContact
+    def test_phone_call_wf__lasted5min__disabled__type(self):
+        user = self.login_as_root_and_get()
+        other_contact = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
+
+        atype = self.get_object_or_fail(ActivityType, uuid=UUID_TYPE_PHONECALL)
+
+        try:
+            atype.disabled = now()
+            atype.save()
+
+            response = self.assertPOST409(
+                self.WF_LASTED5MIN_URL,
+                data={
+                    'call_start': '2026-06-18T16:17:28.0Z',
+                    'person_id':  other_contact.id,
+                    'minutes':    'Whatever',
+                },
+            )
+        finally:
+            atype.disabled = None
+            atype.save()
+
+        self.assertEqual(atype.message_for_disabled, response.text)
 
     @skipIfCustomActivity
     def test_phone_call_wf__just_done__update(self):

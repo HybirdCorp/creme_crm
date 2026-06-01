@@ -25,10 +25,12 @@ class ActivitySubTypeEnumerator(QSEnumerator):
 
     @classmethod
     def instance_as_dict(cls, instance):
+        atype = instance.type
+
         return {
             'value': instance.pk,
-            'label': str(instance),
-            'group': str(instance.type),
+            'label': instance.get_enabled_label(),
+            'group': atype.get_enabled_label(),
         }
 
     def _queryset(self, user):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2025  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -127,7 +127,7 @@ class RangeOverrider(FieldOverrider):
                 initial_date_tuple(first.start),
                 initial_date_tuple(first.end),
                 first.is_all_day,
-                first.busy
+                first.busy,
             )
 
         return field
@@ -234,15 +234,16 @@ class TypeOverrider(FieldOverrider):
     def formfield(self, instances, user, **kwargs):
         unav_type = ActivityType.objects.get(uuid=constants.UUID_TYPE_UNAVAILABILITY)
         field = fields.ActivitySubTypeField(
-            label=_('Type'), limit_choices_to=~Q(type=unav_type),
+            label=_('Type'),  # limit_choices_to=~Q(type=unav_type),
         )
-
+        q_limit = ~Q(type=unav_type)
         unavailability_count = sum(a.type_id == unav_type.id for a in instances)
 
         if unavailability_count:
             if unavailability_count == len(instances):
                 # All entities are Unavailability, so we propose to change the subtype.
-                field.limit_choices_to = Q(type=unav_type)
+                # field.limit_choices_to = Q(type=unav_type)
+                q_limit = Q(type=unav_type)
             else:
                 self._mixed_unavailability = True
 
@@ -257,6 +258,11 @@ class TypeOverrider(FieldOverrider):
         if len(instances) == 1:
             first = instances[0]
             field.initial = first.sub_type_id
+            q_limit = q_limit & (
+                Q(id=first.sub_type_id) | Q(disabled=None, type__disabled=None)
+            )
+
+        field.limit_choices_to = q_limit
 
         return field
 

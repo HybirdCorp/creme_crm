@@ -85,6 +85,8 @@ class AbstractFolder(CremeEntity):
             raise SpecificProtectedError(gettext('This folder is a system folder.'), [self])
 
     def clean(self):
+        super().clean()
+
         if self.pk:
             parent_folder = self.parent_folder
             if parent_folder:

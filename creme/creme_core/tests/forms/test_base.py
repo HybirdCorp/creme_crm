@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.boundfield import BoundField
 from django.test.utils import override_settings
 from django.utils.safestring import SafeString
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -26,6 +27,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakeSector,
     FieldsConfig,
+    Language,
     Relation,
     RelationType,
     SemiFixedRelationType,
@@ -250,6 +252,86 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(first_name, contact.first_name)
         self.assertEqual(last_name,  contact.last_name)
         self.assertIsNotNone(contact.id)
+
+    def test_m2m(self):
+        user = self.get_root_user()
+
+        form1 = FakeContactForm(user=user)
+        fields = form1.fields
+        self.assertIn('languages', fields)
+
+        # ---
+        create_language = Language.objects.create
+        l1 = create_language(name='Japanese')
+        l2 = create_language(name='English')
+
+        form2 = FakeContactForm(
+            user=user,
+            data={
+                'user':       user.id,
+                'first_name': 'Kanbaru',
+                'last_name':  'Suruga',
+                'languages':  [l1.id, l2.id],
+            },
+        )
+        self.assertFalse(form2.errors)
+
+        contact = form2.save()
+        self.assertCountEqual([l1, l2], contact.languages.all())
+
+    def test_m2m__disabled_instances(self):
+        user = self.get_root_user()
+
+        create_language = Language.objects.create
+        l1 = create_language(name='Japanese')
+        l2 = create_language(name='English', disabled=now())
+        l3 = create_language(name='French', disabled=now())
+
+        # Creation ---
+        first_name = 'Kanbaru'
+        last_name = 'Suruga'
+        form1 = FakeContactForm(
+            user=user,
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+                'languages':  [l1.id, l2.id, l3.id],
+            },
+        )
+        self.assertFormInstanceErrors(
+            form1,
+            (
+                'languages',
+                _('Some instances are disabled: {}').format(
+                    f'{l2.name} {_('and')} {l3.name}'
+                ),
+            ),
+        )
+
+        # Edition ---
+        contact = FakeContact.objects.create(
+            user=user, first_name=first_name, last_name=last_name,
+        )
+        contact.languages.set([l1, l3])
+
+        form2 = FakeContactForm(
+            user=user,
+            instance=contact,
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+                'languages':  [l1.id, l2.id, l3.id],
+            },
+        )
+        self.assertFormInstanceErrors(
+            form2,
+            (
+                'languages',
+                _('Some instances are disabled: {}').format(l2.name),
+            ),
+        )
 
     def test_custom_fields(self):
         user = self.get_root_user()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-09 14:04+0200\n"
+"POT-Creation-Date: 2026-06-17 12:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -132,8 +132,8 @@ msgstr "Remise par défaut"
 
 msgid "This value is used when creating lines for Invoices/Quotes/…"
 msgstr ""
-"Cette valeur est utilisée lors de la création de lignes pour les "
-"Factures/Devis/…"
+"Cette valeur est utilisée lors de la création de lignes pour les Factures/"
+"Devis/…"
 
 msgid "Weight"
 msgstr "Poids"
@@ -325,6 +325,10 @@ msgstr "{count} Sous-catégories dans cette catégorie"
 msgid "Sub-categories in this category"
 msgstr "Sous-catégories dans cette catégorie"
 
+# Already in creme_config
+msgid "Deactivation"
+msgstr ""
+
 msgid "Actions"
 msgstr ""
 
@@ -352,6 +356,10 @@ msgstr "Configuration"
 #, python-format
 msgid "Sub-categories of «%(category)s»"
 msgstr "Sous-catégories de «%(category)s»"
+
+#, python-format
+msgid "Beware: the category «%(category)s» is disabled."
+msgstr "Attention : la catégorie «%(category)s» est désactivée."
 
 msgid "Create the Categories/Sub-Categories which are not found?"
 msgstr "Créer les Catégories/Sous-Catégories qui ne sont pas trouvées ?"

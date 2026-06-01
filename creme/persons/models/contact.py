@@ -147,6 +147,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             )
 
     def clean(self):
+        super().clean()
+
         if self.is_user_id:
             if not self.first_name:
                 raise ValidationError({

@@ -129,19 +129,18 @@ class OpportunitiesConfig(CremeConfigConfigMixin, CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Opportunity)
 
-    @override
-    def register_field_printers(self, field_printer_registry):
-        from django.db.models import ForeignKey
-
-        from creme.creme_core.gui.field_printers import FKPrinter
-
-        from .models import SalesPhase
-
-        # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printer_registry.printers_for_field_type(
-            type=ForeignKey, tags='html*',
-        ):
-            printer.register(model=SalesPhase, printer=FKPrinter.print_fk_colored_html)
+    # @override
+    # def register_field_printers(self, field_printer_registry):
+    #     from django.db.models import ForeignKey
+    #
+    #     from creme.creme_core.gui.field_printers import FKPrinter
+    #
+    #     from .models import SalesPhase
+    #
+    #     for printer in field_printer_registry.printers_for_field_type(
+    #         type=ForeignKey, tags='html*',
+    #     ):
+    #         printer.register(model=SalesPhase, printer=FKPrinter.print_fk_colored_html)
 
     @override
     def register_function_fields(self, function_field_registry):

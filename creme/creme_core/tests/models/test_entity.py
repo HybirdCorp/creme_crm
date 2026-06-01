@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
 from django.test import skipUnlessDBFeature
 from django.utils.timezone import now
@@ -22,6 +23,7 @@ from creme.creme_core.models import (
     CustomFieldInteger,
     FakeContact,
     FakeOrganisation,
+    FakePosition,
     FakeSector,
     Relation,
     RelationType,
@@ -408,3 +410,51 @@ class CremeEntityTestCase(CremeTestCase):
         with self.assertNoException():
             got_orga = FakeOrganisation.objects.get_by_portable_key(key)
         self.assertEqual(orga, got_orga)
+
+    def test_clean__creation(self):
+        sector = FakeSector.objects.create(title='Ninjitsu')
+        orga = FakeOrganisation(
+            name='Konoha', user=self.get_root_user(), sector=sector,
+        )
+        with self.assertNoException():
+            orga.clean()
+
+        # ---
+        sector.disabled = now()
+        sector.save()
+
+        with self.assertRaises(ValidationError) as cm1:
+            orga.clean()
+        self.assertValidationError(
+            cm1.exception, messages={'sector': sector.message_for_disabled},
+        )
+
+        # No snapshot => should not crash
+        orga.save()
+        with self.assertRaises(ValidationError) as cm1:
+            orga.clean()
+        self.assertValidationError(
+            cm1.exception, messages={'sector': sector.message_for_disabled},
+        )
+
+    def test_clean__edition(self):
+        contact = self.refresh(FakeContact.objects.create(
+            first_name='Naruto', last_name='Uzumaki',
+            user=self.get_root_user(),
+        ))
+        position = FakePosition.objects.create(title='Hokage', disabled=now())
+        contact.position = position
+
+        with self.assertRaises(ValidationError) as cm:
+            contact.clean()
+        self.assertValidationError(
+            cm.exception, messages={'position': position.message_for_disabled},
+        )
+
+    def test_clean__edition__already_disabled(self):
+        sector = FakeSector.objects.create(title='Ninjitsu', disabled=now())
+        orga = self.refresh(FakeOrganisation.objects.create(
+            name='Konoha', user=self.get_root_user(), sector=sector,
+        ))
+        with self.assertNoException():
+            orga.clean()

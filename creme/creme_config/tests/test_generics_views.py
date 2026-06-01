@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import partial
 
 from django.apps import apps
@@ -125,6 +126,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         now_value = now()
         self.assertDatetimesAlmostEqual(civility.created, now_value)
         self.assertDatetimesAlmostEqual(civility.modified, now_value)
+        self.assertIsNone(civility.disabled)
 
     def test_creation__order(self):
         count = FakeSector.objects.count()
@@ -180,23 +182,23 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             'creme_config__create_instance_from_widget',
             args=('creme_core', 'fake_civility'),
         )
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/form/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(_('Create'), context.get('title'))
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
         title = 'Generalissime'
         shortcut = 'G.'
-        response = self.client.post(url, data={'title': title, 'shortcut': shortcut})
-        self.assertNoFormError(response)
+        response2 = self.client.post(url, data={'title': title, 'shortcut': shortcut})
+        self.assertNoFormError(response2)
         self.assertEqual(count + 1, FakeCivility.objects.count())
 
         civility = self.get_object_or_fail(FakeCivility, title=title)
         self.assertEqual(shortcut, civility.shortcut)
-        self.assertWidgetResponse(response, civility)
+        self.assertWidgetResponse(response2, civility)
 
     def test_creation_from_widget__order(self):
         count = FakeSector.objects.count()
@@ -293,6 +295,90 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 args=('creme_core', 'fake_position', position.id),
             )
         )
+
+    def test_disabling__on(self):
+        pos = FakePosition.objects.create(title='Kunoichi')
+        self.assertIsNone(pos.disabled)
+
+        url = reverse(
+            'creme_config__disable_instance',
+            args=('creme_core', 'fake_position', pos.pk),
+        )
+        data = {'action': 'disable'}
+        self.assertGET405(url, data=data)
+        self.assertPOST200(url, data=data)
+
+        pos = self.refresh(pos)
+        self.assertDatetimesAlmostEqual(pos.disabled, now())
+
+        # ---
+        disabled = pos.disabled - timedelta(days=1)
+        pos.disabled = disabled
+        pos.save()
+        self.assertPOST200(url, data=data)
+        self.assertDatetimesAlmostEqual(disabled, self.refresh(pos).disabled)
+
+        # ---
+        self.assertPOST404(
+            reverse(
+                'creme_config__disable_instance',
+                args=('creme_core', 'fake_position', self.UNUSED_PK),
+            ),
+            data=data,
+        )
+
+    def test_disabling__off(self):
+        pos = FakePosition.objects.create(title='Kunoichi', disabled=now())
+        url = reverse(
+            'creme_config__disable_instance',
+            args=('creme_core', 'fake_position', pos.pk),
+        )
+        self.assertPOST200(url, data={'action': 'enable'})
+        pos = self.refresh(pos)
+        self.assertIsNone(pos.disabled)
+
+        # Bad action
+        self.assertPOST404(url, data={'action': 'invalid'})
+
+    def test_disabling__custom_url(self):
+        cat = FakeFolderCategory.objects.create(name='Pix')
+        response = self.client.post(
+            reverse(
+                'creme_config__disable_instance',
+                args=('creme_core', 'fake_foldercat', cat.id),
+            ),
+            data={'action': 'disable'},
+        )
+        self.assertContains(
+            response,
+            text='This model does not use this disabling view.',
+            status_code=409,
+        )
+
+    def test_disabling__disabled(self):
+        cat = FakeImageCategory.objects.create(name='Selfie')
+        response = self.client.post(
+            reverse(
+                'creme_config__disable_instance',
+                args=('creme_core', 'fake_img_cat', cat.id),
+            ),
+            data={'action': 'disable'},
+        )
+        self.assertContains(
+            response,
+            text=_('Disabling is not possible for this instance.'),
+            status_code=409,
+        )
+
+    def test_disabling__invalid_model(self):
+        cat = FakeDocumentCategory.objects.create(name='Book')
+        self.assertHasNoAttr(cat, 'disabled')
+
+        url = reverse(
+            'creme_config__disable_instance',
+            args=('creme_core', 'fake_documentcat', cat.id),
+        )
+        self.assertPOST409(url, data={'action': 'disable'})
 
     def test_delete__set_null(self):
         "SET_NULL."

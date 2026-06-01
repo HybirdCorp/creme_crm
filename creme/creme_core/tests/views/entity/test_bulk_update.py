@@ -1528,8 +1528,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         create_cat = FakeImageCategory.objects.create
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
-        image = self.create_image('image', user, categories)
-        image.categories.set([categories[1]])
+        image = self.create_image('image', user, categories=[categories[1]])
 
         m2m_name = 'categories'
         uri = self.build_inneredit_uri(image, m2m_name)
@@ -1551,6 +1550,44 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         image = self.refresh(image)
         self.assertListEqual([*image.categories.all()], [categories[0], categories[2]])
+
+    def test_regular_field__many2many__disabled(self):
+        user = self.login_as_root_and_get()
+
+        create_cat = FakeImageCategory.objects.create
+        categories = [
+            create_cat(name='A'),
+            create_cat(name='B', disabled=now()),
+            create_cat(name='C', disabled=now()),
+        ]
+
+        image = self.create_image('image', user)
+
+        m2m_name = 'categories'
+        uri = self.build_inneredit_uri(image, m2m_name)
+
+        def post():
+            return self.assertPOST200(
+                uri, data={m2m_name: [c.pk for c in categories]},
+            )
+
+        response1 = post()
+        err_fmt = _('Some instances are disabled: {}').format
+        self.assertFormError(
+            self.get_form_or_fail(response1),
+            field=m2m_name,
+            errors=err_fmt(f'{categories[1].name} {_('and')} {categories[2].name}'),
+        )
+
+        # TODO?
+        # # Disabled instances is already used => ignore it ---
+        # image.categories.set([categories[1]])
+        # response2 = post()
+        # self.assertFormError(
+        #     self.get_form_or_fail(response2),
+        #     field=m2m_name,
+        #     errors=err_fmt(categories[2].name),
+        # )
 
     def test_regular_field__many2many__invalid(self):
         user = self.login_as_root_and_get()

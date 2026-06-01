@@ -25,6 +25,7 @@ from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, DefaultDict, Literal
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -34,7 +35,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from . import fields as core_fields
-from .base import CremeModel
+from .base import CremeModel, MinionModel
 from .manager import CremeEntityManager
 
 if TYPE_CHECKING:
@@ -133,6 +134,27 @@ class CremeEntity(CremeModel):
         self._relations_map = {}
         self._properties = None
         self._cvalues_map = {}
+
+    def clean(self):
+        # Forbid new references to disabled Minions; ManyTomanyFields cannot be managed here
+        from ..core.snapshot import Snapshot
+
+        snapshot = Snapshot.get_for_instance(self)
+        fields = type(self)._meta.fields if snapshot is None else (
+            diff.field for diff in snapshot.compare(self)
+        )
+
+        for field in fields:
+            if field.is_relation and issubclass(field.related_model, MinionModel):
+                minion = getattr(self, field.name, None)
+                if minion is not None and minion.disabled:
+                    raise ValidationError({
+                        field.name: ValidationError(
+                            # gettext('The value «{}» has been disabled.').format(minion),
+                            minion.message_for_disabled,
+                            # code='TODO',
+                        ),
+                    })
 
     # TODO: move this in _pre_delete? (beware sub classes MUST call super()._pre_delete())
     @atomic

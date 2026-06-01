@@ -32,13 +32,11 @@ class SubCategoryForm(CremeModelForm):
 
         return {
             'value': str(instance.id),
-            'added': [
-                {
-                    'value': str(instance.id),
-                    'label': str(instance),
-                    'group': str(category)
-                }
-            ]
+            'added': [{
+                'value': str(instance.id),
+                'label': str(instance),
+                'group': str(category),
+            }],
         }
 
 

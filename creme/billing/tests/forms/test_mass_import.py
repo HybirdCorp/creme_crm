@@ -1204,18 +1204,18 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
 
         bdoc3 = self.refresh(bdoc3)
         j_result3 = j_results[2]
+        self.assertEqual(bdoc3.id, j_result3.entity_id)
         if emitter_edition_ok:
             self.assertEqual(description, bdoc3.description)
             self.assertEqual(src2,        bdoc3.source)
 
-            self.assertEqual(bdoc3.id, j_result3.entity_id)
+            # self.assertEqual(bdoc3.id, j_result3.entity_id)
             self.assertFalse(j_result3.messages)
         else:
             self.assertFalse(bdoc3.description)
             self.assertEqual(src1, bdoc3.source)  # No change
 
-            # self.assertEqual(bdoc2.id, j_result3.entity_id) TODO?
-            self.assertIsNone(j_result3.entity_id)
+            # self.assertIsNone(j_result3.entity_id)
             self.assertListEqual(
                 [_('Your configuration forbids you to edit the source Organisation')],
                 j_result3.messages,
@@ -1641,7 +1641,8 @@ class MassImportQuoteTestCase(_BaseMassImportTestCase):
         self.assertIsNone(j_results[0].messages)
 
         j_error = j_results[1]
-        self.assertIsNone(j_error.entity)
+        # self.assertIsNone(j_error.entity)
+        self.assertEqual(quote2.id, j_error.entity_id)
         self.assertListEqual(
             [_('The number is set as not editable by the configuration.')],
             j_error.messages,

@@ -1,5 +1,5 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_bricks creme_perms %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration' %} > {% blocktranslate %}Sub-categories of «{{category}}»{% endblocktranslate %} - {% endblock %}
 
@@ -8,6 +8,13 @@
     <a href="{% url 'creme_config__app_portal' 'products' %}">{{app_verbose_name}} > </a>
     <a href="{% url 'creme_config__model_portal' 'products' 'subcategory' %}">{% translate 'Sub-categories' context 'products' %} > </a>
     {% blocktranslate %}Sub-categories of «{{category}}»{% endblocktranslate %}
+{% endblock %}
+
+{% block portal_help %}
+    {% if category.disabled %}
+        {% blocktranslate asvar help_msg %}Beware: the category «{{category}}» is disabled.{% endblocktranslate %}
+        {% widget_help_sign message=help_msg %}
+    {% endif %}
 {% endblock %}
 
 {% block portal_bricks %}

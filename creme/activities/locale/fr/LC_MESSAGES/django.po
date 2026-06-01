@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 2.8\n"
+"Project-Id-Version: Creme Activities 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-05 14:18+0100\n"
+"POT-Creation-Date: 2026-06-17 11:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -935,6 +935,10 @@ msgstr "{count} Sous-types d'activité dans ce type"
 msgid "Sub-types of activity in this type"
 msgstr "Sous-types d'activité dans ce type"
 
+# Already in creme_config
+msgid "Deactivation"
+msgstr ""
+
 msgid "Actions"
 msgstr "Actions"
 
@@ -1146,8 +1150,8 @@ msgstr "Modifier la configuration"
 
 #, python-format
 msgid ""
-"This button can be placed on Activities' detail-views in the <a href="
-"\"%(config_url)s\">buttons configuration</a>.\n"
+"This button can be placed on Activities' detail-views in the <a "
+"href=\"%(config_url)s\">buttons configuration</a>.\n"
 "It allows to create a not successful Phone Call in one click."
 msgstr ""
 "Ce bouton peut être placé sur les vues détaillés des Activités dans la <a "
@@ -1157,8 +1161,20 @@ msgstr ""
 msgid "The recorded sub-type is invalid (it may have been deleted)"
 msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
 
+msgctxt "activities-type"
+msgid "(disabled sub-type)"
+msgstr "(sous-type désactivé)"
+
+msgctxt "activities-type"
+msgid "(beware the parent type is disabled)"
+msgstr "(attention le type parent type est désactivé)"
+
 msgid "The recorded status is invalid (it may have been deleted)"
-msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
+msgstr "Le statut enregistré est invalide (il peut avoir été supprimé)"
+
+msgctxt "activities-status"
+msgid "(disabled status)"
+msgstr "(statut désactivé)"
 
 #, python-format
 msgid "%(count)s minute"
@@ -1203,6 +1219,10 @@ msgstr "Configuration"
 msgid "Sub types of «%(activity_type)s»"
 msgstr "Sous-types de «%(activity_type)s»"
 
+#, python-format
+msgid "Beware: the type «%(activity_type)s» is disabled."
+msgstr "Attention : le type «%(activity_type)s» est désactivé."
+
 msgid "Create the Contacts who are not found?"
 msgstr "Créer les Contacts qui ne sont pas trouvés ?"
 
@@ -1210,7 +1230,7 @@ msgid ""
 "Method #1: first name & last name are in separated cells (first name is "
 "optional)"
 msgstr ""
-"Méthode n°1: prénom et nom sont dans des cellules séparées (le prénom est "
+"Méthode n°1 : prénom et nom sont dans des cellules séparées (le prénom est "
 "facultatif)"
 
 # Already in 'persons'
@@ -1225,7 +1245,7 @@ msgid ""
 "Method #2: several contacts in one cell (in all patterns the last name is "
 "the only required element)"
 msgstr ""
-"Méthode n°2: plusieurs contacts dans une cellule (dans tous les motifs le "
+"Méthode n°2 : plusieurs contacts dans une cellule (dans tous les motifs le "
 "nom est le seul élément obligatoire)"
 
 msgid "Separator"
@@ -1327,25 +1347,6 @@ msgctxt "activities-type"
 msgid "New sub-type for «{type}»"
 msgstr "Nouveau sous-type pour «{type}»"
 
-#~ msgid "User"
-#~ msgstr "Utilisateur"
-
-#~ msgctxt "activities"
-#~ msgid "Calendar"
-#~ msgstr "Calendrier"
-
-#~ msgid "You are not allowed to link this entity"
-#~ msgstr "Vous n'avez pas la permission de relier cette fiche"
-
-#~ msgid "You are not allowed to create an Activity"
-#~ msgstr "Vous n'avez pas la permission de créer une Activité"
-
-#~ msgid "forbidden"
-#~ msgstr "interdit"
-
-#~ msgid "Color"
-#~ msgstr "Couleur"
-
 #~ msgid "This type causes constraint error."
 #~ msgstr "Ce type cause une erreur de contrainte."
 
@@ -1379,41 +1380,11 @@ msgstr "Nouveau sous-type pour «{type}»"
 #~ msgid "Participant(s)"
 #~ msgstr "Participant(s)"
 
-#~ msgid "Related to"
-#~ msgstr "Relié(s)"
-
-#~ msgid "Present in %s of my Calendars"
-#~ msgstr "Présent dans %s de mes Calendriers"
-
-#~ msgid "%s Subject"
-#~ msgstr "%s Sujet"
-
-#~ msgid "%s Subjects"
-#~ msgstr "%s Sujets"
-
-#~ msgid "Error"
-#~ msgstr "Erreur"
-
 #~ msgid "Alert day"
 #~ msgstr "Jour de l'alerte"
 
 #~ msgid "Alert time"
 #~ msgstr "Heure de l'alerte"
-
-#~ msgid "Value"
-#~ msgstr "Valeur"
-
-#~ msgid "Unit"
-#~ msgstr "Unité"
-
-#~ msgid "Minute"
-#~ msgstr "Minute"
-
-#~ msgid "Hour"
-#~ msgstr "Heure"
-
-#~ msgid "Day"
-#~ msgstr "Jour"
 
 #~ msgid "Add an activity"
 #~ msgstr "Ajouter une activité"
@@ -1429,9 +1400,6 @@ msgstr "Nouveau sous-type pour «{type}»"
 
 #~ msgid "Add on a calendar"
 #~ msgstr "Ajouter à un calendrier"
-
-#~ msgid "Please select at least a line in order to export."
-#~ msgstr "Veuillez sélectionner au moins une ligne pour pouvoir exporter."
 
 #~ msgid "You do not have permission, the change will not be saved."
 #~ msgstr ""

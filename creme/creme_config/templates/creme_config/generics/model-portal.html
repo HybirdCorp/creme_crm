@@ -1,5 +1,6 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_bricks creme_ctype creme_perms %}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
+{% load has_attr from creme_core_tags %}
 
 {% block page_title %}{% translate 'Configuration' %} > {{app_verbose_name}} > {{model|ctype_for_instance}} - {% endblock %}
 
@@ -7,6 +8,12 @@
     {% if user|has_perm_to_access:'creme_config' %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}
     <a href="{% url 'creme_config__app_portal' app_name %}">{{app_verbose_name}} > </a>
     {% blocktranslate with model_name=model|ctype_for_instance %}Type: {{model_name}}{% endblocktranslate %}
+{% endblock %}
+
+{% block portal_help %}
+  {% if model|has_attr:'disabled' %}
+    {% widget_help_sign message=_('A disabled choice will not be usable in new entities') %}
+  {% endif %}
 {% endblock %}
 
 {% block portal_bricks %}

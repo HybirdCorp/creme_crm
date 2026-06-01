@@ -57,7 +57,7 @@ urlpatterns = [
                 views.PhoneCallCreation.as_view(),
                 name='cti__create_phonecall',
             ),
-            check_args=Swappable.INT_ID
+            check_args=Swappable.INT_ID,
         ),
         app_name='cti',
     ).kept_patterns()

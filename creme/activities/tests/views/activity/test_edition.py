@@ -1,10 +1,12 @@
 from functools import partial
 
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.activities import constants
 from creme.activities.forms.fields import ActivitySubTypeField
-from creme.activities.models import ActivitySubType
+from creme.activities.models import ActivitySubType, ActivityType, Status
 from creme.activities.tests.base import (
     Activity,
     _ActivitiesTestCase,
@@ -115,35 +117,35 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
 
         def create_meeting(**kwargs):
-            task = Activity.objects.create(
+            meeting = Activity.objects.create(
                 user=user, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
             )
             Relation.objects.create(
                 subject_entity=contact, user=user,
                 type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                object_entity=task,
+                object_entity=meeting,
             )
 
-            return task
+            return meeting
 
         create_dt = self.create_datetime
-        meeting01 = create_meeting(
+        meeting1 = create_meeting(
             title='Meeting#1',
             start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
             end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
         )
-        meeting02 = create_meeting(
+        meeting2 = create_meeting(
             title='Meeting#2', busy=True,
             start=create_dt(year=2013, month=4, day=17, hour=14, minute=0),
             end=create_dt(year=2013,   month=4, day=17, hour=15, minute=0),
         )
 
         response = self.assertPOST200(
-            meeting01.get_edit_absolute_url(),
+            meeting1.get_edit_absolute_url(),
             follow=True,
             data={
                 'user':  user.pk,
-                'title': meeting01.title,
+                'title': meeting1.title,
                 'busy':  True,
 
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 17),
@@ -152,7 +154,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
                 f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 4, 17),
                 f'{self.EXTRA_END_KEY}_1': '16:00:00',
 
-                self.EXTRA_SUBTYPE_KEY: meeting01.sub_type_id,
+                self.EXTRA_SUBTYPE_KEY: meeting1.sub_type_id,
             }
         )
         self.assertFormError(
@@ -163,7 +165,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
                 '«{activity}» between {start} and {end}.'
             ).format(
                 participant=contact,
-                activity=meeting02,
+                activity=meeting2,
                 start='14:30:00',
                 end='15:00:00',
             ),
@@ -189,6 +191,123 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
         self.assertIsNone(start_f.initial[1])
         self.assertEqual(25, end_f.initial[0].day)
         self.assertIsNone(end_f.initial[1])
+
+    def test_disabled__type_changes(self):
+        user = self.login_as_root_and_get()
+
+        create_dt = partial(self.create_datetime, year=2026, month=6, day=15)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
+        activity = Activity.objects.create(
+            user=user, title='Test disabled',
+            type_id=sub_type.type_id, sub_type=sub_type,
+            status=Status.objects.first(),
+            start=create_dt(hour=14, minute=0),
+            end=create_dt(hour=16, minute=0),
+        )
+
+        new_atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=now(),
+        )
+        new_sub_type = ActivitySubType.objects.create(
+            name='Kick session',
+            type=new_atype,
+        )
+
+        response = self.assertPOST200(
+            activity.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': activity.title,
+                'status': activity.status_id,
+
+                self.EXTRA_SUBTYPE_KEY: new_sub_type.id,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
+    def test_disabled__sub_type_changes(self):
+        user = self.login_as_root_and_get()
+
+        create_dt = partial(self.create_datetime, year=2026, month=6, day=15)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
+        activity = Activity.objects.create(
+            user=user, title='Test disabled',
+            type_id=sub_type.type_id, sub_type=sub_type,
+            status=Status.objects.first(),
+            start=create_dt(hour=14, minute=0),
+            end=create_dt(hour=16, minute=0),
+        )
+
+        new_sub_type = ActivitySubType.objects.create(
+            name='Festival',
+            type=sub_type.type,
+            disabled=now(),
+        )
+        response = self.assertPOST200(
+            activity.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': activity.title,
+                'status': activity.status_id,
+
+                self.EXTRA_SUBTYPE_KEY: new_sub_type.id,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
+    @parameterized.expand([
+        (True, False),
+        (False, True),
+    ])
+    def test_disabled__types__no_change(self, enabled_type, enabled_sub_type):
+        user = self.login_as_root_and_get()
+        atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+            disabled=None if enabled_type else now(),
+        )
+        sub_type = ActivitySubType.objects.create(
+            name='Kick session',
+            type=atype,
+            disabled=None if enabled_sub_type else now(),
+        )
+
+        create_dt = partial(self.create_datetime, year=2026, month=6, day=15)
+        activity = Activity.objects.create(
+            user=user, title='Test disabled',
+            type_id=sub_type.type_id, sub_type=sub_type,
+            status=Status.objects.first(),
+            start=create_dt(hour=14, minute=0),
+            end=create_dt(hour=16, minute=0),
+        )
+
+        self.assertNoFormError(self.client.post(
+            activity.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': activity.title,
+                'status': activity.status_id,
+
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
+            },
+        ))
 
     def test_unavailability(self):
         "Edit an Unavailability: type cannot be changed, sub_type can."
@@ -249,3 +368,72 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
         )
         self.assertEqual(sub_type2.type_id, activity.type_id)
         self.assertEqual(sub_type2.id,      activity.sub_type_id)
+
+    def test_unavailability__disabled_subtype(self):
+        user = self.login_as_root_and_get()
+
+        sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
+        create_dt = self.create_datetime
+        activity = Activity.objects.create(
+            user=user, title='Winter break',
+            start=create_dt(year=2026, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2026, month=1, day=1, hour=15, minute=0),
+            type_id=sub_type1.type_id, sub_type=sub_type1,
+        )
+
+        sub_type2 = ActivitySubType.objects.create(
+            name='Holidays', type_id=sub_type1.type_id, disabled=now(),
+        )
+        response = self.assertPOST200(
+            activity.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':  user.pk,
+                'title': activity.title,
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2026, 1, 1),
+                f'{self.EXTRA_START_KEY}_1': '14:30:00',
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2026, 1, 1),
+                f'{self.EXTRA_END_KEY}_1': '16:00:00',
+
+                self.EXTRA_SUBTYPE_KEY: sub_type2.id,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
+        )
+
+    def test_unavailability__disabled_subtype__no_change(self):
+        user = self.login_as_root_and_get()
+
+        unav_type = self._get_type(constants.UUID_TYPE_UNAVAILABILITY)
+        sub_type = ActivitySubType.objects.create(
+            name='Holidays', type=unav_type, disabled=now(),
+        )
+
+        create_dt = self.create_datetime
+        activity = Activity.objects.create(
+            user=user, title='Winter break',
+            start=create_dt(year=2026, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2026, month=1, day=1, hour=15, minute=0),
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+        self.assertNoFormError(self.client.post(
+            activity.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': activity.title,
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2026, 1, 1),
+                f'{self.EXTRA_START_KEY}_1': '14:30:00',
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2026, 1, 1),
+                f'{self.EXTRA_END_KEY}_1': '16:00:00',
+
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
+            },
+        ))

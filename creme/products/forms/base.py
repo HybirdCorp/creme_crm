@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,11 +31,23 @@ class SubCategorySubCell(CustomFormExtraSubCell):
     verbose_name = _('Category & sub-category')
 
     def formfield(self, instance, user, **kwargs):
+        # field = SubCategoryField(
+        #     model=type(instance),
+        #     field_name='sub_category',
+        #     label=self.verbose_name,
+        #     user=user,
+        #     **kwargs
+        # )
+        limit_choices_to = Q(disabled=None, category__disabled=None)
+        if instance.pk:
+            limit_choices_to |= Q(id=instance.sub_category_id)
+
         field = SubCategoryField(
             model=type(instance),
             field_name='sub_category',
             label=self.verbose_name,
             user=user,
+            limit_choices_to=limit_choices_to,
             **kwargs
         )
 

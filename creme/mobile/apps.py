@@ -20,10 +20,11 @@ from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
 
-class MobileConfig(CremeAppConfig):
+class MobileConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
     name = 'creme.mobile'
     verbose_name = _('Mobile')
@@ -37,6 +38,33 @@ class MobileConfig(CremeAppConfig):
         brick_registry.register(
             brick_registry.Tag.DETAIL,
             bricks.FavoritePersonsBrick,
+        )
+
+    @override
+    def register_creme_config(self, config_registry):
+        from creme.activities import constants as act_constants
+        from creme.activities import models as act_models
+
+        act_app_config = config_registry.get_app_registry('activities')
+        act_app_config.get_model_conf(
+            act_models.Status
+        ).disablor.register_needed_instances(
+            'mobile',
+            act_constants.UUID_STATUS_IN_PROGRESS,
+            act_constants.UUID_STATUS_DONE,
+        )
+        act_app_config.get_model_conf(
+            act_models.ActivityType
+        ).disablor.register_needed_instances(
+            'mobile',
+            act_constants.UUID_TYPE_PHONECALL,
+        )
+        act_app_config.get_model_conf(
+            act_models.ActivitySubType
+        ).disablor.register_needed_instances(
+            'mobile',
+            act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+            act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
         )
 
     @override

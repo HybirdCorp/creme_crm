@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,12 @@ class SubCategoryEnumerator(QSEnumerator):
 
     @classmethod
     def instance_as_dict(cls, instance):
+        cat = instance.category
+
         return {
             'value': instance.pk,
-            'label': str(instance),
-            'group': str(instance.category)
+            'label': instance.get_enabled_label(),
+            'group': cat.get_enabled_label(),
         }
 
     def choices(self, user, *, term=None, only=None, limit=None):

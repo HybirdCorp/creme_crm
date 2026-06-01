@@ -317,8 +317,11 @@ def _get_page_url(request):
 @atomic
 @workflow_engine  # TODO: test workflow
 def start_activity(request, activity_id):
-    activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
+    # TODO: disable the button in UI if the status is disabled (how to display
+    #       the tooltips in a mobile-friendly way?)?
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_IN_PROGRESS)
 
+    activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
     request.user.has_perm_to_change_or_die(activity)
 
     activity.start = now()
@@ -327,10 +330,25 @@ def start_activity(request, activity_id):
         activity.end = activity.start + activity.type.as_timedelta()
 
     activity.floating_type = Activity.FloatingType.NARROW
-    activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_IN_PROGRESS)
+    activity.status = status
     activity.save()
 
     return HttpResponseRedirect(f'{_get_page_url(request)}#activity_{activity_id}')
+
+
+def _get_enabled_activity_status(uid):
+    status = get_object_or_404(Status, uuid=uid)
+    status.is_enabled_or_die()
+
+    return status
+
+
+def _get_enabled_activity_sub_type(uid):
+    sub_type = get_object_or_404(ActivitySubType, uuid=uid)
+    sub_type.is_enabled_or_die()
+    sub_type.type.is_enabled_or_die()
+
+    return sub_type
 
 
 @lw_exceptions
@@ -339,6 +357,7 @@ def start_activity(request, activity_id):
 @atomic
 @workflow_engine  # TODO: test workflow
 def stop_activity(request, activity_id):
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_DONE)
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
     request.user.has_perm_to_change_or_die(activity)
@@ -349,7 +368,7 @@ def stop_activity(request, activity_id):
         raise ConflictError('This activity cannot be stopped before it is started.')
 
     activity.end = now_val
-    activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
+    activity.status = status
     activity.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -493,12 +512,15 @@ def _get_pcall(request):
 @atomic
 @workflow_engine  # TODO: test workflow
 def phonecall_workflow_done(request, pcall_id):
+    # TODO: disable the button in UI if the status is disabled?
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_DONE)
+
     pcall = get_object_or_404(
         Activity, type__uuid=act_constants.UUID_TYPE_PHONECALL, id=pcall_id,
     )
     request.user.has_perm_to_change_or_die(pcall)
 
-    pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
+    pcall.status = status
     pcall.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -578,8 +600,8 @@ def _phonecall_workflow_set_end(request, end_function):
     end = end_function(start)
     minutes = POST.get('minutes', '')
 
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_DONE)
     pcall = _get_pcall(request)
-    status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
 
     if pcall is not None:
         pcall.status = status
@@ -593,9 +615,7 @@ def _phonecall_workflow_set_end(request, end_function):
 
         me, person = _get_participants(user, POST)
 
-        sub_type = get_object_or_404(
-            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-        )
+        sub_type = _get_enabled_activity_sub_type(act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
         pcall = done_activity_creator(
             user=user,
             title=_('{status} call to {person} from {software} Mobile').format(
@@ -633,11 +653,9 @@ def _create_failed_pcall(request):
     user = request.user
     user.has_perm_to_create_or_die(Activity)  # TODO: test
 
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_DONE)
+    sub_type = _get_enabled_activity_sub_type(act_constants.UUID_SUBTYPE_PHONECALL_FAILED)
     me, person = _get_participants(user, POST)
-
-    sub_type = get_object_or_404(
-        ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
-    )
     pcall = failed_activity_creator(
         user=user,
         title=_('{status} call to {person} from {software} Mobile').format(
@@ -647,7 +665,7 @@ def _create_failed_pcall(request):
         ),
         type_id=sub_type.type_id,
         sub_type=sub_type,
-        status=get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE),
+        status=status,
         start=start,
         end=start,
         minutes=POST.get('minutes', ''),
@@ -658,12 +676,13 @@ def _create_failed_pcall(request):
 
 
 def _set_pcall_as_failed(pcall, request):
+    sub_type = _get_enabled_activity_sub_type(act_constants.UUID_SUBTYPE_PHONECALL_FAILED)
+    status = _get_enabled_activity_status(act_constants.UUID_STATUS_DONE)
+
     POST = request.POST
 
-    pcall.sub_type = get_object_or_404(
-        ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
-    )
-    pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
+    pcall.sub_type = sub_type
+    pcall.status = status
     pcall.floating_type = Activity.FloatingType.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     _improve_minutes(pcall, POST.get('minutes', ''))
@@ -703,14 +722,13 @@ def phonecall_workflow_postponed(request):
         _set_pcall_as_failed(pcall, request)
     else:
         pcall, me, person = _create_failed_pcall(request)
+        sub_type = _get_enabled_activity_sub_type(act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
 
         postponed = deepcopy(pcall)  # NB: idem
         postponed.title = _('Call to {person} from {software} Mobile').format(
             person=person, software=settings.SOFTWARE_LABEL,
         )
-        postponed.sub_type = get_object_or_404(
-            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-        )
+        postponed.sub_type = sub_type
         postponed.status = None
 
     postponed.floating_type = Activity.FloatingType.FLOATING_TIME

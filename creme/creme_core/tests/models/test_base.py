@@ -1,10 +1,14 @@
 from uuid import uuid4
 
 from django.core.exceptions import FieldDoesNotExist
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     FakeContact,
     FakeCountry,
+    FakePosition,
     FakeSector,
     Language,
 )
@@ -125,6 +129,36 @@ class IsReferencedTestCase(CremeTestCase):
 
 
 class MinionTestCase(CremeTestCase):
+    def test_manager__get_by_uuid(self):
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        with self.assertNumQueries(1):
+            sector_a = FakeSector.objects.get_by_uuid(sector1.uuid)
+            self.assertEqual(sector1, sector_a)
+
+        with self.assertNumQueries(1):
+            sector_b = FakeSector.objects.get_by_uuid(str(sector2.uuid))
+            self.assertEqual(sector2, sector_b)
+
+        # Cache ---
+        with self.assertNumQueries(0):
+            FakeSector.objects.get_by_uuid(sector1.uuid)
+
+        # Error ---
+        with self.assertRaises(FakeSector.DoesNotExist):
+            FakeSector.objects.get_by_uuid(uuid4())
+
+        uid = uuid4()
+        with self.assertRaises(ConflictError) as cm:
+            FakeSector.objects.get_by_uuid(uid, conflict_error=True)
+        self.assertEqual(
+            _(
+                'It seems the instance of model «{model}» with uuid "{uuid}" '
+                'has been deleted; please contact your administrator.'
+            ).format(model=FakeSector._meta.verbose_name, uuid=uid),
+            str(cm.exception),
+        )
+
     def test_portable_key(self):
         sector1, sector2 = FakeSector.objects.all()[:2]
 
@@ -145,3 +179,38 @@ class MinionTestCase(CremeTestCase):
 
         with self.assertRaises(FakeSector.DoesNotExist):
             FakeSector.objects.get_by_portable_key(uuid4())
+
+    def test_get_enabled_label(self):
+        sector = FakeSector(title='Industry')
+        self.assertEqual(sector.title, sector.get_enabled_label())
+
+        sector.disabled = now()
+        self.assertEqual(
+            _('{} (disabled)').format(sector.title), sector.get_enabled_label(),
+        )
+
+    def test_message_for_disabled(self):
+        sector = FakeSector(title='Industry')
+        msg_fmt = _('«{instance}» (of type «{model}») is disabled.').format
+        self.assertEqual(
+            msg_fmt(model=FakeSector._meta.verbose_name, instance=sector.title),
+            sector.message_for_disabled,
+        )
+
+        # ---
+        pos = FakePosition(title='Gardener')
+        self.assertEqual(
+            msg_fmt(model=FakePosition._meta.verbose_name, instance=pos.title),
+            pos.message_for_disabled,
+        )
+
+    def test_is_enabled_or_die(self):
+        sector = FakeSector.objects.create(title='Industry')
+        with self.assertNoException():
+            sector.is_enabled_or_die()
+
+        # ---
+        sector.disabled = now()
+        with self.assertRaises(ConflictError) as cm:
+            sector.is_enabled_or_die()
+        self.assertEqual(sector.message_for_disabled, str(cm.exception))

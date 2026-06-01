@@ -11,9 +11,13 @@ from creme.activities.constants import (
     UUID_STATUS_DONE,
     UUID_STATUS_IN_PROGRESS,
     UUID_STATUS_PLANNED,
+    UUID_SUBTYPE_PHONECALL_FAILED,
+    UUID_SUBTYPE_PHONECALL_OUTGOING,
+    UUID_TYPE_PHONECALL,
 )
-from creme.activities.models import Status
+from creme.activities.models import ActivitySubType, ActivityType, Status
 from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_config.registry import config_registry
 from creme.creme_core.models import UserRole
 
 from .base import Activity, Contact, MobileBaseTestCase
@@ -137,3 +141,36 @@ class MobileAppTestCase(MobileBaseTestCase):
 
         self.assertFalse(hot_activities)
         self.assertFalse(today_activities)
+
+    def test_config_registry__statuses(self):
+        disablor = config_registry.get_app_registry(
+            'activities'
+        ).get_model_conf(Status).disablor
+
+        def needing_app_labels(status_uuid):
+            status = self.get_object_or_fail(Status, uuid=status_uuid)
+
+            return [app.label for app in disablor.get_needing_apps(status)]
+
+        self.assertIn('mobile', needing_app_labels(UUID_STATUS_IN_PROGRESS))
+        self.assertIn('mobile', needing_app_labels(UUID_STATUS_DONE))
+
+    def test_config_registry__types(self):
+        disablor = config_registry.get_app_registry(
+            'activities'
+        ).get_model_conf(ActivityType).disablor
+        atype = self.get_object_or_fail(ActivityType, uuid=UUID_TYPE_PHONECALL)
+        self.assertIn('mobile', [app.label for app in disablor.get_needing_apps(atype)])
+
+    def test_config_registry__sub_types(self):
+        disablor = config_registry.get_app_registry(
+            'activities'
+        ).get_model_conf(ActivitySubType).disablor
+
+        def needing_app_labels(subtype_uuid):
+            sub_type = self.get_object_or_fail(ActivitySubType, uuid=subtype_uuid)
+
+            return [app.label for app in disablor.get_needing_apps(sub_type)]
+
+        self.assertIn('mobile', needing_app_labels(UUID_SUBTYPE_PHONECALL_OUTGOING))
+        self.assertIn('mobile', needing_app_labels(UUID_SUBTYPE_PHONECALL_FAILED))

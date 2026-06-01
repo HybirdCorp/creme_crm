@@ -31,6 +31,8 @@ from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.exceptions import ConflictError
+from ..global_info import get_per_request_cache
 from . import fields as core_fields
 from .file_ref import FileRef
 
@@ -235,13 +237,54 @@ class CremeModel(Model):
 
 
 class MinionManager(models.Manager):
+    def get_by_uuid(self,
+                    /, uid: uuid.UUID | str,
+                    *, conflict_error: bool = False,
+                    ) -> MinionModel:
+        """Get an instance by its uuid.
+        The result is cached (per request).
+
+        @param conflict_error: If <True>, a <ConflictError> is raised when the
+               instance does not exist; the message is human-friendly.
+               If <False>, a classical <ObjectDoesNotExist> is raised.
+        """
+        model = self.model
+        meta = model._meta
+        instances = get_per_request_cache().setdefault(
+            f'creme_core-minions-{meta.app_label}.{meta.model_name}', {}
+        )
+        str_uuid = str(uid)
+        try:
+            instance = instances[str_uuid]
+        except KeyError:
+            try:
+                instance = instances[str_uuid] = self.get(uuid=uid)
+            except self.model.DoesNotExist as e:
+                if conflict_error:
+                    raise ConflictError(
+                        gettext(
+                            'It seems the instance of model «{model}» with uuid "{uuid}" '
+                            'has been deleted; please contact your administrator.'
+                        ).format(model=meta.verbose_name, uuid=str_uuid)
+                    ) from e
+                raise
+
+        return instance
+
     def get_by_portable_key(self, key: str) -> MinionModel:
-        return self.get(uuid=key)
+        # return self.get(uuid=key)
+        return self.get_by_uuid(uid=key)
 
 
 class MinionModel(CremeModel):
     """Base model which is great for small models used to represent "choices" in
     entities & which you classically register in creme_config.
+
+    Hint #1: you should implement the __str__ method in your child classes.
+    Hint #2: if your child model has a "color" field, it's automatically managed
+             by the default field printer
+     >> from creme.creme_core.models import fields as core_fields
+     >> color = core_fields.ColorField(default=core_fields.ColorField.random)
     """
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
@@ -251,6 +294,9 @@ class MinionModel(CremeModel):
     created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField(
         _('Last modification'),
+    ).set_tags(viewable=False)
+    disabled = models.DateTimeField(
+        _('Disabled'), editable=False, null=True,
     ).set_tags(viewable=False)
 
     # Used by creme_config (if is_custom is False, the instance cannot be deleted)
@@ -264,6 +310,24 @@ class MinionModel(CremeModel):
 
     class Meta:
         abstract = True
+
+    def get_enabled_label(self) -> str:
+        """A label which indicates if the instance is disabled."""
+        return gettext('{} (disabled)').format(self) if self.disabled else str(self)
+
+    @property
+    def message_for_disabled(self) -> str:
+        """Error message used when the instance is disabled.
+        See 'is_enabled_or_die()'.
+        """
+        return gettext('«{instance}» (of type «{model}») is disabled.').format(
+            model=type(self)._meta.verbose_name, instance=self,
+        )
+
+    def is_enabled_or_die(self) -> None:
+        """@raise ConflictError if the instance is disabled."""
+        if self.disabled:
+            raise ConflictError(self.message_for_disabled)
 
     def portable_key(self) -> str:
         """See CremeEntity.portable_key()."""

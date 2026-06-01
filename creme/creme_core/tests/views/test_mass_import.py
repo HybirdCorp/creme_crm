@@ -633,6 +633,113 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(contact2.email)
         self.assertHasNoProperty(entity=contact2, ptype=ptype)
 
+    def test_import__disabled_minions(self):
+        user = self.login_as_root_and_get()
+
+        pos = FakePosition.objects.create(title='King', disabled=now())
+        lang = Language.objects.create(name='Orc', disabled=now())
+
+        contact_count = FakeContact.objects.count()
+
+        lines = [
+            ('First name', 'Last name', 'Position', 'Languages'),
+            ('Rei',        'Ayanami',   pos.title,  ''),
+            ('Asuka',      'Langley',   '',         lang.name),
+        ]
+        doc = self._build_csv_doc(lines, user=user)
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+
+                'position_colselect': 3,
+                'position_subfield': 'title',
+                'position_defval': '',  # The browser POST an empty string
+                # 'position_create': False,
+
+                'languages_colselect': 4,
+                'languages_subfield': 'name',
+                # 'languages_defval': [],
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(contact_count, FakeContact.objects.count())
+
+        results = self._get_job_results(job)
+        self.assertEqual(2, len(results))
+        self.assertListEqual([pos.message_for_disabled], results[0].messages)
+        self.assertListEqual([lang.message_for_disabled], results[1].messages)
+
+    def test_import__disabled_minions__update(self):
+        user = self.login_as_root_and_get()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        c1 = create_contact(first_name='Rei',    last_name='Ayanami')
+        c2 = create_contact(first_name='Asuka',  last_name='Langley')
+        c3 = create_contact(first_name='Misato', last_name='Katsuragi')
+
+        contact_count = FakeContact.objects.count()
+
+        create_lang = Language.objects.create
+        lang      = create_lang(name='Japanese')
+        dis_lang1 = create_lang(name='Latin', disabled=now())
+        dis_lang2 = create_lang(name='Greek', disabled=now())
+
+        c1.languages.add(lang)
+        c2.languages.add(dis_lang1)
+        c3.languages.add(dis_lang2)
+
+        lines = [
+            ('First name', 'Last name',   'Languages'),
+            (c1.first_name, c1.last_name, dis_lang1.name),
+            (c2.first_name, c2.last_name, dis_lang1.name),
+            (c3.first_name, c3.last_name, dis_lang1.name),
+        ]
+        doc = self._build_csv_doc(lines, user=user)
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+                'key_fields': ['last_name'],
+
+                'languages_colselect': 3,
+                'languages_subfield': 'name',
+                # 'languages_defval': [],
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(contact_count, FakeContact.objects.count())
+
+        results = self._get_job_results(job)
+        self.assertEqual(3, len(results))
+
+        result1 = results[0]
+        self.assertEqual(c1, result1.entity.get_real_entity())
+        self.assertListEqual([dis_lang1.message_for_disabled], result1.messages)
+        self.assertCountEqual([lang], c1.languages.all())
+
+        result2 = results[1]
+        self.assertEqual(c2, result2.entity.get_real_entity())
+        self.assertIsNone(result2.messages)
+        self.assertCountEqual([dis_lang1], c2.languages.all())
+
+        result3 = results[2]
+        self.assertEqual(c3, result3.entity.get_real_entity())
+        self.assertListEqual([dis_lang1.message_for_disabled], result3.messages)
+        self.assertCountEqual([dis_lang2], c3.languages.all())
+
     def test_duplicated_relations(self):
         "Same Relation in fixed & dynamic fields at creation."
         user = self.login_as_root_and_get()
