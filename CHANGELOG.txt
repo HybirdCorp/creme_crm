@@ -8,6 +8,8 @@
             - The permissions on the users/teams configuration bricks have been fixed.
         * Emails :
             - The title of the popup which fixes an email-to-sync has ben improved.
+        * Activities :
+            - The button to create unsuccessful phone calls did not reload all concerned blocks.
 
 
 == Version 2.8.1 ==
