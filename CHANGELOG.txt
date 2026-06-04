@@ -6,6 +6,8 @@
     # Apps :
         * Emails :
             - The title of the popup which fixes an email-to-sync has ben improved.
+        * Activities :
+            - The button to create unsuccessful phone calls did not reload all concerned blocks.
 
 
 == Version 2.6.20 ==
