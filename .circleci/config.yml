@@ -370,7 +370,8 @@ jobs:
 
   javascript-tests:
     docker:
-     - image: cimg/python:3.8-browsers
+#     - image: cimg/python:3.8-browsers
+     - image: cimg/python:3.10-browsers
     steps:
 #      - browser-tools/install-browser-tools
       - browser-tools/install_browser_tools
