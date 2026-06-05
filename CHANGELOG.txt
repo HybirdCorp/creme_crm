@@ -1,11 +1,11 @@
-== Version 2.6.21 Work in progress (not released -- this is a draft) ==
+== Version 2.6.21 ==
 
   Users side :
   ------------
     # A validation error was never raised in mass-import.
     # Apps :
         * Emails :
-            - The title of the popup which fixes an email-to-sync has ben improved.
+            - The title of the popup which fixes an email-to-sync has been improved.
         * Activities :
             - The button to create unsuccessful phone calls did not reload all concerned blocks.
 
