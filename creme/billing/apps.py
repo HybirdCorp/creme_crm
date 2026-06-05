@@ -31,6 +31,8 @@ class BillingConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.products']
 
     def ready(self):
+        super().ready()
+
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django:
         # [AttributeError: 'instancemethod' object has no attribute 'tags']

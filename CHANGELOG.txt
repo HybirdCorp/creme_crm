@@ -1,3 +1,17 @@
+== Version 2.8.2 ==
+
+  Users side :
+  ------------
+    # A validation error was never raised in mass-import.
+    # Apps :
+        * Creme_config :
+            - The permissions on the users/teams configuration bricks have been fixed.
+        * Emails :
+            - The title of the popup which fixes an email-to-sync has been improved.
+        * Activities :
+            - The button to create unsuccessful phone calls did not reload all concerned blocks.
+
+
 == Version 2.8.1 ==
 
   Developers side :

@@ -22,13 +22,13 @@ import logging
 from functools import partial
 from itertools import zip_longest
 from os.path import splitext
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.validators import EMPTY_VALUES
-from django.db.models import BooleanField as ModelBooleanField
+from django.db import models
 from django.db.models import ManyToManyField, Model, prefetch_related_objects
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
@@ -42,6 +42,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_config.registry import NotRegisteredInConfig, config_registry
 from creme.documents import get_document_model
 
+from .. import utils
 from ..backends import import_backend_registry
 from ..core.field_tags import FieldTag
 from ..core.workflow import WorkflowEngine
@@ -50,6 +51,7 @@ from ..models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    CremeUser,
     CustomField,
     CustomFieldEnumValue,
     CustomFieldValue,
@@ -75,9 +77,10 @@ from .widgets import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, Optional, Tuple
+    from typing import Any, List, Optional, Tuple
 
     Line = Sequence[str]
+    Choices = List[Tuple[int, str]]
     ExtractedTuple = Tuple[Any, Optional[str]]
     ValueCastor = Callable[[str], Any]
 
@@ -176,6 +179,10 @@ class BaseExtractor:
 class SingleColumnExtractor(BaseExtractor):
     def __init__(self, column_index: int):
         self._column_index = column_index
+
+    @property
+    def column_index(self):
+        return self._column_index
 
 
 class BaseExtractorWidget(Widget):
@@ -374,11 +381,15 @@ class RegularFieldExtractorField(forms.Field):
     not_searchable_fields = (
         # We exclude BooleanField because it is certainly useless to search on it
         # (a model with only 2 valid values could be replaced by static values).
-        ModelBooleanField,
+        models.BooleanField,
     )
 
     # TODO: default values + properties which update widget
-    def __init__(self, *, choices, modelfield, modelform_field, **kwargs):
+    def __init__(self, *,
+                 choices: Choices,
+                 modelfield: models.Field,
+                 modelform_field: forms.Field,
+                 **kwargs):
         super().__init__(**kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
@@ -536,23 +547,28 @@ class EntityExtractionCommand:
     def __init__(self,
                  model: type[CremeEntity],
                  field_name: str,
-                 column_index: int,
-                 create: bool):
+                 column_index: int | str,
+                 create: bool,
+                 ):
         self.model = model
         self.field_name = field_name
         self.column_index_str = column_index
         self.create = create
 
+    # TODO: attribute 'column_index' + 'clean()/is_valid()' method instead?
     def build_column_index(self) -> int:
-        "@throw TypeError"
+        """@throw TypeError"""
         self.column_index = index = int(self.column_index_str)
         return index
 
 
 class EntityExtractor(BaseExtractor):
     def __init__(self, extraction_cmds: list[EntityExtractionCommand]):
-        "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
+
+    @property
+    def commands(self) -> Iterator[EntityExtractionCommand]:
+        yield from self._commands
 
     def _extract_entity(self, line: Line, user, command: EntityExtractionCommand):
         index = command.column_index
@@ -578,7 +594,7 @@ class EntityExtractor(BaseExtractor):
 
                 try:
                     created.full_clean()  # Can raise ValidationError
-                    created.save()  # TODO should we use save points for this line ?
+                    created.save()  # TODO: should we use save points for this line?
                 except Exception as e:
                     error_msg = _(
                         'Error while extracting value [{raw_error}]: '
@@ -705,12 +721,18 @@ class EntityExtractorField(forms.Field):
     }
 
     # TODO: default values + properties which update widget
-    def __init__(self, *, models_info, choices, **kwargs):
-        """@param model_info: Sequence of tuple (Entity class, field name)
-                  Field name if used to get or create class instances.
+    def __init__(self, *,
+                 models_info: Iterable[tuple[type[CremeEntity], str]],
+                 choices: Choices,
+                 user: CremeUser | None = None,
+                 **kwargs):
+        """@param models_info: tuples (Entity class, field name)
+                  Field name is used to get or create class instances.
         """
         super().__init__(**kwargs)
-        self.models_info = models_info
+        self.user = user
+        # self.models_info = models_info
+        self.models_info = [*models_info]
         self.allowed_indexes = {c[0] for c in choices}
 
         widget = self.widget
@@ -718,6 +740,8 @@ class EntityExtractorField(forms.Field):
         widget.models_info = models_info
 
     def _clean_commands(self, value):
+        assert self.user is not None
+
         one_active_command = False
         allowed_indexes = self.allowed_indexes
         can_create = self.user.has_perm_to_create
@@ -727,10 +751,11 @@ class EntityExtractorField(forms.Field):
                 index = cmd.build_column_index()
 
                 if index not in allowed_indexes:
-                    raise ValidationError(
-                        self.error_messages['invalid'],
-                        code='invalid',
-                    )
+                    # raise ValidationError(
+                    #     self.error_messages['invalid'],
+                    #     code='invalid',
+                    # )
+                    raise ValueError('Forbidden index')
 
                 if cmd.create and not can_create(cmd.model):
                     raise ValidationError(
@@ -740,7 +765,7 @@ class EntityExtractorField(forms.Field):
                     )
 
                 one_active_command |= bool(index)
-        except TypeError as e:
+        except (TypeError, ValueError) as e:
             raise ValidationError(
                 self.error_messages['invalid'],
                 code='invalid',
@@ -783,6 +808,14 @@ class RelationExtractor(SingleColumnExtractor):
     def create_if_unfound(self):
         return self._related_form is not None
 
+    @property
+    def rtype(self):
+        return self._rtype
+
+    @property
+    def subfield_search(self):
+        return self._subfield_search
+
     # TODO: link credentials
     # TODO: constraint on properties for relationtypes (wait for cache in RelationType)
     def extract_value(self, line, user):
@@ -804,7 +837,8 @@ class RelationExtractor(SingleColumnExtractor):
                     'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
                     'Raw error: [{raw_error}]'
                 ).format(
-                    raw_error=e,
+                    # raw_error=e,
+                    raw_error=utils.ellipsis(str(e), length=50),
                     column=self._column_index,
                     field=self._subfield_search,
                     value=value,
@@ -827,7 +861,8 @@ class RelationExtractor(SingleColumnExtractor):
                                 model=model_verbose_name(model),
                                 column=self._column_index,
                                 data=data,
-                                errors=creator.errors,
+                                # TODO: custom renderer?
+                                errors=creator.errors.as_data(),
                             )
                     else:
                         err_msg = gettext(
@@ -1315,12 +1350,14 @@ class ImportForm(CremeModelForm):
         try:
             document = Document.objects.get(pk=document_id)
         except Document.DoesNotExist:
+            # TODO: unit test
             raise ValidationError(
                 self.error_messages['invalid_document'],
                 code='invalid_document',
             )
 
         if not self.user.has_perm('creme_core.view_entity', document):
+            # TODO: unit test
             raise ValidationError(
                 self.error_messages['forbidden_read'],
                 code='forbidden_read',
@@ -1335,10 +1372,10 @@ class ImportForm(CremeModelForm):
             if fname in field_names
         })
 
-    def _post_instance_creation(self, instance, line, updated):  # Overload me
+    def _post_instance_creation(self, instance, line, updated):  # Override me
         pass
 
-    def _pre_instance_save(self, instance, line):  # Overload me
+    def _pre_instance_save(self, instance, line):  # Override me
         pass
 
     def process(self, job: Job):
@@ -1375,6 +1412,7 @@ class ImportForm(CremeModelForm):
         backend_cls, error_msg = get_import_backend_class(filedata)
 
         if error_msg:
+            # TODO: unit test
             raise self.Error(error_msg)
 
         # TODO: mode depends on the backend ?
@@ -1433,6 +1471,7 @@ class ImportForm(CremeModelForm):
                                             pk=found[0].pk,
                                         )
                                     except model_class.DoesNotExist:
+                                        # TODO: unit test
                                         pass
                                     else:
                                         job_result.updated = updated = True
@@ -1560,7 +1599,8 @@ class ImportForm4CremeEntity(ImportForm):
         can_create = self.user.has_perm_to_create
 
         for extractor in extractors:
-            if extractor.create_if_unfound and not can_create(extractor.related_model):
+            # if extractor.create_if_unfound and not can_create(extractor.related_model):
+            if extractor.create_if_unfound() and not can_create(extractor.related_model):
                 raise ValidationError(
                     self.error_messages['creation_forbidden'],
                     params={'model': model_verbose_name(extractor.related_model)},
@@ -1622,6 +1662,7 @@ class ImportForm4CremeEntity(ImportForm):
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
+                # TODO: unit test
                 self.append_error(err_msg)
                 continue
 
@@ -1711,6 +1752,7 @@ def form_factory(ct, header):
     elif issubclass(model_class, CremeEntity):
         base_form_class = ImportForm4CremeEntity
     else:
+        # TODO: unit test
         base_form_class = ImportForm
 
     modelform = modelform_factory(

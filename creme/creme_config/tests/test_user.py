@@ -305,7 +305,7 @@ class UserPortalTestCase(BaseUserTestCase):
         )
         self.assertBrickHasNoAction(brick_node, url=build_url(other_user.id))
 
-    def test_brick_hide_inactive_user(self):
+    def test_users_brick_hide_inactive_user(self):
         user = self.login_as_root_and_get()
 
         def get_state():
@@ -331,6 +331,49 @@ class UserPortalTestCase(BaseUserTestCase):
             get_state().get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
             False,
         )
+
+    def test_bricks__reloading(self):
+        self.login_with_user_perm()
+
+        content = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={'brick_id': [UsersBrick.id, TeamsBrick.id]},
+        ).json()
+        self.assertIsList(content, length=2)
+
+        user_brick_info = content[0]
+        self.assertIsList(user_brick_info, length=2)
+        self.assertEqual(UsersBrick.id, user_brick_info[0])
+        self.assertBrickTitleEqual(
+            self.get_brick_node(self.get_html_tree(user_brick_info[1]), brick=UsersBrick),
+            count=User.objects.count(),
+            title='{count} User',
+            plural_title='{count} Users',
+        )
+
+        team_brick_info = content[1]
+        self.assertEqual(TeamsBrick.id, team_brick_info[0])
+        team_brick_node = self.get_brick_node(
+            self.get_html_tree(team_brick_info[1]), brick=TeamsBrick,
+        )
+        self.assertEqual(_('Teams'), self.get_brick_title(team_brick_node))
+
+    def test_bricks__reloading__forbidden(self):
+        self.login_without_user_perm()
+
+        content = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={'brick_id': [UsersBrick.id, TeamsBrick.id]},
+        ).json()
+        self.assertIsList(content, length=2)
+
+        user_brick_info = content[0]
+        self.assertEqual(UsersBrick.id, user_brick_info[0])
+        self.assertIn('<div class="brick brick-forbidden',  user_brick_info[1])
+
+        team_brick_info = content[1]
+        self.assertEqual(TeamsBrick.id, team_brick_info[0])
+        self.assertIn('<div class="brick brick-forbidden',  team_brick_info[1])
 
 
 class UserCreationTestCase(BaseUserTestCase):

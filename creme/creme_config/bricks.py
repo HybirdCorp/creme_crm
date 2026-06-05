@@ -78,7 +78,7 @@ class ExportButtonBrick(SimpleBrick):
 class GenericModelBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('creme_config', 'model_config')
     verbose_name = 'Model configuration'
-    dependencies: Collection[type[core_models.CremeModel], ...] = (core_models.CremeModel,)
+    dependencies: Collection[type[core_models.CremeModel]] = (core_models.CremeModel,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/configurable-model.html'
     configurable = False
@@ -609,6 +609,7 @@ class UsersBrick(_ConfigAdminBrick):
     dependencies = (User,)
     order_by = 'username'
     template_name = 'creme_config/bricks/users.html'
+    permissions = config_auth.user_config_perm.as_perm
     search_fields = ['username', 'last_name', 'first_name', 'displayed_name']
 
     def detailview_display(self, context):
@@ -669,6 +670,7 @@ class TeamsBrick(_ConfigAdminBrick):
     dependencies = (User,)
     order_by = 'username'
     template_name = 'creme_config/bricks/teams.html'
+    permissions = config_auth.user_config_perm.as_perm
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
