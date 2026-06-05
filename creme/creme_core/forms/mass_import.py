@@ -257,6 +257,7 @@ class RegularFieldExtractor(SingleColumnExtractor):
 
                                 value = creator.instance
                             else:
+                                # TODO: unit test
                                 # TODO: form errors in the message too
                                 err_msg = gettext(
                                     'Error while extracting value: tried to retrieve '
@@ -547,7 +548,6 @@ class EntityExtractionCommand:
 
 class EntityExtractor(BaseExtractor):
     def __init__(self, extraction_cmds: list[EntityExtractionCommand]):
-        "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
 
     def _extract_entity(self, line: Line, user, command: EntityExtractionCommand):
@@ -555,6 +555,7 @@ class EntityExtractor(BaseExtractor):
 
         # TODO: manage credentials (linkable (& viewable ?))
         if not index:  # 0 -> not in csv
+            # TODO: unit test
             return None, None
 
         value = line[index - 1]
@@ -576,6 +577,7 @@ class EntityExtractor(BaseExtractor):
                     created.full_clean()  # Can raise ValidationError
                     created.save()  # TODO should we use save points for this line ?
                 except Exception as e:
+                    # TODO: unit test
                     error_msg = _(
                         'Error while extracting value [{raw_error}]: '
                         'tried to retrieve and then build «{value}» on {model}'
@@ -723,6 +725,7 @@ class EntityExtractorField(forms.Field):
                 index = cmd.build_column_index()
 
                 if index not in allowed_indexes:
+                    # TODO: unit test
                     raise ValidationError(
                         self.error_messages['invalid'],
                         code='invalid',
@@ -795,6 +798,7 @@ class RelationExtractor(SingleColumnExtractor):
                     user, model.objects.filter(**data),
                 ).first()
             except Exception as e:
+                # TODO: unit test
                 err_msg = gettext(
                     'Error while extracting value to build a Relation: '
                     'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
@@ -815,6 +819,7 @@ class RelationExtractor(SingleColumnExtractor):
                         if creator.is_valid():
                             object_entity = creator.save()
                         else:
+                            # TODO: unit test
                             err_msg = gettext(
                                 'Error while extracting value: '
                                 'tried to build {model} with data={data} '
@@ -826,6 +831,7 @@ class RelationExtractor(SingleColumnExtractor):
                                 errors=creator.errors,
                             )
                     else:
+                        # TODO: unit test
                         err_msg = gettext(
                             'Error while extracting value to build a Relation: '
                             'tried to retrieve {field}=«{value}» '
@@ -927,6 +933,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
     @property
     def columns(self):
+        # TODO: unit test
         return self._columns
 
     @columns.setter
@@ -939,6 +946,7 @@ class RelationExtractorField(MultiRelationEntityField):
         selector_data = self.clean_json(value['selectorlist'])
 
         if not selector_data:
+            # TODO: unit test
             if self.required:
                 raise ValidationError(
                     self.error_messages['required'],
@@ -948,6 +956,7 @@ class RelationExtractorField(MultiRelationEntityField):
             return MultiRelationsExtractor([])
 
         if not isinstance(selector_data, list):
+            # TODO: unit test
             raise ValidationError(
                 self.error_messages['invalidformat'],
                 code='invalidformat',
@@ -980,6 +989,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
         for rtype_id, ctype_id, column, searchfield in cleaned_entries:
             if column not in allowed_columns:
+                # TODO: unit test
                 raise ValidationError(
                     self.error_messages['invalidcolunm'],
                     params={'column': column},
@@ -994,6 +1004,7 @@ class RelationExtractorField(MultiRelationEntityField):
             rtype = rtypes_by_id[rtype_id]
 
             if not rtype.symmetric_type.is_compatible(ctype_id):
+                # TODO: unit test
                 raise ValidationError(
                     message=self.error_messages['forbiddenctype'],
                     code='forbiddenctype',
@@ -1008,6 +1019,7 @@ class RelationExtractorField(MultiRelationEntityField):
             try:
                 model._meta.get_field(searchfield)
             except FieldDoesNotExist as e:
+                # TODO: unit test
                 raise ValidationError(
                     self.error_messages['fielddoesnotexist'],
                     params={'field': searchfield},
@@ -1297,12 +1309,14 @@ class ImportForm(CremeModelForm):
         try:
             document = Document.objects.get(pk=document_id)
         except Document.DoesNotExist:
+            # TODO: unit test
             raise ValidationError(
                 self.error_messages['invalid_document'],
                 code='invalid_document',
             )
 
         if not self.user.has_perm('creme_core.view_entity', document):
+            # TODO: unit test
             raise ValidationError(
                 self.error_messages['forbidden_read'],
                 code='forbidden_read',
@@ -1317,10 +1331,10 @@ class ImportForm(CremeModelForm):
             if fname in field_names
         })
 
-    def _post_instance_creation(self, instance, line, updated):  # Overload me
+    def _post_instance_creation(self, instance, line, updated):  # Override me
         pass
 
-    def _pre_instance_save(self, instance, line):  # Overload me
+    def _pre_instance_save(self, instance, line):  # Override me
         pass
 
     def process(self, job: Job):
@@ -1357,6 +1371,7 @@ class ImportForm(CremeModelForm):
         backend_cls, error_msg = get_import_backend_class(filedata)
 
         if error_msg:
+            # TODO: unit test
             raise self.Error(error_msg)
 
         # TODO: mode depends on the backend ?
@@ -1414,6 +1429,7 @@ class ImportForm(CremeModelForm):
                                             pk=found[0].pk,
                                         )
                                     except model_class.DoesNotExist:
+                                        # TODO: unit test
                                         pass
                                     else:
                                         job_result.updated = updated = True
@@ -1541,7 +1557,8 @@ class ImportForm4CremeEntity(ImportForm):
         can_create = self.user.has_perm_to_create
 
         for extractor in extractors:
-            if extractor.create_if_unfound and not can_create(extractor.related_model):
+            # if extractor.create_if_unfound and not can_create(extractor.related_model):
+            if extractor.create_if_unfound() and not can_create(extractor.related_model):
                 raise ValidationError(
                     self.error_messages['creation_forbidden'],
                     params={'model': extractor.related_model._meta.verbose_name},
@@ -1603,6 +1620,7 @@ class ImportForm4CremeEntity(ImportForm):
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
+                # TODO: unit test
                 self.append_error(err_msg)
                 continue
 
@@ -1693,6 +1711,7 @@ def form_factory(ct, header):
     elif issubclass(model_class, CremeEntity):
         base_form_class = ImportForm4CremeEntity
     else:
+        # TODO: unit test
         base_form_class = ImportForm
 
     modelform = modelform_factory(
