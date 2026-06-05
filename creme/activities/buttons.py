@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
+from creme.creme_core.models import Relation
 
 from . import constants, get_activity_model
 
@@ -109,6 +110,12 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
         'The current contact participates in the created call, & you too.\n'
         'The fields values can be set in the configuration of «Activities».\n'
         'App: Activities'
+    )
+    dependencies = [Relation]
+    relation_type_deps = (
+        constants.REL_SUB_LINKED_2_ACTIVITY,
+        constants.REL_SUB_ACTIVITY_SUBJECT,
+        constants.REL_SUB_PART_2_ACTIVITY,
     )
 
     def check_permissions(self, *, entity, request):

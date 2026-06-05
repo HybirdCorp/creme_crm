@@ -579,6 +579,9 @@ class CustomFieldExporter(Exporter):
             'type': cf_type,
         }
 
+        if instance.is_required:
+            data['is_required'] = True
+
         if cf_type in self.enum_types:
             data['choices'] = [
                 # NB: .values('uuid', 'value') is not serializable with the UUID objects
