@@ -132,8 +132,10 @@ class AbstractActivity(CremeEntity):
         ordering = ('-start',)
 
     @classmethod
-    def get_creation_title(cls, type_id):
-        return CREATION_LABELS.get(type_id, cls.creation_label)
+    # def get_creation_title(cls, type_id):
+    def get_creation_title(cls, type_uuid: str | None) -> str:
+        # return CREATION_LABELS.get(type_id, cls.creation_label)
+        return CREATION_LABELS.get(type_uuid, cls.creation_label)
 
     def __str__(self):
         return self.title
