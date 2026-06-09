@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -605,12 +605,12 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         exclude: tuple[str, ...] = ()
         fields = '__all__'
 
-    forced_ptype_ids: list[str]
+    forced_ptype_ids: list[int]
     forced_relations_info: list[tuple[RelationType, CremeEntity]]
     _customs: list[tuple[CustomField, Any]]
 
     def __init__(self,
-                 forced_ptypes: Iterable[CremePropertyType | str] = (),
+                 forced_ptypes: Iterable[CremePropertyType | int] = (),
                  forced_relations: Iterable[Relation] = (),
                  *args, **kwargs):
         """Constructor.
@@ -640,7 +640,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-    def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
+    def _build_properties_field(self, forced_ptype_ids: Iterable[int]) -> None:
         instance = self.instance
 
         if self._use_properties_fields() and not instance.pk:
