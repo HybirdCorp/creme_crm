@@ -601,12 +601,12 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         exclude: tuple[str, ...] = ()
         fields = '__all__'
 
-    forced_ptype_ids: list[str]
+    forced_ptype_ids: list[int]
     forced_relations_info: list[tuple[RelationType, CremeEntity]]
     _customs: list[tuple[CustomField, Any]]
 
     def __init__(self,
-                 forced_ptypes: Iterable[CremePropertyType | str] = (),
+                 forced_ptypes: Iterable[CremePropertyType | int] = (),
                  forced_relations: Iterable[Relation] = (),
                  *args, **kwargs):
         """Constructor.
@@ -636,7 +636,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-    def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
+    def _build_properties_field(self, forced_ptype_ids: Iterable[int]) -> None:
         instance = self.instance
 
         if self._use_properties_fields() and not instance.pk:
