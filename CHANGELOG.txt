@@ -139,6 +139,7 @@
                 - The class attribute 'brick' of the view-classes 'ChartDetail',
                   'ChartDetailBricksReloading' & 'ChartInstanceBricksInfo' has been renamed 'brick_classes'.
             * Activities :
+                - In the method 'models.AbstractActivity.get_creation_title()', the only argument has been renamed "type__uuid".
                 - In 'views.other_models', the class attribute 'brick' of the view-classes
                  'ActivityTypePortal' & 'ActivityTypeBricksReloading' has been renamed 'brick_classes'.
             * Products :
