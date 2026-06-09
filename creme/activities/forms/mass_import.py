@@ -20,6 +20,7 @@ import logging
 from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
+from typing import override
 
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
@@ -206,6 +207,7 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
         self._first_name_index = first_name_index - 1 if first_name_index else None
         self._last_name_index = last_name_index - 1
 
+    @override
     def extract_value(self, line, user):
         first_name = None
         last_name = line[self._last_name_index]
@@ -224,6 +226,7 @@ class SplitColumnParticipantsExtractor(RelatedExtractor):
         self._separator = separator
         self._pattern_func = pattern_func
 
+    @override
     def extract_value(self, line, user):
         extracted = []
         global_err_msg = []
@@ -247,6 +250,7 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
         super().__init__(*args, **kwargs)
         self.propose_creation = False
 
+    @override
     def get_context(self, name, value, attrs):
         value = value or {}
         context = super().get_context(name=name, value=value, attrs=attrs)
@@ -300,6 +304,7 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
 
         return context
 
+    @override
     def value_from_datadict(self, data, files, name):
         get = data.get
 
@@ -359,6 +364,7 @@ class ParticipantsExtractorField(Field):
 
         return RelatedExtractor()  # Empty extractor
 
+    @override
     def clean(self, value):
         mode = self._clean_mode(value)
         clean_index = partial(self._clean_index, value)
@@ -481,6 +487,7 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
         super().__init__(*args, **kwargs)
         self.propose_creation = False
 
+    @override
     def get_context(self, name, value, attrs):
         value = value or {}
         context = super().get_context(name=name, value=value, attrs=attrs)
@@ -514,6 +521,7 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
 
         return context
 
+    @override
     def value_from_datadict(self, data, files, name):
         get = data.get
 
@@ -553,6 +561,7 @@ class SubjectsExtractorField(Field):
 
         return index
 
+    @override
     def clean(self, value):
         index = self._clean_index(value, 'selected_column')
 
@@ -633,6 +642,7 @@ def get_massimport_form_builder(header_dict, choices) -> type[ImportForm4CremeEn
 
             return participants_data
 
+        @override
         def _pre_instance_save(self, instance, line):
             super()._pre_instance_save(instance=instance, line=line)
 
@@ -657,8 +667,11 @@ def get_massimport_form_builder(header_dict, choices) -> type[ImportForm4CremeEn
             else:
                 instance.floating_type = instance.FloatingType.FLOATING
 
-        def _post_instance_creation(self, instance, line, updated):
-            super()._post_instance_creation(instance, line, updated)
+        @override
+        # def _post_instance_creation(self, instance, line, updated):
+        def _post_instance_save(self, instance, line, updated):
+            # super()._post_instance_creation(instance, line, updated)
+            super()._post_instance_save(instance=instance, line=line, updated=updated)
 
             cdata = self.cleaned_data
             owner = instance.user

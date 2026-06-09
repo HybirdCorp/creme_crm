@@ -58,8 +58,10 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
-    def _post_instance_creation(self, instance, line, updated):
-        super()._post_instance_creation(instance, line, updated)
+    # def _post_instance_creation(self, instance, line, updated):
+    def _post_instance_save(self, instance, line, updated):
+        # super()._post_instance_creation(instance, line, updated)
+        super()._post_instance_save(instance=instance, line=line, updated=updated)
         data = self.cleaned_data
         address_dict = {}
         user = self.user

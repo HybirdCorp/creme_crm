@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -38,7 +40,7 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
-    # Overload by get_csv_form_builder()
+    # Overridden by get_csv_form_builder()
     _address_field_names = ()
     _billing_address_hidden = False
     _shipping_address_hidden = False
@@ -84,8 +86,11 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
 
         return save
 
-    def _post_instance_creation(self, instance, line, updated):
-        super()._post_instance_creation(instance, line, updated)
+    @override
+    # def _post_instance_creation(self, instance, line, updated):
+    def _post_instance_save(self, instance, line, updated):
+        # super()._post_instance_creation(instance, line, updated)
+        super()._post_instance_save(instance=instance, line=line, updated=updated)
         data = self.cleaned_data
         save_address = self._save_address
         change4billing = save_address(
