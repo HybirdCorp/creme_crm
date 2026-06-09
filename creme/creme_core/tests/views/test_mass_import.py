@@ -40,6 +40,7 @@ from creme.creme_core.models import (
     FakeTicketStatus,
     FieldsConfig,
     Job,
+    Language,
     MassImportJobResult,
     Notification,
     Relation,
@@ -269,7 +270,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id})
 
     def _test_import__complex(self, builder):
-        """Use header, default value, model search and create, properties,
+        """Use header, default value, model search and create, M2M, properties,
         fixed and dynamic relations.
         """
         user = self.login_as_root_and_get()
@@ -281,6 +282,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         position_ids = [*FakePosition.objects.values_list('id', flat=True)]
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
+
+        create_language = Language.objects.create
+        lang1 = create_language(name='Elf')
+        create_language(name='Orc')
 
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Really cute in her suit')
@@ -305,9 +310,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         city = 'Tokyo'
         lines = [
-            ('First name', 'Last name', 'Position', 'Sector',   'City', 'Organisation'),
-            ('Rei',        'Ayanami',   pos_title,  sctr_title, city,   nerv.name),
-            ('Asuka',      'Langley',   pos_title,  sctr_title, '',     ''),
+            ('First name', 'Last name', 'Position', 'Sector',   'City', 'Organisation', 'Languages'),  # NOQA
+            ('Rei',        'Ayanami',   pos_title,  sctr_title, city,   nerv.name,      lang1.name),   # NOQA
+            ('Asuka',      'Langley',   pos_title,  sctr_title, '',     '',             ''),
         ]
 
         doc = builder(lines, user=user)
@@ -376,6 +381,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 ),
 
                 'address_city_colselect': 5,
+
+                'languages_colselect': 7,
+                'languages_subfield': 'name',
+                # 'languages_defval': [],
             },
         )
         self.assertNoFormError(response2)
@@ -391,7 +400,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(sctr_title, sector.title)
 
         created_contacts = {}
-        for first_name, last_name, pos_title, sector_title, city_name, __orga_name in lines[1:]:
+        for (first_name, last_name, pos_title, sector_title, city_name, __orga_name,
+             lang_name) in lines[1:]:
             contact = self.get_object_or_fail(
                 FakeContact, first_name=first_name, last_name=last_name,
             )
@@ -402,6 +412,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             self.assertEqual(sector,      contact.sector)
             self.assertHasProperty(entity=contact, ptype=ptype1)
             self.assertHaveRelation(subject=contact, type=loves, object=shinji)
+
+            if lang_name:
+                self.assertCountEqual(
+                    [lang_name], contact.languages.values_list('name', flat=True),
+                )
+            else:
+                self.assertFalse(contact.languages.all())
 
         self.assertHaveRelation(subject=created_contacts['Rei'], type=employed, object=nerv)
         self.assertHaveNoRelation(subject=created_contacts['Asuka'], type=employed, object=nerv)

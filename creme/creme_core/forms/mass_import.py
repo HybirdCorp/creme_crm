@@ -1760,7 +1760,7 @@ class ImportForm(CremeModelForm):
                                 # TODO: factorise
                                 extr_value, err_msg = extractor.extract_value(line, user)
                                 getattr(instance, m2m.name).set(extr_value)
-                                append_error(err_msg)
+                                append_error(err_msg)  # TODO: test
 
                         job_result.real_entity = instance
                         if self.import_errors:
