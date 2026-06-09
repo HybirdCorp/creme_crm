@@ -1,5 +1,12 @@
 == Version 2.7.10 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Events :
+            - The value checking to set the presence status has been fixed.
+
+
 == Version 2.7.9 ==
 
   Users side :

@@ -471,6 +471,13 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self.assertEqual(
+            404,
+            # Valid Status are {1, 2 3}
+            self._set_presence_status(event, casca, status_id=4).status_code,
+        )
+
+        # ---
+        self.assertEqual(
             200,
             self._set_presence_status(
                 event, casca, constants.PRES_STATUS_COME,
