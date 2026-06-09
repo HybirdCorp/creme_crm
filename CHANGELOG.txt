@@ -96,8 +96,11 @@
                     - The attribute '_related_form' has been removed.
                 - The class 'RelationExtractorField' has been replaced by 'MultiRelationsExtractorField';
                   the related widget & template have been heavily reworked too.
-                - The method 'ImportForm4CremeEntity._pre_instance_save()' is not empty anymore :
-                  you must call this super method when you override it now.
+                - In the class 'ImportForm4CremeEntity' :
+                    - The method '._pre_instance_save()' is not empty anymore :
+                      you must call this super method when you override it now.
+                    - The method '_post_instance_creation()' has been renamed '_post_instance_save()' ;
+                      you have to rename the method in your own inheriting classes, or it won't be called.
         # In 'creme_core.gui.bricks' :
             - The method 'Brick._simple_detailview_display()' has been removed.
             - In the class 'BrickRegistry':

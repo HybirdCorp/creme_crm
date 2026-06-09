@@ -535,14 +535,14 @@ class RegularFieldExtractorField(forms.Field):
                     subfield_search,
                     subfield_model=remote_model,
                     multiple=isinstance(model_field, ManyToManyField),
-                    # TODO: improve widget to disable creation check instead of hide it.
+                    # TODO: improve widget to disable creation check instead of hiding it.
                     creation_form_class=self._creation_form_class if subfield_create else None,
                 )
 
         return extractor
 
 
-# Extractors (and related field/widget) for entities----------------------------
+# Extractors (and related fields/widgets) for entities -------------------------
 
 class EntityExtractionCommand:
     def __init__(self,
@@ -1627,7 +1627,8 @@ class ImportForm(CremeModelForm):
             if fname in field_names
         })
 
-    def _post_instance_creation(self, instance, line, updated):  # Override me
+    # def _post_instance_creation(self, instance, line, updated):
+    def _post_instance_save(self, instance, line, updated):  # Override me
         pass
 
     def _pre_instance_save(self, instance, line):  # Override me
@@ -1751,8 +1752,8 @@ class ImportForm(CremeModelForm):
                         instance.full_clean()
                         instance.save()
 
-                        # TODO: rename '_post_instance_save()' ?
-                        self._post_instance_creation(instance, line, updated)
+                        # self._post_instance_creation(instance, line, updated)
+                        self._post_instance_save(instance, line, updated)
 
                         for m2m in model_class._meta.many_to_many:
                             extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
@@ -1903,7 +1904,8 @@ class ImportForm4CremeEntity(ImportForm):
                 custom_values_to_save.append((cfield, value))
 
     @override
-    def _post_instance_creation(self, instance, line, updated):
+    # def _post_instance_creation(self, instance, line, updated):
+    def _post_instance_save(self, instance, line, updated):
         cdata = self.cleaned_data
         user = instance.user
 

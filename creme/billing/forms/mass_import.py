@@ -18,6 +18,7 @@
 
 from decimal import Decimal
 from functools import partial
+from typing import override
 
 from django import forms
 from django.conf import settings
@@ -196,6 +197,7 @@ class VatExtractor(_TotalsExtractor):
 class TotalsExtractorWidget(BaseExtractorWidget):
     template_name = 'billing/forms/widgets/totals-extractor.html'
 
+    @override
     def get_context(self, name, value, attrs):
         value = value or {}
         context = super().get_context(name=name, value=value, attrs=attrs)
@@ -234,6 +236,7 @@ class TotalsExtractorWidget(BaseExtractorWidget):
 
         return context
 
+    @override
     def value_from_datadict(self, data, files, name):
         get = data.get
 
@@ -339,6 +342,7 @@ class TotalsExtractorField(forms.Field):
 
         return mode
 
+    @override
     def clean(self, value):
         mode = self._clean_mode(value)
 
@@ -474,6 +478,7 @@ def get_import_form_builder(header_dict, choices):
                     gettext('The number is set as not editable by the configuration.')
                 )
 
+        @override
         def _pre_instance_save(self, instance, line):
             super()._pre_instance_save(instance=instance, line=line)
 
@@ -506,8 +511,11 @@ def get_import_form_builder(header_dict, choices):
 
             self._check_number_edition(instance)
 
-        def _post_instance_creation(self, instance, line, updated):
-            super()._post_instance_creation(instance, line, updated)
+        @override
+        # def _post_instance_creation(self, instance, line, updated):
+        def _post_instance_save(self, instance, line, updated):
+            # super()._post_instance_creation(instance, line, updated)
+            super()._post_instance_save(instance=instance, line=line, updated=updated)
             cdata = self.cleaned_data
 
             line_extractor = cdata['totals']
