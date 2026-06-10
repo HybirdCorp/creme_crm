@@ -1445,6 +1445,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
         field = MultiRelationsExtractorField(
             columns=[(1, 'Column #1'), (2, 'Column #2')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
+            user=self.get_root_user(),
         )
         self.assertCountEqual([self.rtype1, self.rtype2], field.allowed_rtypes)
 
@@ -1478,6 +1479,14 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
             columns=[(1, 'Column #1'), (2, 'Column #2'), (3, 'Column #3')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
         )
+
+        user = self.login_as_standard(
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeContact, FakeOrganisation],
+        )
+        self.add_credentials(user.role, own='*')
+
+        field.user = user
 
         fname1 = 'name'
         fname2 = 'email'
@@ -1521,6 +1530,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
             columns=[(1, 'Column #1'), (2, 'Column #2')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
             required=False,
+            user=self.get_root_user(),
         )
         self.assertFalse(field.required)
 
@@ -1533,6 +1543,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
             columns=[(1, 'Column #1'), (2, 'Column #2')],
             allowed_rtypes=[self.rtype1.id, self.rtype2.id],
             # required=True,
+            user=self.get_root_user(),
         )
         self.assertTrue(field.required)
         self.assertFormfieldError(
@@ -1548,6 +1559,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
+                user=self.get_root_user(),
             ),
             value=[
                 '',
@@ -1563,6 +1575,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
+                user=self.get_root_user(),
             ),
             value=self._build_data(
                 False,  # can_create
@@ -1583,6 +1596,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
+                user=self.get_root_user(),
             ),
             value=self._build_data(
                 False,  # can_create
@@ -1603,6 +1617,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
+                user=self.get_root_user(),
             ),
             value=self._build_data(
                 False,  # can_create
@@ -1628,6 +1643,7 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 columns=[(1, 'Column #1'), (2, 'Column #2')],
                 allowed_rtypes=[self.rtype1.id],
                 required=False,
+                user=self.get_root_user(),
             ),
             value=self._build_data(
                 False,  # can_create
@@ -1643,6 +1659,35 @@ class MultiRelationsExtractorFieldTestCase(CremeTestCase):
                 '(id="%(rtype_id)s").'
             ) % {'rtype_id': self.rtype2.id},
             codes='rtypenotallowed',
+        )
+
+    def test_clean__no_creation_perm(self):
+        user = self.login_as_standard(
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeContact],  # Not FakeOrganisation
+        )
+        self.add_credentials(user.role, own='*')
+
+        self.assertFormfieldError(
+            field=MultiRelationsExtractorField(
+                columns=[(1, 'Column #1'), (2, 'Column #2')],
+                allowed_rtypes=[self.rtype2.id],
+                required=False,
+                user=user,
+            ),
+            value=self._build_data(
+                True,  # can_create
+                self._build_entry(
+                    rtype=self.rtype2,
+                    model=FakeOrganisation,  # <==
+                    column=1,
+                    subfield='name',
+                ),
+            ),
+            messages=_(
+                'You are not allowed to create: %(model)s'
+            ) % {'model': 'Test Organisation'},
+            codes='creation_forbidden',
         )
 
 

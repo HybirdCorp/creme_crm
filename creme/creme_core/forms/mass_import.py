@@ -1273,6 +1273,9 @@ class BasicMultiRelationsExtractorField(core_fields.MultiRelationEntityField):
 
 class MultiRelationsExtractorField(forms.MultiValueField):
     widget = MultiRelationsExtractorSelector
+    default_error_messages = {
+        'creation_forbidden': _('You are not allowed to create: %(model)s'),
+    }
 
     def __init__(self, *,
                  columns: Choices | None = None,
@@ -1316,6 +1319,22 @@ class MultiRelationsExtractorField(forms.MultiValueField):
         can_create, extractor = data_list
         for sub_extractor in extractor:
             sub_extractor.create_if_unfound = can_create
+
+        return extractor
+
+    def clean(self, value):
+        assert self.user is not None
+
+        extractor = super().clean(value)
+        can_create = self.user.has_perm_to_create
+
+        for sub_extractor in extractor:
+            if sub_extractor.create_if_unfound and not can_create(sub_extractor.related_model):
+                raise ValidationError(
+                    self.error_messages['creation_forbidden'],
+                    params={'model': model_verbose_name(sub_extractor.related_model)},
+                    code='creation_forbidden',
+                )
 
         return extractor
 
@@ -1817,10 +1836,10 @@ class ImportForm4CremeEntity(ImportForm):
         },
     )
 
-    error_messages = {
-        **ImportForm.error_messages,
-        'creation_forbidden': _('You are not allowed to create: %(model)s'),
-    }
+    # error_messages = {
+    #     **ImportForm.error_messages,
+    #     'creation_forbidden': _('You are not allowed to create: %(model)s'),
+    # }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1851,20 +1870,20 @@ class ImportForm4CremeEntity(ImportForm):
                 },
             )
 
-    def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()
-        extractors = self.cleaned_data['dyn_relations']
-        can_create = self.user.has_perm_to_create
-
-        for extractor in extractors:
-            # if extractor.create_if_unfound() and not can_create(extractor.related_model):
-            if extractor.create_if_unfound and not can_create(extractor.related_model):
-                raise ValidationError(
-                    self.error_messages['creation_forbidden'],
-                    params={'model': model_verbose_name(extractor.related_model)},
-                    code='creation_forbidden',
-                )
-
-        return extractors
+    # def clean_dyn_relations(self):
+    #     extractors = self.cleaned_data['dyn_relations']
+    #     can_create = self.user.has_perm_to_create
+    #
+    #     for extractor in extractors:
+    #         # if extractor.create_if_unfound() and not can_create(extractor.related_model):
+    #         if extractor.create_if_unfound and not can_create(extractor.related_model):
+    #             raise ValidationError(
+    #                 self.error_messages['creation_forbidden'],
+    #                 params={'model': model_verbose_name(extractor.related_model)},
+    #                 code='creation_forbidden',
+    #             )
+    #
+    #     return extractors
 
     def _find_existing_instances(self, model, field_names, extracted_values):
         qs = super()._find_existing_instances(
