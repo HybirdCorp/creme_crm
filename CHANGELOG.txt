@@ -6,6 +6,10 @@
         * Events :
             - The value checking to set the presence status has been fixed.
 
+  Developers side :
+  -----------------
+    # The libraries 'bleach' & 'weasyprint' have been upgraded.
+
 
 == Version 2.7.9 ==
 
