@@ -184,11 +184,16 @@ class ActivitiesConfig(CremeConfigConfigMixin, CremeAppConfig):
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
 
-        enumerable_registry.register_related_model(
-            models.ActivityType, enumerators.QSEnumerator,
+        enumerable_registry.register_field(
+            model=models.ActivitySubType,
+            field_name='type',
+            enumerator_class=enumerators.QSEnumerator,
         ).register_related_model(
-            models.ActivitySubType,
-            enumerators.ActivitySubTypeEnumerator,
+            model=models.ActivityType,
+            enumerator_class=enumerators.QSEnumerator,
+        ).register_related_model(
+            model=models.ActivitySubType,
+            enumerator_class=enumerators.ActivitySubTypeEnumerator,
         ).register_field(
             model=models.Calendar,
             field_name='user',

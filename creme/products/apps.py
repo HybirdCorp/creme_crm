@@ -95,13 +95,12 @@ class ProductsConfig(CremeConfigConfigMixin, CremeAppConfig):
         from . import enumerators, models
 
         enumerable_registry.register_field(
-            models.SubCategory, 'category',
-            enumerators.QSEnumerator,
-        )
-
-        enumerable_registry.register_related_model(
-            models.SubCategory,
-            enumerators.SubCategoryEnumerator,
+            model=models.SubCategory,
+            field_name='category',
+            enumerator_class=enumerators.QSEnumerator,
+        ).register_related_model(
+            model=models.SubCategory,
+            enumerator_class=enumerators.SubCategoryEnumerator,
         )
 
     @override

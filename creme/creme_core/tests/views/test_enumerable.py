@@ -266,9 +266,27 @@ class EnumerableViewsTestCase(CremeTestCase):
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeIngredient',
             status_code=409,
         )
+    # TODO?
+    # def test_choices__not_registered_model(self):
+    #     self.login_as_root()
+    #     self.assertContains(
+    #         self.client.get(self._build_choices_url(models.FakeIngredient, 'group')),
+    #         text='No enumerator can be found for &lt;creme_core.FakeIngredient.group&gt;',
+    #         status_code=409,
+    #     )
 
     def test_choices__not_viewable(self):
         self.login_as_root()
+        self.assertContains(
+            self.client.get(self._build_choices_url(models.CremeEntity, 'sandbox')),
+            'This field is not viewable: creme_core.CremeEntity.sandbox',
+            status_code=409,
+        )
+        self.assertContains(
+            self.client.get(self._build_choices_url(models.CremeUser, 'roles')),
+            'This field is not viewable: creme_core.CremeUser.roles',
+            status_code=409,
+        )
         self.assertContains(
             self.client.get(self._build_choices_url(models.FakeAddress, 'entity')),
             'This field is not viewable: creme_core.FakeAddress.entity',

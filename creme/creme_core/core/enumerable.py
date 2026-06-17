@@ -28,6 +28,7 @@ from django.db.models.query_utils import Q
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
+from creme.creme_core.utils.model import safe_model
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +216,8 @@ class EnumerableRegistry:
     def __init__(self):
         self._enums_4_fields = {}
         self._enums_4_field_types = ClassKeyedMap()
-        self._enums_4_models = {}
+        # self._enums_4_models = {}
+        self._enums_4_models = ClassKeyedMap()
 
     def __str__(self):
         res = '_EnumerableRegistry:'
@@ -239,18 +241,35 @@ class EnumerableRegistry:
                           if enumerator_cls else None,
                 )
 
+        # if self._enums_4_models:
+        #     res += '\n  * Related models:'
+        #     for model, enumerator_cls in self._enums_4_models.items():
+        #         res += '\n    - {app}.{model} -> {e_module}.{e_type}'.format(
+        #             app=model._meta.app_label,
+        #             model=model.__name__,
+        #             e_module=enumerator_cls.__module__,
+        #             e_type=enumerator_cls.__qualname__,
+        #         )
         if self._enums_4_models:
             res += '\n  * Related models:'
             for model, enumerator_cls in self._enums_4_models.items():
-                res += '\n    - {app}.{model} -> {e_module}.{e_type}'.format(
-                    app=model._meta.app_label,
-                    model=model.__name__,
-                    e_module=enumerator_cls.__module__,
-                    e_type=enumerator_cls.__qualname__,
-                )
+                if enumerator_cls:
+                    res += '\n    - {app}.{model} -> {e_module}.{e_type}'.format(
+                        app=model._meta.app_label,
+                        model=model.__name__,
+                        e_module=enumerator_cls.__module__,
+                        e_type=enumerator_cls.__qualname__,
+                    )
+                else:
+                    res += '\n    - {app}.{model} -> {enumerator_cls}'.format(
+                        app=model._meta.app_label,
+                        model=model.__name__,
+                        enumerator_cls=enumerator_cls,
+                    )
 
         return res
 
+    # TODO: remove?
     @staticmethod
     def _check_is_entity(model: type[Model]) -> None:
         # TODO: and registered as an entity ??
@@ -279,23 +298,28 @@ class EnumerableRegistry:
         return field
 
     def _enumerator(self, field: Field) -> Enumerator:
+        field_enumerator_cls = self._enums_4_fields.get(field)
+        if field_enumerator_cls is None:
+            self._check_viewable(field)
+
         enumerator_cls = (
-            self._enums_4_fields.get(field)
+            # self._enums_4_fields.get(field)
+            field_enumerator_cls
             or self._enums_4_field_types[field.__class__]
-            or self._enums_4_models.get(field.remote_field.model)
+            # or self._enums_4_models.get(field.remote_field.model)
+            # NB: see safe_model() comment
+            or self._enums_4_models[safe_model(field.remote_field.model)]
         )
 
         # Use QSEnumerator as default ONLY for a VIEWABLE CremeEntity field
         if enumerator_cls is None:
-            self._check_viewable(field)
+            # self._check_viewable(field)
             self._check_is_entity(field.model)
             enumerator_cls = QSEnumerator
 
-            # TODO: this is a hack because we cannot currently register 'EntityEnumerator'
-            #       for all CremeEntity classes (see comment for 'register_related_model())
-            if issubclass(field.remote_field.model, CremeEntity):
-                from creme.creme_core.enumerators import EntityEnumerator
-                enumerator_cls = EntityEnumerator
+            # if issubclass(field.remote_field.model, CremeEntity):
+            #     from creme.creme_core.enumerators import EntityEnumerator
+            #     enumerator_cls = EntityEnumerator
 
         return enumerator_cls(field)
 
@@ -367,8 +391,6 @@ class EnumerableRegistry:
 
         return self
 
-    # TODO: improve to register a base class, so all the child classes are using
-    #       the enumerator class too (e.g. CremeEntity).
     def register_related_model(self,
                                model: type[Model],
                                enumerator_class: type[Enumerator],
@@ -380,13 +402,17 @@ class EnumerableRegistry:
         @param model: Model (class inheriting 'django.db.models.Model').
         @param enumerator_class: Class inheriting 'Enumerator'.
         @return: self (to chain calls to register_*() methods).
+
+        Notice that if an enumerator class is registered for a model, it is used
+        as a fallback for child models.
         """
         assert issubclass(enumerator_class, Enumerator)
 
-        if self._enums_4_models.setdefault(model, enumerator_class) is not enumerator_class:
-            raise self.RegistrationError(
-                f'{self.__class__.__name__}: this model is already registered: {model}'
-            )
+        # if self._enums_4_models.setdefault(model, enumerator_class) is not enumerator_class:
+        #     raise self.RegistrationError(
+        #         f'{self.__class__.__name__}: this model is already registered: {model}'
+        #     )
+        self._enums_4_models[model] = enumerator_class
 
         return self
 

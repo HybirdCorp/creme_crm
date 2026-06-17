@@ -440,10 +440,6 @@ class EnumerableModelChoiceField(EnumerableChoiceField):
             initial = field._get_default
             kwargs.setdefault('show_hidden_initial', callable(initial))
 
-        enum = self.enumerable(
-            field=field,
-            user=user,
-            limit=limit,
-        )
+        enum = self.enumerable(field=field, user=user, limit=limit)
 
         super().__init__(enum, initial=initial, **kwargs)
