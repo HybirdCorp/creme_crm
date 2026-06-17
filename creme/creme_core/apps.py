@@ -626,13 +626,10 @@ class CremeCoreConfig(CremeAppConfig):
         from . import enumerators, models
         from .core.enumerable import QSEnumerator
 
-        # TODO: improve the registry to write this
-        #       (see 'core.enumerable._EnumerableRegistry._enumerator()') :
-        # enumerable_registry.register_related_model(
-        #     models.CremeEntity,
-        #     enumerators.EntityEnumerator,
-        # )
         enumerable_registry.register_related_model(
+            model=models.CremeEntity,
+            enumerator_class=enumerators.EntityEnumerator,
+        ).register_related_model(
             model=ContentType,
             enumerator_class=enumerators.ContentTypeEnumerator,
         ).register_related_model(

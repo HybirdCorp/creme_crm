@@ -60,6 +60,9 @@
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
                       import it from 'creme_core.core.validators' instead'.
+        # When registering an enumerator class related to a model with
+          'creme_core.core.enumerable.EnumerableRegistry.register_related_model()',
+          this class is used as fallback for child models.
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
           a class attribute 'brick_classes' has been added to facilitate the injection
           of "static" (i.e. no configuration in DB) Bricks in the related template.
@@ -101,6 +104,14 @@
                       you must call this super method when you override it now.
                     - The method '_post_instance_creation()' has been renamed '_post_instance_save()' ;
                       you have to rename the method in your own inheriting classes, or it won't be called.
+        # In 'creme_core.core.enumerable.EnumerableRegistry' :
+            - The method 'register_related_model()' does not raise an exception when a model
+              is already registered anymore (because of the new 'inheritance' feature).
+            - If a field is not viewable (i.e. <.set_tags(viewable=False)'>), an enumerator will not be returned if
+              the related model is registered anymore (but you can register an enumerator for this field specifically).
+            - There is no hard-coded specific enumerator related to 'CremeEntity' anymore;
+              but an enumerator is registered in the global registry (so don't worry if you
+              do not instanciate your own registry).
         # In 'creme_core.gui.bricks' :
             - The method 'Brick._simple_detailview_display()' has been removed.
             - In the class 'BrickRegistry':
@@ -170,6 +181,7 @@
             - The class attribute 'creme_core.core.entity_filter.operators.ConditionOperator.type_id'is now a string;
               the "constants" like 'EQUALS' have been modified.
           are now strings instead of integers;
+        # The attribute 'creme_core.core.enumerable.EnumerableRegistry._enums_4_models' is not a dictionary anymore.
         # In the class 'creme_core.gui.bricks.BrickRegistry', some internal attributes have changed.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :

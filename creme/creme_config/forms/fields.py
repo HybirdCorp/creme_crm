@@ -18,7 +18,7 @@
 
 from copy import deepcopy
 
-from django.apps import apps
+# from django.apps import apps
 from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
@@ -33,6 +33,7 @@ from creme.creme_core.forms import enumerable as enum_forms
 from creme.creme_core.forms.enumerable import EnumerableChoiceSet
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.gui import menu
+from creme.creme_core.utils.model import safe_model
 
 from ..registry import config_registry
 from . import widgets
@@ -137,12 +138,11 @@ class CreatorEnumerableModelChoiceField(CreatorChoiceMixin,
         allowed = False
         url = self._create_action_url
         user = self.user
-        model = self._enum.field.remote_field.model
 
-        # In some (few) cases when the foreignkey is defined with a string AND the
-        # apps are not loaded in the right order, the modelfield instance can have an
-        # unresolved related model as a string...
-        model = apps.get_model(model) if isinstance(model, str) else model
+        # model = self._enum.field.remote_field.model
+        # model = apps.get_model(model) if isinstance(model, str) else model
+        # NB: see safe_model() comment
+        model = safe_model(self._enum.field.remote_field.model)
 
         if user:
             if url:

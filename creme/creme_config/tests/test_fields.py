@@ -392,7 +392,7 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         class FakeModel(CremeModel):
             related = models.ForeignKey(
-                "creme_core.FakeRelatedModel", verbose_name=_('Related'),
+                'creme_core.FakeRelatedModel', verbose_name=_('Related'),
                 blank=True, null=True, related_name='fakes',
                 on_delete=models.CASCADE,
             )
@@ -400,7 +400,7 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
         with self.registered_model("creme_core", FakeRelatedModel):
             self.assertEqual(
                 FakeModel._meta.get_field('related').remote_field.model,
-                "creme_core.FakeRelatedModel"
+                'creme_core.FakeRelatedModel',
             )
 
             field = CreatorEnumerableModelChoiceField(model=FakeModel, field_name='related')
