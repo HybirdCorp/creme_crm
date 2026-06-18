@@ -1050,7 +1050,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         response1 = post('')
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=ngettext(
                 'Your filter must be private in order to use this private sub-filter: {}',
@@ -1121,7 +1121,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         response1 = post(subfilter3)
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=ngettext(
                 'A private filter which belongs to a team can only use public sub-filters & '
@@ -1771,7 +1771,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         response1 = self._aux_edit_subfilter(efilter1, is_private='on', user=user)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=_(
                 'This filter cannot be private and belong to a user because it '
@@ -1784,7 +1784,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=other_team)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_(
                 'This filter cannot be private and belong to this team '
@@ -1817,7 +1817,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         response1 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=_(
                 'This filter cannot be private and belong to this team '

@@ -684,7 +684,7 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -751,7 +751,7 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
 
         response1 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=_("You can't set the end of your activity without setting its start"),
         )
@@ -761,7 +761,7 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
             data={**data, f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 30)},
         )
         self.assertFormError(
-            response2.context['form'], field=None, errors=_('End is before start'),
+            self.get_form_or_fail(response2), field=None, errors=_('End is before start'),
         )
 
         response3 = self.assertPOST200(
@@ -774,7 +774,7 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field=None,
             errors=_("A floating on the day activity can't busy its participants"),
         )
@@ -1261,7 +1261,7 @@ class ActivityCreationTestCase(_ActivitiesTestCase):
         }
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=self.EXTRA_SUBTYPE_KEY, errors=_('This field is required.'),
         )
 
@@ -1831,14 +1831,10 @@ class UnavailabilityCreationTestCase(_ActivitiesTestCase):
 
             self.EXTRA_PARTUSERS_KEY: [user.id, other_user.id],
         }
-        response2 = self.assertPOST200(
-            url,
-            follow=True,
-            data=data,
-        )
+        response2 = self.assertPOST200(url, follow=True, data=data)
         key = f'cform_extra-{UnavailabilityTypeSubCell.sub_type_id}'
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=key, errors=_('This field is required.'),
         )
 
@@ -1949,7 +1945,7 @@ class UnavailabilityCreationTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=key,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )

@@ -291,7 +291,7 @@ class CreationTestCase(CremeTestCase):
         self.assertEqual(lv_url, response1.context.get('cancel_url'))
 
         # ---
-        response2 = self.client.post(
+        response2 = self.assertPOST200(
             url, follow=True,
             data={
                 'user': user.id,
@@ -300,7 +300,7 @@ class CreationTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='last_name', errors=_('This field is required.'),
         )
         self.assertEqual(lv_url, response2.context.get('cancel_url'))

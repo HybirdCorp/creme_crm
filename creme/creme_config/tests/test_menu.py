@@ -579,9 +579,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        response3 = self.client.post(url, data={'label': label, 'url': 'invalid_url'})
+        response3 = self.assertPOST200(
+            url, data={'label': label, 'url': 'invalid_url'},
+        )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='url', errors=_('Enter a valid URL.'),
         )
 

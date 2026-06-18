@@ -555,7 +555,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=field_name, errors=_('Enter a valid date.'),
         )
 
@@ -1229,7 +1229,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_('This Contact is related to a user and must have a first name.'),
         )
@@ -1456,7 +1456,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         # ---
         response2 = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=field_name,
             errors=[
                 _('This field is required.'),
@@ -1501,7 +1501,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertFormError(
             # TODO?
             # response2.context['form'], field_name2, _('This field is required.'),
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_('The field «{}» has been configured as required.').format(_('Mobile')),
         )
@@ -1844,7 +1844,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         response2 = self.assertPOST200(uri, data={field_name: 'Bros'})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_('This Contact is related to a user and must have a first name.'),
         )

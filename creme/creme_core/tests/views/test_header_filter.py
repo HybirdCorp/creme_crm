@@ -643,7 +643,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             data={'cells': f'regular_field-{hidden_fname2}'},
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': hidden_fname2},
         )
@@ -690,7 +690,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             data={'cells': f'relation-{disabled_rtype2.id}'},
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='cells',
             errors=_('This type of relationship is disabled.'),
         )

@@ -159,7 +159,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         }
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='deadline_hour',
             errors=_('The hour is required if you set a date.'),
         )

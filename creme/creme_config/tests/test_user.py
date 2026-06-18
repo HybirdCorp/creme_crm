@@ -674,8 +674,7 @@ class UserCreationTestCase(BaseUserTestCase):
             url, follow=True, data={**data, 'password_1': 'passwd'},
         )
         self.assertFormError(
-            response2.context['form'],
-            field='password_2', errors=msg,
+            self.get_form_or_fail(response2), field='password_2', errors=msg,
         )
 
         # ---
@@ -683,8 +682,7 @@ class UserCreationTestCase(BaseUserTestCase):
             url, follow=True, data={**data, 'password_2': 'passwd'},
         )
         self.assertFormError(
-            response3.context['form'],
-            field='password_1', errors=msg,
+            self.get_form_or_fail(response3), field='password_1', errors=msg,
         )
 
         # ---
@@ -698,7 +696,7 @@ class UserCreationTestCase(BaseUserTestCase):
             },
         )
         self.assertFormError(
-            response4.context['form'],
+            self.get_form_or_fail(response4),
             field='password_2',
             errors=_("The two password fields didn’t match."),
         )
@@ -714,7 +712,7 @@ class UserCreationTestCase(BaseUserTestCase):
             },
         )
         self.assertFormError(
-            response5.context['form'],
+            self.get_form_or_fail(response5),
             field='password_2',
             errors=_('This password is entirely numeric.'),
         )
@@ -791,7 +789,7 @@ class UserCreationTestCase(BaseUserTestCase):
 
         response1 = self.assertPOST200(self.ADD_URL, data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='email',
             errors=_('An active user with the same email address already exists.'),
         )
@@ -1032,7 +1030,7 @@ class UserEditionTestCase(BaseUserTestCase):
         }
         response2 = self.assertPOST200(url, data={**data, 'roles': [role2.id]})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='roles', errors=_('Select at least one enabled role.'),
         )
 
@@ -1177,7 +1175,7 @@ class UserEditionTestCase(BaseUserTestCase):
         url = self._build_edit_url(user.id)
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='email',
             errors=_('An active user with the same email address already exists.'),
         )
@@ -1280,7 +1278,7 @@ class PasswordChangeTestCase(BaseUserTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='old_password',
             errors=_('Your old password was entered incorrectly. Please enter it again.'),
         )
@@ -1423,9 +1421,11 @@ class PasswordChangeTestCase(BaseUserTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='old_password',
-            errors=_('Your old password was entered incorrectly. Please enter it again.'),
+            errors=_(
+                'Your old password was entered incorrectly. Please enter it again.'
+            ),
         )
 
         # POST ---
@@ -1812,7 +1812,7 @@ class UserDeletionTestCase(BaseUserTestCase):
 
         response2 = self.assertPOST200(url)  # No data
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='to_user', errors=_('This field is required.'),
         )
         self.assertEqual(count, User.objects.count())
@@ -1820,7 +1820,7 @@ class UserDeletionTestCase(BaseUserTestCase):
         # Cannot move entities to deleted user
         response3 = self.assertPOST200(url, {'to_user': root.id})
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='to_user',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'

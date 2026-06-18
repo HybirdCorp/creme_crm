@@ -972,7 +972,7 @@ class PollReplyEditionTestCase(BasePollReplyViewsTestCase):
         response1 = post(claudette)
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='related_person',
             errors=_('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=claudette.id),
@@ -1249,7 +1249,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
 
         response1 = self._fill_preply(preply, 5, check_errors=False)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='answer',
             errors=_(
                 'Ensure this value is greater than or equal to %(limit_value)s.'
@@ -1259,7 +1259,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         # ---
         response2 = self._fill_preply(preply, 25, check_errors=False)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='answer',
             errors=_(
                 'Ensure this value is less than or equal to %(limit_value)s.'
@@ -1310,7 +1310,8 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
 
         response1 = self._fill_preply(preply, 'notanint', check_errors=False)
         self.assertFormError(
-            response1.context['form'], field='answer', errors=_('Enter a valid date.'),
+            self.get_form_or_fail(response1),
+            field='answer', errors=_('Enter a valid date.'),
         )
 
         # ---
@@ -1331,7 +1332,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
 
         response1 = self._fill_preply(preply, -1, check_errors=False)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='answer',
             errors=_(
                 'Ensure this value is greater than or equal to %(limit_value)s.'
@@ -1341,7 +1342,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         # ---
         response2 = self._fill_preply(preply, 24, check_errors=False)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='answer',
             errors=_(
                 'Ensure this value is less than or equal to %(limit_value)s.'
@@ -1377,7 +1378,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         answer = 'Invalid choice'
         response2 = self._fill_preply(preply, answer, check_errors=False)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='answer',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -1387,7 +1388,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         # ---
         response3 = self.client.post(self._build_fill_url(preply), follow=True)
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='answer', errors=_('The answer is required.'),
         )
 
@@ -1423,7 +1424,7 @@ class PollReplyFillingTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         # ---
         response2 = self._fill_preply(preply, [5, 7], check_errors=False)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='answer',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'

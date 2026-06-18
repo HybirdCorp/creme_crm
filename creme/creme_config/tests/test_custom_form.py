@@ -496,7 +496,7 @@ class GroupEditionTestCase(CremeTestCase):
         excluded = 'description'  # see FAKEACTIVITY_CREATION_CFORM
         response2 = post(*field_names, excluded)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': excluded},
         )
@@ -1225,7 +1225,7 @@ class GroupCreationTestCase(CremeTestCase):
         excluded = 'description'  # see FAKEACTIVITY_CREATION_CFORM
         response2 = post(*fields2, excluded)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': excluded},
         )

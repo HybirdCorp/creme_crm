@@ -663,7 +663,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url, follow=True, data={'source': role1.id, 'target': role1.id},
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=None, errors=_('The source and the target must be different.'),
         )
 
@@ -2717,7 +2717,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         msg_fmt = _('This value is invalid: %(value)s')
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='cells', errors=msg_fmt % {'value': hidden_fname},
         )
 
@@ -2733,7 +2733,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='cells', errors=msg_fmt % {'value': prefix + hidden_subfname},
         )
 
@@ -2747,7 +2747,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='cells', errors=msg_fmt % {'value': hidden_fkname},
         )
 

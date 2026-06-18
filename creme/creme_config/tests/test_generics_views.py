@@ -1380,7 +1380,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # POST ---
         response2 = self.assertPOST200(url)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=fname, errors=_('Deletion is not possible.'),
         )
 

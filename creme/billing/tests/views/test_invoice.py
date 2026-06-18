@@ -308,9 +308,9 @@ class InvoiceCreationTestCase(_BillingTestCase):
 
         with self.assertNoException():
             form = response1.context['form']
-
         self.assertIn(self.SOURCE_KEY, form.fields, 'Bad form ?!')
 
+        # ---
         response2 = self.assertPOST200(
             url, follow=True,
             data={
@@ -326,17 +326,13 @@ class InvoiceCreationTestCase(_BillingTestCase):
             },
         )
 
-        form = response2.context['form']
-        link_error = _('You are not allowed to link this entity: {}')
+        form = self.get_form_or_fail(response2)
+        fmt_error = _('You are not allowed to link this entity: {}').format
         self.assertFormError(
-            form,
-            field=self.SOURCE_KEY,
-            errors=link_error.format(source),
+            form, field=self.SOURCE_KEY, errors=fmt_error(source),
         )
         self.assertFormError(
-            form,
-            field=self.TARGET_KEY,
-            errors=link_error.format(target),
+            form, field=self.TARGET_KEY, errors=fmt_error(target),
         )
 
     def test_payment_info(self):

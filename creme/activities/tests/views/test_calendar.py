@@ -1250,7 +1250,7 @@ class CremeConfigViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='user',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'
@@ -1270,7 +1270,7 @@ class CremeConfigViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='user',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'

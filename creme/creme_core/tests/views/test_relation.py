@@ -713,7 +713,7 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
         )
         msg = Relation.error_messages['missing_subject_property']
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='relations',
             errors=msg % {
                 'entity': subject,
@@ -730,7 +730,7 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='relations',
             errors=msg % {
                 'entity': subject,
@@ -784,7 +784,7 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='relations',
             errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': subject,
@@ -836,7 +836,7 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
         }
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='relations',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': rel_object,
@@ -1200,7 +1200,7 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
             data={'semifixed_rtypes': [sfrt.id]},
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='semifixed_rtypes',
             errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': subject1,

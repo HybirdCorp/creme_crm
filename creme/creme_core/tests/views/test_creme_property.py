@@ -714,7 +714,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # One new and one old property
         response2 = self.assertPOST200(url, data={'types': [ptype1.id, ptype3.id]})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='types',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -978,7 +978,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         ids = [e.id for e in entities]
         response2 = self.assertPOST200(url, data={'types': [], 'ids': ids})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='types', errors=_('This field is required.'),
         )
 

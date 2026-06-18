@@ -65,7 +65,7 @@ class TaskTestCase(ProjectsTestCase):
         response1 = post('')
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='duration', errors=_('This field is required.'),
         )
 
@@ -265,7 +265,7 @@ class TaskTestCase(ProjectsTestCase):
             data={'parents': self.formfield_value_multi_creator_entity(task2)},
         )
         self.assertFormError(
-            response4.context['form'],
+            self.get_form_or_fail(response4),
             field='parents',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': task2},
         )

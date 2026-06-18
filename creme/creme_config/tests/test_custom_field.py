@@ -1615,7 +1615,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='choices',
             errors=_('The choice «{}» is duplicated.').format(eval1.value),
         )
@@ -1628,7 +1628,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='choices',
             errors=_('The choice «{}» is duplicated.').format('Ocaml'),
         )

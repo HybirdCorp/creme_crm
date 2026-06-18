@@ -2138,7 +2138,7 @@ END:VCARD"""
         }
         response2 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='image',
             errors=[
                 _('This field is required.'),
@@ -2400,7 +2400,7 @@ END:VCARD"""
         }
         response2 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=f'work_{req_fname}',
             errors=_('The field «{}» has been configured as required.').format(
                 Organisation._meta.get_field(req_fname).verbose_name
@@ -2565,7 +2565,7 @@ END:VCARD"""
 
         field_name = f'workaddr_{req_fname_vcf}'
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=field_name,
             errors=_('The field «{}» has been configured as required.').format(
                 Address._meta.get_field(req_fname).verbose_name
@@ -2645,7 +2645,7 @@ END:VCARD"""
 
         field_name = f'workaddr_{req_fname_vcf}'
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=field_name,
             errors=_('The field «{}» has been configured as required.').format(
                 Address._meta.get_field(req_fname).verbose_name
@@ -2823,7 +2823,7 @@ END:VCARD"""
         }
         response1 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=cf_name1,
             errors=_('This field is required.'),
         )
@@ -2832,7 +2832,7 @@ END:VCARD"""
         country = 'Japan'
         response2 = self._post_step1(data={**data, cf_name1: country}, errors=True)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=cf_name4,
             errors=_('Required, if you want to create organisation'),
         )

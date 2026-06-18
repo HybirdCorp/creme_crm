@@ -464,7 +464,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         formfield_name = f'override-{field_name}'
         response1 = self.assertPOST200(uri, data={formfield_name: folder3.id})
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=None,
             errors=_(
                 'This folder is one of the child folders of «%(folder)s»'
@@ -474,7 +474,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # -----
         response2 = self.client.post(uri, data={formfield_name: folder1.pk})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=formfield_name,
             errors=_('«%(entity)s» violates the constraints.') % {'entity': folder1},
         )

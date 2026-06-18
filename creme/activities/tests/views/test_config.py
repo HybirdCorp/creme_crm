@@ -269,7 +269,7 @@ class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         default = CalendarConfigItem.objects.get_default()
 
-        response = self.client.post(
+        response = self.assertPOST200(
             self.CREATION_URL,
             data={
                 **default.as_dict(),
@@ -281,8 +281,9 @@ class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 **options,
             },
         )
-
-        self.assertFormError(response.context['form'], None, expected)
+        self.assertFormError(
+            self.get_form_or_fail(response), field=None, errors=expected,
+        )
 
     def test_creation__superuser(self):
         self.login_as_root()
@@ -436,7 +437,7 @@ class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             view='week', week_days=(1, 2, 4, 5),
         )
 
-        response = self.client.post(
+        response = self.assertPOST200(
             self._build_edition_url(role_config),
             data={
                 **default.as_dict(),
@@ -451,15 +452,18 @@ class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'view_day_end': '07:00:00',
             },
         )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None,
+            errors=[
+                _('Day start ({start}) must be before end ({end}).').format(
+                    start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                ),
+            ],
+        )
 
-        self.assertFormError(response.context['form'], None, [
-            _('Day start ({start}) must be before end ({end}).').format(
-                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
-                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
-            )
-        ])
-
-        response = self.client.post(
+        response = self.assertPOST200(
             self._build_edition_url(role_config),
             data={
                 **default.as_dict(),
@@ -474,13 +478,16 @@ class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'view_day_end': '07:00:00',
             },
         )
-
-        self.assertFormError(response.context['form'], None, [
-            _('Visible start ({start}) must be before end ({end}).').format(
-                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
-                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
-            )
-        ])
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None,
+            errors=[
+                _('Visible start ({start}) must be before end ({end}).').format(
+                    start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                ),
+            ],
+        )
 
     def test_deletion__not_allowed(self):
         self.login_as_standard()

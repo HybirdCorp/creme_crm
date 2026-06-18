@@ -639,7 +639,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         # ---
         response2 = self.assertPOST200(uri, data={form_field_name: orga_filter.pk})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=form_field_name,
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'
@@ -777,7 +777,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=formfield_name,
             errors=_(
                 'Select a valid choice. '
@@ -836,7 +836,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=formfield_name,
             errors=_(
                 'Filter field can only be updated when reports '
@@ -1922,7 +1922,7 @@ class ReportFieldTestCase(BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='columns',
             errors=_('This value is invalid: %(value)s') % {'value': hidden_fname1},
         )
@@ -2145,7 +2145,7 @@ class ReportFieldTestCase(BaseReportsTestCase):
         img_report = self._create_image_report(user=user)
         response3 = self.assertPOST200(url, data={'report': img_report.id})
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='report',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': img_report},
         )
@@ -2227,7 +2227,7 @@ class ReportFieldTestCase(BaseReportsTestCase):
         # ---
         response2 = self.assertPOST200(url, data={'report': orga_report.id})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='report',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': orga_report},
         )

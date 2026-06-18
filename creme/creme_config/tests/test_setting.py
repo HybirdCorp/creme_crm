@@ -103,7 +103,7 @@ class SettingTestCase(CremeTestCase):
 
         response1 = self.assertPOST200(url, data={'value': 24})
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='value',
             errors=_('Ensure this value is less than or equal to %(limit_value)s.') % {
                 'limit_value': 23,
@@ -113,7 +113,7 @@ class SettingTestCase(CremeTestCase):
         # ---
         response2 = self.assertPOST200(url, data={'value': -1})
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='value',
             errors=_('Ensure this value is greater than or equal to %(limit_value)s.') % {
                 'limit_value': 0,

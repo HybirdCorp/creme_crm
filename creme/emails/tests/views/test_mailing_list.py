@@ -505,7 +505,7 @@ class MailingListOrganisationsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         url = self._build_add_orgas_from_filter_url(mlist)
         response1 = self.assertPOST200(url, data={'filters': priv_efilter.id})
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='filters',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'

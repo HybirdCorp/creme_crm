@@ -117,7 +117,7 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # Uniqueness ---
         response3 = self.assertPOST200(url, data={'name': name1})
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='name',
             errors=_('There is already a type with this name.'),
         )
@@ -186,7 +186,7 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # Uniqueness ---
         response3 = self.assertPOST200(url, data={'name': ce_type2.name})
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='name',
             errors=_('There is already a type with this name.'),
         )

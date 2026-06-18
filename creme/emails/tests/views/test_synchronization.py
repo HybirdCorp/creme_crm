@@ -564,7 +564,7 @@ class PersonEditionTestCase(BaseEmailToSyncViewsTestCase):
         data = {'person': self.formfield_value_generic_entity(contact)}
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='person',
             errors=_(
                 'You are not allowed to edit «{}», so the email address cannot be updated'
