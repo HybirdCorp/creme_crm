@@ -229,7 +229,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -264,7 +264,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -345,7 +345,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -401,7 +401,7 @@ class ActivityEditionTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )

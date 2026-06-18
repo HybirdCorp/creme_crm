@@ -145,7 +145,7 @@ class SMSCampaignTestCase(CremeTestCase):
         response3 = post(mlist01, mlist03)
         self.assertEqual(200, response3.status_code)
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='messaging_lists',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )

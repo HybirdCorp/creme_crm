@@ -847,7 +847,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='trigger',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'

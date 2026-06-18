@@ -242,7 +242,7 @@ class ImportingTestCase(TransferBaseTestCase):
 
         response1 = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='config',
             errors=_('File content is not valid (%(error)s).') % {
                 'error': _('main content must be a dictionary'),

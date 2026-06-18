@@ -336,7 +336,7 @@ class ActObjectivePatternViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCas
         pattern = self._create_pattern(user=user)
         url = self._build_add_component_url(pattern)
 
-        response1 = self.client.post(
+        response1 = self.assertPOST200(
             url,
             data={
                 'name':         'Signed opportunities',
@@ -344,7 +344,7 @@ class ActObjectivePatternViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCas
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='success_rate',
             errors=_(
                 'Ensure this value is greater than or equal to %(limit_value)s.'
@@ -352,7 +352,7 @@ class ActObjectivePatternViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCas
         )
 
         # ---
-        response2 = self.client.post(
+        response2 = self.assertPOST200(
             url,
             data={
                 'name':         'Signed opportunities',
@@ -360,7 +360,7 @@ class ActObjectivePatternViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCas
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='success_rate',
             errors=_(
                 'Ensure this value is less than or equal to %(limit_value)s.'

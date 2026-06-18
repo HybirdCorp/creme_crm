@@ -401,7 +401,7 @@ class SubjectsBrickViewsTestCase(_ActivitiesTestCase):
         # Avoid duplicates
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='subjects',
             errors=ngettext(
                 'This entity is already a subject: %(duplicates)s',

@@ -768,7 +768,7 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
         }
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='source', errors=_('Enter a valid value.'),
         )
 
@@ -787,7 +787,7 @@ class _BaseMassImportTestCase(MassImportBaseTestCaseMixin, _BillingTestCase):
             },
         )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='source', errors=_('This field is required.'),
         )
 

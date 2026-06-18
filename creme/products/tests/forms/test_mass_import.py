@@ -185,7 +185,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             url, follow=True, data={**data, 'categories_subcat_colselect': 0},
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='categories',
             errors=_(
                 'Select a column for the sub-category if you select a column for the category.'
@@ -433,7 +433,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, _ProductsTestCase):
             url, follow=True, data={**data, 'categories_create': 'on'},
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='categories', errors='You cannot create Category or SubCategory',
         )
 

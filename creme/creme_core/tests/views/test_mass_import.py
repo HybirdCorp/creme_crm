@@ -796,7 +796,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)], user=user)
 
         # Fixed relation
-        response1 = self.client.post(
+        response1 = self.assertPOST200(
             self._build_import_url(FakeContact), follow=True,
             data={
                 **self.lv_import_data,
@@ -809,7 +809,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='fixed_relations',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': nerv,
@@ -1050,7 +1050,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)], user=user)
 
         # Fixed relation
-        response1 = self.client.post(
+        response1 = self.assertPOST200(
             self._build_import_url(FakeContact), follow=True,
             data={
                 **self.lv_import_data,
@@ -1063,7 +1063,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='fixed_relations',
             errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': nerv,
@@ -2517,9 +2517,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         # POST (error) ---
         data = {**self.lv_import_data, 'document': doc.id, 'user': user.id}
-        response2 = self.client.post(url, follow=True, data=data)
+        response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=required_fname, errors=_('This field is required.'),
         )
 

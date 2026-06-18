@@ -495,7 +495,8 @@ class MassImportActivityTestCase(MassImportBaseTestCaseMixin, _ActivitiesTestCas
 
         response1 = self.client.post(url, data={**data, 'participants_pattern': 5})
         self.assertFormError(
-            response1.context['form'], field='participants', errors='Invalid pattern',
+            self.get_form_or_fail(response1),
+            field='participants', errors='Invalid pattern',
         )
 
         # ----------

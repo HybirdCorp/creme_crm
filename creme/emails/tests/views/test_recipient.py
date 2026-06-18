@@ -52,7 +52,7 @@ class RecipientViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Invalid address
         response3 = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='recipients', errors=_('Enter a valid email address.'),
         )
 

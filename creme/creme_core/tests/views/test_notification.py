@@ -203,7 +203,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.ANNOUNCE_URL, data={'start': self.formfield_value_date(yesterday)},
         )
         self.assertFormError(
-            form=response2.context['form'],
+            form=self.get_form_or_fail(response2),
             field='start',
             errors=_('Start must be in the future'),
         )

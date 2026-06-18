@@ -154,7 +154,7 @@ class EmailSendingConfigItemViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             },
         )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='name',
             errors=_("%(model_name)s with this %(field_label)s already exists.") % {
                 'model_name': _('SMTP configuration'),

@@ -349,7 +349,7 @@ class ContactMergeFormTestCase(_PersonsTestCase):
 
         response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=f'billaddr_{r_field}',
             errors=_('The field «{}» has been configured as required.').format(_('City')),
         )
@@ -465,7 +465,7 @@ class ContactMergeFormTestCase(_PersonsTestCase):
         }
         response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='email',
             errors=_('This Contact is related to a user and must have an email address.'),
         )

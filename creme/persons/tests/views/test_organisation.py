@@ -508,7 +508,7 @@ class CustomerViewsTestCase(_OrganisationViewsTestCase):
         }
         response1 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='customers_managed_orga',
             errors=_('You are not allowed to link this entity: {}').format(managed1),
         )
@@ -524,7 +524,7 @@ class CustomerViewsTestCase(_OrganisationViewsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='user',
             errors=_(
                 'You are not allowed to link with the «{models}» of this user.'
@@ -643,7 +643,7 @@ class ManagedOrganisationViewsTestCase(_OrganisationViewsTestCase):
             data={'organisations': self.formfield_value_multi_creator_entity(orga1)},
         )
         self.assertFormError(
-            response3.context['form'],
+            self.get_form_or_fail(response3),
             field='organisations',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': orga1},
         )

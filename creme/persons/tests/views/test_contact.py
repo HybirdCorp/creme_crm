@@ -177,22 +177,16 @@ class ContactCreationTestCase(_PersonsTestCase):
         try:
             Address.clean = clean_address
 
-            response1 = self.client.post(url, follow=True, data=data)
+            response1 = self.assertPOST200(url, follow=True, data=data)
             self.assertFormError(
-                response1.context['form'],
+                self.get_form_or_fail(response1),
                 field='billing_address-city',
                 errors=error_msg,
             )
 
             # ---
             response2 = self.client.post(
-                url,
-                follow=True,
-                data={
-                    **data,
-
-                    'billing_address-city': b_city,
-                },
+                url, follow=True, data={**data, 'billing_address-city': b_city},
             )
             self.assertNoFormError(response2)
         finally:
@@ -281,22 +275,16 @@ class ContactCreationTestCase(_PersonsTestCase):
         try:
             AddressesGroup.sub_form_class = TestForm
 
-            response1 = self.client.post(url, follow=True, data=data)
+            response1 = self.assertPOST200(url, follow=True, data=data)
             self.assertFormError(
-                response1.context['form'],
+                self.get_form_or_fail(response1),
                 field='billing_address-city',
                 errors=error_msg,
             )
 
             # ---
             self.assertNoFormError(self.client.post(
-                url,
-                follow=True,
-                data={
-                    **data,
-
-                    'billing_address-city': b_city,
-                },
+                url, follow=True, data={**data, 'billing_address-city': b_city},
             ))
         finally:
             AddressesGroup.sub_form_class = original_form
@@ -902,7 +890,7 @@ class LinkedContactCreationTestCase(_PersonsTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='rtype_for_organisation',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': orga,
@@ -929,7 +917,7 @@ class LinkedContactCreationTestCase(_PersonsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='rtype_for_organisation',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': Contact(last_name=last_name, first_name=first_name),
@@ -963,11 +951,11 @@ class LinkedContactCreationTestCase(_PersonsTestCase):
             },
         )
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='rtype_for_organisation',
             errors=_(
-                'The entity «%(entity)s» has the property «%(property)s» which is '
-                'forbidden by the relationship «%(predicate)s».'
+                'The entity «%(entity)s» has the property «%(property)s» which '
+                'is forbidden by the relationship «%(predicate)s».'
             ) % {
                 'entity': orga,
                 'property': ptype,

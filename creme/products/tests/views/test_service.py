@@ -192,7 +192,7 @@ class ServiceViewsTestCase(_ProductsTestCase):
         response2 = post(img_1, img_4)
         self.assertEqual(200, response2.status_code)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='images',
             errors=_('Some entities are not linkable: {}').format(img_4),
         )

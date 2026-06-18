@@ -77,7 +77,7 @@ class CategoryOverriderTestCase(_ProductsTestCase):
             data={formfield_name: str(new_sub_cat.pk)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=formfield_name,
             errors=SubCategoryField.default_error_messages['invalid_choice'],
         )

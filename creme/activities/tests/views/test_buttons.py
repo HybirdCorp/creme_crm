@@ -155,7 +155,7 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
 
         response_title1 = self.assertPOST200(url, data={**data, 'title': ''})
         self.assertFormError(
-            response_title1.context['form'],
+            self.get_form_or_fail(response_title1),
             field='title', errors=_('This field is required.'),
         )
 
@@ -166,7 +166,7 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
         )
         response_title2 = self.assertPOST200(url, data={**data, 'title': very_long_title})
         self.assertFormError(
-            response_title2.context['form'],
+            self.get_form_or_fail(response_title2),
             field='title',
             errors=ngettext(
                 'Ensure this value has at most %(limit_value)d character '
@@ -180,7 +180,7 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
         # ---
         response_duration1 = self.assertPOST200(url, data={**data, 'duration': '0'})
         self.assertFormError(
-            response_duration1.context['form'],
+            self.get_form_or_fail(response_duration1),
             field='duration',
             errors=_('Ensure this value is greater than or equal to %(limit_value)s.') % {
                 'limit_value': 1,
@@ -189,7 +189,7 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
 
         response_duration2 = self.assertPOST200(url, data={**data, 'duration': '121'})
         self.assertFormError(
-            response_duration2.context['form'],
+            self.get_form_or_fail(response_duration2),
             field='duration',
             errors=_('Ensure this value is less than or equal to %(limit_value)s.') % {
                 'limit_value': 120,
@@ -214,7 +214,7 @@ class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
                 'duration': '2',
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg = _(
             'Select a valid choice. That choice is not one of the available choices.'
         )

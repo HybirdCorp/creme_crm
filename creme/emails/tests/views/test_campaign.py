@@ -136,7 +136,7 @@ class CampaignViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response4 = post(mlist01, mlist03)
         self.assertEqual(200, response4.status_code)
         self.assertFormError(
-            response4.context['form'],
+            self.get_form_or_fail(response4),
             field='mailing_lists',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )

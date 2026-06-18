@@ -85,7 +85,7 @@ class ProductViewsTestCase(_ProductsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field=self.EXTRA_CATEGORY_KEY,
             errors=_('This field is required.'),
         )
@@ -154,7 +154,7 @@ class ProductViewsTestCase(_ProductsTestCase):
         response1 = post(img_1, img_3)
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1.context['form'],
+            self.get_form_or_fail(response1),
             field='images',
             errors=_('Some entities are not linkable: {}').format(img_3),
         )
@@ -195,7 +195,7 @@ class ProductViewsTestCase(_ProductsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_CATEGORY_KEY,
             errors=SubCategoryField.default_error_messages['invalid_choice'],
         )
@@ -399,7 +399,7 @@ class ProductViewsTestCase(_ProductsTestCase):
         response2 = post(img_1, img_4)
         self.assertEqual(200, response2.status_code)
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='images',
             errors=_('Some entities are not linkable: {}').format(img_4),
         )
@@ -414,7 +414,7 @@ class ProductViewsTestCase(_ProductsTestCase):
         response4 = post(img_1, img_5)
         self.assertEqual(200, response4.status_code)
         self.assertFormError(
-            response4.context['form'],
+            self.get_form_or_fail(response4),
             field='images',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': img_1},
         )

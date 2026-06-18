@@ -161,7 +161,7 @@ class ContactQuickFormTestCase(_PersonsTestCase):
         )
 
         # ---
-        response2 = self.client.post(
+        response2 = self.assertPOST200(
             url,
             data={
                 'user':         user.id,
@@ -171,7 +171,7 @@ class ContactQuickFormTestCase(_PersonsTestCase):
             },
         )
         self.assertFormError(
-            response2.context['form'],
+            self.get_form_or_fail(response2),
             field='organisation',
             errors=_('You are not allowed to create an Organisation.'),
         )
