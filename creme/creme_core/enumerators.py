@@ -18,6 +18,7 @@
 
 # import warnings
 import logging
+from typing import override
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -41,6 +42,7 @@ logger = logging.getLogger(__name__)
 class EntityEnumerator(enumerable.QSEnumerator):
     search_fields = ('header_filter_search_field',)
 
+    @override
     def _queryset(self, user):
         qs = super()._queryset(user=user)
 
@@ -57,6 +59,7 @@ class EntityEnumerator(enumerable.QSEnumerator):
 
 
 class ContentTypeEnumerator(enumerable.Enumerator):
+    @override
     def choices(self, user, *, term=None, only=None, limit=None):
         logger.critical(
             'The field %s seems to be a basic FK to ContentType; use an '
@@ -122,6 +125,7 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
         return d
 
+    @override
     def choices(self, user, *, term=None, only=None, limit=None):
         # Do not apply limits on queryset, because ordering is done later
         choices = super().choices(user, term=term, only=only)
@@ -150,6 +154,7 @@ class CTypeForeignKeyEnumerator(enumerable.Enumerator):
                 allowed_models() if callable(allowed_models) else allowed_models
             )
 
+    @override
     def choices(self, user, *, term=None, only=None, limit=None):
         try:
             choices = ctype_choices(self._allowed_ctypes())
@@ -180,6 +185,7 @@ class CTypeForeignKeyEnumerator(enumerable.Enumerator):
 
         return [{'value': 0, 'label': _('Error (please contact your administrator)')}]
 
+    @override
     def to_python(self, user, values):
         try:
             allowed_ct_ids = {ct.id: ct for ct in self._allowed_ctypes()}
@@ -240,12 +246,13 @@ class CustomFieldEnumerator(enumerable.Enumerator):
 
     def _queryset(self, user):
         qs = CustomFieldEnumValue.objects.filter(custom_field=self.custom_field)
-        qs = qs.complex_filter(self.limit_choices_to) if self.limit_choices_to else qs
+        limit_choices_to = self.limit_choices_to
 
-        return qs
+        return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
+    @override
     def to_python(self, user, values):
-        return list(self._queryset(user).filter(pk__in=values))
+        return [*self._queryset(user).filter(pk__in=values)]
 
     def filter_term(self, queryset, term):
         return queryset.filter(self.search_q(term))
@@ -260,6 +267,7 @@ class CustomFieldEnumerator(enumerable.Enumerator):
             'label': str(instance.value),
         }
 
+    @override
     def choices(self, user, *, term=None, only=None, limit=None):
         queryset = self._queryset(user)
 

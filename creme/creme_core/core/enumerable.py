@@ -167,15 +167,18 @@ class QSEnumerator(Enumerator):
     def _queryset(self, user):
         field = self.field
         qs = field.remote_field.model.objects.all()
-        limit_choices_to = field.get_limit_choices_to()
+        # limit_choices_to = field.get_limit_choices_to()
+        #
+        # qs = qs.complex_filter(limit_choices_to) if limit_choices_to else qs
+        # qs = qs.complex_filter(self.limit_choices_to) if self.limit_choices_to else qs
+        #
+        # return qs
+        limit_choices_to = field.get_limit_choices_to() or self.limit_choices_to
 
-        qs = qs.complex_filter(limit_choices_to) if limit_choices_to else qs
-        qs = qs.complex_filter(self.limit_choices_to) if self.limit_choices_to else qs
-
-        return qs
+        return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
     def to_python(self, user, values):
-        return list(self._queryset(user).filter(pk__in=values))
+        return [*self._queryset(user).filter(pk__in=values)]
 
     def filter_term(self, queryset, term):
         return queryset.filter(self.search_q(term))
@@ -191,9 +194,7 @@ class QSEnumerator(Enumerator):
         elif only:
             queryset = self.filter_only(queryset, only)
 
-        return list(
-            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
-        )
+        return [*map(self.instance_as_dict, queryset[:limit] if limit else queryset)]
 
 
 class EnumerableRegistry:
