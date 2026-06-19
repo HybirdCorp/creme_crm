@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,8 @@ from creme.creme_core.forms import (
 )
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation
-from creme.creme_core.utils import ellipsis_multi
+# from creme.creme_core.utils import ellipsis_multi
+from creme.creme_core.utils.string import multi_truncate
 from creme.persons import get_contact_model
 
 from .. import get_task_model
@@ -238,7 +239,8 @@ class RelatedActivityCreationForm(_RelatedActivityForm):
 
     def save(self, *args, **kwargs):
         task = self._task
-        p_name, t_name = ellipsis_multi(
+        # p_name, t_name = ellipsis_multi(
+        p_name, t_name = multi_truncate(
             (task.linked_project.name, task.title),
             # 9 is the length of ' -  - XYZ' (i.e. the 'empty' format string)
             Activity._meta.get_field('title').max_length - 9

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2019-2025 Hybird
+# Copyright (c) 2019-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ################################################################################
+
+from typing import Iterable
+
+from django.utils.text import Truncator
 
 
 def smart_split(s: str) -> list[str]:
@@ -69,3 +73,39 @@ def smart_split(s: str) -> list[str]:
                 s = s[dq_index2 + 1:]
 
     return result
+
+
+def multi_truncate(strings: Iterable[str], length: int) -> list[str]:
+    """Returns (potentially) shorter strings in order to the global length
+    does not exceed a given value.
+    Strings are shortened in a way which tends to make them of the same length.
+
+    @param strings: Strings to truncate.
+    @param length: Global (maximum) length.
+    @return: The truncated strings.
+
+    >> multi_truncate(['123456', '12', '12'], 9)
+    ['1234…', '12', '12']
+    """
+    class StringToTruncate:
+        __slots__ = ('length', 'data')
+
+        def __init__(self, s: str):
+            self.length = len(s)
+            self.data = s
+
+    str_2_truncate = [StringToTruncate(s) for s in strings]
+    total_len = sum(elt.length for elt in str_2_truncate)
+
+    for i in range(max(0, total_len - length)):
+        max_idx = -1
+        max_value = -1
+
+        for idx, elt in enumerate(str_2_truncate):
+            if elt.length > max_value:
+                max_value = elt.length
+                max_idx = idx
+
+        str_2_truncate[max_idx].length -= 1
+
+    return [Truncator(elt.data).chars(elt.length) for elt in str_2_truncate]

@@ -11,11 +11,9 @@ from django.urls import reverse
 from django.utils.timezone import make_aware, zoneinfo
 from django.utils.translation import gettext, gettext_lazy, ngettext
 from django.utils.translation import override as override_language
-from django.utils.translation import pgettext
 from PIL.Image import open as open_img
 
 from creme.creme_core.models import FakeContact, FakeOrganisation
-# from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils import (
     as_int,
     ellipsis,
@@ -204,11 +202,11 @@ class MiscTestCase(CremeTestCase):
         with self.assertLogs(level='CRITICAL'):
             self.assertEqual('?', int_2_roman(4000))
 
-    def test_ellipsis(self):
+    def test_ellipsis(self):  # DEPRECATED
         self.assertEqual('123456789', ellipsis('123456789', 9))
         self.assertEqual('1234567…',  ellipsis('123456789', 8))
 
-    def test_ellipsis_multi(self):
+    def test_ellipsis_multi(self):  # DEPRECATED
         self.assertListEqual(
             ['a', 'b'], ellipsis_multi(['a', 'b'], 10),
         )
@@ -216,26 +214,16 @@ class MiscTestCase(CremeTestCase):
             ['123456789', 'b'], ellipsis_multi(['123456789', 'b'], 10),
         )
 
-        msg = pgettext(
-            "String to return when truncating text", "%(truncated_text)s…"
-        )
         self.assertListEqual(
-            # ['1234567…', 'b'],
-            [msg % {'truncated_text': '1234567'}, 'b'],
+            ['1234567…', 'b'],
             ellipsis_multi(['123456789', 'b'], 9),
         )
         self.assertListEqual(
-            # ['1234…', '12', '12'],
-            [msg % {'truncated_text': '1234'}, '12', '12'],
+            ['1234…', '12', '12'],
             ellipsis_multi(['123456', '12', '12'], 9),
         )
         self.assertListEqual(
-            # ['12…', '12', '123…'],
-            [
-                msg % {'truncated_text': '12'},
-                '12',
-                msg % {'truncated_text': '123'},
-            ],  # ['123…', '12', '12…'] would be better...
+            ['12…', '12', '123…'],  # ['123…', '12', '12…'] would be better...
             ellipsis_multi(['123456', '12', '12345'], 9),
         )
 
@@ -344,34 +332,6 @@ better &amp; lighter than the previous one.
 </html>
 ''').strip()
         )
-
-    def test_string_smart_split(self):
-        from creme.creme_core.utils.string import smart_split
-
-        self.assertEqual([], smart_split(''))
-        self.assertEqual(['foobar'], smart_split('foobar'))
-
-        self.assertEqual(['foo', 'bar'], smart_split('foo bar'))
-        self.assertEqual(['foo', 'bar', 'baz'], smart_split('foo bar baz'))
-
-        self.assertEqual(['foo bar', 'baz'], smart_split('"foo bar" baz'))
-        # TODO: self.assertEqual(['foo', 'bar', ' baz kuu'], smart_split('foo bar " baz kuu"'))  ?
-        self.assertEqual(['foo', 'bar', 'baz kuu'], smart_split('foo bar " baz kuu" '))
-
-        self.assertEqual(['baz'], smart_split('"" baz'))
-        self.assertEqual(['baz'], smart_split('" " baz'))
-
-        # Missing second "
-        self.assertEqual(['foo', 'bar', 'baz'], smart_split('foo bar" baz'))
-
-        # Special char \"
-        self.assertEqual(['foobar"'], smart_split(r'foobar\"'))
-        self.assertEqual(['"foobar'], smart_split(r'\"foobar'))
-
-        self.assertEqual(['foo "bar', 'baz'], smart_split('"foo \\"bar" baz'))
-
-        # Missing second " + special char \"
-        self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
 
     def test_render_limited_list(self):
         self.assertEqual('', render_limited_list(items=[], limit=200))
