@@ -31,7 +31,6 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.utils.text import Truncator
 from django.utils.translation import gettext as _
 
 # from ..signals import pre_replace_related
@@ -208,6 +207,12 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     >> ellipsis_multi(['123456', '12', '12'], 9)
     ['1234…', '12', '12']
     """
+    warnings.warn(
+        'ellipsis_multi() is deprecated; '
+        'use creme_core.utils.string.multi_truncate() instead.',
+        DeprecationWarning,
+    )
+
     class StringToTruncate:
         __slots__ = ('length', 'data')
 
@@ -229,8 +234,7 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
 
         str_2_truncate[max_idx].length -= 1
 
-    # return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
-    return [Truncator(elt.data).chars(elt.length) for elt in str_2_truncate]
+    return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
 
 
 def prefixed_truncate(s: str, prefix, length: int) -> str:

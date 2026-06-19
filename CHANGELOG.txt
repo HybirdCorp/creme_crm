@@ -53,7 +53,9 @@
                 - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
             - In 'creme_core.utils' :
-                - The function 'utils.ellipsis() is deprecated; use 'django.utils.text.Truncator.chars()' instead.
+                - The function 'ellipsis() is deprecated; use 'django.utils.text.Truncator.chars()' instead.
+                - The function 'ellipsis_multi() is deprecated;
+                  use the new function 'creme_core.utils.string.multi_truncate()' instead.
                 - The functions 'update_model_instance()' & 'replace_related_object()' have been
                   moved to the new package 'creme_core.utils.model'.
             - In the templatetags libray "creme_bricks" :
