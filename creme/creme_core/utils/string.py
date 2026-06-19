@@ -109,3 +109,23 @@ def multi_truncate(strings: Iterable[str], length: int) -> list[str]:
         str_2_truncate[max_idx].length -= 1
 
     return [Truncator(elt.data).chars(elt.length) for elt in str_2_truncate]
+
+
+def prefixed_truncate(s: str, prefix, length: int) -> str:
+    """Truncates a string if it is too long; when a truncation is done, the given prefix is added.
+    The length of the result is always less than or equal than the given length.
+
+    @param s: The string to truncate.
+    @param prefix: An object which can be "stringified" (e.g. a string, a gettext_lazy instance).
+    @param length: The maximum length.
+    @return: The truncated string.
+    @raise ValueError: If the prefix is too long for the given length.
+    """
+    if len(s) <= length:
+        return s
+
+    rem_len = length - len(prefix)
+    if rem_len < 0:
+        raise ValueError('Prefix is too short for this length')
+
+    return prefix + s[:rem_len]

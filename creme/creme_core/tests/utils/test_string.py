@@ -1,6 +1,10 @@
-from django.utils.translation import pgettext
+from django.utils.translation import gettext_lazy, pgettext
 
-from creme.creme_core.utils.string import multi_truncate, smart_split
+from creme.creme_core.utils.string import (
+    multi_truncate,
+    prefixed_truncate,
+    smart_split,
+)
 
 from ..base import CremeTestCase
 
@@ -58,4 +62,20 @@ class StringTestCase(CremeTestCase):
                 msg % {'truncated_text': '123'},
             ],  # ['123…', '12', '12…'] would be better...
             multi_truncate(['123456', '12', '12345'], 9),
+        )
+
+    def test_prefixed_truncate(self):
+        s = 'Supercalifragilis Ticexpialidocious'
+        self.assertEqual(s, prefixed_truncate(s, '(My prefix)', 49))
+        self.assertEqual(
+            '(My prefix)Supercalifragilis Tic',
+            prefixed_truncate(s, prefix='(My prefix)', length=32),
+        )
+
+        with self.assertRaises(ValueError):
+            prefixed_truncate(s, '(My prefix)', 10)  # Prefix is too short for this length
+
+        self.assertEqual(
+            '(My unlocated prefix)Supercalif',
+            prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31),
         )
