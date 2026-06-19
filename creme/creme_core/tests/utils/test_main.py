@@ -55,7 +55,7 @@ from ..base import CremeTestCase
 
 
 class MiscTestCase(CremeTestCase):
-    def test_truncate_str(self):
+    def test_truncate_str(self):  # DEPRECATED
         s = string.ascii_letters
         self.assertEqual(52, len(s))
 

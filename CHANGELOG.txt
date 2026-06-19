@@ -59,6 +59,8 @@
                 - The functions 'update_model_instance()' & 'replace_related_object()' have been
                   moved to the new package 'creme_core.utils.model'.
                 - The function 'prefixed_truncate()" has been moved to 'creme_core.utils.string'.
+                - The function 'truncate_str() is deprecated;
+                  use 'creme_core.utils.string.suffixed_truncate()' instead (beware to argument names).
             - In the templatetags libray "creme_bricks" :
                - The argument "render" of '{% brick_display %}' is deprecated & ignored.
                - Not passing a "tag" parameter to the following templatetags is deprecated :

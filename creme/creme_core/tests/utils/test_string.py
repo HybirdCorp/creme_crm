@@ -1,9 +1,12 @@
+from string import ascii_letters
+
 from django.utils.translation import gettext_lazy, pgettext
 
 from creme.creme_core.utils.string import (
     multi_truncate,
     prefixed_truncate,
     smart_split,
+    suffixed_truncate,
 )
 
 from ..base import CremeTestCase
@@ -79,3 +82,22 @@ class StringTestCase(CremeTestCase):
             '(My unlocated prefix)Supercalif',
             prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31),
         )
+
+    def test_suffixed_truncate(self):
+        s = ascii_letters
+        self.assertEqual(52, len(s))
+
+        truncated = suffixed_truncate(s, length=50)
+        self.assertEqual(50,     len(truncated))
+        self.assertEqual(s[:-2], truncated)
+
+        expected = s[:-5] + '012'
+        self.assertEqual(expected, suffixed_truncate(s, length=50, suffix='012'))
+
+        self.assertEqual('',      suffixed_truncate('',       length=0,  suffix='01234'))
+        self.assertEqual('01234', suffixed_truncate('abcdef', length=5,  suffix='01234'))
+        self.assertEqual('abc',   suffixed_truncate('abcdef', length=3,  suffix=''))
+        self.assertEqual('',      suffixed_truncate('abcdef', length=-1, suffix=''))
+        self.assertEqual('',      suffixed_truncate('abcdef', length=-1, suffix='aaaaaa'))
+        self.assertEqual('a',     suffixed_truncate('b',      length=1,  suffix='a'))
+        self.assertEqual('abcd',  suffixed_truncate('abcdef', length=4,  suffix='01234'))

@@ -111,6 +111,7 @@ def multi_truncate(strings: Iterable[str], length: int) -> list[str]:
     return [Truncator(elt.data).chars(elt.length) for elt in str_2_truncate]
 
 
+# TODO: keyword-only argument for 'prefix' & 'length'?
 def prefixed_truncate(s: str, prefix, length: int) -> str:
     """Truncates a string if it is too long; when a truncation is done, the given prefix is added.
     The length of the result is always less than or equal than the given length.
@@ -129,3 +130,31 @@ def prefixed_truncate(s: str, prefix, length: int) -> str:
         raise ValueError('Prefix is too short for this length')
 
     return prefix + s[:rem_len]
+
+
+def suffixed_truncate(s: str, /, *, length: int, suffix: str = '') -> str:
+    """Truncate a suffixed string to a maximum length ; priority is given to keep the whole suffix,
+     excepted when this one is too long.
+
+    @param str: The string to truncate.
+    @param max_length: The maximum length.
+    @param suffix: The string to concatenate at the end.
+    @return: The truncated string.
+
+    >> suffixed_truncate('my_entity_with_a_long_name', length=24, suffix='#2')
+    'my_entity_with_a_long_#2'
+    """
+    if length <= 0:
+        return ''
+
+    len_str = len(s)
+    if len_str <= length and not suffix:
+        return s
+
+    total = length - len(suffix)
+    if total > 0:
+        return s[:total] + suffix
+    elif total == 0:
+        return suffix
+    else:
+        return s[:length]
