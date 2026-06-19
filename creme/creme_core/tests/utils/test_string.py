@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy, pgettext
 from creme.creme_core.utils.string import (
     multi_truncate,
     prefixed_truncate,
+    safe_unicode,
     smart_split,
     suffixed_truncate,
 )
@@ -101,3 +102,27 @@ class StringTestCase(CremeTestCase):
         self.assertEqual('',      suffixed_truncate('abcdef', length=-1, suffix='aaaaaa'))
         self.assertEqual('a',     suffixed_truncate('b',      length=1,  suffix='a'))
         self.assertEqual('abcd',  suffixed_truncate('abcdef', length=4,  suffix='01234'))
+
+    def test_safe_unicode(self):
+        self.assertEqual('kjøÔ€ôþâ', safe_unicode('kjøÔ€ôþâ'))
+        self.assertEqual('aé‡ae15', safe_unicode(b'a\xe9\x87ae15'))
+        self.assertEqual('aé‡ae15', safe_unicode('aé‡ae15'))
+
+        # Custom encoding list
+        self.assertEqual('a\ufffdae15', safe_unicode(b'a\xe9\x87ae15', ['utf-8']))
+        self.assertEqual('aé‡ae15',     safe_unicode(b'a\xe9\x87ae15', ('cp1252',)))
+
+    def test_safe_unicode_object(self):
+        class no_unicode_object:
+            pass
+
+        class unicode_object:
+            def __str__(self):
+                return 'aé‡ae15'
+
+        self.assertEqual(
+            "<class 'creme.creme_core.tests.utils."
+            "test_string.StringTestCase.test_safe_unicode_object.<locals>.no_unicode_object'>",
+            safe_unicode(no_unicode_object)
+        )
+        self.assertEqual('aé‡ae15', safe_unicode(unicode_object()))

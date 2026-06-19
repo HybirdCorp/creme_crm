@@ -243,22 +243,6 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
 
 
-def safe_unicode(value, encodings=None):
-    if isinstance(value, str):
-        return value
-
-    if isinstance(value, bytes):
-        for encoding in (encodings or ('utf-8', 'cp1252', 'iso-8859-1')):
-            try:
-                return value.decode(encoding=encoding)
-            except UnicodeDecodeError:
-                continue
-
-        return value.decode(encoding='utf-8', errors='replace')
-
-    return str(value)
-
-
 def log_traceback(logger, limit=10) -> None:  # TODO: use traceback.format_exc() ?
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
@@ -299,5 +283,14 @@ def __getattr__(name):
             DeprecationWarning,
         )
         return prefixed_truncate
+
+    if name == 'safe_unicode':
+        from .string import safe_unicode
+
+        warnings.warn(
+            'The function "safe_unicode()" has been moved to <creme_core.utils.string>.',
+            DeprecationWarning,
+        )
+        return safe_unicode
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

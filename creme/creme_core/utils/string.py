@@ -158,3 +158,19 @@ def suffixed_truncate(s: str, /, *, length: int, suffix: str = '') -> str:
         return suffix
     else:
         return s[:length]
+
+
+def safe_unicode(value, encodings=None):
+    if isinstance(value, str):
+        return value
+
+    if isinstance(value, bytes):
+        for encoding in (encodings or ('utf-8', 'cp1252', 'iso-8859-1')):
+            try:
+                return value.decode(encoding=encoding)
+            except UnicodeDecodeError:
+                continue
+
+        return value.decode(encoding='utf-8', errors='replace')
+
+    return str(value)

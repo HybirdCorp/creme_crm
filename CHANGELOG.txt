@@ -58,7 +58,7 @@
                   use the new function 'creme_core.utils.string.multi_truncate()' instead.
                 - The functions 'update_model_instance()' & 'replace_related_object()' have been
                   moved to the new package 'creme_core.utils.model'.
-                - The function 'prefixed_truncate()" has been moved to 'creme_core.utils.string'.
+                - The functions 'prefixed_truncate()' & 'safe_unicode()' have been moved to 'creme_core.utils.string'.
                 - The function 'truncate_str() is deprecated;
                   use 'creme_core.utils.string.suffixed_truncate()' instead (beware to argument names).
             - In the templatetags libray "creme_bricks" :
