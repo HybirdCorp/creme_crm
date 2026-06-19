@@ -50,7 +50,7 @@ from ..models import (
     SettingValue,
     UserRole,
 )
-from ..utils import print_traceback
+from ..utils.exception import print_traceback
 from ..utils.media import get_current_theme
 from ..utils.xml_utils import XMLDiffError, xml_diff
 

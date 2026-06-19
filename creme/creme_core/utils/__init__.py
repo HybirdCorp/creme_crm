@@ -23,8 +23,8 @@
 ################################################################################
 
 import logging
-import sys
-import traceback
+# import sys
+# import traceback
 import warnings
 from collections.abc import Iterable
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
@@ -243,19 +243,6 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
 
 
-def log_traceback(logger, limit=10) -> None:  # TODO: use traceback.format_exc() ?
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-
-    for line in traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit):
-        for split_line in line.split('\n'):
-            logger.error(split_line)
-
-
-def print_traceback(limit=10) -> None:
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    traceback.print_exception(exc_type, exc_value, exc_traceback, limit=limit)
-
-
 def __getattr__(name):
     if name == 'update_model_instance':
         from .model import update_model_instance
@@ -292,5 +279,23 @@ def __getattr__(name):
             DeprecationWarning,
         )
         return safe_unicode
+
+    if name == 'log_traceback':
+        from .exception import log_traceback
+
+        warnings.warn(
+            'The function "log_traceback()" has been moved to <creme_core.utils.exception>.',
+            DeprecationWarning,
+        )
+        return log_traceback
+
+    if name == 'print_traceback':
+        from .exception import print_traceback
+
+        warnings.warn(
+            'The function "print_traceback()" has been moved to <creme_core.utils.exception>.',
+            DeprecationWarning,
+        )
+        return print_traceback
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
