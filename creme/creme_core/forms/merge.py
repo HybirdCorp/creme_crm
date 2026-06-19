@@ -29,7 +29,7 @@ from django.utils.translation import gettext as _
 from ..gui import merge
 from ..models import CremeEntity, CustomField, CustomFieldValue, FieldsConfig
 from ..signals import pre_merge_related
-from ..utils import replace_related_object
+from ..utils.model import replace_related_object
 from .base import _CUSTOM_NAME, CremeForm
 
 logger = logging.getLogger(__name__)

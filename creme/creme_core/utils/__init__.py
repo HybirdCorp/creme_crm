@@ -34,49 +34,8 @@ from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from django.utils.translation import gettext as _
 
-from ..signals import pre_replace_related
-
+# from ..signals import pre_replace_related
 logger = logging.getLogger(__name__)
-
-
-def replace_related_object(old_instance, new_instance):
-    "Replace the references to an instance by references to another one."
-    from ..models import HistoryLine
-
-    pre_replace_related.send(
-        sender=old_instance.__class__,
-        old_instance=old_instance,
-        new_instance=new_instance,
-    )  # send_robust() ??
-
-    meta = old_instance._meta
-    mark = HistoryLine.mark_as_reassigned
-
-    for rel_objects in (f for f in meta.get_fields() if f.one_to_many):
-        field_name = rel_objects.field.name
-
-        for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
-            mark(
-                rel_object,
-                old_reference=old_instance,
-                new_reference=new_instance,
-                field_name=field_name,
-            )
-            setattr(rel_object, field_name, new_instance)
-            rel_object.save()
-
-    for rel_objects in (
-        f
-        for f in meta.get_fields(include_hidden=True)
-        if f.many_to_many and f.auto_created
-    ):
-        field_name = rel_objects.field.name
-
-        # TODO: use old_instance.get_m2m_values(...)?
-        for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
-            m2m_mngr = getattr(rel_object, field_name)
-            m2m_mngr.add(new_instance)
-            m2m_mngr.remove(old_instance)
 
 
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
@@ -331,5 +290,14 @@ def __getattr__(name):
             DeprecationWarning,
         )
         return update_model_instance
+
+    if name == 'replace_related_object':
+        from .model import replace_related_object
+
+        warnings.warn(
+            'The function "replace_related_object()" has been moved to <creme_core.utils.model>.',
+            DeprecationWarning,
+        )
+        return replace_related_object
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
