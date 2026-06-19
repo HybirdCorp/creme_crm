@@ -166,6 +166,12 @@ def truncate_str(str: str, max_length: int, suffix: str = '') -> str:
     >> truncate_str('my_entity_with_a_long_name', 24, suffix='#2')
     'my_entity_with_a_long_#2'
     """
+    warnings.warn(
+        'truncate_str() is deprecated; '
+        'use creme_core.utils.string.suffixed_truncate() instead.',
+        DeprecationWarning,
+    )
+
     if max_length <= 0:
         return ''
 

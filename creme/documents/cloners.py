@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.cloning import EntityCloner
 from creme.creme_core.core.copying import PreSaveCopier
-from creme.creme_core.utils import truncate_str
+# from creme.creme_core.utils import truncate_str
+from creme.creme_core.utils.string import suffixed_truncate
 
 
 class TitleCopier(PreSaveCopier):
@@ -30,12 +31,17 @@ class TitleCopier(PreSaveCopier):
 
     def copy_to(self, target):
         model = type(target)
-        max_length = model._meta.get_field('title').max_length
+        max_length = model._meta.get_field('title').max_length or 50
         base_title = self._source.title
 
         for _i in range(1000):
-            title = truncate_str(
-                str=base_title, max_length=max_length,
+            # title = truncate_str(
+            #     str=base_title, max_length=max_length,
+            #     suffix=' ({} {:08x})'.format(_('Copy'), randint(0, self.MAXINT)),
+            # )
+            title = suffixed_truncate(
+                base_title,
+                length=max_length,
                 suffix=' ({} {:08x})'.format(_('Copy'), randint(0, self.MAXINT)),
             )
             if not model.objects.filter(title=title).exists():
