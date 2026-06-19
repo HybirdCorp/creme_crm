@@ -237,25 +237,6 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
 
 
-def prefixed_truncate(s: str, prefix, length: int) -> str:
-    """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
-    The length of the result is always less than or equal than the given length.
-
-    @param s: A string instance.
-    @param prefix: An object which can be "stringified" (e.g. a string, a gettext_lazy instance).
-    @param length: An integer.
-    @return: A string.
-    """
-    if len(s) <= length:
-        return s
-
-    rem_len = length - len(prefix)
-    if rem_len < 0:
-        raise ValueError('Prefix is too short for this length')
-
-    return prefix + s[:rem_len]
-
-
 def safe_unicode(value, encodings=None):
     if isinstance(value, str):
         return value
@@ -303,5 +284,14 @@ def __getattr__(name):
             DeprecationWarning,
         )
         return replace_related_object
+
+    if name == 'prefixed_truncate':
+        from .string import prefixed_truncate
+
+        warnings.warn(
+            'The function "prefixed_truncate()" has been moved to <creme_core.utils.string>.',
+            DeprecationWarning,
+        )
+        return prefixed_truncate
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

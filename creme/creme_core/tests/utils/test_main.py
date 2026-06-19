@@ -22,7 +22,6 @@ from creme.creme_core.utils import (
     get_from_GET_or_404,
     get_from_POST_or_404,
     int_2_roman,
-    prefixed_truncate,
     round_decimal,
     safe_unicode,
     truncate_str,
@@ -227,7 +226,9 @@ class MiscTestCase(CremeTestCase):
             ellipsis_multi(['123456', '12', '12345'], 9),
         )
 
-    def test_prefixed_truncate(self):
+    def test_prefixed_truncate(self):  # DEPRECATED
+        from creme.creme_core.utils import prefixed_truncate
+
         s = 'Supercalifragilis Ticexpialidocious'
         self.assertEqual(s, prefixed_truncate(s, '(My prefix)', 49))
         self.assertEqual(
