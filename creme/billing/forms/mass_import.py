@@ -36,7 +36,8 @@ from creme.creme_core.forms.mass_import import (
     ImportForm4CremeEntity,
 )
 from creme.creme_core.models import SettingValue, Vat
-from creme.creme_core.utils import as_int, update_model_instance
+from creme.creme_core.utils import as_int
+from creme.creme_core.utils.model import update_model_instance
 
 from .. import get_product_line_model
 from ..core.number_generation import number_generator_registry

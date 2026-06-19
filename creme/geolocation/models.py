@@ -26,8 +26,8 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.chunktools import iter_as_slices
+from creme.creme_core.utils.model import update_model_instance
 
 from .utils import location_bounding_box
 

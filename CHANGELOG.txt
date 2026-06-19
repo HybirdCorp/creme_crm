@@ -46,13 +46,15 @@
         # Deprecations :
             - In 'creme_core.bui.bricks' :
                 - The method 'BrickRegistry.__iter__()' is deprecated.
-                - The class 'SimpleBrick'  is deprecated ; use 'Brick' instead.
+                - The class 'SimpleBrick' is deprecated ; use 'Brick' instead.
             - In 'creme_core.models' :
                 - In the class 'EntityFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
                 - In the class 'HeaderFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
-            - The function 'utils.ellipsis() is deprecated; use 'django.utils.text.Truncator.chars()' instead.
+            - In 'creme_core.utils' :
+                - The function 'utils.ellipsis() is deprecated; use 'django.utils.text.Truncator.chars()' instead.
+                - The function 'update_model_instance()' has been moved to the new package 'creme_core.utils.model'.
             - In the templatetags libray "creme_bricks" :
                - The argument "render" of '{% brick_display %}' is deprecated & ignored.
                - Not passing a "tag" parameter to the following templatetags is deprecated :

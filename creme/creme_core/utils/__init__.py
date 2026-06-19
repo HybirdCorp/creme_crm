@@ -39,22 +39,6 @@ from ..signals import pre_replace_related
 logger = logging.getLogger(__name__)
 
 
-def update_model_instance(obj, **fields):
-    """Update the field values of an instance, and save it only if it has changed."""
-    save = False
-
-    for f_name, f_value in fields.items():
-        if getattr(obj, f_name) != f_value:
-            setattr(obj, f_name, f_value)
-            save = True
-
-    # TODO: save only modified fields ?
-    if save:
-        obj.save()
-
-    return save
-
-
 def replace_related_object(old_instance, new_instance):
     "Replace the references to an instance by references to another one."
     from ..models import HistoryLine
@@ -336,3 +320,16 @@ def log_traceback(logger, limit=10) -> None:  # TODO: use traceback.format_exc()
 def print_traceback(limit=10) -> None:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     traceback.print_exception(exc_type, exc_value, exc_traceback, limit=limit)
+
+
+def __getattr__(name):
+    if name == 'update_model_instance':
+        from .model import update_model_instance
+
+        warnings.warn(
+            'The function "update_model_instance()" has been moved to <creme_core.utils.model>.',
+            DeprecationWarning,
+        )
+        return update_model_instance
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
