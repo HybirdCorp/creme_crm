@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.core.enumerable import QSEnumerator
-from creme.creme_core.utils.unicode_collation import collator
 
 
 class SubCategoryEnumerator(QSEnumerator):
@@ -31,11 +31,14 @@ class SubCategoryEnumerator(QSEnumerator):
             'group': str(instance.category)
         }
 
-    def choices(self, user, *, term=None, only=None, limit=None):
-        # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, only=only)
+    # def choices(self, user, *, term=None, only=None, limit=None):
+    #     # Do not apply limits on queryset, because ordering is done later
+    #     choices = super().choices(user, term=term, only=only)
+    #
+    #     sort_key = collator.sort_key
+    #     choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
+    #
+    #     return choices[:limit] if limit else choices
 
-        sort_key = collator.sort_key
-        choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
-
-        return choices[:limit] if limit else choices
+    def _queryset(self, user):
+        return super()._queryset(user=user).order_by('category__name', 'name')

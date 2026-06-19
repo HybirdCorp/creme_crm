@@ -5,6 +5,8 @@
   Users side :
   ------------
     # Apps :
+        * Products :
+            - The widget to select a (sub)Category should perform better with large database.
         * Events :
             - The value checking to set the presence status has been fixed.
 
