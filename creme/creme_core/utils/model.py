@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2026 Hybird
+# Copyright (c) 2013-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,3 +32,23 @@ from django.db.models import Model
 def safe_model(model: type[Model] | str) -> type[Model]:
     """@param model: If a string is given, it must be like 'my_app.MyModel'."""
     return apps.get_model(model) if isinstance(model, str) else model
+
+
+def update_model_instance(obj: Model, **fields) -> bool:
+    """Update the field values of an instance, and save it only if it has changed.
+    @param obj: Instance to update
+    @param fields: Field names & (new) values as a dictionary.
+    @return: A boolean indicating if a change has been detected (& so, saved).
+    """
+    save = False
+
+    for f_name, f_value in fields.items():
+        if getattr(obj, f_name) != f_value:
+            setattr(obj, f_name, f_value)
+            save = True
+
+    # TODO: save only modified fields ?
+    if save:
+        obj.save()
+
+    return save

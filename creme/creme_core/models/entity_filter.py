@@ -46,8 +46,8 @@ from ..core.entity_filter import (
 from ..core.exceptions import ConflictError
 from ..global_info import get_global_info
 from ..setting_keys import global_filters_edition_key
-from ..utils import update_model_instance
 from ..utils.id_generator import generate_string_id_and_save
+from ..utils.model import update_model_instance
 from . import CremeEntity, CremeUser
 from . import fields as core_fields
 

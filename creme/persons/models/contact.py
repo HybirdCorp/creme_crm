@@ -32,7 +32,7 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity, Language
 from creme.creme_core.models import fields as core_fields
-from creme.creme_core.utils import update_model_instance
+from creme.creme_core.utils.model import update_model_instance
 from creme.documents.models.fields import ImageEntityForeignKey
 
 from .. import constants, get_contact_model, get_organisation_model

@@ -48,7 +48,7 @@ from creme.creme_core.models import (
     Workflow,
 )
 from creme.creme_core.notification import MassImportDoneContent
-from creme.creme_core.utils import update_model_instance
+from creme.creme_core.utils.model import update_model_instance
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 from creme.documents.models import Document
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder

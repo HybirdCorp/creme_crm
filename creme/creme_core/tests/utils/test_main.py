@@ -15,6 +15,7 @@ from django.utils.translation import pgettext
 from PIL.Image import open as open_img
 
 from creme.creme_core.models import FakeContact, FakeOrganisation
+# from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils import (
     as_int,
     ellipsis,
@@ -27,7 +28,6 @@ from creme.creme_core.utils import (
     round_decimal,
     safe_unicode,
     truncate_str,
-    update_model_instance,
 )
 from creme.creme_core.utils.crypto import SymmetricEncrypter
 from creme.creme_core.utils.dates import (
@@ -77,7 +77,9 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('a',     truncate_str('b',       1, suffix='a'))
         self.assertEqual('abcd',  truncate_str('abcdef',  4, suffix='01234'))
 
-    def test_update_model_instance(self):
+    def test_update_model_instance(self):  # DEPRECATED
+        from creme.creme_core.utils import update_model_instance
+
         user = self.get_root_user()
         first_name = 'punpun'
         last_name = 'punpunyama'
@@ -99,7 +101,9 @@ class MiscTestCase(CremeTestCase):
             contact, first_name=first_name, unknown_field='??',
         )
 
-    def test_update_model_instance__several_fields(self):
+    def test_update_model_instance__several_fields(self):  # DEPRECATED
+        from creme.creme_core.utils import update_model_instance
+
         first_name = 'punpun'
         last_name = 'punpunyama'
         contact = FakeContact.objects.create(
