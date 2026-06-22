@@ -29,6 +29,7 @@ from django.core.management.color import no_style
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.signals import pre_save
 
+from creme import get_version
 from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import (
@@ -39,6 +40,7 @@ from creme.creme_core.models import (
     Job,
     MinionModel,
     NotificationChannel,
+    PopulatedApp,
     Sandbox,
     SearchConfigItem,
     SettingValue,
@@ -402,6 +404,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        version = get_version()
         verbosity = options.get('verbosity')
 
         # e.g. 'persons', 'creme_core'...
@@ -489,6 +492,8 @@ class Command(BaseCommand):
                 if verbosity >= 1:
                     self.stdout.write(' OK', self.style.SUCCESS)
 
+                PopulatedApp.objects.get_or_create(app=populator.app, version=version)
+
         pre_save.disconnect(dispatch_uid=dispatch_uid)
 
         # ----------------------------------------------------------------------
@@ -558,6 +563,8 @@ class Command(BaseCommand):
                         f'Disable populate for "{app_label}": '
                         f'it does not have any "populate.py" script.'
                     ))
+
+                PopulatedApp.objects.get_or_create(app=app_label, version=get_version())
 
                 return None
             except ImportError as e:
