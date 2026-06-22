@@ -1119,14 +1119,14 @@ class SemiFixedRelationType(CremeModel):
 
 @receiver(pre_merge_related, dispatch_uid='creme_core-manage_relations_merge')
 def _handle_merge(sender, other_entity, **kwargs):
-    """The generic creme_core.utils.replace_related_object() cannot correctly
+    """The generic creme_core.utils.model.replace_related_object() cannot correctly
     handle the Relation model :
       - we have to keep the uniqueness of (subject, type, object)
       - replacing the remaining entity as subject/object in the Relations of
         'other_entity' should not create multiple HistoryLines.
         (because with the symmetric relationships feature, its tricky).
 
-    So this handler does the job i the right way:
+    So this handler does the job in the right way:
       - it deletes the 'duplicated' Relations (i.e. exist in the removed entity
         & the remaining entity), without creating HistoryLines at all.
       - it updates the relationships which reference the removed entity to

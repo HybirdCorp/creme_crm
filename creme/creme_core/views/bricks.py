@@ -209,7 +209,8 @@ class BrickStateSetting(generic.CheckedView):
                 )
 
                 try:
-                    utils.update_model_instance(state, **fields_2_update)
+                    # utils.update_model_instance(state, **fields_2_update)
+                    utils.model.update_model_instance(state, **fields_2_update)
                 except IntegrityError:
                     logger.exception('Avoid a duplicate.')
                     continue

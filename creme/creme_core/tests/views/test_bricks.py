@@ -149,7 +149,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBrick(InstanceBrick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'base_block')
+            # id = InstanceBrickConfigItem.generate_base_id('creme_core', 'base_block')
+            id = InstanceBrick.generate_id('creme_core', 'base_block')
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 

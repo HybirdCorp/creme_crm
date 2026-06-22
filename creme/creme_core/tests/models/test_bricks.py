@@ -17,7 +17,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
 )
-from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.bricks import Brick, InstanceBrick
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -978,8 +978,10 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
     def test_create(self):
         user = self.get_root_user()
 
-        class TestInstanceBrick(Brick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
+        # class TestInstanceBrick(Brick):
+        class TestInstanceBrick(InstanceBrick):
+            # id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
+            id = InstanceBrick.generate_id('creme_core', 'invalid_id')
 
         brick_entity = CremeEntity.objects.create(user=user)
         ibi = InstanceBrickConfigItem(
@@ -1008,8 +1010,10 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
     def test_extra_data(self):
         user = self.get_root_user()
 
-        class TestInstanceBrick(Brick):
-            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
+        # class TestInstanceBrick(Brick):
+        class TestInstanceBrick(InstanceBrick):
+            # id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
+            id = InstanceBrick.generate_id('creme_core', 'invalid_id')
 
         brick_entity = CremeEntity.objects.create(user=user)
 

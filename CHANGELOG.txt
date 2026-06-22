@@ -148,13 +148,17 @@
                 - The methods 'get_bricks()' & 'get_brick_4_instance' take now their arguments
                   as keyword only now, & a new mandatory argument "tag" has been added.
                 - The method '__getitem__' has been removed.
-        # In 'creme_core.models.custom_field' :
-            - In the class 'CustomField' :
-                - The field 'is_required' has been replaced by a field 'requirement_mode'.
-                - The method 'get_formfield()' takes now its arguments as keywords only,
-                  & the new argument 'creation' is mandatory.
-            - The method 'CustomFieldValue.get_formfield()' takes now its arguments
-              as keywords only, & the new argument 'creation' is mandatory.
+        # In 'creme_core.models' :
+            - The method 'bricks.InstanceBrickConfigItem.generate_base_id()' has been removed;
+              use the method 'creme_core.gui.bricks.InstanceBrick.generate_id()' instead
+              (notice that the returned value has changed, but it should not affect your code).
+            - In 'custom_field' :
+                - In the class 'CustomField' :
+                    - The field 'is_required' has been replaced by a field 'requirement_mode'.
+                    - The method 'get_formfield()' takes now its arguments as keywords only,
+                      & the new argument 'creation' is mandatory.
+                - The method 'CustomFieldValue.get_formfield()' takes now its arguments
+                  as keywords only, & the new argument 'creation' is mandatory.
         # In 'creme_core.utils' :
             - In 'meta', the classes 'Order' & 'OrderedField' are now "immutable"
               (you should not write the internal attributes).
