@@ -1,10 +1,11 @@
 from creme.creme_core.gui.bricks import InstanceBrick, brick_registry
-from creme.creme_core.models import InstanceBrickConfigItem
+# from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.tests.base import CremeTestCase
 
 
 class TransferInstanceBrick(InstanceBrick):
-    id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_transfer')
+    # id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_transfer')
+    id = InstanceBrick.generate_id('creme_config', 'test_transfer')
 
     # NB: would be in __init__() in classical cases...
     verbose_name = 'Instance brick for transfer'

@@ -649,6 +649,15 @@ class InstanceBrick(Brick):
         self.config_item = instance_brick_config_item
         self.id = instance_brick_config_item.brick_id
 
+    @staticmethod
+    def generate_id(app_name: str, name: str):
+        # NB: This id will only be used to identify the class among other instance
+        #     brick classes (& notably be stored in <InstanceBrickConfigItem.brick_class_id>).
+        #     Each configured types using this class will be identified by
+        #     <InstanceBrickConfigItem.brick_id> (see __init__).
+        #     So here no specific prefix (like "instance-") is useful.
+        return f'{app_name}-{name}'
+
 
 # class CustomBrick(SimpleBrick):
 class CustomBrick(Brick):

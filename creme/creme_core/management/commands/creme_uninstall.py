@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2024  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ from django.utils.encoding import force_str
 from django.utils.functional import partition
 
 from creme.creme_core.core.setting_key import setting_key_registry
-from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.bricks import Brick, InstanceBrick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -114,7 +114,8 @@ def _uninstall_bricks(sender, **kwargs):
 
     # InstanceBrickConfigItem --------------------------------------------------
     ibc_items = InstanceBrickConfigItem.objects.filter(
-        brick_class_id__startswith=InstanceBrickConfigItem.generate_base_id(
+        # brick_class_id__startswith=InstanceBrickConfigItem.generate_base_id(
+        brick_class_id__startswith=InstanceBrick.generate_id(
             app_name=app_label, name='',
         ),
     )
@@ -533,7 +534,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2018-2024
+# Copyright (c) Hybird - 2018-2026
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,

@@ -111,7 +111,8 @@ class HomeOnlyBrick2(Brick):
 
 
 class DetailviewInstanceBrick(InstanceBrick):
-    id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
+    # id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
+    id = InstanceBrick.generate_id('creme_config', 'test_detail_instance')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -123,7 +124,8 @@ class DetailviewInstanceBrick(InstanceBrick):
 
 
 class HomeInstanceBrick(InstanceBrick):
-    id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
+    # id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
+    id = InstanceBrick.generate_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
     def __init__(self, *args, **kwargs):

@@ -142,7 +142,8 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
 
 
 class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
-    id = InstanceBrickConfigItem.generate_base_id('reports', 'chart')
+    # id = InstanceBrickConfigItem.generate_base_id('reports', 'chart')
+    id = core_bricks.InstanceBrick.generate_id('reports', 'chart')
     dependencies = (ReportChart,)
     verbose_name = 'Report chart'
     template_name = 'reports/bricks/report-chart.html'

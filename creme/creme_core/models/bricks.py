@@ -464,7 +464,7 @@ class StoredBrickClassMixin:
 
 
 class UUIDBrickItemManager(models.Manager):
-    def for_brick_ids(self, brick_ids) -> models.QuerySet:
+    def for_brick_ids(self, brick_ids: Iterable[str]) -> models.QuerySet:
         model_prefix = self.model._brick_id_prefix
         uuids = []
 
@@ -522,7 +522,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     def prefetch_rtypes(items: Iterable[RelationBrickItem]) -> None:
         """Performs prefetching on the relation type (which is easy), but also
         their symmetric relation types, and the ManyToMany field "subject_ctypes"
-        for all these relation types..
+        for all these relation types.
         """
         # TODO: check things already retrieved?
         rtype_ids = [item.relation_type_id for item in items]
@@ -699,9 +699,9 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     def extra_data_items(self):
         return iter(self._extra_data.items())
 
-    @classmethod
-    def generate_base_id(cls, app_name: str, name: str) -> str:
-        return f'{cls._brick_id_prefix}-{app_name}-{name}'
+    # @classmethod
+    # def generate_base_id(cls, app_name: str, name: str) -> str:
+    #     return f'{cls._brick_id_prefix}-{app_name}-{name}'
 
     def save(self, **kwargs):
         # Should we manage argument 'update_fields'? (if you set explicitly the

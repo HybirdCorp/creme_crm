@@ -63,11 +63,13 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             InstanceBrickConfigItem,
             entity=report.id, json_extra_data__chart=str(chart.uuid),
         )
-        self.assertEqual('instance-reports-chart', ibci.brick_class_id)
+        # self.assertEqual('instance-reports-chart', ibci.brick_class_id)
+        self.assertEqual('reports-chart', ibci.brick_class_id)
         self.assertEqual(ftype_id, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
         brick = ReportChartInstanceBrick(ibci)
+        self.assertStartsWith(brick.id, 'instance-')
         self.assertEqual(f'{chart.name} - {vname}', brick.verbose_name)
         self.assertListEqual([Contact], brick.target_ctypes)
 
