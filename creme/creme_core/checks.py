@@ -15,13 +15,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+import sys
 from itertools import chain
 
 from django.apps import apps
 from django.conf import settings
 from django.core.checks import Error
-from django.core.checks import Tags as CoreTags
+from django.core.checks import Tags as DjangoTags
 from django.core.checks import Warning, register
 from django.db.utils import DatabaseError
 
@@ -70,7 +70,45 @@ def check_uninstalled_apps(**kwargs):
     return warnings  # pragma: no cover
 
 
-@register(CoreTags.models)
+def check_populated_apps(**kwargs):
+    """Check the apps which have not been populated.
+    BEWARE: it crashes if the ContentType table does not exist (first migration).
+    """
+    errors = []
+
+    if settings.TESTS_ON or 'creme_populate' in sys.argv:
+        return errors
+
+    from creme import get_version
+    from creme.creme_core.apps import creme_app_configs
+    from creme.creme_core.models import PopulatedApp
+
+    pop_apps = {
+        *PopulatedApp.objects.filter(version=get_version()).values_list('app', flat=True)
+    }
+
+    if pop_apps:
+        non_populated = [
+            app_config.label
+            for app_config in creme_app_configs()
+            if app_config.label not in pop_apps
+        ]
+
+        if non_populated:
+            errors.append(
+                Error(
+                    f'Some apps seem to have not been populated for the current version:'
+                    f' {', '.join(non_populated)}',
+                    hint='Run the command "creme_populate".',
+                    # obj=...,
+                    id='creme.E004',
+                )
+            )
+
+    return errors  # pragma: no cover
+
+
+@register(DjangoTags.models)
 def check_entity_ordering(**kwargs):
     from .models import CremeEntity
 
@@ -95,7 +133,7 @@ def check_entity_ordering(**kwargs):
 
 
 # NB: E008
-@register(CoreTags.models)
+@register(DjangoTags.models)
 def check_real_entity_foreign_keys(**kwargs):
     from .models.fields import RealEntityForeignKey
 
@@ -109,7 +147,7 @@ def check_real_entity_foreign_keys(**kwargs):
     return errors
 
 
-@register(CoreTags.urls)
+@register(DjangoTags.urls)
 def check_swapped_urls(**kwargs):
     from django.urls import NoReverseMatch, reverse
 
@@ -136,7 +174,7 @@ def check_swapped_urls(**kwargs):
     return errors
 
 
-@register(CoreTags.models)
+@register(DjangoTags.models)
 def check_file_field_maxlength(**kwargs):
     from django.db.models import FileField
 
@@ -206,7 +244,7 @@ def check_site_domain(**kwargs):
 PORTABLE_KEY_MAX_DEPTH = 1
 
 
-@register(CoreTags.models)
+@register(DjangoTags.models)
 def check_portable_keys(**kwargs):
     from django.db.models import ForeignKey, ManyToManyField
 
@@ -271,7 +309,7 @@ def check_portable_keys(**kwargs):
     return warnings
 
 
-@register(CoreTags.models)
+@register(DjangoTags.models)
 def check_fk_to_content_type(**kwargs):
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import ForeignKey

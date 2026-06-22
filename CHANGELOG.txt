@@ -7,6 +7,7 @@
         - The minimal version of MariaDB is now '10.6'.
         - The settings 'ADMINS' & 'MANAGERS' should be list of simple strings, like :
           ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
+      # A new hint has been created to prevent apps to not be populated.
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status" can now be disabled;

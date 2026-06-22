@@ -32,10 +32,7 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.field_tags import FieldTag
 
-from .checks import (  # NB: it registers other checks too
-    Tags,
-    check_uninstalled_apps,
-)
+from . import checks as core_checks  # NB: importing registers checks too
 from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
@@ -229,7 +226,7 @@ class CremeAppConfig(AppConfig):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django:
         # [AttributeError: 'instancemethod' object has no attribute 'tags']
-        @checks.register(Tags.settings)
+        @checks.register(core_checks.Tags.settings)
         def check_deps(**kwargs):
             return [
                 checks.Error(
@@ -243,7 +240,7 @@ class CremeAppConfig(AppConfig):
                 if not apps.is_installed(dep)
             ]
 
-        @checks.register(Tags.settings)
+        @checks.register(core_checks.Tags.settings)
         def check_extended_app(**kwargs):
             errors = []
             app_name = self.extended_app
@@ -466,7 +463,9 @@ class CremeCoreConfig(CremeAppConfig):
         if self.MIGRATION_MODE:
             return  # pragma: no cover
 
-        checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
+        # Crash in migrate mode.
+        checks.register(core_checks.Tags.settings)(core_checks.check_uninstalled_apps)
+        checks.register(core_checks.Tags.settings)(core_checks.check_populated_apps)
 
     @override
     def all_apps_ready(self):

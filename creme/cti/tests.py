@@ -16,7 +16,7 @@ from creme.activities.models import (
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import FieldsConfig
+from creme.creme_core.models import FieldsConfig, PopulatedApp
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.cti.bricks import CallersBrick
@@ -38,6 +38,10 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
     @staticmethod
     def _build_add_pcall_url(contact):
         return reverse('cti__create_phonecall', args=(contact.id,))
+
+    def test_populate_command(self):
+        # An instance is created even if there is no 'populate' script
+        self.assertTrue(PopulatedApp.objects.filter(app='cti'))
 
     def test_config(self):
         "Should not be available when creating UserRoles."
