@@ -19,7 +19,8 @@
 # from collections.abc import Collection
 import logging
 
-from django.http.response import Http404, HttpResponse, HttpResponseBadRequest
+# from django.http.response import Http404
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -28,7 +29,8 @@ from creme import reports
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import BricksReloading
+# from creme.creme_core.views.bricks import BricksReloading
+from creme.creme_core.views.bricks import StaticBricksReloading
 
 from ..bricks import ReportChartBrick
 from ..core.chart import plot
@@ -60,8 +62,8 @@ class ChartDetail(generic.CremeModelDetail):
     #     return {'main': [brick_cls() for brick_cls in self.bricks]}
 
 
-# TODO: factorise with other reloading views?
-class ChartDetailBricksReloading(BricksReloading):
+# class ChartDetailBricksReloading(BricksReloading):
+class ChartDetailBricksReloading(StaticBricksReloading):
     chart_id_url_kwarg = 'chart_id'
     permissions = 'reports'  # TODO: test
     # bricks = ChartDetail.bricks
@@ -71,20 +73,19 @@ class ChartDetailBricksReloading(BricksReloading):
         super().__init__(**kwargs)
         self.chart = None
 
-    def get_bricks(self):
-        reloaded_bricks = []
-        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404(f'Invalid brick id "{brick_id}"') from e
-
-            reloaded_bricks.append(brick_cls())
-
-        return reloaded_bricks
+    # def get_bricks(self):
+    #     reloaded_bricks = []
+    #     allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+    #
+    #     for brick_id in self.get_brick_ids():
+    #         try:
+    #             brick_cls = allowed_bricks[brick_id]
+    #         except KeyError as e:
+    #             raise Http404(f'Invalid brick id "{brick_id}"') from e
+    #
+    #         reloaded_bricks.append(brick_cls())
+    #
+    #     return reloaded_bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()

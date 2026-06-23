@@ -17,7 +17,7 @@
 ################################################################################
 
 from django.apps import apps
-from django.http import Http404
+# from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import pgettext_lazy
@@ -26,7 +26,8 @@ from creme.activities.forms.activity_type import NarrowedActivitySubTypeForm
 from creme.activities.models import ActivitySubType, ActivityType
 from creme.creme_config.registry import config_registry
 from creme.creme_core.gui.bricks import QuerysetBrick
-from creme.creme_core.views.bricks import BricksReloading
+# from creme.creme_core.views.bricks import BricksReloading
+from creme.creme_core.views.bricks import StaticBricksReloading
 from creme.creme_core.views.generic import BricksView, CremeModelCreationPopup
 from creme.creme_core.views.generic.order import ReorderInstances
 
@@ -94,26 +95,27 @@ class ActivityTypePortal(ActivityTypeRelatedMixin, BricksView):
         return context
 
 
-class ActivityTypeBricksReloading(ActivityTypeRelatedMixin, BricksReloading):
+# class ActivityTypeBricksReloading(ActivityTypeRelatedMixin, BricksReloading):
+class ActivityTypeBricksReloading(ActivityTypeRelatedMixin, StaticBricksReloading):
     permissions = 'activities.can_admin'
     # bricks = ActivityTypePortal.bricks
     brick_classes = ActivityTypePortal.brick_classes
 
     def get_bricks(self):
-        bricks = []
-        atype = self.get_activity_type()
+        # bricks = []
+        # atype = self.get_activity_type()
         # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404('Invalid brick ID') from e
-
-            bricks.append(brick_cls(activity_type=atype))
-
-        return bricks
+        #
+        # for brick_id in self.get_brick_ids():
+        #     try:
+        #         brick_cls = allowed_bricks[brick_id]
+        #     except KeyError as e:
+        #         raise Http404('Invalid brick ID') from e
+        #
+        #     bricks.append(brick_cls(activity_type=atype))
+        #
+        # return bricks
+        return self.build_bricks_from_classes(activity_type=self.get_activity_type())
 
     def get_bricks_context(self):
         context = super().get_bricks_context()

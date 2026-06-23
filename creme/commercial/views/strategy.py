@@ -304,34 +304,40 @@ class SegmentCategorySetting(generic.base.EntityRelatedMixin, generic.CheckedVie
         return HttpResponse()
 
 
-class MatrixBricksReloading(bricks_views.BricksReloading):
+# class MatrixBricksReloading(bricks_views.BricksReloading):
+class MatrixBricksReloading(bricks_views.StaticBricksReloading):
     permissions = 'commercial'
     strategy_id_url_kwarg = 'strategy_id'
     orga_id_url_kwarg     = 'orga_id'
-    allowed_bricks = {
-        com_bricks.AssetsMatrixBrick.id:       com_bricks.AssetsMatrixBrick,
-        com_bricks.CharmsMatrixBrick.id:       com_bricks.CharmsMatrixBrick,
-        com_bricks.AssetsCharmsMatrixBrick.id: com_bricks.AssetsCharmsMatrixBrick,
-    }
+    # allowed_bricks = {
+    #     com_bricks.AssetsMatrixBrick.id:       com_bricks.AssetsMatrixBrick,
+    #     com_bricks.CharmsMatrixBrick.id:       com_bricks.CharmsMatrixBrick,
+    #     com_bricks.AssetsCharmsMatrixBrick.id: com_bricks.AssetsCharmsMatrixBrick,
+    # }
+    brick_classes = [
+        com_bricks.AssetsMatrixBrick,
+        com_bricks.CharmsMatrixBrick,
+        com_bricks.AssetsCharmsMatrixBrick,
+    ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.strategy     = None
         self.organisation = None
 
-    def get_bricks(self):
-        bricks = []
-        allowed_bricks = self.allowed_bricks
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404('Invalid brick ID') from e
-
-            bricks.append(brick_cls())
-
-        return bricks
+    # def get_bricks(self):
+    #     bricks = []
+    #     allowed_bricks = self.allowed_bricks
+    #
+    #     for brick_id in self.get_brick_ids():
+    #         try:
+    #             brick_cls = allowed_bricks[brick_id]
+    #         except KeyError as e:
+    #             raise Http404('Invalid brick ID') from e
+    #
+    #         bricks.append(brick_cls())
+    #
+    #     return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()
