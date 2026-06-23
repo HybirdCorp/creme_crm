@@ -31,6 +31,10 @@ class PlotTestCase(CremeTestCase):
 
         self.assertListEqual([plot1, plot2], [*registry])
 
+        # ---
+        registry.unregister(name1)
+        self.assertListEqual([plot2], [*registry])
+
     def test_registry__error__empty(self):
         registry = plot.PlotRegistry()
 
@@ -46,3 +50,11 @@ class PlotTestCase(CremeTestCase):
         with self.assertRaises(plot.PlotRegistry.RegistrationError) as cm:
             registry.register(plot.Pie(name=name, label='Pie'))
         self.assertEqual(f'The plot name "{name}" is already used.', str(cm.exception))
+
+    def test_registry__error__unregister(self):
+        registry = plot.PlotRegistry()
+        name = 'invalid'
+
+        with self.assertRaises(plot.PlotRegistry.UnRegistrationError) as cm:
+            registry.unregister(name=name)
+        self.assertEqual(f'The plot name "{name}" cannot be found.', str(cm.exception))
