@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -158,9 +158,17 @@ class RegularFieldsConditionsField(_ConditionsField):
             ):
                 full_name = f'{fname}__{subfield.name}'
 
+                # if (
+                #     not (field_hidden or is_sfield_hidden(subfield))
+                #     or full_name in non_hiddable_fnames
+                # ):
+                # TODO: factorise?
                 if (
-                    not (field_hidden or is_sfield_hidden(subfield))
-                    or full_name in non_hiddable_fnames
+                    (not subfield.is_relation or subfield.get_tag(FieldTag.ENUMERABLE))
+                    and (
+                        not (field_hidden or is_sfield_hidden(subfield))
+                        or full_name in non_hiddable_fnames
+                    )
                 ):
                     fields[full_name] = [field, subfield]
 
