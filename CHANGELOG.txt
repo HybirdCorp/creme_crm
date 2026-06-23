@@ -15,6 +15,7 @@
   Developers side :
   -----------------
     # The libraries 'bleach' & 'weasyprint' have been upgraded.
+    # The entity filter form has been fixed: sub-fields cannot be a non-enumerable FK anymore (the button was displayed but it did not work).
 
 
 == Version 2.8.2 ==

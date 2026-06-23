@@ -47,6 +47,7 @@ else:
         'FakeIngredient', 'FakeRecipe',
         'FakeTodoCategory', 'FakeTodo',
         'FakeSkill', 'FakeTraining',
+        'FakeResource',
     )
 
     # NB: not MinionModel to test future errors (maybe)
@@ -947,3 +948,18 @@ else:
             ordering = ('name',)
             verbose_name = 'Test Training'
             verbose_name_plural = 'Test Training'
+
+    class FakeResource(CremeEntity):
+        linked_contact = models.ForeignKey(
+            FakeContact, verbose_name=_('Contact'), on_delete=models.PROTECT,
+        )
+        hourly_cost = models.PositiveIntegerField(_('Hourly cost'), default=0)
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Resource'
+            verbose_name_plural = 'Test Resources'
+            ordering = ('linked_contact__last_name',)
+
+        def __str__(self):
+            return f'{self.related_contact} ({self.hourly_cost})'

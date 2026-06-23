@@ -150,9 +150,17 @@ class RegularFieldsConditionsField(_ConditionsField):
             ):
                 full_name = f'{fname}__{subfield.name}'
 
+                # if (
+                #     not (field_hidden or is_sfield_hidden(subfield))
+                #     or full_name in non_hiddable_fnames
+                # ):
+                # TODO: factorise?
                 if (
-                    not (field_hidden or is_sfield_hidden(subfield))
-                    or full_name in non_hiddable_fnames
+                    (not subfield.is_relation or subfield.get_tag(FieldTag.ENUMERABLE))
+                    and (
+                        not (field_hidden or is_sfield_hidden(subfield))
+                        or full_name in non_hiddable_fnames
+                    )
                 ):
                     fields[full_name] = [field, subfield]
 
