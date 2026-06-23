@@ -70,10 +70,16 @@ class PlotRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     _plots: dict[str, Plot]
 
     def __init__(self):
         self._plots = {}
+
+    def __iter__(self) -> Iterator[Plot]:
+        yield from self._plots.values()
 
     def register(self, *plots: Plot) -> Self:
         for plot in plots:
@@ -89,10 +95,17 @@ class PlotRegistry:
         return self
 
     def get(self, name: str) -> Plot | None:
+        """Get a Plot by its name."""
         return self._plots.get(name)
 
-    def __iter__(self) -> Iterator[Plot]:
-        yield from self._plots.values()
+    def unregister(self, name: str) -> None:
+        """Un-register a Plot by its name."""
+        try:
+            del self._plots[name]
+        except KeyError as e:
+            raise self.UnRegistrationError(
+                f'The plot name "{name}" cannot be found.'
+            ) from e
 
 
 plot_registry = PlotRegistry()
