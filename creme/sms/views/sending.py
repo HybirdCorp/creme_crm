@@ -16,7 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse
+# from django.http import Http404
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
@@ -27,7 +28,8 @@ from creme.creme_core.auth.decorators import (
 from creme.creme_core.http import is_ajax
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import BricksReloading
+# from creme.creme_core.views.bricks import BricksReloading
+from creme.creme_core.views.bricks import StaticBricksReloading
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
@@ -119,7 +121,8 @@ def delete_message(request):
     return redirect(campaign)
 
 
-class MessagesBrickReloading(BricksReloading):
+# class MessagesBrickReloading(BricksReloading):
+class MessagesBrickReloading(StaticBricksReloading):
     permissions = 'sms'
     sending_id_url_kwarg = 'sending_id'
     # bricks = Messages.bricks
@@ -129,20 +132,19 @@ class MessagesBrickReloading(BricksReloading):
         super().__init__(**kwargs)
         self.sending = None
 
-    def get_bricks(self):
-        bricks = []
-        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404('Invalid brick ID') from e
-
-            bricks.append(brick_cls())
-
-        return bricks
+    # def get_bricks(self):
+    #     bricks = []
+    #     allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+    #
+    #     for brick_id in self.get_brick_ids():
+    #         try:
+    #             brick_cls = allowed_bricks[brick_id]
+    #         except KeyError as e:
+    #             raise Http404('Invalid brick ID') from e
+    #
+    #         bricks.append(brick_cls())
+    #
+    #     return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()

@@ -18,6 +18,7 @@
 
 import logging
 from json import loads as json_load
+from typing import Sequence, override
 
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse, HttpResponseBase
@@ -131,6 +132,52 @@ class BricksReloading(generic.CheckedView):
             self.get_bricks_contents(),
             safe=False,  # Result is not a dictionary
         )
+
+
+class StaticBricksReloading(BricksReloading):
+    """Specification of BricksReloading to be used as base class for reloading views
+    with use a static "list" (see below) of Brick classes which are allowed.
+
+    The attributes 'brick_classes' contains the allowed classes; it can be
+     - A simple list of class:
+            brick_classes = [FooBrick, BazBrick]
+     - A dictionary with zones as keys:
+            brick_classes = {
+                'left': [FooBrick, BazBrick],
+                'right': [StuffBrick],
+            }
+    """
+    brick_classes: Sequence[type[Brick]] | dict[str, list[type[Brick]]] = ()
+
+    def allowed_brick_classes(self) -> dict[str, type[Brick]]:
+        brick_classes = self.brick_classes
+
+        return {
+            brick_cls.id: brick_cls
+            for brick_classes in brick_classes.values()
+            for brick_cls in brick_classes
+        } if isinstance(brick_classes, dict) else {
+            brick_cls.id: brick_cls for brick_cls in brick_classes
+        }
+
+    def build_bricks_from_classes(self, **kwargs) -> list[Brick]:
+        """@param kwargs: argument passed to build tye brick instances."""
+        bricks = []
+        allowed_cls = self.allowed_brick_classes()
+
+        for brick_id in self.get_brick_ids():
+            try:
+                brick_cls = allowed_cls[brick_id]
+            except KeyError as e:
+                raise Http404(f'Invalid brick ID: {brick_id}') from e
+
+            bricks.append(brick_cls(**kwargs))
+
+        return bricks
+
+    @override
+    def get_bricks(self):
+        return self.build_bricks_from_classes()
 
 
 class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading):

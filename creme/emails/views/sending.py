@@ -16,7 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse
+# from django.http import Http404
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.formats import date_format
@@ -141,7 +142,8 @@ class SendingBody(generic.RelatedToEntityDetail):
 
 
 # Useful because EmailSending is not a CremeEntity (should be ?)
-class SendingBricksReloading(bricks_views.BricksReloading):
+# class SendingBricksReloading(bricks_views.BricksReloading):
+class SendingBricksReloading(bricks_views.StaticBricksReloading):
     permissions = 'emails'
     sending_id_url_kwarg = 'sending_id'
     # bricks = SendingDetail.bricks
@@ -151,24 +153,23 @@ class SendingBricksReloading(bricks_views.BricksReloading):
         super().__init__(**kwargs)
         self.sending = None
 
-    def get_bricks(self):
-        bricks = []
-        allowed_bricks = {
-            brick_cls.id: brick_cls
-            # for brick_classes in self.bricks.values()
-            for brick_classes in self.brick_classes.values()
-            for brick_cls in brick_classes
-        }
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404('Invalid brick ID') from e
-
-            bricks.append(brick_cls())
-
-        return bricks
+    # def get_bricks(self):
+    #     bricks = []
+    #     allowed_bricks = {
+    #         brick_cls.id: brick_cls
+    #         for brick_classes in self.bricks.values()
+    #         for brick_cls in brick_classes
+    #     }
+    #
+    #     for brick_id in self.get_brick_ids():
+    #         try:
+    #             brick_cls = allowed_bricks[brick_id]
+    #         except KeyError as e:
+    #             raise Http404('Invalid brick ID') from e
+    #
+    #         bricks.append(brick_cls())
+    #
+    #     return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()

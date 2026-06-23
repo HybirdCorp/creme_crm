@@ -37,7 +37,8 @@ from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import BricksReloading
+# from creme.creme_core.views.bricks import BricksReloading
+from creme.creme_core.views.bricks import StaticBricksReloading
 from creme.persons.views.contact import ContactCreation
 from creme.persons.views.organisation import OrganisationCreation
 
@@ -95,26 +96,25 @@ class AnswerToACall(generic.BricksView):
         return number
 
 
-class CallersBrickReloading(BricksReloading):
+# class CallersBrickReloading(BricksReloading):
+class CallersBrickReloading(StaticBricksReloading):
     number_url_kwarg = 'number'
     # bricks = AnswerToACall.bricks
     brick_classes = AnswerToACall.brick_classes
 
-    # TODO: factorise (sms, EmailSending)?
-    def get_bricks(self):
-        bricks = []
-        # allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
-        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.brick_classes}
-
-        for brick_id in self.get_brick_ids():
-            try:
-                brick_cls = allowed_bricks[brick_id]
-            except KeyError as e:
-                raise Http404('Invalid brick ID') from e
-
-            bricks.append(brick_cls())
-
-        return bricks
+    # def get_bricks(self):
+    #     bricks = []
+    #     allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+    #
+    #     for brick_id in self.get_brick_ids():
+    #         try:
+    #             brick_cls = allowed_bricks[brick_id]
+    #         except KeyError as e:
+    #             raise Http404('Invalid brick ID') from e
+    #
+    #         bricks.append(brick_cls())
+    #
+    #     return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()
