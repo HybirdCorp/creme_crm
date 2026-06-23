@@ -67,15 +67,24 @@ class Tube(Plot):
 class PlotRegistry:
     __slots__ = ('_plots',)
 
+    class RegistrationError(Exception):
+        pass
+
     _plots: dict[str, Plot]
 
     def __init__(self):
         self._plots = {}
 
     def register(self, *plots: Plot) -> Self:
-        # TODO: check duplicates, empty names...
         for plot in plots:
-            self._plots[plot.name] = plot
+            # self._plots[plot.name] = plot
+            name = plot.name
+
+            if not name:
+                raise self.RegistrationError('The plot name is empty.')
+
+            if self._plots.setdefault(name, plot) is not plot:
+                raise self.RegistrationError(f'The plot name "{name}" is already used.')
 
         return self
 

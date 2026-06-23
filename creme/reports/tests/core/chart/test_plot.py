@@ -30,3 +30,19 @@ class PlotTestCase(CremeTestCase):
         self.assertIsNone(registry.get('invalid'))
 
         self.assertListEqual([plot1, plot2], [*registry])
+
+    def test_registry__error__empty(self):
+        registry = plot.PlotRegistry()
+
+        with self.assertRaises(plot.PlotRegistry.RegistrationError) as cm:
+            registry.register(plot.Bar(name='', label='Histogram'))
+        self.assertEqual('The plot name is empty.', str(cm.exception))
+
+    def test_registry__error__duplicate(self):
+        registry = plot.PlotRegistry()
+        name = 'my_plot'
+        registry.register(plot.Bar(name=name, label='Histogram'))
+
+        with self.assertRaises(plot.PlotRegistry.RegistrationError) as cm:
+            registry.register(plot.Pie(name=name, label='Pie'))
+        self.assertEqual(f'The plot name "{name}" is already used.', str(cm.exception))
