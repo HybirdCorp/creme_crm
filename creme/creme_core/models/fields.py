@@ -476,7 +476,8 @@ class RealEntityForeignKey(FieldCacheMixin):
             yield checks.Error(
                 'Field names must not end with an underscore.',
                 obj=self,
-                id='fields.E001',
+                # id='fields.E001',
+                id='creme.core.models.E001',
             )
 
     def _check_fk(self, attr_name, related_model):
@@ -489,14 +490,16 @@ class RealEntityForeignKey(FieldCacheMixin):
             yield checks.Error(
                 f'The RealEntityForeignKey references the non-existent field "{fname}".',
                 obj=self,
-                id='creme.E008',
+                # id='creme.E008',
+                id='creme.core.models.E002',
             )
         else:
             if not isinstance(field, models.ForeignKey):
                 yield checks.Error(
                     f'"{meta.object_name}.{fname}" is not a ForeignKey.',
                     obj=self,
-                    id='creme.E008',
+                    # id='creme.E008',
+                    id='creme.core.models.E003',
                 )
             elif field.remote_field.model != related_model:
                 rel_meta = related_model._meta
@@ -505,7 +508,8 @@ class RealEntityForeignKey(FieldCacheMixin):
                     f'"{meta.object_name}.{fname}" is not a ForeignKey to '
                     f'"{rel_meta.app_label}.{rel_meta.object_name}".',
                     obj=self,
-                    id='creme.E008',
+                    # id='creme.E008',
+                    id='creme.core.models.E004',
                 )
 
     @staticmethod
