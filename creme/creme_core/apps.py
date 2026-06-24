@@ -234,7 +234,7 @@ class CremeAppConfig(AppConfig):
                     hint='Check the INSTALLED_CREME_APPS setting in your'
                          ' local_settings.py/project_settings.py',
                     obj=self.name,
-                    id='creme.E001',
+                    id='creme.core.E001',
                 )
                 for dep in self.dependencies
                 if not apps.is_installed(dep)
@@ -252,7 +252,8 @@ class CremeAppConfig(AppConfig):
                         hint='Check the INSTALLED_CREME_APPS setting in your'
                              ' local_settings.py/project_settings.py',
                         obj=self.name,
-                        id='creme.E006',
+                        # id='creme.E006',
+                        id='creme.core.E002',
                     ))
 
                 if self.credentials != self.CRED_NONE:
@@ -261,7 +262,8 @@ class CremeAppConfig(AppConfig):
                         f"so it cannot have its own credentials.",
                         hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
                         obj=self.name,
-                        id='creme.E007',
+                        # id='creme.E007',
+                        id='creme.core.E003',
                     ))
 
             return errors
@@ -892,7 +894,8 @@ class CremeCoreConfig(CremeAppConfig):
                         'Field specifies on_delete=CREME_REPLACE_NULL, but cannot be null.',
                         hint='Set null=True argument on the field, or change the on_delete rule.',
                         obj=self,
-                        id='creme.E009',
+                        # id='creme.E009',
+                        id='creme.core.E004',
                     )
                 )
 

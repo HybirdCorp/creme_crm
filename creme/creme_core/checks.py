@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import sys
 from itertools import chain
 
@@ -64,7 +65,8 @@ def check_uninstalled_apps(**kwargs):
                         '(you must enable this app in your settings before).'
                     ),
                     obj=app_label,
-                    id='creme.E003',
+                    # id='creme.E003',
+                    id='creme.core.W001',
                 ))
 
     return warnings  # pragma: no cover
@@ -101,7 +103,7 @@ def check_populated_apps(**kwargs):
                     f' {', '.join(non_populated)}',
                     hint='Run the command "creme_populate".',
                     # obj=...,
-                    id='creme.E004',
+                    id='creme.core.E005',
                 )
             )
 
@@ -126,7 +128,8 @@ def check_entity_ordering(**kwargs):
                 f'different from "id" like all CremeEntities',
                 hint='Change the "ordering" attribute in the Meta class of your model.',
                 obj=model._meta.app_label,
-                id='creme.E005',
+                # id='creme.E005',
+                id='creme.core.E006',
             ))
 
     return errors
@@ -168,7 +171,8 @@ def check_swapped_urls(**kwargs):
                     hint='Define this URL in the file "urls.py" of the module '
                          'which defines the concrete model.',
                     obj='creme.creme_core',
-                    id='creme.E009',
+                    # id='creme.E009',
+                    id='creme.core.E007',
                 ))
 
     return errors
@@ -198,7 +202,8 @@ def check_file_field_maxlength(**kwargs):
                     f'So it is possible that the automatic creation of FileRef '
                     f'(when you delete an instance of <{model.__name__}>) fails.',
                     obj=model._meta.app_label,
-                    id='creme.E010',
+                    # id='creme.E010',
+                    id='creme.core.W002',
                 ))
 
     return warnings
@@ -215,7 +220,8 @@ def check_site_domain(**kwargs):
         warnings.append(Warning(
             'The settings SITE_DOMAIN must be defined (you left the example value).',
             obj='settings.py',
-            id='creme.E011',
+            # id='creme.E011',
+            id='creme.core.W003',
         ))
     else:
         prefixes = ('http://', 'https://')
@@ -223,7 +229,8 @@ def check_site_domain(**kwargs):
             warnings.append(Warning(
                 f'The settings SITE_DOMAIN must start with {prefixes}.',
                 obj='settings.py',
-                id='creme.E011',
+                # id='creme.E011',
+                id='creme.core.W004',
             ))
 
         # ---
@@ -231,7 +238,8 @@ def check_site_domain(**kwargs):
             warnings.append(Warning(
                 'The settings SITE_DOMAIN must NOT end with "/".',
                 obj='settings.py',
-                id='creme.E011',
+                # id='creme.E011',
+                id='creme.core.W005',
             ))
 
     return warnings
@@ -283,7 +291,8 @@ def check_portable_keys(**kwargs):
                         f'or even inherit <creme_core.models.MinionModel>.'
                     ),
                     obj='creme.creme_core',
-                    id='creme.E012',  # TODO: "W" instead?
+                    # id='creme.E012',
+                    id='creme.core.W006',
                 ))
                 warned_models.add(related_model)
             elif not hasattr(related_model._default_manager, 'get_by_portable_key'):
@@ -291,7 +300,8 @@ def check_portable_keys(**kwargs):
                     f'The model {related_model} has a property "portable_key" but '
                     f'its default manager has no method "get_by_portable_key()".',
                     obj='creme.creme_core',
-                    id='creme.E012',  # TODO: "W" instead?
+                    # id='creme.E012',
+                    id='creme.core.W007',
                     hint=(
                         'Your manager class should inherit <MinionManager>'
                         if issubclass(related_model, MinionModel) else
@@ -334,7 +344,8 @@ def check_fk_to_content_type(**kwargs):
                         f'The model {model} has a basic ForeignKey "{field.name}" '
                         f'to the model ContentType.',
                         obj='creme.creme_core',
-                        id='creme.E013',  # TODO: "W" instead?
+                        # id='creme.E013',
+                        id='creme.core.W008',
                         hint=(
                             'Use a field '
                             'CTypeForeignKey/EntityCTypeForeignKey/CTypeOneToOneField '
@@ -356,21 +367,24 @@ def check_last_entities(**kwargs):
         errors.append(Error(
             'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
             obj='settings.py',
-            id='creme.E014',
+            # id='creme.E014',
+            id='creme.core.E008',
         ))
     else:
         if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
             errors.append(Error(  # pragma: no cover
                 'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
                 obj='settings.py',
-                id='creme.E014',
+                # id='creme.E014',
+                id='creme.core.E009',
             ))
         elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
             errors.append(Error(  # pragma: no cover
                 'The settings LAST_ENTITIES_MENU_SIZE must be small or equal than '
                 'LAST_ENTITIES_SIZE.',
                 obj='settings.py',
-                id='creme.E014',
+                # id='creme.E014',
+                id='creme.core.E010',
             ))
 
     return errors
