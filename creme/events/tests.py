@@ -5,8 +5,10 @@ from unittest import skipIf
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme import persons
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     Currency,
     FieldsConfig,
@@ -27,7 +29,9 @@ from creme.persons.tests.base import (
 
 from . import constants, event_model_is_custom, get_event_model
 from .bricks import ResultsBrick
+from .gui import EntityCellVolatileInvitation, EntityCellVolatilePresence
 from .models import EventType
+from .models.event import InvitationStatus, PresenceStatus
 from .views.event import AddRelatedOpportunityAction
 
 skip_event_tests = event_model_is_custom()
@@ -98,6 +102,50 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
 
         return self.get_object_or_fail(Event, name=name)
+
+    def test_invitation_status(self):
+        self.assertEqual('1', str(InvitationStatus.NOT_INVITED))
+        self.assertEqual('2', str(InvitationStatus.NO_ANSWER))
+        self.assertEqual('3', str(InvitationStatus.ACCEPTED))
+        self.assertEqual('4', str(InvitationStatus.REFUSED))
+
+        self.assertEqual(InvitationStatus.NOT_INVITED, InvitationStatus(1))
+        self.assertEqual(InvitationStatus.NOT_INVITED, InvitationStatus['NOT_INVITED'])
+
+        self.assertEqual(_('Not invited'), InvitationStatus.NOT_INVITED.label)
+
+        self.assertEqual(4, len(InvitationStatus))
+        self.assertListEqual(
+            [
+                InvitationStatus.NOT_INVITED,
+                InvitationStatus.NO_ANSWER,
+                InvitationStatus.ACCEPTED,
+                InvitationStatus.REFUSED,
+            ],
+            [*InvitationStatus],
+        )
+        self.assertListEqual(
+            [
+                (1, _('Not invited')),
+                (2, _('Did not answer')),
+                (3, _('Accepted the invitation')),
+                (4, _('Refused the invitation')),
+            ],
+            [*InvitationStatus.choices],
+        )
+
+    def test_presence_status(self):
+        self.assertEqual('1', str(PresenceStatus.DONT_KNOW))
+        self.assertEqual('2', str(PresenceStatus.COME))
+        self.assertEqual('3', str(PresenceStatus.NOT_COME))
+        self.assertListEqual(
+            [
+                (1, _('N/A')),
+                (2, pgettext('events-presence_status', 'Come')),
+                (3, pgettext('events-presence_status', 'Not come')),
+            ],
+            [*PresenceStatus.choices],
+        )
 
     def test_detailview(self):
         user = self.login_as_root_and_get()
@@ -219,6 +267,55 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(name, event.name)
         self.assertEqual(self.create_datetime(2010, 11, 4), event.start_date)
 
+    def test_EntityCellVolatileInvitation(self):
+        user = self.login_as_root_and_get()
+        event = self._create_event(
+            user=user, name='Eclipse', etype=EventType.objects.first(),
+        )
+        contact = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
+
+        cell = EntityCellVolatileInvitation(event=event)
+        self.assertEqual('invitation_management', cell.value)
+        # self.assertFalse(cell.has_relation(contact, ...))  TODO
+
+        url = self._build_invitation_url(event=event, contact=contact)
+        self.assertHTMLEqual(
+            f'''
+            <select onchange="creme.events.saveContactStatus('{url}', this);">
+             <option selected value="1">{_('Not invited')}</option>
+             <option value="2">{_('Did not answer')}</option>
+             <option value="3">{_('Accepted the invitation')}</option>
+             <option value="4">{_('Refused the invitation')}</option>
+            </select>
+            ''',
+            cell.render(entity=contact, user=user, tag=ViewTag.HTML_LIST),
+        )
+        # TODO: complete with other statuses
+
+    def test_EntityCellVolatilePresence(self):
+        user = self.login_as_root_and_get()
+        event = self._create_event(
+            user=user, name='Eclipse', etype=EventType.objects.first(),
+        )
+        contact = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
+
+        cell = EntityCellVolatilePresence(event=event)
+        self.assertEqual('presence_management', cell.value)
+        # self.assertFalse(cell.has_relation(contact, ...))  TODO
+
+        url = self._build_presence_url(event=event, contact=contact)
+        self.assertHTMLEqual(
+            f'''
+            <select onchange="creme.events.saveContactStatus('{url}', this);">
+             <option selected value="1">{_('N/A')}</option>
+             <option value="2">{pgettext('events-presence_status', 'Come')}</option>
+             <option value="3">{pgettext('events-presence_status', 'Not come')}</option>
+            </select>
+            ''',
+            cell.render(entity=contact, user=user, tag=ViewTag.HTML_LIST),
+        )
+        # TODO: complete with other statuses
+
     def test_listview(self):
         user = self.login_as_root_and_get()
 
@@ -332,8 +429,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         url = self._build_invitation_url(event, casca)
         self.assertPOST404(url, data={'status': 'not_an_int'})
-        self.assertGET405(url, data={'status': constants.INV_STATUS_NO_ANSWER})
-        self.assertPOST200(url, data={'status': constants.INV_STATUS_NO_ANSWER})
+        # self.assertGET405(url, data={'status': constants.INV_STATUS_NO_ANSWER})
+        self.assertGET405(url, data={'status': InvitationStatus.NO_ANSWER})
+        # self.assertPOST200(url, data={'status': constants.INV_STATUS_NO_ANSWER})
+        self.assertPOST200(url, data={'status': InvitationStatus.NO_ANSWER})
 
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
@@ -341,7 +440,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
 
-        self.assertPOST200(url, data={'status': constants.INV_STATUS_NOT_INVITED})
+        # self.assertPOST200(url, data={'status': constants.INV_STATUS_NOT_INVITED})
+        self.assertPOST200(url, data={'status': InvitationStatus.NOT_INVITED})
 
         stats = event.get_stats()
         self.assertEqual(0, stats['invitations_count'])
@@ -357,14 +457,16 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         url = self._build_invitation_url(event, casca)
-        self.assertPOST200(url, data={'status': constants.INV_STATUS_ACCEPTED})
+        # self.assertPOST200(url, data={'status': constants.INV_STATUS_ACCEPTED})
+        self.assertPOST200(url, data={'status': InvitationStatus.ACCEPTED})
 
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
-        self.client.post(url, data={'status': constants.INV_STATUS_NOT_INVITED})
+        # self.client.post(url, data={'status': constants.INV_STATUS_NOT_INVITED})
+        self.client.post(url, data={'status': InvitationStatus.NOT_INVITED})
         stats = event.get_stats()
         self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -377,13 +479,15 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
+        self._set_invitation_status(event, casca, InvitationStatus.REFUSED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
-        self._set_invitation_status(event, casca, constants.INV_STATUS_NOT_INVITED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_NOT_INVITED)
+        self._set_invitation_status(event, casca, InvitationStatus.NOT_INVITED)
         stats = event.get_stats()
         self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -396,14 +500,17 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        self._set_invitation_status(event, casca, constants.INV_STATUS_ACCEPTED)
-        self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_ACCEPTED)
+        self._set_invitation_status(event, casca, InvitationStatus.ACCEPTED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
+        self._set_invitation_status(event, casca, InvitationStatus.REFUSED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
-        self._set_invitation_status(event, casca, constants.INV_STATUS_NO_ANSWER)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_NO_ANSWER)
+        self._set_invitation_status(event, casca, InvitationStatus.NO_ANSWER)
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -416,8 +523,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
-        self._set_invitation_status(event, casca, constants.INV_STATUS_ACCEPTED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
+        self._set_invitation_status(event, casca, InvitationStatus.REFUSED)
+        # self._set_invitation_status(event, casca, constants.INV_STATUS_ACCEPTED)
+        self._set_invitation_status(event, casca, InvitationStatus.ACCEPTED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(1, stats['accepted_count'])
@@ -443,7 +552,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(user.has_perm_to_link(casca))
         self.assertPOST403(
             self._build_invitation_url(event, casca),
-            data={'status': constants.INV_STATUS_REFUSED},
+            # data={'status': constants.INV_STATUS_REFUSED},
+            data={'status': InvitationStatus.REFUSED},
         )
 
         event = _create_event(user=other_user, name='Eclipse 02')
@@ -452,7 +562,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(user.has_perm_to_link(guts))
         self.assertPOST403(
             self._build_invitation_url(event, guts),
-            data={'status': constants.INV_STATUS_REFUSED},
+            # data={'status': constants.INV_STATUS_REFUSED},
+            data={'status': InvitationStatus.REFUSED},
         )
 
     def _set_presence_status(self, event, contact, status_id):
@@ -478,7 +589,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(
             200,
             self._set_presence_status(
-                event, casca, constants.PRES_STATUS_COME,
+                # event, casca, constants.PRES_STATUS_COME,
+                event, casca, PresenceStatus.COME,
             ).status_code,
         )
 
@@ -493,7 +605,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(1, stats['visitors_count'])
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
+        self._set_presence_status(event, casca, PresenceStatus.DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
@@ -504,14 +617,17 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
+        self._set_presence_status(event, casca, PresenceStatus.COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
+        self._set_presence_status(event, casca, PresenceStatus.NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertHaveRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
+        self._set_presence_status(event, casca, PresenceStatus.DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
@@ -522,11 +638,13 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
+        self._set_presence_status(event, casca, PresenceStatus.NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertHaveRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
+        # self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
+        self._set_presence_status(event, casca, PresenceStatus.COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
@@ -546,7 +664,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(user.has_perm_to_link(casca))
         self.assertPOST403(
             self._build_presence_url(event, casca),
-            data={'status': constants.PRES_STATUS_COME},
+            # data={'status': constants.PRES_STATUS_COME},
+            data={'status': PresenceStatus.COME},
         )
 
         event = _create_event(user=other_user, name='Eclipse 02', type=etype, start_date=now())
@@ -555,7 +674,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(user.has_perm_to_link(guts))
         self.assertPOST403(
             self._build_presence_url(event, guts),
-            data={'status': constants.PRES_STATUS_COME},
+            # data={'status': constants.PRES_STATUS_COME},
+            data={'status': PresenceStatus.COME},
         )
 
     @skipIfCustomContact
@@ -571,12 +691,17 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         griffith  = create_contact(first_name='Griffith',  last_name='Miura')
         charlotte = create_contact(first_name='Charlotte', last_name='Miura')
 
-        self._set_presence_status(event1, casca, constants.PRES_STATUS_COME)
-        self._set_invitation_status(event1, judo, constants.INV_STATUS_NO_ANSWER)
-        self._set_invitation_status(event1, griffith, constants.INV_STATUS_ACCEPTED)
+        # self._set_presence_status(event1, casca, constants.PRES_STATUS_COME)
+        self._set_presence_status(event1, casca, PresenceStatus.COME)
+        # self._set_invitation_status(event1, judo, constants.INV_STATUS_NO_ANSWER)
+        self._set_invitation_status(event1, judo, InvitationStatus.NO_ANSWER)
+        # self._set_invitation_status(event1, griffith, constants.INV_STATUS_ACCEPTED)
+        self._set_invitation_status(event1, griffith, InvitationStatus.ACCEPTED)
 
-        self._set_presence_status(event2, griffith,  constants.PRES_STATUS_COME)
-        self._set_presence_status(event2, charlotte, constants.PRES_STATUS_COME)
+        # self._set_presence_status(event2, griffith,  constants.PRES_STATUS_COME)
+        self._set_presence_status(event2, griffith,  PresenceStatus.COME)
+        # self._set_presence_status(event2, charlotte, constants.PRES_STATUS_COME)
+        self._set_presence_status(event2, charlotte, PresenceStatus.COME)
 
         response = self.assertGET200(reverse('events__list_related_contacts', args=(event1.id,)))
 

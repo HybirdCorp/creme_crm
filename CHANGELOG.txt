@@ -201,6 +201,12 @@
                   the related class 'views.line.ReorderLines' has been modfied to use this new information.
             * Commercial :
                 - The attribute 'views.strategy.MatrixBricksReloading.allowed_bricks' has been replaced by 'brick_classes'.
+            * Events :
+                - In 'constanst', 'INV_STATUS_*' & 'PRES_STATUS_*' have been removed; see the new types
+                  'models.event.InvitationStatus' & 'models.event.PresenceStatus' instead.
+                - In the method 'gui._BaseEventEntityCellVolatile._render_select()', the argument
+                  'status_map' has been replaced by 'status_type'.
+                - The attribute 'views.event.BaseStatusSetting.status_map' has been replaced by 'status_type'.
             * SMS :
                 - In 'views.sending', the class attribute 'brick' of the view-classes
                   'Messages' & 'MessagesBrickReloading' has been renamed 'brick_classes'.

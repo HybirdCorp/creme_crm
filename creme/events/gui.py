@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from creme.creme_core.gui.listview import ListViewButton
 from creme.persons import get_contact_model
 
 from . import constants
+from .models.event import InvitationStatus, PresenceStatus
 
 Contact = get_contact_model()
 
@@ -69,7 +70,8 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
             for relation in entity.get_relations(rtype_id)
         )
 
-    def _render_select(self, entity, user, change_url, status_map, current_status):
+    # def _render_select(self, entity, user, change_url, status_map, current_status):
+    def _render_select(self, entity, user, change_url, status_type, current_status):
         has_perm = user.has_perm_to_link
 
         return format_html(
@@ -87,7 +89,8 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
                         'status': status,
                         'attrs': ' selected' if status == current_status else '',
                         'label': status_name,
-                    } for status, status_name in status_map.items()
+                        # } for status, status_name in status_map.items()
+                    } for status, status_name in status_type.choices
                 )
             ),
         )
@@ -101,18 +104,23 @@ class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
         has_relation = self.has_relation
 
         if not has_relation(entity, constants.REL_SUB_IS_INVITED_TO):
-            current_status = constants.INV_STATUS_NOT_INVITED
+            # current_status = constants.INV_STATUS_NOT_INVITED
+            current_status = InvitationStatus.NOT_INVITED
         elif has_relation(entity, constants.REL_SUB_ACCEPTED_INVITATION):
-            current_status = constants.INV_STATUS_ACCEPTED
+            # current_status = constants.INV_STATUS_ACCEPTED
+            current_status = InvitationStatus.ACCEPTED
         elif has_relation(entity, constants.REL_SUB_REFUSED_INVITATION):
-            current_status = constants.INV_STATUS_REFUSED
+            # current_status = constants.INV_STATUS_REFUSED
+            current_status = InvitationStatus.REFUSED
         else:
-            current_status = constants.INV_STATUS_NO_ANSWER
+            # current_status = constants.INV_STATUS_NO_ANSWER
+            current_status = InvitationStatus.NO_ANSWER
 
         return self._render_select(
             entity=entity, user=user,
             change_url=reverse('events__set_invitation_status', args=(self.event.id, entity.id)),
-            status_map=constants.INV_STATUS_MAP,
+            # status_map=constants.INV_STATUS_MAP,
+            status_type=InvitationStatus,
             current_status=current_status,
         )
 
@@ -129,16 +137,20 @@ class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
         has_relation = self.has_relation
 
         if has_relation(entity, constants.REL_SUB_CAME_EVENT):
-            current_status = constants.PRES_STATUS_COME
+            # current_status = constants.PRES_STATUS_COME
+            current_status = PresenceStatus.COME
         elif has_relation(entity, constants.REL_SUB_NOT_CAME_EVENT):
-            current_status = constants.PRES_STATUS_NOT_COME
+            # current_status = constants.PRES_STATUS_NOT_COME
+            current_status = PresenceStatus.NOT_COME
         else:
-            current_status = constants.PRES_STATUS_DONT_KNOW
+            # current_status = constants.PRES_STATUS_DONT_KNOW
+            current_status = PresenceStatus.DONT_KNOW
 
         return self._render_select(
             entity=entity, user=user,
             change_url=reverse('events__set_presence_status', args=(self.event.id, entity.id)),
-            status_map=constants.PRES_STATUS_MAP,
+            # status_map=constants.PRES_STATUS_MAP,
+            status_type=PresenceStatus,
             current_status=current_status,
         )
 
