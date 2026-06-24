@@ -1,6 +1,6 @@
 == Version 2.8.3 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po files (activities)
+  TODO: compile .po files (activities, events)
 
   Users side :
   ------------
