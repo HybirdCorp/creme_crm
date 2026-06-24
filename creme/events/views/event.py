@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Q
+from django.db.models import IntegerChoices, Q
 from django.forms import BaseForm, ModelChoiceField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -41,7 +41,7 @@ from creme.persons.views.contact import ContactsList
 
 from .. import constants, custom_forms, get_event_model, gui
 from ..forms import event as event_forms
-from ..models import EventType
+from ..models.event import EventType, InvitationStatus, PresenceStatus
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -286,7 +286,8 @@ class RelatedOpportunityCreation(generic.EntityCreation):
 
 class BaseStatusSetting(generic.CheckedView):
     permissions = 'events'
-    status_map = constants.INV_STATUS_MAP  # TODO: {}
+    # status_map = constants.INV_STATUS_MAP
+    status_type = IntegerChoices
     status_arg = 'status'
     event_id_url_kwarg = 'event_id'
     contact_id_url_kwarg = 'contact_id'
@@ -310,12 +311,18 @@ class BaseStatusSetting(generic.CheckedView):
         return event
 
     def get_status(self):
-        status = get_from_POST_or_404(self.request.POST, self.status_arg, cast=int)
+        # status = get_from_POST_or_404(self.request.POST, self.status_arg, cast=int)
+        #
+        # if status not in self.status_map:
+        #     raise Http404(f'Unknown status: {status}')
+        #
+        # return status
+        status_id = get_from_POST_or_404(self.request.POST, self.status_arg, cast=int)
 
-        if status not in self.status_map:
-            raise Http404(f'Unknown status: {status}')
-
-        return status
+        try:
+            return self.status_type(status_id)
+        except ValueError as e:
+            raise Http404(f'Unknown status: {status_id}') from e
 
     def post(self, *args, **kwargs):
         self.update(
@@ -331,14 +338,16 @@ class BaseStatusSetting(generic.CheckedView):
 
 
 class InvitationStatusSetting(BaseStatusSetting):
-    status_map = constants.INV_STATUS_MAP
+    # status_map = constants.INV_STATUS_MAP
+    status_type = InvitationStatus
 
     def update(self, *, event, contact, status):
         event.set_invitation_status(contact=contact, status=status, user=self.request.user)
 
 
 class PresenceStatusSetting(BaseStatusSetting):
-    status_map = constants.PRES_STATUS_MAP
+    # status_map = constants.PRES_STATUS_MAP
+    status_type = PresenceStatus
 
     def update(self, *, event, contact, status):
         event.set_presence_status(contact=contact, status=status, user=self.request.user)
