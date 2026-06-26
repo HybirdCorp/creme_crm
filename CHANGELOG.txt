@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # An issue has been fixed in History: no line was created when a (nullable) integer-field passed from 0 to None.
     # Apps :
         * Events :
             - The value checking to set the presence status has been fixed.

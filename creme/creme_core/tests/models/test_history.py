@@ -263,7 +263,8 @@ about this fantastic animation studio."""
         self.assertIn(['description', old_description, description], modifs)
         self.assertIn(['sector_id', sector01.id, sector02.id], modifs)
         self.assertIn(['creation_date', '1984-12-24'], modifs)
-        self.assertIn(['subject_to_vat', True], modifs, modifs)
+        # self.assertIn(['subject_to_vat', True], modifs, modifs)
+        self.assertIn(['subject_to_vat', False, True], modifs, modifs)
         self.assertIn(['legal_form_id', lform.id, None], modifs, modifs)
 
     def test_edition_no_change(self):
@@ -350,7 +351,7 @@ about this fantastic animation studio."""
         self.assertEqual(hayao.id,     hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
 
-    def test_edition_none(self):
+    def test_edition__set_none(self):
         "New value is None: verbose prints ''."
         old_capital = 1000
         old_date = date(year=1928, month=5, day=3)
@@ -377,6 +378,29 @@ about this fantastic animation studio."""
                 ['capital',        old_capital, None],
                 ['creation_date', '1928-05-03', None],
             ],
+            hline.modifications,
+        )
+
+    def test_edition__set_none__from_zero(self):
+        "From 0 (integer) to None: a line must be created (bugfix)."
+        old_capital = 0
+        gainax = FakeOrganisation.objects.create(
+            user=self.user, name='Gainax', capital=old_capital,
+        )
+        old_count = HistoryLine.objects.count()
+
+        gainax = self.refresh(gainax)
+        gainax.capital = None
+        gainax.save()
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(gainax.id,    hline.entity.id)
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertListEqual(
+            [['capital', old_capital, None]],
             hline.modifications,
         )
 
