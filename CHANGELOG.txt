@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # An issue has been fixed in History: no line was created when a (nullable) integer-field passed from 0 to None.
     # The bulk-update form (multiple-edition in list-views ) uses now a select input
       with autocompletion to chose the field to modify.
     # Apps :
