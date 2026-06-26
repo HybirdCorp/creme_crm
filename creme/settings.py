@@ -212,6 +212,10 @@ SECRET_KEY = ''
 #         or provide your own validation (with in a middleware for example).
 ALLOWED_HOSTS = ['*']
 
+# https://docs.djangoproject.com/en/5.2/ref/middleware/#django.middleware.security.SecurityMiddleware
+# https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-SECURE_REFERRER_POLICY
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 # SITE: URLs / PATHS / ... [END]################################################
 
 # Name of the base template used by all the common pages (there are some exceptions
