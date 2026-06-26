@@ -28,6 +28,7 @@ from json import loads as json_load
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import Model, signals
 from django.db.transaction import atomic
@@ -183,7 +184,8 @@ class _HistoryLineType:
                 old_value = diff.old_value
                 new_value = diff.new_value
 
-                if not new_value and not old_value:
+                # if not new_value and not old_value:
+                if new_value in EMPTY_VALUES and old_value in EMPTY_VALUES:
                     # Ignore useless changes like : None -> ""
                     continue
 
@@ -191,7 +193,10 @@ class _HistoryLineType:
 
                 if field.get_internal_type() not in _SERIALISABLE_FIELDS:
                     modif = (fname,)
-                elif old_value:
+                # elif old_value:
+                elif old_value not in EMPTY_VALUES:
+                    # TODO: ignore old value if BooleanField(nullable=False)
+                    #       (so old value is implicit)?
                     modif = (fname, old_value, new_value)
                 else:
                     modif = (fname, new_value)
