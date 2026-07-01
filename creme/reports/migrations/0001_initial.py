@@ -302,6 +302,7 @@ class Migration(migrations.Migration):
                             blank=True, default=now, editable=False, verbose_name='Last modification',
                         )
                     ),
+                    ('disabled', models.DateTimeField(editable=False, null=True, verbose_name='Disabled')),
                     ('is_custom', models.BooleanField(default=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
 
