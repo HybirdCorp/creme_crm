@@ -1,7 +1,5 @@
 == Version 2.8.3 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po files (activities, events)
-
   Users side :
   ------------
     # The settings 'SECURE_REFERRER_POLICY' has been set "strict-origin-when-cross-origin" (it was "same-origin");
