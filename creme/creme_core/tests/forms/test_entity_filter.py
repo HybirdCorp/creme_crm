@@ -53,6 +53,7 @@ from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
     EntityFilter,
+    FakeAddress,
     FakeCivility,
     FakeContact,
     FakeImage,
@@ -60,6 +61,8 @@ from creme.creme_core.models import (
     FakeInvoiceLine,
     FakeOrganisation,
     FakePosition,
+    FakeResource,
+    FakeSector,
     FieldsConfig,
     Language,
     RelationType,
@@ -579,6 +582,39 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             {'operator': operator, 'values': [str(value)]}, condition.value,
         )
 
+    def test_fk__deep(self):
+        """Sub-field is a FK."""
+        field = RegularFieldsConditionsField(
+            model=FakeResource, efilter_type=efilter_registry.id,
+        )
+        operator = operators.EQUALS
+
+        # Enumerable ---
+        name1 = 'linked_contact__sector'
+        sector_id = FakeSector.objects.first().pk
+        condition1 = self.get_alone_element(field.clean(self.build_data({
+            'operator': operator, 'name': name1, 'value': sector_id,
+        })))
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition1.type)
+        self.assertEqual(name1, condition1.name)
+        self.assertDictEqual(
+            {'operator': operator, 'values': [str(sector_id)]}, condition1.value,
+        )
+
+        # Not enumerable ---
+        contact = FakeContact.objects.create(user=self.get_root_user(), last_name='Doe')
+        address = FakeAddress.objects.create(entity=contact, country='Wonderland')
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data({
+                'operator': operator,
+                'name':     'linked_contact__address',
+                'value':    address.id,
+            }),
+            messages=_('This field is invalid with this model.'),
+            codes='invalidfield',
+        )
+
     def test_multiple_fk_as_string(self):
         clean = RegularFieldsConditionsField(
             # model=FakeContact, efilter_registry=efilter_registry,
@@ -809,7 +845,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             {'operator': operator, 'values': [value]}, condition.value,
         )
 
-    def test_fields_config01(self):
+    def test_fields_config(self):
         hidden_fname = 'description'
 
         create_fc = FieldsConfig.objects.create

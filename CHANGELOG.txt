@@ -1,3 +1,20 @@
+== Version 2.7.10 ==
+
+  Users side :
+  ------------
+    # The settings 'SECURE_REFERRER_POLICY' has been set "strict-origin-when-cross-origin" (it was "same-origin");
+      it notably fixes an issue in the app 'geolocation' with OpenStreetMap.
+    # An issue has been fixed in History: no line was created when a (nullable) integer-field passed from 0 to None.
+    # Apps :
+        * Events :
+            - The value checking to set the presence status has been fixed.
+
+  Developers side :
+  -----------------
+    # The libraries 'bleach' & 'weasyprint' have been upgraded.
+    # The entity filter form has been fixed: sub-fields cannot be a non-enumerable FK anymore (the button was displayed but it did not work).
+
+
 == Version 2.7.9 ==
 
   Users side :

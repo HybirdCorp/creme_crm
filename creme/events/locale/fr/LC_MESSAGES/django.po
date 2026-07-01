@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EVENTS' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2026 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Events 2.6\n"
+"Project-Id-Version: Creme Events 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 21:20+0200\n"
+"POT-Creation-Date: 2026-06-24 13:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -32,10 +32,10 @@ msgid "Did not answer"
 msgstr "N'a pas répondu"
 
 msgid "Accepted the invitation"
-msgstr "a accepté l'invitation"
+msgstr "A accepté l'invitation"
 
 msgid "Refused the invitation"
-msgstr "a refusé l'invitation"
+msgstr "A refusé l'invitation"
 
 msgid "N/A"
 msgstr "NC"

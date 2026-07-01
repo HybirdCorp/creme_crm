@@ -36,7 +36,7 @@ The exhaustive list of available configuration options can be found in the Envir
 Here is an example command setting up an instance using the French locale:
 
 ```commandline
-docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=fr --env CREME_TIME_ZONE=Europe/Paris cremecrm/cremecrm-demo:2.6.0
+docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=fr --env CREME_TIME_ZONE=Europe/Paris cremecrm/cremecrm-demo:2.7.6
 ```
 
 The installation process can take a minute or two the first time the command runs.
