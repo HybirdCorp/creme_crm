@@ -288,7 +288,7 @@ class RelatedOpportunityCreation(generic.EntityCreation):
 
 class BaseStatusSetting(generic.CheckedView):
     permissions = 'events'
-    status_map = constants.INV_STATUS_MAP
+    status_map = constants.INV_STATUS_MAP  # TODO: {}
     status_arg = 'status'
     event_id_url_kwarg = 'event_id'
     contact_id_url_kwarg = 'contact_id'
@@ -333,10 +333,14 @@ class BaseStatusSetting(generic.CheckedView):
 
 
 class InvitationStatusSetting(BaseStatusSetting):
+    status_map = constants.INV_STATUS_MAP
+
     def update(self, *, event, contact, status):
         event.set_invitation_status(contact=contact, status=status, user=self.request.user)
 
 
 class PresenceStatusSetting(BaseStatusSetting):
+    status_map = constants.PRES_STATUS_MAP
+
     def update(self, *, event, contact, status):
         event.set_presence_status(contact=contact, status=status, user=self.request.user)

@@ -1,3 +1,24 @@
+== Version 2.8.3 ==
+
+  Users side :
+  ------------
+    # The settings 'SECURE_REFERRER_POLICY' has been set "strict-origin-when-cross-origin" (it was "same-origin");
+      it notably fixes an issue in the app 'geolocation' with OpenStreetMap.
+    # An issue has been fixed in History: no line was created when a (nullable) integer-field passed from 0 to None.
+    # The bulk-update form (multiple-edition in list-views ) uses now a select input
+      with autocompletion to chose the field to modify.
+    # Apps :
+        * Products :
+            - The widget to select a (sub)Category should perform better with large database.
+        * Events :
+            - The value checking to set the presence status has been fixed.
+
+  Developers side :
+  -----------------
+    # The libraries 'bleach' & 'weasyprint' have been upgraded.
+    # The entity filter form has been fixed: sub-fields cannot be a non-enumerable FK anymore (the button was displayed but it did not work).
+
+
 == Version 2.8.2 ==
 
   Users side :

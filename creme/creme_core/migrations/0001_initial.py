@@ -2313,4 +2313,33 @@ class Migration(migrations.Migration):
                 },
                 bases=(models.Model,),
             ),
+            migrations.CreateModel(
+                name='FakeResource',
+                fields=[
+                    (
+                        'cremeentity_ptr',
+                        models.OneToOneField(
+                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                            to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                        )
+                    ),
+                    (
+                        'linked_contact',
+                        models.ForeignKey(
+                            to='creme_core.FakeContact', verbose_name='Contact',
+                            on_delete=models.PROTECT,
+                        )
+                    ),
+                    (
+                        'hourly_cost',
+                        models.PositiveIntegerField(default=0, verbose_name='Hourly cost')
+                    ),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Recipe',
+                    'verbose_name_plural': 'Test Recipes',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
         ])

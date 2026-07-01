@@ -71,6 +71,7 @@ from ..forms import CremeEntityForm
 from ..forms.listview import ListViewSearchForm
 from ..forms.merge import MergeEntitiesBaseForm
 from ..forms.merge import form_factory as merge_form_factory
+from ..forms.widgets import DynamicSelect
 # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..gui import bulk_update
 from ..gui.listview import search
@@ -830,6 +831,7 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
                 label=_('Field to update'),
                 initial=self._bulk_field_url(cell),
                 required=False,
+                widget=DynamicSelect(attrs={'autocomplete': True}),
             )
 
             # TODO: (management of '*' in field list is needed)

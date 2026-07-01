@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-05 14:18+0100\n"
+"POT-Creation-Date: 2026-06-18 17:16+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1158,7 +1158,7 @@ msgid "The recorded sub-type is invalid (it may have been deleted)"
 msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
 
 msgid "The recorded status is invalid (it may have been deleted)"
-msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
+msgstr "Le statut enregistré est invalide (il peut avoir été supprimé)"
 
 #, python-format
 msgid "%(count)s minute"
