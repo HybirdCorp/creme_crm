@@ -290,6 +290,18 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
                     ('is_custom', models.BooleanField(default=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
 
