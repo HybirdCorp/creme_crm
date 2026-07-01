@@ -1,4 +1,4 @@
-__version__ = '2.6.21'
+__version__ = '2.6.22'
 
 
 def get_version():
