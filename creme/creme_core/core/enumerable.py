@@ -167,15 +167,12 @@ class QSEnumerator(Enumerator):
     def _queryset(self, user):
         field = self.field
         qs = field.remote_field.model.objects.all()
-        # limit_choices_to = field.get_limit_choices_to()
-        #
-        # qs = qs.complex_filter(limit_choices_to) if limit_choices_to else qs
-        # qs = qs.complex_filter(self.limit_choices_to) if self.limit_choices_to else qs
-        #
-        # return qs
-        limit_choices_to = field.get_limit_choices_to() or self.limit_choices_to
 
-        return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
+        for limit in (field.get_limit_choices_to(), self.limit_choices_to):
+            if limit:
+                qs = qs.complex_filter(limit)
+
+        return qs
 
     def to_python(self, user, values):
         return [*self._queryset(user).filter(pk__in=values)]
