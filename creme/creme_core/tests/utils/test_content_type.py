@@ -1,9 +1,15 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 
-from creme.creme_core.models import FakeContact, FakeOrganisation, FakeSector
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
+)
 # from creme.creme_core.utils.content_type import ctype_as_key, ctype_from_key
 from creme.creme_core.utils.content_type import (
+    CTypeSmartOrder,
     as_ctype,
     as_model,
     ctype_choices,
@@ -118,3 +124,37 @@ class ContentTypeTestCase(CremeTestCase):
             label=FakeContact._meta.verbose_name,
             choices=choices,
         )
+
+    def test_ctype_smart_order_function(self):
+        user = self.get_root_user()
+        c = FakeContact.objects.create(user=user, last_name='Doe')
+        o = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        bulk = CremeEntity.objects.annotate(
+            smart_order=CTypeSmartOrder('entity_type'),
+        ).in_bulk([c.id, o.id])
+
+        c_order = bulk[c.id].smart_order
+        o_order = bulk[o.id].smart_order
+        self.assertIsInstance(c_order, int)
+        self.assertIsInstance(o_order, int)
+        self.assertLess(c_order, o_order)
+
+    def test_ctype_smart_order_function__ctypes_arg(self):
+        user = self.get_root_user()
+        c = FakeContact.objects.create(user=user, last_name='Doe')
+        o = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        bulk = CremeEntity.objects.annotate(
+            smart_order=CTypeSmartOrder(
+                'entity_type',
+                ctypes=[ContentType.objects.get_for_model(FakeOrganisation)],
+            ),
+        ).in_bulk([c.id, o.id])
+
+        c_order = bulk[c.id].smart_order
+        o_order = bulk[o.id].smart_order
+        self.assertIsInstance(c_order, int)
+        self.assertIsInstance(o_order, int)
+        self.assertEqual(0, c_order)
+        self.assertNotEqual(0, o_order)
