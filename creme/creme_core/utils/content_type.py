@@ -26,7 +26,10 @@
 from collections.abc import Container, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model
+from django.db.models import CharField, Model
+from django.db.models import Value as V
+from django.db.models.expressions import Func
+from django.db.models.functions import Cast, Concat, StrIndex
 from django.http import Http404
 
 # def ctype_as_key(ctype: ContentType, /) -> str:
@@ -120,3 +123,42 @@ def ctype_choices(ctypes: Iterable[ContentType]) -> list[tuple[int, str]]:
     choices.sort(key=lambda k: sort_key(k[1]))
 
     return choices
+
+
+def CTypeSmartOrder(ctype_fk_name: str, ctypes: Iterable[ContentType] | None = None) -> Func:  # NOQA
+    """Returns a Database Function which uses a ForeignKey to ContentType to
+    produce an order (int) based on the ContentTypes' labels.
+
+    @param ctype_fk_name: Name of a ForeignKey which belongs to the model
+    @param ctypes: ContentTypes instances used to build the internal "order-grid".
+           By default, all ContentTypes are used ; it's better to narrow the
+           possible choices (to build a smaller grid) if you can.
+           E.g. you can use <entity_ctypes()> if the ContentTypes referenced by
+           the ForeignKey is always related to an entity model.
+    @return A <django.db.models.expressions.Func> object.
+
+    Hint: it can be useful to annotate()+order_by() a query.
+          >> CremeEntity.objects.annotate(
+                ct_order=CTypeSmartOrder('entity_content'),
+            ).order_by('ct_order')
+    """
+    from .unicode_collation import collator
+
+    ctypes = [*ContentType.objects.all()] if ctypes is None else [*ctypes]
+    sort_key = collator.sort_key
+    # NB: ContentType.__str__ is hooked in creme_core.apps to be
+    #     <str(ct.model_class()._meta.verbose_name)>
+    ctypes.sort(key=lambda ct: sort_key(str(ct)))
+
+    # NB: we build a big string with all the ContentType IDs in the correct
+    #     order (i.e. ordered by their label -- which is language dependant);
+    #     it looks like "[23][4][8]..." so the orders (in this string) of the
+    #     IDs (as strings) can be used to order a query.
+    #     Notice that we decorate IDs with "[]" to avoid wrong matches
+    #     (e.g. ID "1" is found in "21", "[1]" is not found in "[21]").
+    return StrIndex(
+        # Text in which we search.
+        V(''.join(f'[{ct.id}]' for ct in ctypes)),
+        # Sub-string
+        Concat(V('['), Cast(ctype_fk_name, output_field=CharField()), V(']')),
+    )
