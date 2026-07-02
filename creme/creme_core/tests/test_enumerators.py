@@ -371,6 +371,33 @@ class EntityFilterEnumeratorTestCase(CremeTestCase):
         )
         self.assertFalse([c for c in choices if c['value'] == efilter3.id])
 
+    def test_order(self):
+        user = self.get_root_user()
+
+        # NB:
+        #  - efilter1 & efilter3 must be grouped because they are related to the same ContentType
+        #  - "Contact" before "Organisation"
+        create_filter = EntityFilter.objects.create
+        efilter1 = create_filter(id='test-0001', name='Filter 01', entity_type=FakeContact)
+        efilter2 = create_filter(id='test-0002', name='Filter 02', entity_type=FakeOrganisation)
+        efilter3 = create_filter(id='test-0003', name='Filter 03', entity_type=FakeContact)
+
+        e = enumerators.EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
+        choices = e.choices(user)
+
+        def choice_index(efilter):
+            for idx, choice in enumerate(choices):
+                if choice['value'] == efilter.id:
+                    return idx
+
+            self.fail(f'{efilter} not found in choices: {choices}')
+
+        idx1 = choice_index(efilter1)
+        idx2 = choice_index(efilter2)
+        idx3 = choice_index(efilter3)
+        # TODO: self.assertSorted() ?
+        self.assertListEqual([idx1, idx3, idx2], sorted([idx1, idx3, idx2]))
+
     def test_only(self):
         user = self.get_root_user()
 
