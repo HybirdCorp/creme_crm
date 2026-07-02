@@ -31,8 +31,11 @@ from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
 )
-# from creme.creme_core.utils.content_type import entity_ctypes
-from creme.creme_core.utils.content_type import ctype_choices
+from creme.creme_core.utils.content_type import (
+    CTypeSmartOrder,
+    ctype_choices,
+    entity_ctypes,
+)
 from creme.creme_core.utils.unicode_collation import collator
 
 logger = logging.getLogger(__name__)
@@ -125,15 +128,20 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
         return d
 
+    # def choices(self, user, *, term=None, only=None, limit=None):
+    #     # Do not apply limits on queryset, because ordering is done later
+    #     choices = super().choices(user, term=term, only=only)
+    #
+    #     sort_key = collator.sort_key
+    #     choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
+    #
+    #     return choices[:limit] if limit else choices
+
     @override
-    def choices(self, user, *, term=None, only=None, limit=None):
-        # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, only=only)
-
-        sort_key = collator.sort_key
-        choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
-
-        return choices[:limit] if limit else choices
+    def _queryset(self, user):
+        return super()._queryset(user=user).annotate(
+            ct_order=CTypeSmartOrder('entity_type', ctypes=entity_ctypes()),
+        ).order_by('ct_order', 'name')
 
 
 class CTypeForeignKeyEnumerator(enumerable.Enumerator):
@@ -269,13 +277,11 @@ class CustomFieldEnumerator(enumerable.Enumerator):
 
     @override
     def choices(self, user, *, term=None, only=None, limit=None):
-        queryset = self._queryset(user)
+        qs = self._queryset(user)
 
         if term:
-            queryset = self.filter_term(queryset, term)
+            qs = self.filter_term(qs, term)
         elif only:
-            queryset = self.filter_only(queryset, only)
+            qs = self.filter_only(qs, only)
 
-        return list(
-            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
-        )
+        return [*map(self.instance_as_dict, qs[:limit] if limit else qs)]
