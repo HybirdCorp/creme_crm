@@ -56,6 +56,10 @@ class Workflow(CremeModel):
     # False => not editable/deletable
     is_custom = models.BooleanField(default=True, editable=False)
 
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict)
+
     creation_label = _('Create a Workflow')
     save_label = _('Save the Workflow')
 
