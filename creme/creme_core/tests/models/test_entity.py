@@ -399,17 +399,26 @@ class CremeEntityTestCase(CremeTestCase):
         )
 
     def test_portable_key(self):
-        orga = FakeOrganisation.objects.create(name='Konoha', user=self.get_root_user())
+        create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
+        orga1 = create_orga(name='Konoha')
 
         with self.assertNoException():
-            key = orga.portable_key()
-        self.assertIsInstance(key, str)
-        self.assertUUIDEqual(orga.uuid, key)
+            key1 = orga1.portable_key()
+        self.assertIsInstance(key1, str)
+        self.assertUUIDEqual(orga1.uuid, key1)
 
         # ---
         with self.assertNoException():
-            got_orga = FakeOrganisation.objects.get_by_portable_key(key)
-        self.assertEqual(orga, got_orga)
+            got_orga = FakeOrganisation.objects.get_by_portable_key(key1)
+        self.assertEqual(orga1, got_orga)
+
+        # ---
+        orga2 = create_orga(name='Iwa')
+        with self.assertNumQueries(1):
+            got_orgas = [*FakeOrganisation.objects.get_by_portable_keys(
+                [key1, orga2.portable_key()],
+            )]
+        self.assertCountEqual([orga1, orga2], got_orgas)
 
     def test_clean__creation(self):
         sector = FakeSector.objects.create(title='Ninjitsu')

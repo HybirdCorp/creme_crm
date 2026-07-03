@@ -595,6 +595,29 @@ class EntityFilterManagerTestCase(CremeTestCase):
         self.assertIn(ef1, efilters_set4)
         self.assertIn(ef10, efilters_set4)
 
+    def test_get_by_portable_key(self):
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Misato', FakeContact, is_custom=True,
+        )
+
+        with self.assertNumQueries(1):
+            got_efilter = EntityFilter.objects.get_by_portable_key(efilter.portable_key())
+        self.assertEqual(efilter, got_efilter)
+
+    def test_get_by_portable_keys(self):
+        create_efilter = partial(
+            EntityFilter.objects.smart_update_or_create,
+            model=FakeContact, is_custom=True,
+        )
+        efilter1 = create_efilter(pk='test-filter01', name='Misato')
+        efilter2 = create_efilter(pk='test-filter02', name='Magi')
+
+        with self.assertNumQueries(1):
+            efilters = [*EntityFilter.objects.get_by_portable_keys(
+                [efilter1.portable_key(), efilter2.portable_key()],
+            )]
+        self.assertCountEqual([efilter1, efilter2], efilters)
+
 
 class EntityFilterConditionTestCase(CremeTestCase):
     def test_equal(self):

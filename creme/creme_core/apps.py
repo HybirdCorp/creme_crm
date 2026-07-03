@@ -190,6 +190,7 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         ct_models.ContentType.portable_key = creme_ct.ct_portable_key
         # NB: we hook the default manager instead of adding one to use only one cache.
         ct_models.ContentTypeManager.get_by_portable_key = creme_ct.get_ct_by_portable_key
+        ct_models.ContentTypeManager.get_by_portable_keys = creme_ct.get_ct_by_portable_keys
 
     def add_extra_manager_methods(self):
         from django.contrib.contenttypes.models import ContentTypeManager

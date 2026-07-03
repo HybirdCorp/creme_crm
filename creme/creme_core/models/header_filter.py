@@ -22,7 +22,7 @@ import logging
 import warnings
 from collections.abc import Iterable
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
@@ -284,6 +284,9 @@ class HeaderFilterManager(models.Manager):
 
     def get_by_portable_key(self, key) -> HeaderFilter:
         return self.get(id=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[HeaderFilter]:
+        yield from self.filter(id__in=keys)
 
     # def create_if_needed(
     #         self,

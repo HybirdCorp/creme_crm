@@ -55,7 +55,7 @@ from .utils import model_verbose_name
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Sequence
-    from typing import DefaultDict, Type, Union
+    from typing import DefaultDict, Iterator, Type, Union
 
     from ..core.sandbox import SandboxType
     from .base import CremeModel
@@ -68,7 +68,12 @@ logger = logging.getLogger(__name__)
 
 class UserRoleManager(models.Manager):
     def get_by_portable_key(self, key: str) -> UserRole:
+        """See UserRole.portable_key()."""
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[UserRole]:
+        """See UserRole.portable_key()."""
+        yield from self.filter(uuid__in=keys)
 
     def smart_create(self, *,
                      creatable_models: Iterable[type[CremeEntity]] = (),
@@ -1019,7 +1024,12 @@ class CremeUserManager(BaseUserManager):
         )
 
     def get_by_portable_key(self, key: str) -> CremeUser:
+        """See CremeUser.portable_key()."""
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[CremeUser]:
+        """See CremeUser.portable_key()."""
+        yield from self.filter(uuid__in=keys)
 
 
 class CremeUser(AbstractBaseUser):

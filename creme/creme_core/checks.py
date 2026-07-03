@@ -309,6 +309,19 @@ def check_portable_keys(**kwargs):
                     ),
                 ))
                 warned_models.add(related_model)
+            elif not hasattr(related_model._default_manager, 'get_by_portable_keys'):
+                warnings.append(Warning(
+                    f'The model {related_model} has a property "portable_key" but '
+                    f'its default manager has no method "get_by_portable_keys()".',
+                    obj='creme.creme_core',
+                    id='creme.E012',
+                    hint=(
+                        'Your manager class should inherit <MinionManager>'
+                        if issubclass(related_model, MinionModel) else
+                        None
+                    ),
+                ))
+                warned_models.add(related_model)
 
             if depth < PORTABLE_KEY_MAX_DEPTH:
                 _check_model(model=related_model, depth=depth + 1)

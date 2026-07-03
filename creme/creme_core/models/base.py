@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import uuid
 from itertools import chain
+from typing import Iterable, Iterator
 
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
@@ -248,32 +249,58 @@ class MinionManager(models.Manager):
                instance does not exist; the message is human-friendly.
                If <False>, a classical <ObjectDoesNotExist> is raised.
         """
+        instance = next(self.get_by_uuids([uid]), None)
+        if instance is None:
+            if conflict_error:
+                raise ConflictError(
+                    gettext(
+                        'It seems the instance of model «{model}» with uuid "{uuid}" '
+                        'has been deleted; please contact your administrator.'
+                    ).format(model=self.model._meta.verbose_name, uuid=str(uid))
+                )
+
+            raise self.model.DoesNotExist(
+                'No instance of <%s> matches with uuid=%s', self.model, uid
+            )
+
+        return instance
+
+    def get_by_uuids(self, /, uids: Iterable[uuid.UUID | str]) -> Iterator[MinionModel]:
+        """Get several instances by their uuid.
+        The result is cached (per request).
+        No error is raised when an instance is not found (the found instances are returned).
+        """
         model = self.model
         meta = model._meta
         instances = get_per_request_cache().setdefault(
             f'creme_core-minions-{meta.app_label}.{meta.model_name}', {}
         )
-        str_uuid = str(uid)
-        try:
-            instance = instances[str_uuid]
-        except KeyError:
-            try:
-                instance = instances[str_uuid] = self.get(uuid=uid)
-            except self.model.DoesNotExist as e:
-                if conflict_error:
-                    raise ConflictError(
-                        gettext(
-                            'It seems the instance of model «{model}» with uuid "{uuid}" '
-                            'has been deleted; please contact your administrator.'
-                        ).format(model=meta.verbose_name, uuid=str_uuid)
-                    ) from e
-                raise
+        str_uids = [*map(str, uids)]
+        missing = [str_uid for str_uid in str_uids if str_uid not in instances]
 
-        return instance
+        if missing:
+            for instance in self.filter(uuid__in=missing):
+                instances[str(instance.uuid)] = instance
+
+        for str_uid in str_uids:
+            instance = instances.get(str_uid)
+            if instance is None:
+                # We fill the cache anyway (to avoid new queries with the same invalid ID)
+                instances[str_uid] = None
+
+                logger.warning(
+                    'The instance of <%s> with uuid="%s" does not exist',
+                    model.__name__, str_uid,
+                )
+            else:
+                yield instance
 
     def get_by_portable_key(self, key: str) -> MinionModel:
         # return self.get(uuid=key)
         return self.get_by_uuid(uid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[MinionModel]:
+        yield from self.get_by_uuids(keys)
 
 
 class MinionModel(CremeModel):
