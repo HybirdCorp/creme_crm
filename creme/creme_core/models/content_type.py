@@ -46,6 +46,12 @@ def get_ct_by_portable_key(manager, key):
     return manager.get_by_natural_key(app_label=app_label, model=model_name)
 
 
+# Hint: can be used as get_portable_keys() method for manager (see apps.py)
+def get_ct_by_portable_keys(manager, keys):
+    for key in keys:
+        yield get_ct_by_portable_key(manager, key)
+
+
 # Hint: can be used as method for manager (see apps.py)
 def get_fresh_ct_for_id(manager, id):
     """Like get_ct_for_id(), but it raises an exception if the ContentType is stale

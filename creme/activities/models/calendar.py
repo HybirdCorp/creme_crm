@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
+from typing import Iterable, Iterator
 
 from django.db import models
 from django.utils.translation import gettext
@@ -68,6 +69,9 @@ class CalendarManager(models.Manager):
 
     def get_by_portable_key(self, key: str) -> Calendar:
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[Calendar]:
+        yield from self.filter(uuid__in=keys)
 
     def get_default_calendar(self, user) -> Calendar:
         """Get the user's default Calendar ; creates it if necessary.

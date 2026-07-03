@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Iterable, Iterator
 from uuid import uuid4
 
 from django.conf import settings
@@ -185,8 +186,11 @@ class PaymentTerms(base.MinionModel):
 
 
 class PaymentInformationManager(models.Manager):
-    def get_by_portable_key(self, key) -> PaymentInformation:
+    def get_by_portable_key(self, key: str) -> PaymentInformation:
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[PaymentInformation]:
+        yield from self.filter(uuid__in=keys)
 
 
 class PaymentInformation(base.CremeModel):

@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016-2025 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,8 @@ from django.db import connections, models
 from django.db.models.sql.compiler import SQLCompiler
 
 if TYPE_CHECKING:
+    from typing import Iterable, Iterator
+
     from .entity import CremeEntity
 
 
@@ -77,6 +79,10 @@ class LowNullsQuerySet(models.QuerySet):
 
 
 class CremeEntityManager(models.Manager.from_queryset(LowNullsQuerySet)):
-    def get_by_portable_key(self, key) -> CremeEntity:
+    def get_by_portable_key(self, key: str) -> CremeEntity:
         """See CremeEntity.portable_key()."""
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[CremeEntity]:
+        """See CremeEntity.portable_key()."""
+        yield from self.filter(uuid__in=keys)

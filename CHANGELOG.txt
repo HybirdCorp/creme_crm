@@ -12,6 +12,11 @@
 
     Non breaking changes :
     ----------------------
+        # BEWARE! With version 2.8.0, the models which can be used by EntityFilters
+          should have a default manager with a method 'get_by_portable_key()'.
+          Now, a second method should be implemented: 'get_by_portable_keys()'
+          (see 'creme_core.models.manager.CremeEntityManager').
+          A warning is displayed when the server starts if this method is not found.
         # The natural ordering for 'creme_core.models.CustomFieldEnumValue' is now "id".
         # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
 
