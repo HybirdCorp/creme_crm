@@ -84,9 +84,11 @@
           now used by the default printer. So you do not have to register a printer like
           'FKPrinter.print_fk_colored_html' anymore ; indeed you should probably just keep the
           default printer which uses the new field "disabled" too.
-        # The method 'creme_core.models.CremeEntity.clean()' is not empty anymore (it checks if
-          referenced Minions are disabled). So you should call it in the 'clean()' of your own
-          entity models (i.e. <super().clean()>) if you did not call it in previous version.
+        # In 'creme_core.models' :
+            - The method 'CremeEntity.clean()' is not empty anymore (it checks if
+              referenced Minions are disabled). So you should call it in the 'clean()' of your own
+              entity models (i.e. <super().clean()>) if you did not call it in previous version.
+            - The model 'Workflow' got a new field 'extra_data' (JSONField) to store custom data.
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
           a class attribute 'brick_classes' has been added to facilitate the injection
           of "static" (i.e. no configuration in DB) Bricks in the related template.
