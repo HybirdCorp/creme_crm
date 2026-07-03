@@ -159,6 +159,35 @@ class MinionTestCase(CremeTestCase):
             str(cm.exception),
         )
 
+    def test_get_by_uuids(self):
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+        get_by_uuids = FakeSector.objects.get_by_uuids
+
+        with self.assertNumQueries(1):
+            sectors12 = [*get_by_uuids([sector1.uuid, str(sector2.uuid)])]
+        self.assertCountEqual([sector1, sector2], sectors12)
+
+        with self.assertNumQueries(1):
+            sectors23 = [*get_by_uuids([sector2.uuid, str(sector3.uuid)])]
+        self.assertCountEqual([sector2, sector3], sectors23)
+
+        # All cached
+        with self.assertNumQueries(0):
+            sectors13 = [*get_by_uuids([sector1.uuid, sector3.uuid])]
+        self.assertCountEqual([sector1, sector3], sectors13)
+
+        # Deleted
+        missing_uid = uuid4()
+        with self.assertNumQueries(1):
+            with self.assertLogs(level='WARNING'):
+                with self.assertNoException():
+                    sectors1x = [*get_by_uuids([sector1.uuid, missing_uid])]
+        self.assertCountEqual([sector1], sectors1x)
+
+        with self.assertNumQueries(0):
+            sectorsx = [*get_by_uuids([missing_uid])]
+        self.assertFalse(sectorsx)
+
     def test_portable_key(self):
         sector1, sector2 = FakeSector.objects.all()[:2]
 
@@ -179,6 +208,18 @@ class MinionTestCase(CremeTestCase):
 
         with self.assertRaises(FakeSector.DoesNotExist):
             FakeSector.objects.get_by_portable_key(uuid4())
+
+    def test_get_by_portable_keys(self):
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+
+        with self.assertNumQueries(1):
+            sectors = [*FakeSector.objects.get_by_portable_keys([
+                sector1.portable_key(), sector2.portable_key()]
+            )]
+        self.assertCountEqual([sector1, sector2], sectors)
+
+        with self.assertNoException():
+            next(FakeSector.objects.get_by_portable_keys([uuid4()]), None)
 
     def test_get_enabled_label(self):
         sector = FakeSector(title='Industry')

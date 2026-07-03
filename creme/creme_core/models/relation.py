@@ -604,6 +604,9 @@ class RelationTypeManager(models.Manager):
     def get_by_portable_key(self, key: str) -> RelationType:
         return self.get(id=key)
 
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[RelationType]:
+        yield from self.filter(id__in=keys)
+
 
 class RelationManager(models.Manager):
     def safe_create(self, **kwargs) -> None:

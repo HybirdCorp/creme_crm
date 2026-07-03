@@ -144,14 +144,24 @@ class PaymentInformationTestCase(_BillingTestCase):
         user = self.get_root_user()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
-        pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
+
+        create_pi = partial(PaymentInformation.objects.create, organisation=organisation)
+        pi1 = create_pi(name='RIB 1')
 
         with self.assertNoException():
-            key = pi.portable_key()
-        self.assertIsInstance(key, str)
-        self.assertUUIDEqual(pi.uuid, key)
+            key1 = pi1.portable_key()
+        self.assertIsInstance(key1, str)
+        self.assertUUIDEqual(pi1.uuid, key1)
 
         # ---
         with self.assertNoException():
-            got_pi = PaymentInformation.objects.get_by_portable_key(key)
-        self.assertEqual(pi, got_pi)
+            got_pi = PaymentInformation.objects.get_by_portable_key(key1)
+        self.assertEqual(pi1, got_pi)
+
+        # ---
+        pi2 = create_pi(name='RIB 2')
+        with self.assertNumQueries(1):
+            got_pis = [*PaymentInformation.objects.get_by_portable_keys(
+                [key1, pi2.portable_key()]
+            )]
+        self.assertCountEqual([pi1, pi2], got_pis)

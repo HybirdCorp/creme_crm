@@ -100,6 +100,9 @@ class EntityFilterManager(models.Manager):
     def get_by_portable_key(self, key: str) -> EntityFilter:
         return self.get(id=key)
 
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[EntityFilter]:
+        yield from self.filter(id__in=keys)
+
     def get_latest_version(self, base_pk: str) -> EntityFilter:
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
         @raises EntityFilter.DoesNotExist If there is none instance in this family
