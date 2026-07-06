@@ -604,6 +604,7 @@ class RelationTypeManager(models.Manager):
         )
 
     def get_by_portable_key(self, key: str) -> RelationType:
+        # TODO: validate key?
         return self.get(id=key)
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[RelationType]:

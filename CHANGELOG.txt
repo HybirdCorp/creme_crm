@@ -20,6 +20,12 @@
         # The natural ordering for 'creme_core.models.CustomFieldEnumValue' is now "id".
         # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
 
+    Breaking changes :
+    ------------------
+        # The method 'get_by_portable_key()' (as seen above) should use an execption
+          'django.core.exceptions.ValidationError' when a key is malformed
+          (idem for the "new" method 'get_by_portable_keys()') .
+
 
 == Version 2.8.3 ==
 

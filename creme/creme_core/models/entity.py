@@ -413,7 +413,10 @@ class CremeEntity(CremeModel):
         Notice:
            - it just has to be unique for a given model.
            - the related instance can be retrieved with this key; the default
-             manager should implement the method 'get_by_portable_key()'.
+             manager should implement these methods (see CremeEntityManager
+             for more information):
+              - 'get_by_portable_key()'.
+              - 'get_by_portable_keys()'.
         HINT: an UUIDField is generally the best solution.
         """
         return str(self.uuid)

@@ -68,11 +68,11 @@ logger = logging.getLogger(__name__)
 
 class UserRoleManager(models.Manager):
     def get_by_portable_key(self, key: str) -> UserRole:
-        """See UserRole.portable_key()."""
+        """See CremeEntity.portable_key()."""
         return self.get(uuid=key)
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[UserRole]:
-        """See UserRole.portable_key()."""
+        """See CremeEntity.portable_key()."""
         yield from self.filter(uuid__in=keys)
 
     def smart_create(self, *,
@@ -1025,11 +1025,11 @@ class CremeUserManager(BaseUserManager):
         )
 
     def get_by_portable_key(self, key: str) -> CremeUser:
-        """See CremeUser.portable_key()."""
+        """See CremeEntity.portable_key()."""
         return self.get(uuid=key)
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[CremeUser]:
-        """See CremeUser.portable_key()."""
+        """See CremeEntity.portable_key()."""
         yield from self.filter(uuid__in=keys)
 
 

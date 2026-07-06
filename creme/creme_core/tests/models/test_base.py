@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 
 from creme.creme_core.models import (
     FakeContact,
@@ -146,6 +146,10 @@ class MinionTestCase(CremeTestCase):
         with self.assertRaises(FakeSector.DoesNotExist):
             FakeSector.objects.get_by_portable_key(uuid4())
 
+        # ---
+        with self.assertRaises(ValidationError):
+            FakeSector.objects.get_by_portable_key('not-uuid')
+
     def test_get_by_portable_keys(self):
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
 
@@ -157,3 +161,6 @@ class MinionTestCase(CremeTestCase):
 
         with self.assertNoException():
             next(FakeSector.objects.get_by_portable_keys([uuid4()]), None)
+
+        with self.assertRaises(ValidationError):
+            next(FakeSector.objects.get_by_portable_keys(['not-uuid']))

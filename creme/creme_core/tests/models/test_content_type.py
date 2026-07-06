@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.field_tags import FieldTag
@@ -39,6 +40,9 @@ class ContentTypeTestCase(CremeTestCase):
             got_ctype = ContentType.objects.get_by_portable_key(key1)
         self.assertEqual(ct1, got_ctype)
 
+        with self.assertRaises(ValidationError):
+            ContentType.objects.get_by_portable_key('one_part')
+
         # ---
         ct2 = ContentType.objects.get_for_model(FakeContact)
         key2 = ct2.portable_key()
@@ -46,6 +50,9 @@ class ContentTypeTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             got_ctypes = ContentType.objects.get_by_portable_keys([key1, key2])
         self.assertCountEqual([ct1, ct2], got_ctypes)
+
+        with self.assertRaises(ValidationError):
+            next(ContentType.objects.get_by_portable_keys(['three.parts.are_to_much']))
 
     def test_get_fresh_for_id(self):
         ct = ContentType.objects.get_for_model(FakeOrganisation)

@@ -238,9 +238,11 @@ class CremeModel(Model):
 
 class MinionManager(models.Manager):
     def get_by_portable_key(self, key: str) -> MinionModel:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
         return self.get(uuid=key)
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[MinionModel]:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
         yield from self.filter(uuid__in=keys)
 
 

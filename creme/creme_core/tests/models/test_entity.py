@@ -3,6 +3,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
 from django.test import skipUnlessDBFeature
 from django.utils.timezone import now
@@ -588,6 +589,9 @@ class CremeEntityTestCase(CremeTestCase):
             got_orga = FakeOrganisation.objects.get_by_portable_key(key1)
         self.assertEqual(orga1, got_orga)
 
+        with self.assertRaises(ValidationError):
+            FakeOrganisation.objects.get_by_portable_key('not-uuid')
+
         # ---
         orga2 = create_orga(name='Iwa')
         with self.assertNumQueries(1):
@@ -595,3 +599,6 @@ class CremeEntityTestCase(CremeTestCase):
                 [key1, orga2.portable_key()],
             )]
         self.assertCountEqual([orga1, orga2], got_orgas)
+
+        with self.assertRaises(ValidationError):
+            next(FakeOrganisation.objects.get_by_portable_keys(['not-uuid']))
