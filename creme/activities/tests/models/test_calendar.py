@@ -199,6 +199,9 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
             got_calendar = Calendar.objects.get_by_portable_key(calendar.portable_key())
         self.assertEqual(calendar, got_calendar)
 
+        with self.assertRaises(ValidationError):
+            Calendar.objects.get_by_portable_key('not-uuid')
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_get_by_portable_keys(self):
         create_cal = partial(Calendar.objects.create, user=self.create_user())
@@ -210,6 +213,9 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
                 [cal1.portable_key(), cal2.portable_key()]
             )]
         self.assertCountEqual([cal1, cal2], calendars)
+
+        with self.assertRaises(ValidationError):
+            next(Calendar.objects.get_by_portable_keys(['not-uuid']))
 
 
 class CalendarTestCase(_ActivitiesTestCase):

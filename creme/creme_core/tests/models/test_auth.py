@@ -130,6 +130,9 @@ class UserRoleManagerTestCase(BaseAuthTestCase):
             got_role = UserRole.objects.get_by_portable_key(role.portable_key())
         self.assertEqual(role, got_role)
 
+        with self.assertRaises(ValidationError):
+            UserRole.objects.get_by_portable_key('not-uuid')
+
     def test_get_by_portable_keys(self):
         role1 = self.create_role(name='Doctor')
         role2 = self.create_role(name='Nurse')
@@ -139,6 +142,9 @@ class UserRoleManagerTestCase(BaseAuthTestCase):
                 [role1.portable_key(), role2.portable_key()]
             )]
         self.assertCountEqual([role1, role2], got_roles)
+
+        with self.assertRaises(ValidationError):
+            next(UserRole.objects.get_by_portable_keys(['not-uuid']))
 
 
 class UserRoleTestCase(BaseAuthTestCase):
@@ -449,6 +455,9 @@ class CremeUserManagerTestCase(BaseAuthTestCase):
             got_user = CremeUser.objects.get_by_portable_key(user.portable_key())
         self.assertEqual(user, got_user)
 
+        with self.assertRaises(ValidationError):
+            CremeUser.objects.get_by_portable_key('not-uid')
+
     def test_get_by_portable_keys(self):
         user1 = self.create_user()
         user2 = self.get_root_user()
@@ -458,6 +467,9 @@ class CremeUserManagerTestCase(BaseAuthTestCase):
                 [user1.portable_key(), user2.portable_key()],
             )]
         self.assertCountEqual([user1, user2], got_users)
+
+        with self.assertRaises(ValidationError):
+            next(CremeUser.objects.get_by_portable_keys(['not-uuid']))
 
     # TODO: test get_admin()
 

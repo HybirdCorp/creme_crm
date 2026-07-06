@@ -296,10 +296,12 @@ class MinionManager(models.Manager):
                 yield instance
 
     def get_by_portable_key(self, key: str) -> MinionModel:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
         # return self.get(uuid=key)
         return self.get_by_uuid(uid=key)
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[MinionModel]:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
         yield from self.get_by_uuids(keys)
 
 

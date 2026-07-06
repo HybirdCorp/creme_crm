@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from creme.commercial.models import MarketSegment
 
 from ..base import CommercialBaseTestCase
@@ -25,6 +27,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
             got_segment = MarketSegment.objects.get_by_portable_key(key1)
         self.assertEqual(segment1, got_segment)
 
+        with self.assertRaises(ValidationError):
+            MarketSegment.objects.get_by_portable_key('not-uuid')
+
         # ---
         segment2 = self._create_segment(name='Tourism')
         key2 = segment2.portable_key()
@@ -32,6 +37,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         with self.assertNumQueries(1):
             got_segments = [*MarketSegment.objects.get_by_portable_keys([key1, key2])]
         self.assertCountEqual([segment1, segment2], got_segments)
+
+        with self.assertRaises(ValidationError):
+            next(MarketSegment.objects.get_by_portable_keys(['not-uuid']))
 
     def test_portable_key__null(self):
         self.login_as_root()
