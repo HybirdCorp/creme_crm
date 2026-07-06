@@ -412,6 +412,9 @@ class CremeEntityTestCase(CremeTestCase):
             got_orga = FakeOrganisation.objects.get_by_portable_key(key1)
         self.assertEqual(orga1, got_orga)
 
+        with self.assertRaises(ValidationError):
+            FakeOrganisation.objects.get_by_portable_key('not-uuid')
+
         # ---
         orga2 = create_orga(name='Iwa')
         with self.assertNumQueries(1):
@@ -419,6 +422,9 @@ class CremeEntityTestCase(CremeTestCase):
                 [key1, orga2.portable_key()],
             )]
         self.assertCountEqual([orga1, orga2], got_orgas)
+
+        with self.assertRaises(ValidationError):
+            next(FakeOrganisation.objects.get_by_portable_keys(['not-uuid']))
 
     def test_clean__creation(self):
         sector = FakeSector.objects.create(title='Ninjitsu')

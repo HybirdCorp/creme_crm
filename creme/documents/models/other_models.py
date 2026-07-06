@@ -61,6 +61,7 @@ class DocumentCategory(core_models.MinionModel):
 
 class MimeTypeManager(models.Manager):
     def get_by_portable_key(self, key: str) -> MimeType:
+        # TODO: validate key
         return self.get_or_create(name=key)[0]
 
     def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[MimeType]:

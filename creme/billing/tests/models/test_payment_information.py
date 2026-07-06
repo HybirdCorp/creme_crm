@@ -2,6 +2,7 @@ from functools import partial
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -158,6 +159,9 @@ class PaymentInformationTestCase(_BillingTestCase):
             got_pi = PaymentInformation.objects.get_by_portable_key(key1)
         self.assertEqual(pi1, got_pi)
 
+        with self.assertRaises(ValidationError):
+            PaymentInformation.objects.get_by_portable_key('not-uuid')
+
         # ---
         pi2 = create_pi(name='RIB 2')
         with self.assertNumQueries(1):
@@ -165,3 +169,6 @@ class PaymentInformationTestCase(_BillingTestCase):
                 [key1, pi2.portable_key()]
             )]
         self.assertCountEqual([pi1, pi2], got_pis)
+
+        with self.assertRaises(ValidationError):
+            next(PaymentInformation.objects.get_by_portable_keys(['not-uuid']))
