@@ -3,6 +3,7 @@ from functools import partial
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models.functions import Length
 
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.models import (
@@ -195,7 +196,7 @@ class DBTestCase(CremeTestCase):
         )
 
     def test_indexed_ordering__desc(self):
-        "DESC order => inverted index."
+        """DESC order => inverted index."""
         expected = ('-name', '-cremeentity_ptr_id')
         self.assertEqual(
             expected,
@@ -249,7 +250,7 @@ class DBTestCase(CremeTestCase):
         )
 
     def test_indexed_ordering__blurred_query_n_desc(self):
-        "Blurred query + other model + DESC."
+        """Blurred query + other model + DESC."""
         self.assertEqual(
             ('name', 'cremeentity_ptr_id'),
             get_indexed_ordering(FakeOrganisation, ['name', '*']),
@@ -313,7 +314,7 @@ class DBTestCase(CremeTestCase):
         self.assertIsNone(contacts[2].sector)
 
     def test_populate_related__two_fields(self):
-        "Two fields."
+        """Two fields."""
         contacts = self._create_contacts()
 
         with self.assertNumQueries(2):
@@ -330,7 +331,7 @@ class DBTestCase(CremeTestCase):
         self.assertIsNone(contacts[2].civility)
 
     def test_populate_related__cache(self):
-        "Do not retrieve already cached values."
+        """Do not retrieve already cached values."""
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
         contacts[1].sector  # NOQA
@@ -347,7 +348,7 @@ class DBTestCase(CremeTestCase):
             populate_related(contacts, ['sector', 'civility'])
 
     def test_populate_related__group_queries(self):
-        "Two fields related to the same model."
+        """Two fields related to the same model."""
         user = self.get_root_user()
 
         create_contact = partial(
@@ -479,7 +480,7 @@ class DBTestCase(CremeTestCase):
         self.assertEqual(role, role2)
 
     def test_populate_related__level_two_is_cached(self):
-        "Already cached field (level 2)."
+        """Already cached field (level 2)."""
         user1 = self.get_root_user()
         user2 = self.create_user(role=self.get_regular_role())
 
@@ -552,7 +553,7 @@ class DBTestCase(CremeTestCase):
             fetcher.proceed()
 
     def test_prefetcher__same_model(self):
-        "Several calls to order() with the same model."
+        """Several calls to order() with the same model."""
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
 
         fetcher = PreFetcher().order(
@@ -717,4 +718,19 @@ class DBTestCase(CremeTestCase):
             get_stable_ordering(
                 CremeProperty.objects.order_by('created', '-creme_entity_id', 'type_id')
             ),
+        )
+
+    def test_get_stable_ordering__annotation(self):
+        qs = FakeContact.objects.annotate(lname_len=Length('last_name'))
+        self.assertListEqual(
+            ['lname_len', 'cremeentity_ptr'],
+            get_stable_ordering(qs.order_by('lname_len')),
+        )
+        self.assertListEqual(
+            ['-lname_len', 'cremeentity_ptr'],
+            get_stable_ordering(qs.order_by('-lname_len')),
+        )
+        self.assertListEqual(
+            ['lname_len', 'id'],
+            get_stable_ordering(qs.order_by('lname_len', 'id')),
         )

@@ -400,6 +400,15 @@ else:
         def __str__(self):
             return '{} {} {}'.format(self.civility or '', self.first_name, self.last_name).strip()
 
+        def __repr__(self):
+            return (
+                f'FakeContact('
+                f'id={self.id}, '
+                f'first_name="{self.first_name}", '
+                f'last_name="{self.last_name}"...'
+                f')'
+            )
+
         def clean(self):
             super().clean()
 

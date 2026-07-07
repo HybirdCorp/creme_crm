@@ -161,6 +161,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         self.extra_q = None
         self.search_form = None
 
+        self.annotations = {}  # TODO: typing
         self.queryset = None  # We hide voluntarily the class attribute which SHOULD not be used.
         self.count = None
         self.fast_mode = None
@@ -190,6 +191,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         unordered_queryset, self.count = self.get_unordered_queryset_n_count()
         self.fast_mode = self.get_fast_mode()
         self.ordering = ordering = self.get_ordering()
+
+        if self.annotations:
+            # print('ANNOTATION TIME', self.annotations)
+            unordered_queryset = unordered_queryset.annotate(**self.annotations)
+
         self.queryset = unordered_queryset.order_by(*ordering)
 
     def get(self, request, *args, **kwargs):
@@ -430,6 +436,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         state.sort_cell_key = sort_info.main_cell_key
         state.sort_order = str(sort_info.main_order)
 
+        if sort_info.annotations:
+            self.annotations.update(sort_info.annotations)
+
         return sort_info.field_names
 
     def get_paginate_by(self, queryset) -> int:
@@ -462,10 +471,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             paginator.count = self.count
         else:
             paginator = FlowPaginator(
-                queryset=queryset,
-                # key=self.ordering[0],
-                per_page=per_page,
-                count=self.count,
+                queryset=queryset, per_page=per_page, count=self.count,
             )
 
         return paginator
