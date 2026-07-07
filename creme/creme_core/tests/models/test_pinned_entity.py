@@ -27,7 +27,7 @@ class PinnedEntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(pinned1.created, now())
         self.assertEqual(
             f'PinnedEntity('
-            f'real_entity=FakeContact(id={contact.id}), '
+            f'real_entity={contact!r}, '
             f'user=CremeUser(username="root"))',
             repr(pinned1),
         )

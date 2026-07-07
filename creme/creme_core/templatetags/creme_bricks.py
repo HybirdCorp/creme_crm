@@ -493,7 +493,8 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
 
     # TODO: only if the brick manages sorting (QuerysetBrick) ??
     # TODO: take the registry from the context ? the arguments ?
-    if sorter.cell_sorter_registry.get_field_name(cell):
+    # if sorter.cell_sorter_registry.get_field_name(cell):
+    if sorter.cell_sorter_registry.get_sorting_item(cell):
         current_sort = context.get('order_by')
 
         if current_sort:

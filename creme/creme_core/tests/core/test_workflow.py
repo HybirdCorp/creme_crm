@@ -182,7 +182,7 @@ class WorkflowEventsTestCase(CremeTestCase):
         self.assertEqual(
             f'RelationAdded(relation=Relation('
             f'user=CremeUser(username="root"), '
-            f'subject_entity=FakeContact(id={entity1.id}), '
+            f'subject_entity={entity1!r}, '
             f'type=RelationType(predicate="{rtype.predicate}"), '
             f'object_entity=FakeOrganisation(id={entity2.id})'
             f'))',

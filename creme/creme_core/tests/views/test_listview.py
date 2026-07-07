@@ -1025,8 +1025,7 @@ class ListViewTestCase(CremeTestCase):
             r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
         )
 
-    def test_ordering__customfield_column(self):
-        "Custom field ordering is ignored in current implementation."
+    def test_ordering__custom_field__not_orderable(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1035,33 +1034,100 @@ class ListViewTestCase(CremeTestCase):
         redtail   = create_orga(name='Redtail')
 
         cfield = CustomField.objects.create(
-            name='size (m)', content_type=self.ctype, field_type=CustomField.INT,
+            name='Size', content_type=self.ctype, field_type=CustomField.ENUM,
         )
-        klass = cfield.value_class
 
-        def set_cfvalue(entity, value):
-            klass(custom_field=cfield, entity=entity).set_value_n_save(value)
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        ev1 = create_evalue(value='Small')
+        ev2 = create_evalue(value='Big')
 
-        set_cfvalue(bebop,     42)
-        set_cfvalue(swordfish, 12)
-        set_cfvalue(redtail,   4)
+        def set_cfvalue(entity, enum_value):
+            cfield.value_class(
+                custom_field=cfield, entity=entity,
+            ).set_value_n_save(enum_value.id)
+
+        set_cfvalue(bebop,     ev2)
+        set_cfvalue(swordfish, ev1)
+        set_cfvalue(redtail,   ev1)
 
         cfield_cell = EntityCellCustomField(cfield)
-        hf = self._build_hf(cfield_cell)
 
         response = self.assertPOST200(
             FakeOrganisation.get_lv_absolute_url(),
             data={
-                'hfilter': hf.pk,
+                'hfilter': self._build_hf(cfield_cell).pk,
                 'sort_key': cfield_cell.key,
                 'sort_order': '',
             },
         )
         self.assertListViewContentOrder(
             response,
-            key='name',
-            entries=FakeOrganisation.objects.order_by('name'),
+            key='name', entries=FakeOrganisation.objects.order_by('name'),
         )
+
+    def _aux_test_ordering__custom_field__integer(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        # NB: ID & name ordering are the same => we want the CustomField order
+        bebop     = create_orga(name='Bebop')
+        redtail   = create_orga(name='Redtail')
+        swordfish = create_orga(name='Swordfish')
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=self.ctype, field_type=CustomField.INT,
+        )
+        # NB: we create 2 CustomFields, the second one must NOT be used to order
+        cfield1 = create_cfield(name='Length of ship (cm)')
+        cfield2 = create_cfield(name='Weight of ship (g)')
+
+        create_cf_value = cfield1.value_class.objects.create
+        create_cf_value(custom_field=cfield1, entity=bebop, value=4500)
+        # create_cf_value(custom_field=cfield1, entity=redtail,  value=...)  empty => first
+        create_cf_value(custom_field=cfield1, entity=swordfish, value=1200)
+        create_cf_value(custom_field=cfield2, entity=swordfish, value=800_000)  # ignored
+
+        url = FakeOrganisation.get_lv_absolute_url()
+        cfield_cell = EntityCellCustomField(cfield1)
+
+        def post(order='ASC'):
+            response = self.assertPOST200(
+                url,
+                data={
+                    'hfilter': self._build_hf(cfield_cell).pk,
+                    'sort_key': cfield_cell.key,
+                    'sort_order': order,
+                },
+            )
+            content = self._get_lv_cell_contents(
+                self._get_lv_table_node(self._get_lv_node(response))
+            )
+
+            indexed_ships = [
+                (ship.name, self.assertIndex(ship.name, content))
+                for ship in (bebop, redtail, swordfish)
+            ]
+            indexed_ships.sort(key=lambda t: t[1])
+
+            return [e[0] for e in indexed_ships]
+
+        # ASC ---
+        expected = [redtail.name, swordfish.name, bebop.name]
+        self.assertListEqual(expected, post(order='ASC'))
+
+        # DESC ---
+        self.assertListEqual([*reversed(expected)], post(order='DESC'))
+
+    @override_settings(FAST_QUERY_MODE_THRESHOLD=1000)
+    def test_ordering__custom_field__integer(self):
+        """INT CustomField are orderable."""
+        self._aux_test_ordering__custom_field__integer()
+
+    @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
+    def test_ordering__custom_field__integer__fast_mode(self):
+        """INT CustomField are orderable (fast mode version)."""
+        self._aux_test_ordering__custom_field__integer()
 
     def _aux_test_ordering_fast_mode(self):
         user = self.login_as_root_and_get()

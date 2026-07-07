@@ -38,7 +38,7 @@ class LastViewedEntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(lve1.viewed, now_value)
         self.assertEqual(
             f'LastViewedEntity('
-            f'real_entity=FakeContact(id={contact1.id}), '
+            f'real_entity={contact1!r}, '
             f'user=CremeUser(username="root")'
             f')',
             repr(lve1),
@@ -75,7 +75,7 @@ class LastViewedEntityTestCase(CremeTestCase):
         self.assertEqual(3, LastViewedEntity.objects.filter(user=user).count())
 
     def test_create__already_exists(self):
-        "View an entity already is the list => update item."
+        """View an entity already is the list => update item."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -93,7 +93,7 @@ class LastViewedEntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(lve1_again.viewed, now())
 
     def test_create__too_much_items(self):
-        "The settings value is set lower."
+        """The settings value is set lower."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -120,7 +120,7 @@ class LastViewedEntityTestCase(CremeTestCase):
         )
 
     def test_create__deleted_entity(self):
-        "Slots with entity marked as deleted are recycled in priority."
+        """Slots with entity marked as deleted are recycled in priority."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
