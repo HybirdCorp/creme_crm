@@ -924,3 +924,60 @@ by a man named Tochiro.
             },
             values_map,
         )
+
+    # def POC_order(self):
+    #     from django.db.models import OuterRef, Subquery
+    #
+    #     create_cfield = partial(
+    #         CustomField.objects.create,
+    #         content_type=ContentType.objects.get_for_model(FakeOrganisation),
+    #         field_type=CustomField.INT,
+    #     )
+    #     cfield1 = create_cfield(name='Length of ship')
+    #     cfield2 = create_cfield(name='Weight of ship')
+    #
+    #     create_orga = partial(
+    #         FakeOrganisation.objects.create, user=self.get_root_user(),
+    #     )
+    #     orga1 = create_orga(name='Arcadia')
+    #     orga2 = create_orga(name='Queen Emeraldas')
+    #     create_orga(name='Cruiser')
+    #
+    #     create_cf_value = CustomFieldInteger.objects.create
+    #     create_cf_value(custom_field=cfield2, entity=orga1, value=450)
+    #     create_cf_value(custom_field=cfield1, entity=orga2, value=860)
+    #     create_cf_value(custom_field=cfield1, entity=orga1, value=1200)
+    #
+    #     print([
+    #         (o.id, o.cf_order) for o in
+    #         FakeOrganisation.objects.annotate(
+    #             cf_order=Subquery(
+    #                 CustomFieldInteger.objects.filter(
+    #                     entity=OuterRef('pk'), custom_field=cfield1,
+    #                 ).values_list('value', flat=True).values('value')[:1]
+    #             ),
+    #         ).order_by('cf_order')
+    #     ])
+    #     print([
+    #         o.id for o in
+    #         FakeOrganisation.objects.order_by(
+    #             Subquery(
+    #                 CustomFieldInteger.objects.filter(
+    #                     entity=OuterRef('pk'), custom_field=cfield1,
+    #                 ).values_list('value', flat=True).values('value')[:1]
+    #             ),
+    #         )
+    #     ])
+    #
+    #     # DESC + key
+    #     ann_name = f'order-customfield-{cfield1.id}'
+    #     print([
+    #         getattr(o, ann_name) for o in
+    #         FakeOrganisation.objects.annotate(**{
+    #             ann_name: Subquery(
+    #                 CustomFieldInteger.objects.filter(
+    #                     entity=OuterRef('pk'), custom_field=cfield1,
+    #                 ).values_list('value', flat=True).values('value')[:1],
+    #             ),
+    #         }).order_by(f'-{ann_name}')
+    #     ])

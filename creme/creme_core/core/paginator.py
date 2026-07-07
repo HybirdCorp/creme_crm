@@ -45,6 +45,7 @@ _FORWARD = 'forward'
 _BACKWARD = 'backward'
 
 
+# Exceptions -------------------------------------------------------------------
 class FirstPage(InvalidPage):
     pass
 
@@ -53,6 +54,79 @@ class LastPage(InvalidPage):
     pass
 
 
+# KeyMaker (internal) ----------------------------------------------------------
+# TODO: unit test
+class FlowKeyMaker:
+    """Operation on the flow key, like generating it."""
+    def __init__(self, attr_name: str):
+        self._attr_name = attr_name
+
+    @property
+    def attr_name(self) -> str:
+        """Attribute (of the instances managed by the paginator) corresponding to the key."""
+        return self._attr_name
+
+    @property
+    def nullable(self) -> bool:
+        """Can the key be NULL/None?"""
+        raise NotImplementedError
+
+    def populate_related(self, instances: Sequence[Model]) -> None:
+        """Prefetch data in order to avoid extra queries when calling value_from()."""
+        pass
+
+    def value_from(self, instance: Model):
+        """Extract a key value from an instance."""
+        return getattr(instance, self._attr_name)
+
+
+class RegularFieldKeyMaker(FlowKeyMaker):
+    """Specialisation of FlowKeyMaker when the key is a regular model-field."""
+    def __init__(self, model: type[Model], attr_name: str):
+        super().__init__(attr_name=attr_name)
+        field_info = FieldInfo(model, attr_name)
+
+        if any(f.many_to_many for f in field_info):
+            raise ValueError('Invalid key: ManyToManyFields cannot be used as key.')
+
+        # TODO: if related_model is not None ?
+        last_field = field_info[-1]
+
+        # TODO: other check?
+        # NB: if the attribute name is different, it means the user talks
+        #     about the low-level value "stuff_id", not the ForeignKey "stuff".
+        # TODO: make a better API for that in FieldInfo?
+        if last_field.is_relation and last_field.name == field_info.attname(-1):
+            raise ValueError(
+                f'Invalid key: last sub-field "{last_field}" seems to be a '
+                f'ForeignKey & cannot be used as key (not order-able). '
+                f'Hint: use the raw field ("myfk_id") or a subfield ("myfk__name").'
+            )
+
+        self._field_info = field_info
+
+    @property
+    def nullable(self):
+        return any(f.null for f in self._field_info)
+
+    def populate_related(self, instances):
+        populate_related(instances, (self._attr_name,))
+
+    def value_from(self, instance):
+        return self._field_info.value_from(instance)
+
+
+class AnnotationKeyMaker(FlowKeyMaker):
+    """Specialisation of FlowKeyMaker when the key is an annotation.
+    (think 'QuerySet.annotate()').
+    """
+    @property
+    def nullable(self):
+        # No easy way to know if an annotation can never return <None>
+        return True
+
+
+# Main: Paginator & Page -------------------------------------------------------
 class FlowPaginator:
     """Paginates a Queryset in a way which lets you jump only to
     next/previous/first/last pages.
@@ -69,9 +143,10 @@ class FlowPaginator:
 
     _per_page: int
     _count: int
-    _key_field_info: FieldInfo
+    # _key_field_info: FieldInfo
     _key: str
-    _attr_name: str
+    # _attr_name: str
+    _key_maker: FlowKeyMaker
     _reverse_order: bool
 
     def __init__(self, queryset: QuerySet, *, per_page: int, count: int = sys.maxsize):
@@ -98,16 +173,18 @@ class FlowPaginator:
         self.count = count
 
         self._num_pages: int | None = None
-        self._attr_name: str = ''  # TODO: rename "attr_nameS"?
+        # self._attr_name: str = ''
         self._reverse_order: bool = False
 
         ordering = get_stable_ordering(queryset)
         self._queryset = queryset.order_by(*ordering)
-        self._set_key(ordering[0])
+        # self._set_key(ordering[0])
+        self._set_key(queryset=queryset, value=ordering[0])
 
     @property
     def attr_name(self) -> str:
-        return self._attr_name
+        # return self._attr_name
+        return self._key_maker.attr_name
 
     @property
     def reverse_order(self) -> bool:
@@ -129,7 +206,32 @@ class FlowPaginator:
     def queryset(self) -> QuerySet:
         return self._queryset
 
-    def _set_key(self, value: str) -> None:
+    # def _set_key(self, value: str) -> None:
+    #     self._key = value
+    #
+    #     if value.startswith('-'):
+    #         attr_name = value[1:]
+    #         self._reverse_order = True
+    #     else:
+    #         attr_name = value
+    #         self._reverse_order = False
+    #
+    #     field_info = FieldInfo(self._queryset.model, attr_name)
+    #
+    #     if any(f.many_to_many for f in field_info):
+    #         raise ValueError('Invalid key: ManyToManyFields cannot be used as key.')
+    #
+    #     last_field = field_info[-1]
+    #     if last_field.is_relation and last_field.name == field_info.attname(-1):
+    #         raise ValueError(
+    #             f'Invalid key: last sub-field "{last_field}" seems to be a '
+    #             f'ForeignKey & cannot be used as key (not order-able). '
+    #             f'Hint: use the raw field ("myfk_id") or a subfield ("myfk__name").'
+    #         )
+    #
+    #     self._attr_name = attr_name
+    #     self._key_field_info = field_info
+    def _set_key(self, queryset, value: str) -> None:
         self._key = value
 
         if value.startswith('-'):
@@ -139,27 +241,11 @@ class FlowPaginator:
             attr_name = value
             self._reverse_order = False
 
-        field_info = FieldInfo(self._queryset.model, attr_name)
-
-        if any(f.many_to_many for f in field_info):
-            raise ValueError('Invalid key: ManyToManyFields cannot be used as key.')
-
-        # TODO: if related_model is not None ?
-        last_field = field_info[-1]
-
-        # TODO: other check?
-        # NB: if the attribute name is different, it means the user talks
-        #     about the low-level value "stuff_id", not the ForeignKey "stuff".
-        # TODO: make a better API for that in FieldInfo?
-        if last_field.is_relation and last_field.name == field_info.attname(-1):
-            raise ValueError(
-                f'Invalid key: last sub-field "{last_field}" seems to be a '
-                f'ForeignKey & cannot be used as key (not order-able). '
-                f'Hint: use the raw field ("myfk_id") or a subfield ("myfk__name").'
-            )
-
-        self._attr_name = attr_name
-        self._key_field_info = field_info
+        self._key_maker = (
+            AnnotationKeyMaker(attr_name=attr_name)
+            if attr_name in queryset.query.annotations else
+            RegularFieldKeyMaker(attr_name=attr_name, model=self._queryset.model)
+        )
 
     def last_page(self):
         return self.page({'type': 'last', 'key': self.key})
@@ -208,17 +294,35 @@ class FlowPaginator:
         return offset
 
     def _get_qs(self, page_info: dict, reverse: bool) -> QuerySet:
+        # value = page_info['value']
+        # attr_name = self._attr_name
+        #
+        # if value is None:
+        #     q = Q(**{attr_name + '__isnull': True}) if reverse else Q()
+        # else:
+        #     op = '__lte' if reverse else '__gte'
+        #     q = Q(**{attr_name + op: value})
+        #
+        #     if reverse and any(f.null for f in self._key_field_info):
+        #         q |= Q(**{attr_name + '__isnull': True})
+        #
+        # try:
+        #     qs = self._queryset.filter(q)
+        # except (ValueError, ValidationError) as e:
+        #     raise InvalidPage(f'Invalid "value" [{e}].') from e
+        #
+        # return qs
         value = page_info['value']
-        attr_name = self._attr_name
+        key_maker = self._key_maker
+        attr_name = key_maker.attr_name
 
         if value is None:
-            q = Q(**{attr_name + '__isnull': True}) if reverse else Q()
+            q = Q(**{f'{attr_name}__isnull': True}) if reverse else Q()
         else:
-            op = '__lte' if reverse else '__gte'
-            q = Q(**{attr_name + op: value})
+            q = Q(**{f'{attr_name}__{'lte' if reverse else 'gte'}': value})
 
-            if reverse and any(f.null for f in self._key_field_info):
-                q |= Q(**{attr_name + '__isnull': True})
+            if reverse and key_maker.nullable:
+                q |= Q(**{f'{attr_name}__isnull': True})
 
         try:
             qs = self._queryset.filter(q)
@@ -272,7 +376,6 @@ class FlowPaginator:
         # instances: Iterable[Model]
 
         if move_type == 'first' or self.count <= per_page:
-            # instances = [*self.queryset[:per_page + 1]]
             instances = [*self._queryset[:per_page + 1]]
             next_item = None if len(instances) <= per_page else instances.pop()
             first_page = True
@@ -311,7 +414,8 @@ class FlowPaginator:
                 instances.reverse()
                 next_item = instances.pop()
 
-                if self._key_field_info.value_from(instances[-1]) != page_info['value']:
+                # if self._key_field_info.value_from(instances[-1]) != page_info['value']:
+                if self._key_maker.value_from(instances[-1]) != page_info['value']:
                     offset = 0
 
                 forward = False
@@ -320,8 +424,9 @@ class FlowPaginator:
 
         return FlowPage(
             object_list=instances, paginator=self, forward=forward,
-            key=self._key, key_field_info=self._key_field_info,
-            attr_name=self._attr_name,
+            # key=self._key, key_field_info=self._key_field_info,
+            # attr_name=self._attr_name,
+            key=self._key, key_maker=self._key_maker,
             offset=offset, max_size=per_page,
             next_item=next_item, first_page=first_page,
         )
@@ -342,11 +447,13 @@ class FlowPaginator:
 
 
 class FlowPage(Sequence):
-    def __init__(self,
+    # def __init__(self,
+    def __init__(self, *,
                  object_list: Iterable[Model],
                  paginator: FlowPaginator,
                  forward: bool,
-                 key: str, key_field_info: FieldInfo, attr_name: str,
+                 # key: str, key_field_info: FieldInfo, attr_name: str,
+                 key: str, key_maker: FlowKeyMaker,
                  offset: int, max_size: int,
                  next_item: Model | None,
                  first_page: bool,
@@ -358,9 +465,10 @@ class FlowPage(Sequence):
         @param paginator: A paginator with the following attribute: queryset.
         @param forward: Boolean ; True=>forward ; False=>backward.
         @param key: See FlowPaginator.
-        @param key_field_info: Instance of FieldInfo corresponding to the key.
-        @param attr_name: (Composite) attribute name corresponding to the key
-               (i.e. key without the '-' prefix).
+        # @param key_field_info: Instance of FieldInfo corresponding to the key.
+        # @param attr_name: (Composite) attribute name corresponding to the key
+        #        (i.e. key without the '-' prefix).
+        @param key_maker: Instance of FlowKeyMaker corresponding to the key.
         @param offset: Positive integer indicating the offset used with the key
                to get the object_list.
         @param max_size: Maximum size of pages with the paginator.
@@ -371,8 +479,9 @@ class FlowPage(Sequence):
         self.object_list: list[Model] = [*object_list]
         self.paginator = paginator
         self._key = key
-        self._key_field_info = key_field_info
-        self._attr_name = attr_name
+        # self._key_field_info = key_field_info
+        # self._attr_name = attr_name
+        self._key_maker = key_maker
         self._offset = offset
         self._max_size = max_size
         self._forward = forward
@@ -385,14 +494,15 @@ class FlowPage(Sequence):
     def __len__(self):
         return len(self.object_list)
 
-    def __getitem__(self, index) -> Model:
+    def __getitem__(self, index) -> Model | list[Model]:
         return self.object_list[index]
 
     # NB: 'maxsize=None' => avoid locking (will only be used with the same value)
     # @lru_cache(maxsize=None)
     @cache
     def _get_duplicates_count(self, value) -> int:
-        return self.paginator.queryset.filter(**{self._attr_name: value}).count()
+        # return self.paginator.queryset.filter(**{self._attr_name: value}).count()
+        return self.paginator.queryset.filter(**{self._key_maker.attr_name: value}).count()
 
     def has_next(self) -> bool:
         return self._next_item is not None
@@ -464,7 +574,8 @@ class FlowPage(Sequence):
         return self._build_info(
             move_type,
             offset=self._offset,
-            value=self._key_field_info.value_from(value_item),
+            # value=self._key_field_info.value_from(value_item),
+            value=self._key_maker.value_from(value_item),
         )
 
     def _build_info(self, move_type: str, value, offset) -> dict:
@@ -481,7 +592,8 @@ class FlowPage(Sequence):
         @param objects: Iterable ; instances to evaluate.
         """
         offset = 0
-        value_from = self._key_field_info.value_from
+        # value_from = self._key_field_info.value_from
+        value_from = self._key_maker.value_from
 
         for elt in objects:
             if value != value_from(elt):
@@ -500,9 +612,12 @@ class FlowPage(Sequence):
         next_item = self._next_item
 
         if next_item is not None:
-            populate_related([next_item, *self.object_list], (self._attr_name,))
+            # populate_related([next_item, *self.object_list], (self._attr_name,))
+            key_maker = self._key_maker
+            key_maker.populate_related([next_item, *self.object_list])
 
-            value = self._key_field_info.value_from(next_item)
+            # value = self._key_field_info.value_from(next_item)
+            value = key_maker.value_from(next_item)
             offset = self._compute_offset(value, reversed(self.object_list))
 
             if offset == self._max_size:
@@ -529,10 +644,13 @@ class FlowPage(Sequence):
         Internal information ; notice that 'type' will always be 'backward'.
         """
         if self.has_previous():
-            populate_related(self.object_list, (self._attr_name,))
+            # populate_related(self.object_list, (self._attr_name,))
+            key_maker = self._key_maker
+            key_maker.populate_related(self.object_list)
 
             object_iter = iter(self.object_list)
-            value = self._key_field_info.value_from(next(object_iter))
+            # value = self._key_field_info.value_from(next(object_iter))
+            value = key_maker.value_from(next(object_iter))
             offset = self._compute_offset(value, object_iter)
 
             if offset == self._max_size - 1:  # NB: _max_size > 1

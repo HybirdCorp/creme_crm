@@ -3,6 +3,7 @@ from datetime import date
 from functools import partial
 from random import shuffle
 
+from django.db.models.functions import ExtractYear, Length
 from parameterized import parameterized
 
 from creme.creme_core.core.paginator import (
@@ -85,7 +86,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             contact.save()
 
     def _build_contacts(self, **counts):
-        "@param counts: 'c2=3' => create 3 identical contacts at order 2."
+        """@param counts: 'c2=3' => create 3 identical contacts at order 2."""
         create_contact = partial(FakeContact.objects.create, user=self.user)
 
         for order, first_name, last_name in self.CONTACTS_DATA:
@@ -252,7 +253,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page({**info, 'key': '-last_name'})
 
     def test_invalid_page_info__last_page(self):
-        "Last page: key is different from paginator's one."
+        """Last page: key is different from paginator's one."""
         self._build_contacts()
 
         contacts = FakeContact.objects.all()
@@ -264,7 +265,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page({**info, 'key': 'first_name'})
 
     def test_invalid_page_info__invalid_date(self):
-        "Invalid date value."
+        """Invalid date value."""
         self._build_contacts()
 
         contacts = FakeContact.objects.order_by('birthday')
@@ -280,7 +281,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page({**info, 'type': 'backward'})
 
     def test_invalid_page_info__invalid_int(self):
-        "Invalid integer value."
+        """Invalid integer value."""
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
 
         for i in range(1, 4):
@@ -388,7 +389,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         )
 
     def test_next_page__offset__cumulate(self):
-        "Cumulate OFFSET (many duplicates)."
+        """Cumulate OFFSET (many duplicates)."""
         # We create 7 duplicates => a page with only duplicates => cumulate the offsets
         self._build_contacts(c2=7)
 
@@ -446,7 +447,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertIs(page.has_other_pages(), True)
 
     def test_last_page__direct(self):
-        "Go directly to the last page."
+        """Go directly to the last page."""
         self._build_contacts()
 
         qs = FakeContact.objects.all()
@@ -468,7 +469,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         )
 
     def test_last_page__direct__only_one_page(self):
-        "Go directly to the last page, but it is the only page."
+        """Go directly to the last page, but it is the only page."""
         create_contact = partial(FakeContact.objects.create, user=self.user)
         contacts = [
             create_contact(first_name='Rei', last_name='Ichido'),
@@ -483,8 +484,8 @@ class FlowPaginatorTestCase(CremeTestCase):
 
     def test_last_page__become_last_after_deletions(self):
         """We delete the entities on the last pages when we are on the previous
-         one => become the last page.
-         """
+        one => become the last page.
+        """
         self._build_contacts()
 
         qs = FakeContact.objects.order_by('last_name', 'id')
@@ -577,7 +578,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(info1a)
 
     def test_previous_page__other_key(self):
-        "Other key + page 3 => page 2: beware to reverse slice."
+        """Other key + page 3 => page 2: beware to reverse slice."""
         self._build_contacts()
 
         key = 'first_name'
@@ -638,7 +639,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(page2a.previous_page_info())
 
     def test_previous_page__offset__big(self):
-        "Compute big OFFSET (many duplicates)."
+        """Compute big OFFSET (many duplicates)."""
         # We create 6 duplicates => a page with only duplicates => compute the total offset
         self._build_contacts(c6=6)
 
@@ -677,7 +678,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(page2a.previous_page_info())
 
     def test_previous_page__offset__cumulate(self):
-        "Cumulate OFFSETs."
+        """Cumulate OFFSETs."""
         # We create 8 duplicates => 2 pages with only duplicates
         self._build_contacts(c6=8)
 
@@ -758,7 +759,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
 
     def test_previous_page__last_page(self):
-        "Duplicates at end + last_page => 0-__backward__-offset."
+        """Duplicates at end + last_page => 0-__backward__-offset."""
         last_name = 'Ichido'
         create_contact = partial(
             FakeContact.objects.create, user=self.user, last_name=last_name,
@@ -802,7 +803,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertTrue(before_last_page.has_previous())
 
     def test_next_n_previous_page(self):
-        "Manage forward & backward OFFSET (many duplicates)."
+        """Manage forward & backward OFFSET (many duplicates)."""
         # We create a page filled with duplicates, & more
         self._build_contacts(c3=6)
 
@@ -973,7 +974,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertTrue(page.has_previous())
 
     def test_info__forward(self):
-        "Forward + other key."
+        """Forward + other key."""
         self._build_contacts()
 
         key = 'first_name'
@@ -1048,7 +1049,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertTrue(page2.has_previous())
 
     def test_info__offset__backward(self):
-        "Backward OFFSET."
+        """Backward OFFSET."""
         self._build_contacts(c4=5)  # We create some duplicates
 
         key = 'last_name'
@@ -1221,7 +1222,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(lines[2:4], [*paginator.page(info2).object_list])
 
     def test_none_value__desc(self):
-        "None values + DESC."
+        """<None> values + DESC."""
         self._build_contacts()
         self._add_birthdays(count=3)
 
@@ -1274,7 +1275,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[2:4], [*page2a.object_list])
 
     def test_none_value__asc(self):
-        "None values + ASC."
+        """<None> values + ASC."""
         self._build_contacts()
         self._add_birthdays(count=3)
 
@@ -1331,7 +1332,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[-6:-4], [*page2.object_list])
 
     def test_none_value__desc__previous_without_none(self):
-        "None values + DESC (previous better tested: return to a page without None)."
+        """<None> values + DESC
+        (previous better tested: return to a page without <None>).
+        """
         self._build_contacts()
         # 3 last Contacts have birthday==None (if RDBMS order None as "very small")
         self._add_birthdays(count=4)
@@ -1379,7 +1382,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             contact.save()
 
     def test_fk__raw(self):
-        "Key: 'sector'."
+        """Key: 'sector'."""
         self._build_contacts()
         self._add_sectors()
 
@@ -1391,7 +1394,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(paginator.queryset.query.order_by, ('sector__order', 'cremeentity_ptr'))
 
     def test_fk__sub_field(self):
-        "Key: 'sector__order'."
+        """Key: 'sector__order'."""
         self._build_contacts()
         self._add_sectors()
 
@@ -1469,7 +1472,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
     def test_fk__desc__id(self):
-        "Key: '-sector_id'."
+        """Key: '-sector_id'."""
         self._build_contacts()
         self._add_sectors()
 
@@ -1500,7 +1503,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
     def test_fk__desc__raw(self):
-        "Key: '-sector'."
+        """Key: '-sector'."""
         self._build_contacts()
         self._add_sectors()
 
@@ -1513,7 +1516,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(paginator.queryset.query.order_by, ('-sector__order', 'id'))
 
     def test_fk__sub_field__2x_nullable_fk(self):
-        "Key: pk1__pk2 (2 nullable ForeignKeys)."
+        """Key: pk1__pk2 (2 nullable ForeignKeys)."""
         user = self.user
 
         create_cat = FakeFolderCategory.objects.create
@@ -1582,7 +1585,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page4.has_next())
 
     def test_fk__sub_field__1x_nullable_fk__asc(self):
-        "Key: pk1__pk2__foobar (pk1 not nullable) + ASC."
+        """Key: pk1__pk2__foobar (pk1 not nullable) + ASC."""
         self._build_contacts()
 
         other_user = self.create_user(index=1)
@@ -1610,7 +1613,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page4.has_next())
 
     def test_fk__sub_field__1x_nullable_fk__desc(self):
-        "Key: pk1__pk2__foobar (pk1 not nullable) + DESC."
+        """Key: pk1__pk2__foobar (pk1 not nullable) + DESC."""
         self._build_contacts()
 
         other_user = self.create_user(index=1)
@@ -1637,7 +1640,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(page2.previous_page_info())
 
     def test_one2one_raw(self):
-        "Key: 'cremeentity_ptr_id'."
+        """Key: 'cremeentity_ptr_id'."""
         create_contact = partial(FakeContact.objects.create, user=self.user)
 
         for first_name, last_name in [
@@ -1669,6 +1672,163 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page3.has_next())
 
         # TODO: desc?
+
+    def test_annotation(self):
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+
+        contacts = [
+            create_contact(first_name=first_name, last_name=last_name)
+            for first_name, last_name in [
+                ('Rei', 'Ichido'),      # length: 6
+                ('Gô', 'Reietsu'),      # length: 7
+                ('Jin', 'Daima'),       # length: 5
+                ('Kiyoshi', 'Shusse'),  # length: 6
+                ('Dai', 'Monohoshi'),   # length: 9
+            ]
+        ]
+
+        qs = FakeContact.objects.filter(
+            id__in=[c.id for c in contacts],
+        ).annotate(name_len=Length('last_name')).order_by('name_len', 'id')
+
+        paginator = FlowPaginator(qs, per_page=2, count=len(contacts))
+        page1 = paginator.page()
+        self.assertListEqual([contacts[2], contacts[0]], [*page1.object_list])
+        self.assertDictEqual({'type': 'first'}, page1.info())
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual([contacts[3], contacts[1]], [*page2.object_list])
+        self.assertTrue(page2.has_next())
+        self.assertDictEqual(
+            {'key': 'name_len', 'offset': 1, 'type': 'forward', 'value': 6},
+            page2.info(),
+        )
+
+        page3 = paginator.page(page2.next_page_info())
+        self.assertListEqual([contacts[4]], [*page3.object_list])
+        self.assertFalse(page3.has_next())
+        self.assertDictEqual({'key': 'name_len', 'type': 'last'}, page3.info())
+
+        # Previous
+        before_page3 = paginator.page(page3.previous_page_info())
+        self.assertListEqual([contacts[3], contacts[1]], [*before_page3.object_list])
+        self.assertDictEqual(
+            {'key': 'name_len', 'type': 'backward', 'value': 9},
+            before_page3.info(),
+        )
+
+    def test_annotation__reverse(self):
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+
+        contacts = [
+            create_contact(first_name=first_name, last_name=last_name)
+            for first_name, last_name in [
+                ('Rei', 'Ichido'),      # length: 6
+                ('Gô', 'Reietsu'),      # length: 7
+                ('Jin', 'Daima'),       # length: 5
+                ('Kiyoshi', 'Shusse'),  # length: 6
+                ('Dai', 'Monohoshi'),   # length: 9
+            ]
+        ]
+
+        qs = FakeContact.objects.filter(
+            id__in=[c.id for c in contacts],
+        ).annotate(name_length=Length('last_name')).order_by('-name_length', 'id')
+
+        paginator = FlowPaginator(qs, per_page=2, count=len(contacts))
+        page1 = paginator.page()
+        self.assertListEqual([contacts[4], contacts[1]], [*page1.object_list])
+        self.assertDictEqual({'type': 'first'}, page1.info())
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual([contacts[0], contacts[3]], [*page2.object_list])
+        self.assertTrue(page2.has_next())
+        self.assertDictEqual(
+            {'key': '-name_length', 'type': 'forward', 'value': 6},
+            page2.info(),
+        )
+
+    def test_annotation__none_values(self):
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+
+        contacts = [
+            create_contact(first_name=first_name, last_name=last_name, birthday=birthday)
+            for first_name, last_name, birthday in [
+                ('Rei', 'Ichido', date(year=1980, month=3, day=10)),
+                ('Gô', 'Reietsu', None),
+                ('Jin', 'Daima', date(year=1979, month=9, day=9)),
+                ('Kiyoshi', 'Shusse', None),
+                ('Dai', 'Monohoshi', None),
+            ]
+        ]
+
+        qs = FakeContact.objects.filter(
+            id__in=[c.id for c in contacts],
+        ).annotate(year=ExtractYear('birthday')).order_by('year', 'id')
+
+        paginator = FlowPaginator(qs, per_page=2, count=len(contacts))
+        page1 = paginator.page()
+        self.assertListEqual([contacts[1], contacts[3]], [*page1.object_list])
+        self.assertDictEqual({'type': 'first'}, page1.info())
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual([contacts[4], contacts[2]], [*page2.object_list])
+        self.assertTrue(page2.has_next())
+        self.assertDictEqual(
+            {'key': 'year', 'offset': 2, 'type': 'forward', 'value': None},
+            page2.info(),
+        )
+
+        page3 = paginator.page(page2.next_page_info())
+        self.assertListEqual([contacts[0]], [*page3.object_list])
+        self.assertFalse(page3.has_next())
+        self.assertDictEqual({'key': 'year', 'type': 'last'}, page3.info())
+
+    def test_annotation__none_values__reverse(self):
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+
+        contacts = [
+            create_contact(first_name=first_name, last_name=last_name, birthday=birthday)
+            for first_name, last_name, birthday in [
+                ('Rei', 'Ichido', date(year=1980, month=3, day=10)),
+                ('Gô', 'Reietsu', None),
+                ('Jin', 'Daima', date(year=1979, month=9, day=9)),
+                ('Kiyoshi', 'Shusse', None),
+                ('Dai', 'Monohoshi', date(year=1979, month=5, day=12)),
+                ('Yui', 'Kawa', None),
+                ('Chie', 'Uru', None),
+            ]
+        ]
+
+        qs = FakeContact.objects.filter(
+            id__in=[c.id for c in contacts],
+        ).annotate(year=ExtractYear('birthday')).order_by('-year', 'id')
+
+        paginator = FlowPaginator(qs, per_page=2, count=len(contacts))
+        page1 = paginator.page()
+        self.assertListEqual([contacts[0], contacts[2]], [*page1.object_list])
+        self.assertDictEqual({'type': 'first'}, page1.info())
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual([contacts[4], contacts[1]], [*page2.object_list])
+        self.assertTrue(page2.has_next())
+        self.assertDictEqual(
+            {'key': '-year', 'offset': 1, 'type': 'forward', 'value': 1979},
+            page2.info(),
+        )
+
+        page3 = paginator.page(page2.next_page_info())
+        self.assertListEqual([contacts[3], contacts[5]], [*page3.object_list])
+        self.assertTrue(page3.has_next())
+        self.assertDictEqual(
+            {'key': '-year', 'offset': 1, 'type': 'forward', 'value': None},
+            page3.info(),
+        )
+
+        page4 = paginator.page(page3.next_page_info())
+        self.assertListEqual([contacts[6]], [*page4.object_list])
+        self.assertFalse(page4.has_next())
+        self.assertDictEqual({'key': '-year', 'type': 'last'}, page4.info())
 
     def test_pages(self):
         self._build_contacts()

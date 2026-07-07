@@ -462,7 +462,8 @@ class QuerysetBrick(PaginatedBrick):
         if cell is None:
             return False
 
-        if not self.cell_sorter_registry.get_field_name(cell):
+        # if not self.cell_sorter_registry.get_field_name(cell):
+        if self.cell_sorter_registry.get_sorting_item(cell) is None:
             logger.warning('QuerysetBrick: the field "%s" is not sortable.', fname)
             return False
 

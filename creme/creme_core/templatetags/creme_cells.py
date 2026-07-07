@@ -277,4 +277,5 @@ def cell_is_sortable(cell, cell_sorter_registry):
     @param cell_sorter_registry: Instance of <creme_core.core.sorter.CellSorterRegistry>.
     @return: Boolean.
     """
-    return bool(cell_sorter_registry.get_field_name(cell))
+    # return bool(cell_sorter_registry.get_field_name(cell))
+    return cell_sorter_registry.get_sorting_item(cell) is not None

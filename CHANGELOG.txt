@@ -8,6 +8,7 @@
         - The settings 'ADMINS' & 'MANAGERS' should be list of simple strings, like :
           ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
       # A new hint has been created to prevent apps to not be populated.
+      # The list-views can now be ordered by a Custom-Field columns (for most types of Custom-Fields).
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status" can now be disabled;
@@ -53,6 +54,7 @@
             - In 'creme_core.bui.bricks' :
                 - The method 'BrickRegistry.__iter__()' is deprecated.
                 - The class 'SimpleBrick' is deprecated ; use 'Brick' instead.
+            - The method 'creme_core.core.sorter.QuerySorter._is_field_unique()' is deprecated.
             - In 'creme_core.models' :
                 - In the class 'EntityFilter', the methods 'can_*()' are deprecated;
                   use the methods 'check_*()' instead.
@@ -81,9 +83,12 @@
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
                       import it from 'creme_core.core.validators' instead'.
-        # When registering an enumerator class related to a model with
-          'creme_core.core.enumerable.EnumerableRegistry.register_related_model()',
-          this class is used as fallback for child models.
+        # In 'creme_core.core' :
+            - When registering an enumerator class related to a model with
+              'enumerable.EnumerableRegistry.register_related_model()', this
+              class is used as fallback for child models.
+            - The class 'paginator.FlowPaginator' now manages ordering items which are annotations names
+              (only real field names were managed).
         # A new class 'creme_core.enumerators.MinionEnumerator' has been created ; you should use it
           has base class for your own enumerators for Minion models (e.g. 'VatEnumerator' inherits it now).
         # In 'creme_core.gui.field_printers', if a Minion model has a 'color' field, the color is
@@ -95,6 +100,8 @@
               referenced Minions are disabled). So you should call it in the 'clean()' of your own
               entity models (i.e. <super().clean()>) if you did not call it in previous version.
             - The model 'Workflow' got a new field 'extra_data' (JSONField) to store custom data.
+        # The method 'creme_core.utils.db.get_stable_ordering()' now manages ordering items
+          which are annotations names (only real field names were managed).
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
           a class attribute 'brick_classes' has been added to facilitate the injection
           of "static" (i.e. no configuration in DB) Bricks in the related template.
@@ -140,14 +147,20 @@
                       you must call this super method when you override it now.
                     - The method '_post_instance_creation()' has been renamed '_post_instance_save()' ;
                       you have to rename the method in your own inheriting classes, or it won't be called.
-        # In 'creme_core.core.enumerable.EnumerableRegistry' :
-            - The method 'register_related_model()' does not raise an exception when a model
-              is already registered anymore (because of the new 'inheritance' feature).
-            - If a field is not viewable (i.e. <.set_tags(viewable=False)'>), an enumerator will not be returned if
-              the related model is registered anymore (but you can register an enumerator for this field specifically).
-            - There is no hard-coded specific enumerator related to 'CremeEntity' anymore;
-              but an enumerator is registered in the global registry (so don't worry if you
-              do not instanciate your own registry).
+        # In 'creme_core.core' :
+            - In 'enumerable.EnumerableRegistry' :
+                - The method 'register_related_model()' does not raise an exception when a model
+                  is already registered anymore (because of the new 'inheritance' feature).
+                - If a field is not viewable (i.e. <.set_tags(viewable=False)'>), an enumerator
+                  will not be returned if the related model is registered anymore (but you can
+                  register an enumerator for this field specifically).
+                - There is no hard-coded specific enumerator related to 'CremeEntity' anymore;
+                  but an enumerator is registered in the global registry (so don't worry if you
+                  do not instanciate your own registry).
+            - In the base class 'sorter.AbstractCellSorter' (& so all child classes) the method
+              'get_field_name()' has been removed, & replaced by 'get_sorting_item()'.
+              It could affect your code if one of your 'FunctionField' defines its attribute
+              'sorter_class' for example.
         # In 'creme_core.gui.bricks' :
             - The method 'Brick._simple_detailview_display()' has been removed.
             - In the class 'BrickRegistry':
@@ -254,7 +267,14 @@
                   the "constants" like 'EQUALS' have been modified.
              - The primary keys stored in the JSONField (e.g. for conditions on ForeignKey/ManyToManyFields)
                have been replaced by "portable" keys (e.g. UUID-strings for 'MinionModels').
-        # The attribute 'creme_core.core.enumerable.EnumerableRegistry._enums_4_models' is not a dictionary anymore.
+        # In 'creme_core.core' :
+            - The attribute 'enumerable.EnumerableRegistry._enums_4_models' is not a dictionary anymore.
+            - In 'paginator' :
+               - In the class 'FlowPaginator' :
+                 - The attributes '_key_field_info' & '_attr_name' have been removed.
+                 - The method '_set_key()' got a new mandatory argument 'queryset'.
+               - The constructor of 'FlowPage' is now keyword only, & its arguments
+                 'key_field_info'/'attr_name' have been removed.
         # In the class 'creme_core.gui.bricks.BrickRegistry', some internal attributes have changed.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :

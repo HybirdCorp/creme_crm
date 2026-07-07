@@ -346,8 +346,8 @@ class PreFetcher:
 
 
 def get_stable_ordering(queryset: QuerySet) -> list[str]:
-    """Returns a list of fields names usable as stable ordering (in order to
-    get consistent results through different pages).
+    """Returns a list of strings (fields names, annotations) usable as stable
+    ordering (in order to get consistent results through different pages).
 
     It gets the ordering from the queryset or model's Meta, explicits the real
     fields used for the ordering & ensures ordering stability by adding primary
@@ -359,9 +359,10 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         # 'cremeentity_ptr' added to ensure stable ordering
 
     @param queryset: The Django QuerySet to validate ordering for.
-    @return List of field names.
+    @return List of field names (or annotation labels) which can be prefixed with "-".
     """
     model = queryset.model
+    orm_annotations = queryset.query.annotations
 
     # TODO: extract as standalone function?
     def _explicit_ordering(ordering: Iterable[str]) -> list[str]:
@@ -370,18 +371,36 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         #   ['position__title', 'last_name']
         #   >> _explicit_ordering(['last_name', 'first_name', 'civility'])
         #   ['last_name', 'first_name', 'civility__title']
-        explicit_fields: list[str] = []
-        for ordered_field_name in ordering:
-            ordered_field = OrderedField(ordered_field_name)
-            desc = ordered_field.order.desc
-            explicit_fields.extend(
-                str(expl_field.reversed() if desc else expl_field)
-                for expl_field in FieldInfo(
-                    model, ordered_field.field_name,
-                ).as_explicit_orders
-            )
 
-        return explicit_fields
+        # explicit_fields: list[str] = []
+        # for ordered_field_name in ordering:
+        #     ordered_field = OrderedField(ordered_field_name)
+        #     desc = ordered_field.order.desc
+        #     explicit_fields.extend(
+        #         str(expl_field.reversed() if desc else expl_field)
+        #         for expl_field in FieldInfo(
+        #             model, ordered_field.field_name,
+        #         ).as_explicit_orders
+        #     )
+        # return explicit_fields
+        explicit: list[str] = []
+        for ordering_part in ordering:
+            ordered_field = OrderedField(ordering_part)
+            name = ordered_field.field_name
+            if name in orm_annotations:
+                # Annotations are already explicit
+                explicit.append(ordering_part)
+            else:
+                # Real fields are made explicit
+                desc = ordered_field.order.desc
+                explicit.extend(
+                    str(expl_field.reversed() if desc else expl_field)
+                    for expl_field in FieldInfo(
+                        model=model, field_name=name,
+                    ).as_explicit_orders
+                )
+
+        return explicit
 
     # TODO: extract as standalone function?
     def _is_ordering_stable(ordering: Iterable[str]) -> bool:
@@ -390,7 +409,16 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         #    >> _is_ordering_stable(['username']) => True  # username is unique
         #  With Contact:
         #    >> is_ordering_stable(('last_name', 'email')) => False
-        asc_ordering = [field_name.removeprefix('-') for field_name in ordering]
+
+        # asc_ordering = [field_name.removeprefix('-') for field_name in ordering]
+        # NB: we cannot know if an annotation produces a unique result, so we
+        #     currently just exclude them.
+        # TODO: way to indicate unique (& unique together) annotations?
+        asc_ordering = [
+            asc_part
+            for ordering_part in ordering
+            if (asc_part := ordering_part.removeprefix('-')) not in orm_annotations
+        ]
 
         if any(
             FieldInfo(model=model, field_name=field_name).unique
