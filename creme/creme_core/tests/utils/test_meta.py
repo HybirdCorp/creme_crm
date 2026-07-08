@@ -59,6 +59,7 @@ class FieldInfoTestCase(CremeTestCase):
         fi1 = meta.FieldInfo(FakeContact, 'first_name')
 
         self.assertEqual(FakeContact, fi1.model)
+        self.assertEqual('first_name', fi1.field_name)
         self.assertEqual(1, len(fi1))
         self.assertIs(True, bool(fi1))
 
@@ -107,6 +108,7 @@ class FieldInfoTestCase(CremeTestCase):
 
         self.assertEqual('image', fi.attname(0))
         self.assertEqual('name',  fi.attname(1))
+        self.assertEqual('image__name', fi.field_name)
 
     def test_invalid_fields(self):
         with self.assertRaises(FieldDoesNotExist):
