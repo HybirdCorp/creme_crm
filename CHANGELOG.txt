@@ -1,5 +1,12 @@
 == Version 2.8.4 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
+
 
 == Version 2.8.3 ==
 
