@@ -137,10 +137,8 @@ def CTypeSmartOrder(ctype_fk_name: str, ctypes: Iterable[ContentType] | None = N
            the ForeignKey is always related to an entity model.
     @return A <django.db.models.expressions.Func> object.
 
-    Hint: it can be useful to annotate()+order_by() a query.
-          >> CremeEntity.objects.annotate(
-                ct_order=CTypeSmartOrder('entity_content'),
-            ).order_by('ct_order')
+    Hint: it can be useful to order_by() a query:
+          >> CremeEntity.objects.order_by(CTypeSmartOrder('entity_content'))
     """
     from .unicode_collation import collator
 
@@ -152,13 +150,13 @@ def CTypeSmartOrder(ctype_fk_name: str, ctypes: Iterable[ContentType] | None = N
 
     # NB: we build a big string with all the ContentType IDs in the correct
     #     order (i.e. ordered by their label -- which is language dependant);
-    #     it looks like "[23][4][8]..." so the orders (in this string) of the
+    #     it looks like "|23|4|8|..." so the orders (in this string) of the
     #     IDs (as strings) can be used to order a query.
-    #     Notice that we decorate IDs with "[]" to avoid wrong matches
-    #     (e.g. ID "1" is found in "21", "[1]" is not found in "[21]").
+    #     Notice that we decorate IDs with "|" to avoid wrong matches
+    #     (e.g. ID "1" is found in "21", "|1|" is not found in "|21|").
     return StrIndex(
         # Text in which we search.
-        V(''.join(f'[{ct.id}]' for ct in ctypes)),
+        V('|' + '|'.join(f'{ct.id}' for ct in ctypes) + '|'),
         # Sub-string
-        Concat(V('['), Cast(ctype_fk_name, output_field=CharField()), V(']')),
+        Concat(V('|'), Cast(ctype_fk_name, output_field=CharField()), V('|')),
     )
