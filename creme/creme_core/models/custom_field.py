@@ -492,6 +492,7 @@ class CustomFieldEnumValue(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
+        ordering = ('id',)  # TODO: field 'order' instead?
 
     def __str__(self):
         return self.value
