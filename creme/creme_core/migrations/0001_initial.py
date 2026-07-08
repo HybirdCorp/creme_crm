@@ -490,6 +490,9 @@ class Migration(migrations.Migration):
                     )
                 ),
             ],
+            options={
+                'ordering': ('id',),
+            },
         ),
         migrations.CreateModel(
             name='CustomFieldEnum',
