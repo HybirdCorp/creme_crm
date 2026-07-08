@@ -75,6 +75,7 @@ class FieldInfoTestCase(CremeTestCase):
         fi1 = FieldInfo(FakeContact, 'first_name')
 
         self.assertEqual(FakeContact, fi1.model)
+        self.assertEqual('first_name', fi1.field_name)
         self.assertEqual(1, len(fi1))
         self.assertIs(True, bool(fi1))
         self.assertEqual(
@@ -146,6 +147,7 @@ class FieldInfoTestCase(CremeTestCase):
 
         self.assertEqual('image', fi1.attname(0))
         self.assertEqual('name',  fi1.attname(1))
+        self.assertEqual('image__name', fi1.field_name)
 
         self.assertListEqual([OrderedField('image__name')], [*fi1.as_explicit_orders])
 

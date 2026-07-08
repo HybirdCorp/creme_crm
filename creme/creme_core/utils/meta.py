@@ -106,7 +106,10 @@ class FieldInfo:
 
         fields.append(model._meta.get_field(subfield_names[-1]))
 
-    def __getitem__(self, idx: int | slice):
+    def __getitem__(self, idx: int | slice) -> Field | FieldInfo:
+        """
+        @return A Field if you pass an index (int), a FieldInfo if you pass a slice.
+        """
         if isinstance(idx, slice):
             step = idx.step
             if step is not None and step != 1:
@@ -141,12 +144,29 @@ class FieldInfo:
         return (
             f'FieldInfo('
             f'model={self._model.__name__}, '
-            f'''field_name="{'__'.join(self.__attnames)}"'''
+            f'''field_name="{self.field_name}"'''
             f')'
         )
 
-    def attname(self, index):
+    def attname(self, index: int) -> str:
+        """Name of the corresponding attribute for a given depth.
+
+        >> fi = FieldInfo(Contact, 'sector__title')
+        >> fi.attname(0)
+        'sector'
+        >> fi.attname(1)
+        'title'
+        """
         return self.__attnames[index]
+
+    @property
+    def field_name(self) -> str:
+        """Deep field name.
+
+        >> FieldInfo(Contact, 'sector__title').field_name
+        'sector__title'
+        """
+        return '__'.join(self.__attnames)
 
     @property
     def model(self) -> type[Model]:
@@ -154,6 +174,7 @@ class FieldInfo:
 
     @property
     def verbose_name(self) -> str:
+        """User-friendly label describing the deep field."""
         return ' - '.join(str(field.verbose_name) for field in self.__fields)
 
     @property
@@ -205,6 +226,12 @@ class FieldInfo:
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance: Model):
+        """Extract the value corresponding to a FieldInfo from an instance.
+
+        >> c = Contact(first_name='John', last_name='Doe')
+        >> FieldInfo(Contact, 'first_name').value_from(c)
+        'John'
+        """
         if not isinstance(instance, self._model):
             raise ValueError(
                 f'"{instance}" (type={type(instance)}) is not an instance of {self._model}'
