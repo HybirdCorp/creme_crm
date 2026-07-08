@@ -139,9 +139,10 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
     @override
     def _queryset(self, user):
-        return super()._queryset(user=user).annotate(
-            ct_order=CTypeSmartOrder('entity_type', ctypes=entity_ctypes()),
-        ).order_by('ct_order', 'name')
+        return super()._queryset(user=user).order_by(
+            CTypeSmartOrder('entity_type', ctypes=entity_ctypes()),
+            'name',
+        )
 
 
 class CTypeForeignKeyEnumerator(enumerable.Enumerator):
