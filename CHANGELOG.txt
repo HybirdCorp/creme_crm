@@ -2,8 +2,10 @@
 
   Users side :
   ------------
-    # The description of filter conditions on CustomFields with types choices &
-      mulitiple choices was broken with operator "is empty".
+    # There were sevaral issues in filter conditions on CustomFields with types
+      <choices> & <multiple choices> when operator is "is empty".
+        - The description was broken.
+        - The initial value of form-field was empty.
 
   Developers side :
   -----------------
