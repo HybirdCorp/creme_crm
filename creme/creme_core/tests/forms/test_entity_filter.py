@@ -1635,6 +1635,24 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             field._value_to_jsonifiable([condition]),
         )
 
+    def test_prepare_value__custom_enum__isempty(self):
+        ISEMPTY = operators.ISEMPTY
+        field = CustomFieldsConditionsField(
+            model=FakeContact, efilter_type=efilter_registry.id,
+        )
+        cfield = self.cfield_enum
+        condition = CustomFieldConditionHandler.build_condition(
+            custom_field=cfield, operator=ISEMPTY, values=[False],
+        )
+        self.assertListEqual(
+            [{
+                'field': {'id': cfield.id, 'type': 'enum__null'},
+                'operator': {'id': ISEMPTY, 'types': self._get_allowed_types(ISEMPTY)},
+                'value': 'false',
+            }],
+            field._value_to_jsonifiable([condition]),
+        )
+
     def test_clean__invalid_data_format(self):
         self.assertFormfieldError(
             field=CustomFieldsConditionsField(
