@@ -570,26 +570,30 @@ class CustomFieldsConditionsField(_ConditionsField):
         get_op = self.efilter_registry.get_operator
 
         for condition in value:
+            handler = condition.handler
+            cfield = handler.custom_field
             search_info = condition.value
             operator_id = search_info['operator']
             operator = get_op(operator_id)
-
-            field_type = customfield_rname_choicetype(search_info['rname'])
-            field_entry = {'id': condition.handler.custom_field.id, 'type': field_type}
-
-            value = ','.join(str(v) for v in search_info['values'])
+            values = ','.join(str(v) for v in search_info['values'])
 
             # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
-            if search_info['rname'] == CustomFieldBoolean.get_related_name():
-                value = value.lower()
+            if (
+                search_info['rname'] == CustomFieldBoolean.get_related_name()
+                or isinstance(operator, operators.BooleanOperatorBase)
+            ):
+                values = values.lower()
 
             dicts.append({
-                'field':    field_entry,
+                'field': {
+                    'id': cfield.id,
+                    'type': customfield_rname_choicetype(search_info['rname']),
+                },
                 'operator': {
                     'id': operator_id,
                     'types': ' '.join(operator.allowed_fieldtypes),
                 },
-                'value':    value,
+                'value': values,
             })
 
         return dicts
