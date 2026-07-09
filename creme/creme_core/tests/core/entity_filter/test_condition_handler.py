@@ -2630,6 +2630,47 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler2.description(user),
         )
 
+    def test_description__enum__isempty(self):
+        user = self.get_root_user()
+
+        custom_field = CustomField.objects.create(
+            name='Mark', field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        isempty_handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeContact,
+            custom_field=custom_field,
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+
+        with self.assertNumQueries(0):
+            isempty_description = isempty_handler.description(user)
+
+        self.assertEqual(
+            _('«{field}» is empty').format(field=custom_field.name),
+            isempty_description,
+        )
+
+        # ---
+        notempty_handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeContact,
+            custom_field=custom_field,
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+
+        with self.assertNumQueries(0):
+            notempty_description = notempty_handler.description(user)
+
+        self.assertEqual(
+            _('«{field}» is not empty').format(field=custom_field.name),
+            notempty_description,
+        )
+
     def test_description__multienum(self):
         user = self.get_root_user()
 
