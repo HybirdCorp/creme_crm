@@ -1,5 +1,10 @@
 == Version 2.7.11 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The description of filter conditions on CustomFields with types choices &
+      mulitiple choices was broken with operator "is empty".
+
   Developers side :
   -----------------
 
