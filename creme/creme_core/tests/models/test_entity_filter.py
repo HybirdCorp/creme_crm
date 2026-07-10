@@ -2951,7 +2951,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         )
 
     def test_relations__several_conditions__and(self):
-        "Several conditions on relations (with AND)."
+        """Several conditions on relations (with AND)."""
         loves = self._aux_test_relations()
         c = self.contacts
 
