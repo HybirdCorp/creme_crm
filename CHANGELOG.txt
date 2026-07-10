@@ -14,6 +14,13 @@
     ----------------------
         # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
 
+    Breaking changes :
+    ------------------
+        # The method 'creme_core.gui.bricks.BrickRegistry.get_bricks()' does not yield
+          odd empty bricks for invalid IDs anymore. It fixes a crash when you have several
+          invalid IDs in your configuration (it's probably not possible by using the UI,
+          it needs some custom import code which does not remove invalid IDs).
+
 
 == Version 2.7.10 ==
 

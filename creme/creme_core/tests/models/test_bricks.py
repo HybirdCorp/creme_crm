@@ -447,7 +447,8 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertEqual(
             _('Default block configuration for detail-views uses «{block}»').format(
-                block='BLOCK',
+                # block='BLOCK',
+                block='??',
             ),
             str(loc5),
         )
