@@ -22,9 +22,13 @@
 
     Breaking changes :
     ------------------
-        # The method 'get_by_portable_key()' (as seen above) should use an execption
+        # The method 'get_by_portable_key()' (as seen above) should use an exception
           'django.core.exceptions.ValidationError' when a key is malformed
-          (idem for the "new" method 'get_by_portable_keys()') .
+          (idem for the "new" method 'get_by_portable_keys()').
+        # The method 'creme_core.gui.bricks.BrickRegistry.get_bricks()' does not yield
+          odd empty bricks for invalid IDs anymore. It fixes a crash when you have several
+          invalid IDs in your configuration (it's probably not possible by using the UI,
+          it needs some custom import code which does not remove invalid IDs).
 
 
 == Version 2.8.3 ==

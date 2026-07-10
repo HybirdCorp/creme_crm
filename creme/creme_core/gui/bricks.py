@@ -1082,7 +1082,7 @@ class BrickRegistry:
             brick_cls = self._brick_classes.get(id_)
             if brick_cls is None:
                 logger.warning('Brick seems deprecated: %s', id_)
-                yield Brick()
+                # yield Brick()
             else:
                 brick = brick_cls()
 
