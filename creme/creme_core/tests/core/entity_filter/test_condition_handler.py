@@ -63,16 +63,17 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.meta import FieldInfo
 
 
-class _ConditionHandlerTestCase(CremeTestCase):
-    def assertQPkIn(self, q, *instances, negated=False):
-        self.assertIs(q.negated, negated)
-
-        children = q.children
-        self.assertEqual(1, len(children), children)
-
-        k, v = children[0]
-        self.assertEqual('pk__in', k)
-        self.assertSetEqual({i.pk for i in instances}, {*v})
+class _ConditionHandlerTestCase(CremeTestCase):  # TODO: remove
+    pass
+    # def assertQPkIn(self, q, *instances, negated=False):
+    #     self.assertIs(q.negated, negated)
+    #
+    #     children = q.children
+    #     self.assertEqual(1, len(children), children)
+    #
+    #     k, v = children[0]
+    #     self.assertEqual('pk__in', k)
+    #     self.assertSetEqual({i.pk for i in instances}, {*v})
 
 
 # TODO: query_for_related_conditions()
@@ -3822,10 +3823,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler1.applicable_on_entity_base, True)
         self.assertIs(handler1.entities_are_distinct(), True)
 
-        self.assertQEqual(
-            Q(pk__in=Relation.objects.none()),
-            handler1.get_q(user=user),
-        )
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects.none()), handler1.get_q(user=user),
+        # )
 
         # ---
         with self.assertNumQueries(1):
@@ -4128,7 +4128,7 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual(orga.uuid, handler4._entity_uuid)
 
     def test_get_q(self):
-        "get_q() not empty."
+        """get_q() not empty."""
         user = self.get_root_user()
 
         loves = RelationType.objects.builder(
@@ -4144,7 +4144,8 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         create_rel = partial(Relation.objects.create, user=user)
-        rel1 = create_rel(subject_entity=shinji, type=loves, object_entity=rei)
+        # rel1 =
+        create_rel(subject_entity=shinji, type=loves, object_entity=rei)
         # rel2 =
         create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
         # rel3 =
@@ -4162,9 +4163,13 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         #      ),
         #     handler1.get_q(user=user)
         # )
-        self.assertQPkIn(
-            handler1.get_q(user=user),
-            shinji, asuka, misato,
+        # self.assertQPkIn(
+        #     handler1.get_q(user=user),
+        #     shinji, asuka, misato,
+        # )
+        self.assertCountEqual(
+            [shinji, asuka, misato],
+            FakeContact.objects.filter(handler1.get_q(user=user)),
         )
 
         # Exclude ---
@@ -4172,10 +4177,13 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             efilter_type=EF_REGULAR,
             model=FakeContact, rtype=loves.id, exclude=True,
         )
-        self.assertQPkIn(
-            handler2.get_q(user=user),
-            shinji, asuka, misato,
-            negated=True,
+        # self.assertQPkIn(
+        #     handler2.get_q(user=user),
+        #     shinji, asuka, misato,
+        #     negated=True,
+        # )
+        self.assertCountEqual(
+            [rei], FakeContact.objects.filter(handler2.get_q(user=user)),
         )
 
         # CT ---
@@ -4185,9 +4193,13 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             rtype=loves.id,
             ctype=ContentType.objects.get_for_model(FakeContact),
         )
-        self.assertQPkIn(
-            handler3.get_q(user=user),
-            shinji, asuka,
+        # self.assertQPkIn(
+        #     handler3.get_q(user=user),
+        #     shinji, asuka,
+        # )
+        self.assertCountEqual(
+            [shinji, asuka],
+            FakeContact.objects.filter(handler3.get_q(user=user)),
         )
 
         # Entity ---
@@ -4196,11 +4208,14 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             model=FakeContact,
             rtype=loves.id, entity=rei,
         )
-        self.assertQEqual(
-            Q(pk__in=Relation.objects
-                             .filter(id=rel1.id)
-                             .values_list('subject_entity_id', flat=True)),
-            handler4.get_q(user=user),
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects
+        #                      .filter(id=rel1.id)
+        #                      .values_list('subject_entity_id', flat=True)),
+        #     handler4.get_q(user=user),
+        # )
+        self.assertCountEqual(
+            [shinji], FakeContact.objects.filter(handler4.get_q(user=user)),
         )
 
     def test_accept(self):
@@ -4776,10 +4791,10 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, True)
 
-        self.assertQEqual(
-            Q(pk__in=Relation.objects.none()),
-            handler.get_q(user=None)
-        )
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects.none()),
+        #     handler.get_q(user=None)
+        # )
 
     def test_init__efilter_instance(self):
         sub_efilter = EntityFilter.objects.smart_update_or_create(
@@ -5000,7 +5015,7 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         # self.assertIsNone(condition3.handler) TODO ??
 
     def test_get_q(self):
-        "get_q() not empty."
+        """get_q() not empty."""
         user = self.get_root_user()
 
         loves = RelationType.objects.builder(
@@ -5034,7 +5049,11 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             model=FakeOrganisation,
             subfilter=sub_filter.id, rtype=loves.id,
         )
-        self.assertQPkIn(handler1.get_q(user=user), shinji, asuka)
+        # self.assertQPkIn(handler1.get_q(user=user), shinji, asuka)
+        self.assertCountEqual(
+            [shinji, asuka],
+            FakeContact.objects.filter(handler1.get_q(user=user)),
+        )
 
         # Exclude ---
         handler2 = RelationSubFilterConditionHandler(
@@ -5042,10 +5061,14 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             model=FakeOrganisation,
             subfilter=sub_filter.id, rtype=loves.id, exclude=True,
         )
-        self.assertQPkIn(
-            handler2.get_q(user=user),
-            shinji, asuka,
-            negated=True,
+        # self.assertQPkIn(
+        #     handler2.get_q(user=user),
+        #     shinji, asuka,
+        #     negated=True,
+        # )
+        self.assertCountEqual(
+            [rei, yui, misato],
+            FakeContact.objects.filter(handler2.get_q(user=user)),
         )
 
     def test_description(self):
@@ -5223,10 +5246,10 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
 
         self.assertIs(handler.applicable_on_entity_base, True)
 
-        self.assertQEqual(
-            Q(pk__in=CremeProperty.objects.none()),
-            handler.get_q(user=None),
-        )
+        # self.assertQEqual(
+        #     Q(pk__in=CremeProperty.objects.none()),
+        #     handler.get_q(user=None),
+        # )
 
         # ---
         with self.assertNumQueries(1):
@@ -5360,7 +5383,7 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler2._exclude, True)
 
     def test_get_q(self):
-        "get_q() not empty."
+        """get_q() not empty."""
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.create
@@ -5368,40 +5391,56 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
         pilot = create_ptype(text='Pilot')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        contacts = {
-            'shinji': create_contact(last_name='Ikari',     first_name='Shinji'),
-            'rei':    create_contact(last_name='Ayanami',   first_name='Rei'),
-            'asuka':  create_contact(last_name='Langley',   first_name='Asuka'),
-            'misato': create_contact(last_name='Katsuragi', first_name='Misato'),
-        }
+        # contacts = {
+        #     'shinji': create_contact(last_name='Ikari',     first_name='Shinji'),
+        #     'rei':    create_contact(last_name='Ayanami',   first_name='Rei'),
+        #     'asuka':  create_contact(last_name='Langley',   first_name='Asuka'),
+        #     'misato': create_contact(last_name='Katsuragi', first_name='Misato'),
+        # }
+        shinji = create_contact(last_name='Ikari',     first_name='Shinji')
+        rei    = create_contact(last_name='Ayanami',   first_name='Rei')
+        asuka  = create_contact(last_name='Langley',   first_name='Asuka')
+        misato = create_contact(last_name='Katsuragi', first_name='Misato')
 
         create_prop = CremeProperty.objects.create
-        properties = [
-            create_prop(creme_entity=contacts['rei'],    type=cute),
-            create_prop(creme_entity=contacts['rei'],    type=pilot),
-            create_prop(creme_entity=contacts['misato'], type=cute),
-            create_prop(creme_entity=contacts['shinji'], type=pilot),
-        ]
+        # properties = [
+        #     create_prop(creme_entity=contacts['rei'],    type=cute),
+        #     create_prop(creme_entity=contacts['rei'],    type=pilot),
+        #     create_prop(creme_entity=contacts['misato'], type=cute),
+        #     create_prop(creme_entity=contacts['shinji'], type=pilot),
+        # ]
+        create_prop(creme_entity=rei,    type=cute)
+        create_prop(creme_entity=rei,    type=pilot)
+        create_prop(creme_entity=misato, type=cute)
+        create_prop(creme_entity=shinji, type=pilot)
 
         handler1 = PropertyConditionHandler(
             efilter_type=EF_REGULAR, model=FakeContact, ptype=cute,
         )
-        self.assertQEqual(
-            Q(pk__in=CremeProperty.objects
-                                  .filter(id__in=[properties[0].id, properties[2].id])
-                                  .values_list('creme_entity_id', flat=True)),
-            handler1.get_q(user=user),
+        # self.assertQEqual(
+        #     Q(pk__in=CremeProperty.objects
+        #                           .filter(id__in=[properties[0].id, properties[2].id])
+        #                           .values_list('creme_entity_id', flat=True)),
+        #     handler1.get_q(user=user),
+        # )
+        self.assertCountEqual(
+            [rei, misato],
+            FakeContact.objects.filter(handler1.get_q(user=user)),
         )
 
         # Exclude ---
         handler2 = PropertyConditionHandler(
             efilter_type=EF_REGULAR, model=FakeContact, ptype=cute, exclude=True,
         )
-        self.assertQEqual(
-            ~Q(pk__in=CremeProperty.objects
-                                   .filter(id__in=[properties[0].id, properties[2].id])
-                                   .values_list('creme_entity_id', flat=True)),
-            handler2.get_q(user=user),
+        # self.assertQEqual(
+        #     ~Q(pk__in=CremeProperty.objects
+        #                            .filter(id__in=[properties[0].id, properties[2].id])
+        #                            .values_list('creme_entity_id', flat=True)),
+        #     handler2.get_q(user=user),
+        # )
+        self.assertCountEqual(
+            [shinji, asuka],
+            FakeContact.objects.filter(handler2.get_q(user=user)),
         )
 
     def test_accept(self):

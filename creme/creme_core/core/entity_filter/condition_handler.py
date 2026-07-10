@@ -1041,7 +1041,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                                   BaseCustomFieldConditionHandler):
     """Filter entities by using one of their CustomFields.
-    Note: no date field ; see DateCustomFieldConditionHandler
+    Note: no date field; see DateCustomFieldConditionHandler.
     """
     # type_id = 20
     type_id = 'custom_field'
@@ -1774,22 +1774,22 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return form_class(**defaults)
 
-    # TODO: use a filter "relations__*" when there is only one condition on Relations?
-    #       + update code of 'entities_are_distinct()'
     @override
     def get_q(self, user):
-        kwargs = {'type': self._rtype_id}
+        kwargs = {'type_id': self._rtype_id}
 
         if self._entity_uuid:
-            kwargs['object_entity'] = self.entity.id if self.entity else 0
+            kwargs['object_entity_id'] = self.entity.id if self.entity else 0
         elif self._ct_key:
-            # kwargs['object_entity__entity_type'] = self.content_type
             kwargs['object_ctype'] = self.content_type
 
+        # query = Q(
+        #     pk__in=Relation.objects
+        #                    .filter(**kwargs)
+        #                    .values_list('subject_entity_id', flat=True),
+        # )
         query = Q(
-            pk__in=Relation.objects
-                           .filter(**kwargs)
-                           .values_list('subject_entity_id', flat=True),
+            Exists(Relation.objects.filter(subject_entity_id=OuterRef('pk'), **kwargs))
         )
 
         if self._exclude:
@@ -1827,13 +1827,13 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         if isinstance(subfilter, EntityFilter):
             self._subfilter_id = subfilter.id
-            self._subfilter    = subfilter  # TODO: copy ?
+            self._subfilter    = subfilter  # TODO: copy?
         else:
             self._subfilter_id = subfilter
 
         self._exclude = exclude
 
-    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
+    # def accept(self, *, entity, user):  TODO? (currently not needed by credentials filters)
 
     @override
     @classmethod
@@ -1934,19 +1934,24 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         return form_class(**defaults)
 
-    # TODO: use a filter "relations__*" when there is only one condition on Relations ??
     @override
     def get_q(self, user):
         subfilter = self.subfilter
-        filtered = subfilter.filter(
-            subfilter.entity_type.get_all_objects_for_this_type(),
-        ).values_list('id', flat=True)
-
-        query = Q(
-            pk__in=Relation.objects
-            .filter(type=self._rtype_id, object_entity__in=filtered)
-            .values_list('subject_entity_id', flat=True),
-        )
+        # filtered = subfilter.filter(
+        #     subfilter.entity_type.get_all_objects_for_this_type(),
+        # ).values_list('id', flat=True)
+        # query = Q(
+        #     pk__in=Relation.objects
+        #     .filter(type=self._rtype_id, object_entity__in=filtered)
+        #     .values_list('subject_entity_id', flat=True),
+        # )
+        sub_type = subfilter.entity_type
+        query = Q(Exists(Relation.objects.filter(
+            subject_entity=OuterRef('pk'),
+            type=self._rtype_id,
+            object_ctype=sub_type,
+            object_entity__in=subfilter.filter(sub_type.get_all_objects_for_this_type()),
+        )))
 
         if self._exclude:
             query.negate()
@@ -2087,23 +2092,25 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         return form_class(**defaults)
 
-    # TODO: see remark on RelationConditionHandler._get_q()
     @override
     def get_q(self, user):
-        query = Q(
-            pk__in=CremeProperty.objects
-                                .filter(type__uuid=self._ptype_uuid)
-                                .values_list('creme_entity_id', flat=True),
-        )
+        # query = Q(
+        #     pk__in=CremeProperty.objects
+        #                         .filter(type__uuid=self._ptype_uuid)
+        #                         .values_list('creme_entity_id', flat=True),
+        # )
+        query = Q(Exists(CremeProperty.objects.filter(
+            type__uuid=self._ptype_uuid, creme_entity_id=OuterRef('pk'),
+        )))
 
-        # Do we filter entities which has got or has not got the property type ?
+        # Do we filter entities which has got or has not got the property type?
         if self._exclude:
             query.negate()
 
         return query
 
     @property
-    def property_type(self) -> CremePropertyType | bool:
+    def property_type(self) -> CremePropertyType | Literal[False]:
         ptype = self._ptype
         if ptype is None:
             self._ptype = ptype = CremePropertyType.objects.filter(
