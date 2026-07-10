@@ -35,6 +35,7 @@ from django.db.models import (
     Model,
     Q,
 )
+from django.db.models.expressions import Exists, OuterRef
 from django.utils.formats import date_format
 from django.utils.hashable import make_hashable
 from django.utils.timezone import make_aware, now
@@ -1586,11 +1587,12 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             # kwargs['object_entity__entity_type'] = self.content_type
             kwargs['object_ctype'] = self.content_type
 
-        query = Q(
-            pk__in=Relation.objects
-                           .filter(**kwargs)
-                           .values_list('subject_entity_id', flat=True),
-        )
+        # query = Q(
+        #     pk__in=Relation.objects
+        #                    .filter(**kwargs)
+        #                    .values_list('subject_entity_id', flat=True),
+        # )
+        query = Q(Exists(Relation.objects.filter(subject_entity=OuterRef('pk'), **kwargs)))
 
         if self._exclude:
             query.negate()
@@ -1836,11 +1838,14 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):
-        query = Q(
-            pk__in=CremeProperty.objects
-                                .filter(type__uuid=self._ptype_uuid)
-                                .values_list('creme_entity_id', flat=True),
-        )
+        # query = Q(
+        #     pk__in=CremeProperty.objects
+        #                         .filter(type__uuid=self._ptype_uuid)
+        #                         .values_list('creme_entity_id', flat=True),
+        # )
+        query = Q(Exists(CremeProperty.objects.filter(
+            type__uuid=self._ptype_uuid, creme_entity=OuterRef('pk'),
+        )))
 
         # Do we filter entities which has got or has not got the property type ?
         if self._exclude:
