@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1510,7 +1510,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         if self._entity_uuid:
             kwargs['object_entity'] = self.entity.id if self.entity else 0
         elif self._ct_key:
-            kwargs['object_entity__entity_type'] = self.content_type
+            # kwargs['object_entity__entity_type'] = self.content_type
+            kwargs['object_ctype'] = self.content_type
 
         query = Q(
             pk__in=Relation.objects
