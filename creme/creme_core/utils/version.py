@@ -57,6 +57,7 @@ def get_hg_info() -> dict:
     # log_entry = root.find('.//logentry')
     # ...
 
+    # TODO: use 'subprocess.run()' as below
     # NB: it seems the date format does not work on very old HG (ok with 3.7+ at least)
     hg_log = subprocess.Popen(
         """hg log -r tip --template '{date(date, "%Y-%m-%dT%H:%M%z")}#{node}'""",
@@ -109,26 +110,39 @@ def get_git_info() -> dict:
         'id':   '?',
     }
 
-    git_log = subprocess.Popen(
+    # git_log = subprocess.Popen(
+    #     "git log -n 1 --format='%H#%cI'",
+    #     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    #     shell=True, cwd=repo_dir,
+    #     # universal_newlines=True,
+    #     text=True,
+    # )
+    git_proc = subprocess.run(
         "git log -n 1 --format='%H#%cI'",
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        capture_output=True,
         shell=True, cwd=repo_dir,
-        # universal_newlines=True,
         text=True,
     )
 
-    raw_result, error = git_log.communicate()
+    # raw_result, error = git_log.communicate()
 
-    if error:
-        logger.warning('Error in creme_core.utils.version.get_git_info(): %s', error)
+    # if error:
+    if git_proc.stderr:
+        logger.warning(
+            'Error in creme_core.utils.version.get_git_info(): %s',
+            # error,
+            git_proc.stderr,
+        )
     else:
         # print(raw_result)
         try:
-            changeset_id, date_str = raw_result.strip().split('#', 1)
+            # changeset_id, date_str = raw_result.strip().split('#', 1)
+            changeset_id, date_str = git_proc.stdout.strip().split('#', 1)
         except ValueError:
             logger.warning(
-                'Error in creme_core.utils.version.get_git_info(): '
-                'received: %s', raw_result,
+                'Error in creme_core.utils.version.get_git_info(): received: %s',
+                # raw_result,
+                git_proc.stdout,
             )
         else:
             info['id'] = changeset_id
