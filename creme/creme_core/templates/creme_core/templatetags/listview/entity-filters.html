@@ -1,4 +1,9 @@
 {% load i18n creme_ctype creme_entity_filter creme_widgets %}{% load blockjsondata from creme_core_tags %}
+
+{% partialdef efilter-option %}
+  <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}{% if efilter.disabled %}disabled{% endif %}>{{efilter}}</option>
+{% endpartialdef %}
+
 <fieldset title="{% translate 'Filter the lines of the table with conditions on fields, relationships…' %}">
     <div class="legend">
         {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
@@ -7,13 +12,15 @@
         <select name="filter" class="lv-state-field list-filters-selector">
             <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
             {% for efilter in global_efilters %}
-            <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option>
+{#            <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option> #}
+            {% partial efilter-option %}
             {% endfor %}
 
             {% if my_efilters %}
             <optgroup label="{% translate 'My filters' %}">
               {% for efilter in my_efilters %}
-                <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option>
+{#                <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option> #}
+                {% partial efilter-option %}
               {% endfor %}
             </optgroup>
             {% endif %}
@@ -21,7 +28,8 @@
             {% for user, efilters in other_efilters %}
             <optgroup label="{% blocktranslate %}Filters of {{user}}{% endblocktranslate %}">
               {% for efilter in efilters %}
-                <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option>
+{#                <option value="{{efilter.id}}"{% if selected == efilter %} selected{% endif %}>{{efilter}}</option> #}
+                {% partial efilter-option %}
               {% endfor %}
             </optgroup>
             {% endfor %}

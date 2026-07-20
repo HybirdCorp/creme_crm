@@ -17,11 +17,11 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     @staticmethod
-    def _build_add_url(ct):
+    def _build_creation_url(ct):
         return reverse('creme_config__create_efilter', args=(ct.id,))
 
     @staticmethod
-    def _build_edit_url(efilter):
+    def _build_edition_url(efilter):
         return reverse('creme_config__edit_efilter', args=(efilter.id,))
 
     @staticmethod
@@ -78,7 +78,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_standard(allowed_apps=('documents',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        uri = self._build_add_url(ct)
+        uri = self._build_creation_url(ct)
         self.assertGET403(uri)
 
         # ---
@@ -136,7 +136,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_standard()
 
         context = self.assertGET200(
-            self._build_add_url(ContentType.objects.get_for_model(FakeContact))
+            self._build_creation_url(ContentType.objects.get_for_model(FakeContact))
         ).context
 
         with self.assertNoException():
@@ -158,7 +158,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-        url = self._build_edit_url(efilter)
+        url = self._build_edition_url(efilter)
         context1 = self.assertGET200(url).context
         self.assertEqual(
             _('Edit «{object}»').format(object=efilter.name),
@@ -213,7 +213,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact, user=self.get_root_user(), is_custom=True,
         )
-        self.assertGET403(self._build_edit_url(efilter))
+        self.assertGET403(self._build_edition_url(efilter))
 
     def test_edition__not_regular(self):
         self.login_as_root()
@@ -224,4 +224,4 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        self.assertGET403(self._build_edit_url(efilter))
+        self.assertGET403(self._build_edition_url(efilter))

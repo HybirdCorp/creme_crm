@@ -1192,6 +1192,19 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #666666;
 }
 
+/* EntityFilters brick */
+.creme_config-entityfilters-brick .entityfilter-config-group li .disabled-reason {
+    display: block;
+    color: gray;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li .disabled-reason a[data-action] img {
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+}
+
 /* Workflow brick */
 
 .creme_config-workflows-brick .workflow-config {

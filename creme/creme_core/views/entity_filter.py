@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist  # PermissionDenied
 from django.db.models import Field
 from django.db.models.deletion import PROTECT
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import partition
@@ -32,6 +32,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
 from .. import utils
+from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..core.entity_filter import EF_REGULAR, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
@@ -526,6 +527,48 @@ class EntityFilterDeletion(EntityFilterMixin,
             super().perform_deletion(request)
         except EntityFilter.DependenciesError as e:
             raise ConflictError(e) from e
+
+
+class EntityFilterDisabling(EntityFilterMixin, generic.CremeModelEditionPopup):
+    model = EntityFilter
+    form_class = efilter_forms.EntityFilterDisablingForm
+    pk_url_kwarg = 'efilter_id'
+    title = _('Disable «{object}»')
+    permissions = SUPERUSER_PERM
+
+    # TODO? (would force to implement a views for other types -- like reports' filter --
+    #       & credentials ignore the field "disabled" so it's not a real problem to
+    #       disable them :think:
+    # def check_instance_permissions(self, instance, user):
+    #     super().check_instance_permissions(instance=instance, user=user)
+    #     if instance.filter_type != self.efilter_type:
+    #         raise ConflictError('You cannot disable this type of filter')
+
+
+class EntityFilterEnabling(EntityFilterMixin, generic.base.CheckedView):
+    efilter_id_url_kwarg = 'efilter_id'
+    permissions = SUPERUSER_PERM
+
+    # TODO: see above
+    # def check_efilter_permissions(self, efilter, user):
+    #     if efilter.filter_type != self.efilter_type:
+    #         raise ConflictError('You cannot enable this type of filter')
+
+    def post(self, request, *args, **kwargs):
+        efilter = get_object_or_404(EntityFilter, id=self.kwargs[self.efilter_id_url_kwarg])
+        # self.check_efilter_permissions(efilter=efilter, user=request.user)
+
+        efilter.disabled = None
+        efilter.disabling_reason = ''
+        efilter.save()
+
+        # TODO??
+        # return (
+        #     HttpResponse(self.get_ajax_success_url(), content_type='text/plain')
+        #     if is_ajax(request) else
+        #     HttpResponseRedirect(self.get_success_url())
+        # )
+        return HttpResponse()
 
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???

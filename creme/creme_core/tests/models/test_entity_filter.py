@@ -8,6 +8,7 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme import __version__
 from creme.creme_core.core.entity_filter import (
@@ -62,7 +63,6 @@ from ..base import CremeTestCase
 
 class EntityFilterManagerTestCase(CremeTestCase):
     def test_smart_update_or_create__not_custom(self):
-        "Custom=False."
         pk = 'test-filter01'
         name = 'Ikari family'
         model = FakeContact
@@ -93,6 +93,8 @@ class EntityFilterManagerTestCase(CremeTestCase):
         self.assertIs(efilter.use_or,     False)
         self.assertIs(efilter.is_custom,  False)
         self.assertIs(efilter.is_private, False)
+        self.assertIsNone(efilter.disabled)
+        self.assertEqual('', efilter.disabling_reason)
 
         self.assertEqual(entity_filter_registries[EF_REGULAR], efilter.registry)
         self.assertEqual(
@@ -120,7 +122,6 @@ class EntityFilterManagerTestCase(CremeTestCase):
         self.assertListEqual([value], handler._values)
 
     def test_smart_update_or_create__custom(self):
-        "An owner, custom filter."
         pk = 'test-filter_nerv'
         name = 'Nerv'
         model = FakeOrganisation
@@ -765,6 +766,12 @@ class EntityFilterTestCase(CremeTestCase):
 
         efilter.filter_type = registry2.id
         self.assertEqual(f'{name} [test]', str(efilter))
+
+        efilter.disabled = now()
+        self.assertEqual(
+            f'{name} {pgettext('creme_core-efilter', '(disabled)')} [test]',
+            str(efilter),
+        )
 
     def test_created_n_modified(self):
         efilter = EntityFilter.objects.create(
@@ -4172,9 +4179,16 @@ class EntityFilterListTestCase(CremeTestCase):
         self.assertIn(ef1, efl)
         self.assertIn(ef2, efl)
         self.assertIn(ef4, efl)
+        self.assertIsNone(efl.selected)
+
         self.assertEqual(ef1, efl.select_by_id(ef1.id))
+        self.assertEqual(ef1, efl.selected)
+
         self.assertEqual(ef2, efl.select_by_id(ef2.id))
+        self.assertEqual(ef2, efl.selected)
+
         self.assertEqual(ef2, efl.select_by_id('unknown_id', ef2.id))
+        self.assertEqual(ef2, efl.selected)
 
         # self.assertEqual(ef1.can_view(user), (True, 'OK'))
         with self.assertNoException():
@@ -4183,8 +4197,12 @@ class EntityFilterListTestCase(CremeTestCase):
         # self.assertEqual(ef3.can_view(user, ct), (False, 'Invalid entity type'))
         self.assertNotIn(ef3, efl)
 
+        # ---
+        efl.clear_selected()
+        self.assertIsNone(efl.selected)
+
     def test_several_owners(self):
-        "Private filters + not superuser (+ team management)."
+        """Private filters + not superuser (+ team management)."""
         super_user = self.get_root_user()
         other_user = self.create_user(1, role=self.get_regular_role())
         teammate = self.create_user(2)
@@ -4238,7 +4256,7 @@ class EntityFilterListTestCase(CremeTestCase):
         self.assertNotIn(ef10, efl)
 
     def test_staff(self):
-        "Staff users can see all filters."
+        """Staff users can see all filters."""
         user = self.create_user(is_staff=True)
 
         other_user = self.create_user(1)

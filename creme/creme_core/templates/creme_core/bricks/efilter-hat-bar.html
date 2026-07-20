@@ -13,6 +13,23 @@
         <div class="bar-actions">
          {% block buttons %}
 
+          {% block disable_button %}
+           {% if not object.disabled %}
+            <div class='bar-action'>
+                {% brick_bar_button action='edit' label=_('Disable') icon='cancel' url='creme_core__disable_efilter'|url:object.id enabled=user.is_superuser %}
+            </div>
+           {% endif %}
+          {% endblock %}
+
+          {% block enable_button %}
+           {% if object.disabled %}
+            <div class='bar-action'>
+                {% translate 'The reason will be cleared, so you should have fix all issues. Are you sure you want to re-enable this filter?' as confirm_msg %}
+                {% brick_bar_button action='update' label=_('Re-enable') icon='ok' url='creme_core__enable_efilter'|url:object.id confirm=confirm_msg enabled=user.is_superuser %}
+            </div>
+           {% endif %}
+          {% endblock %}
+
           {% block edit_button %}
 {% comment %}
            {% if edition.url %}

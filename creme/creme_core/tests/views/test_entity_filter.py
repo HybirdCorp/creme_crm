@@ -1,12 +1,14 @@
-from datetime import date
+from datetime import date, timedelta
 from functools import partial
 from json import dumps as json_dump
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.forms.fields import CharField
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
 
@@ -2196,6 +2198,140 @@ class EntityFilterDeletionTestCase(EntityFilterTestCaseMixin, CremeTestCase):
             follow=True,
         )
         self.assertStillExists(efilter)
+
+
+class EntityFilterDisablingTestCase(CremeTestCase):
+    @staticmethod
+    def _build_disabling_url(efilter):
+        return reverse('creme_core__disable_efilter', args=(efilter.id,))
+
+    @staticmethod
+    def _build_enabling_url(efilter):
+        return reverse('creme_core__enable_efilter', args=(efilter.id,))
+
+    def test_disabling(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        self.assertIsNone(efilter.disabled)
+
+        url = self._build_disabling_url(efilter)
+        get_response = self.assertGET200(url)
+        self.assertTemplateUsed(
+            get_response, 'creme_core/generics/blockform/edit-popup.html',
+        )
+        self.assertEqual(
+            _('Disable «{object}»').format(object=efilter.name),
+            get_response.context['title'],
+        )
+        self.assertEqual(
+            _('Save the modifications'), get_response.context['submit_label'],
+        )
+
+        with self.assertNoException():
+            fields = get_response.context['form'].fields
+            reason_f = fields['reason']
+
+        self.assertIsInstance(reason_f, CharField)
+        self.assertEqual(_('Reason'), reason_f.label)
+        self.assertFalse(reason_f.initial)
+
+        # ---
+        message = "It's now useless"
+        self.assertNoFormError(self.client.post(url, data={'reason': message}))
+
+        efilter.refresh_from_db()
+        self.assertDatetimesAlmostEqual(now(), efilter.disabled)
+        self.assertEqual(message, efilter.disabling_reason)
+
+    def test_disabling__update_message(self):
+        self.login_as_root()
+
+        efilter = EntityFilter(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        efilter.disabled = disabled = now() - timedelta(days=1)
+        efilter.disabling_reason = old_reason = 'Reasno wiz typo'
+        efilter.save()
+
+        url = self._build_disabling_url(efilter)
+        get_response = self.assertGET200(url)
+
+        with self.assertNoException():
+            reason_f = get_response.context['form'].fields['reason']
+        self.assertEqual(old_reason, reason_f.initial)
+
+        # ---
+        new_reason = 'New reason'
+        self.assertNoFormError(self.client.post(url, data={'reason': new_reason}))
+
+        efilter.refresh_from_db()
+        self.assertDatetimesAlmostEqual(disabled, efilter.disabled)
+        self.assertEqual(new_reason, efilter.disabling_reason)
+
+    def test_disabling__not_superuser(self):
+        self.login_as_standard(admin_4_apps='creme_core')
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        self.assertGET403(self._build_disabling_url(efilter))
+
+    # TODO?
+    # def test_disabled__not_regular(self):
+    #     self.login_as_root()
+    #
+    #     efilter = EntityFilter.objects.create(
+    #         id='test-system_filter',
+    #         name='Credentials special filter',
+    #         entity_type=FakeContact,
+    #         filter_type=EF_CREDENTIALS,
+    #     )
+    #     self.assertGET409(self._build_disabling_url(efilter))
+
+    def test_enabling(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+            disabled=now(),
+            disabling_reason='Interesting message',
+        )
+
+        url = self._build_enabling_url(efilter)
+        self.assertGET405(url)
+        self.assertPOST200(url)
+
+        efilter.refresh_from_db()
+        self.assertIsNone(efilter.disabled)
+        self.assertFalse(efilter.disabling_reason)
+
+        # Twice ---
+        self.assertPOST200(url)
+
+    def test_enabling__not_superuser(self):
+        self.login_as_standard(admin_4_apps='creme_core')
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+            disabled=now(),
+        )
+        self.assertPOST403(self._build_enabling_url(efilter))
+
+    # TODO?
+    # def test_enabled__not_regular(self):
+    #     self.login_as_root()
+    #
+    #     efilter = EntityFilter.objects.create(
+    #         id='test-system_filter',
+    #         name='Credentials special filter',
+    #         entity_type=FakeContact,
+    #         filter_type=EF_CREDENTIALS,
+    #         disabled=now(),
+    #     )
+    #     self.assertPOST409(self._build_enabling_url(efilter))
 
 
 class CompatibleContentTypesTestCase(EntityFilterTestCaseMixin, CremeTestCase):

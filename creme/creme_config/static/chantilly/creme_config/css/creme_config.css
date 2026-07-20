@@ -1160,12 +1160,15 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 .creme_config-headerfilters-brick .headerfilter-config-content-group ul {
     padding-left: 20px;
     font-size: 12px;
+    line-height: 0;
 }
 
+/*
 .creme_config-entityfilters-brick .entityfilter-config-content-group li,
 .creme_config-headerfilters-brick .headerfilter-config-content-group li {
     height: 20px;
 }
+ */
 
 .creme_config-entityfilters-brick .entityfilter-config-private,
 .creme_config-headerfilters-brick .headerfilter-config-private {
@@ -1193,6 +1196,12 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     font-size: 12px;
     font-style: italic;
     color: #777;
+}
+
+/* EntityFilters brick */
+.creme_config-entityfilters-brick .entityfilter-config-group li .disabled-reason {
+    display: block;
+    color: gray;
 }
 
 /* Workflow brick */
