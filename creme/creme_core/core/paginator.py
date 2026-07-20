@@ -28,7 +28,8 @@ import sys
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import date, datetime
 from decimal import Decimal
-from functools import lru_cache
+# from functools import lru_cache
+from functools import cache
 from math import ceil
 
 from django.core.exceptions import ValidationError
@@ -388,7 +389,8 @@ class FlowPage(Sequence):
         return self.object_list[index]
 
     # NB: 'maxsize=None' => avoid locking (will only be used with the same value)
-    @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None)
+    @cache
     def _get_duplicates_count(self, value) -> int:
         return self.paginator.queryset.filter(**{self._attr_name: value}).count()
 
