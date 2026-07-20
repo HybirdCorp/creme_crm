@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-18 10:36+0200\n"
+"POT-Creation-Date: 2026-08-21 17:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1498,12 +1498,36 @@ msgstr "{count} Type de ressource configurable"
 msgid "{count} Configurable types of resource"
 msgstr "{count} Types de ressource configurables"
 
+msgid "(private)"
+msgstr "(privé)"
+
 #, python-format
 msgid "Conditions of «%(efilter)s»"
 msgstr "Conditions de «%(efilter)s»"
 
 msgid "Details"
 msgstr "Détails"
+
+#, python-format
+msgid "Disabled on %(date)s"
+msgstr "Désactivé le %(date)s"
+
+msgid "Edit the reason"
+msgstr "Modifier la raison"
+
+msgid "Re-enable"
+msgstr "Ré-activer"
+
+msgid ""
+"The reason will be cleared, so you should have fix all issues. Are you sure "
+"you want to re-enable this filter?"
+msgstr ""
+"La raison va être supprimée, donc vous devriez avoir corrigé tous les "
+"problèmes. Êtes-vous sûr de vouloir ré-activer ce filtre ?"
+
+# Already in creme_core
+msgid "Disable"
+msgstr ""
 
 msgid "Errors"
 msgstr "Erreurs"
@@ -1517,9 +1541,6 @@ msgstr "Filtres de tous les utilisateurs"
 #, python-format
 msgid "Filters belonging to %(owner)s"
 msgstr "Filtres appartenant à %(owner)s"
-
-msgid "(private)"
-msgstr "(privé)"
 
 msgid "No filter for this type of resource"
 msgstr "Pas de filtre pour ce type de ressource"
@@ -1570,10 +1591,6 @@ msgstr ""
 
 #, python-format
 msgid "This choice is used by the app «%(app)s»"
-msgstr ""
-
-# Already in creme_core
-msgid "Disable"
 msgstr ""
 
 msgid "No property constraint"
@@ -2056,11 +2073,11 @@ msgstr ""
 "ignorées si le nom d'utilisateur n'existe pas)."
 
 msgid ""
-"Filters (NB: filters related to a user are kept, but ignored at import if "
-"the user-name does not exist)."
+"Filters (which are enabled & custom) (NB: filters related to a user are "
+"kept, but ignored at import if the user-name does not exist)."
 msgstr ""
-"Filtres (NB: les filtres relatifs à un utilisateur sont gardés, mais ignorés "
-"si le nom d'utilisateur n'existe pas)."
+"Filtres (activés & personnalisés) (NB: les filtres relatifs à un utilisateur "
+"sont gardés, mais ignorés si le nom d'utilisateur n'existe pas)."
 
 msgid "Workflows (which are enabled & custom)."
 msgstr "Processus automatisés (activés & personnalisés)."
@@ -2208,9 +2225,6 @@ msgstr "Créer un Processus pour «%(ctype)s»"
 msgctxt "creme_config-workflow"
 msgid "Disabled on %(date)s"
 msgstr "Désactivé le %(date)s"
-
-msgid "Edit the reason"
-msgstr "Modifier la raison"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -2512,6 +2526,9 @@ msgstr ""
 "liste (et donc quelles fiches sont cachées). Vous pouvez les créer/modifier/"
 "supprimer directement depuis les vues en liste. Ce portail les affiche tous "
 "en une fois, et il est utile pour réparer un filtre cassé."
+
+msgid "A disabled filter cannot be chosen by users in list-views."
+msgstr "Un filtre désactivé ne pourra pas être choisi dans les vues en liste"
 
 msgid "Configuration of fields"
 msgstr "Configuration des champs"

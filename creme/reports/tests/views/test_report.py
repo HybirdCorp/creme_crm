@@ -379,8 +379,41 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(FakeOrganisation, report.ct.model_class())
         self.assertEqual(efilter,          report.filter)
 
+    def test_creation__disabled_filter(self):
+        user = self.login_as_root_and_get()
+
+        efilter = EntityFilter.objects.create(
+            id='reports-test_disabled',
+            name='Mihana corp.',
+            entity_type=FakeOrganisation,
+            disabled=now(),
+        )
+
+        url = self.ADD_URL
+        step_key = 'report_creation_wizard-current_step'
+        name = 'My awesome organisation report'
+        response = self.assertPOST200(
+            url,
+            data={
+                step_key: 0,
+
+                '0-user': user.id,
+                '0-name': name,
+
+                '0-cform_extra-reports_filtered_ctype':
+                    self.formfield_value_filtered_entity_type(
+                        ctype=self.ct_orga, efilter=efilter,
+                    ),
+            },
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field='cform_extra-reports_filtered_ctype',
+            errors=_('This filter is disabled.'),
+        )
+
     def test_creation__error(self):
-        "No column selected."
+        """No column selected."""
         user = self.login_as_root_and_get()
         url = self.ADD_URL
 
@@ -522,8 +555,36 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         ))
         self.assertEqual(ef_priv, self.refresh(report).filter)
 
+    def test_edition__disabled_filter(self):
+        user = self.login_as_root_and_get()
+        disabled_efilter = EntityFilter.objects.create(
+            id='reports-test_edition_filter',
+            name='A disabled filter',
+            entity_type=self.ct_contact,
+            disabled=now(),
+        )
+        report = Report.objects.create(name='Report', user=user, ct=self.ct_contact)
+        url = report.get_edit_absolute_url()
+        filter_key = 'cform_extra-reports_filter'
+        data = {
+            'user': user.pk,
+            'name': 'Report edited',
+            filter_key: disabled_efilter.id,
+        }
+        err_response = self.assertPOST200(url, data=data)
+        self.assertFormError(
+            self.get_form_or_fail(err_response),
+            field=filter_key,
+            errors=_('Select a valid choice. That choice is not one of the available choices.'),
+        )
+
+        # Disabled efilter is accepted if it was already used ---
+        report.filter = disabled_efilter
+        report.save()
+        self.assertNoFormError(self.client.post(url, follow=True, data=data))
+
     def test_edition__reset_filter(self):
-        "Reset filter to None."
+        """Reset filter to None."""
         user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -660,7 +721,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(contact_filter.id, filter_f4.initial)
 
     def test_inner_edition__filter__private(self):
-        "Private filter to another user -> cannot edit."
+        """Private filter to another user -> cannot edit."""
         user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
         self.add_credentials(role=user.role, all='*')
         other_user = self.create_user(index=1)
@@ -690,7 +751,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertFormError(
             self.get_form_or_fail(response),
             field=f'override-{field_name}',
-            errors=_('The filter cannot be changed because it is private.'),
+            errors=_('This filter cannot be changed because it is private.'),
         )
         self.assertEqual(efilter, self.refresh(report).filter)
 
@@ -745,8 +806,29 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertNoFormError(self.client.post(uri, data={form_field_name: efilter.pk}))
         self.assertEqual(efilter, self.refresh(report).filter)
 
+    @override_settings(FORM_ENUMERABLE_LIMIT=100)
+    def test_inner_edition__filter__disabled_filter(self):
+        user = self.login_as_root_and_get()
+        ctype = self.ct_contact
+        disabled_efilter = EntityFilter.objects.create(
+            id='reports-test_inner_edition_filter',
+            name='A disabled filter',
+            entity_type=ctype,
+            disabled=now(),
+        )
+        report = Report.objects.create(name='Report', user=user, ct=ctype)
+        field_name = 'filter'
+        response = self.assertPOST200(
+            self.build_inneredit_uri(report, field_name),
+            data={f'override-{field_name}': disabled_efilter.id},
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None, errors=_('The filter is disabled.'),
+        )
+
     def test_bulk_edition__filter(self):
-        "Reports are related to the same ContentType -> OK."
+        """Reports are related to the same ContentType -> OK."""
         user = self.login_as_root_and_get()
 
         create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)

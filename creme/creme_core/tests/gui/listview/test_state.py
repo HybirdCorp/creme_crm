@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
 from django.test import RequestFactory
+from django.utils.timezone import now
 
 from creme.creme_core.gui.listview import (
     ListViewState,
@@ -270,4 +271,28 @@ class ListViewStateTestCase(CremeTestCase):
             entity_filters=efl, filter_id='', default_id=efilter.id,
         )
         self.assertIsNone(found_ef)
+        self.assertIsNone(efl.selected)
+
+    def test_set_entityfilter__disabled(self):
+        model = FakeContact
+        user = self.get_root_user()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-nerds', name='Nerds', model=model, user=user, is_custom=True,
+        )
+        efilter.disabled = now()
+        efilter.save()
+
+        efl = EntityFilterList(
+            content_type=ContentType.objects.get_for_model(model), user=user,
+        )
+
+        request = self._build_request(method='GET')  # filter=efilter1.id
+
+        lvs = ListViewState.build_from_request(request.GET, request.path)
+        self.assertIsNone(lvs.entity_filter_id)
+
+        found_ef = lvs.set_entityfilter(entity_filters=efl, filter_id=efilter.id)
+        self.assertIsNone(found_ef)
+        self.assertIsNone(lvs.entity_filter_id)
         self.assertIsNone(efl.selected)

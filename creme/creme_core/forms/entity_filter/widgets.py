@@ -658,6 +658,7 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
                 rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name),
             ).resolve('creme_core__ctypes_compatible_with_rtype'),
         )
+        # TODO: exclude disabled filters (excepted the ones which are already used)
         add_dselect(
             'filter',
             options=reverse('creme_core__efilters') + '?' + urlencode(

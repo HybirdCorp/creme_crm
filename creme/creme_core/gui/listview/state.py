@@ -145,6 +145,12 @@ class ListViewState:
             entity_filters.select_by_id(filter_id, self.entity_filter_id, default_id)
         )
 
+        if efilter and efilter.disabled:
+            # TODO: send a notification to the logged user to indicate that its
+            #       current filter has been disabled?
+            entity_filters.clear_selected()
+            efilter = None
+
         self.entity_filter_id = efilter.id if efilter else None
 
         return efilter

@@ -1,12 +1,14 @@
-from datetime import date
+from datetime import date, timedelta
 from functools import partial
 from json import dumps as json_dump
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.forms.fields import CharField
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
 
@@ -920,7 +922,7 @@ class EntityFilterCreationTestCase(EntityFilterTestCaseMixin, CremeTestCase):
         ))
 
     def test_sub_filters__private__owned_by_another_user(self):
-        "Cannot choose a private sub-filter which belongs to another user."
+        """Cannot choose a private sub-filter which belongs to another user."""
         user = self.login_as_root_and_get()
 
         subfilter = EntityFilter.objects.smart_update_or_create(
@@ -2196,6 +2198,272 @@ class EntityFilterDeletionTestCase(EntityFilterTestCaseMixin, CremeTestCase):
             follow=True,
         )
         self.assertStillExists(efilter)
+
+
+class EntityFilterDisablingTestCase(CremeTestCase):
+    @staticmethod
+    def _build_disabling_url(efilter):
+        return reverse('creme_core__disable_efilter', args=(efilter.id,))
+
+    @staticmethod
+    def _build_enabling_url(efilter):
+        return reverse('creme_core__enable_efilter', args=(efilter.id,))
+
+    def test_disabling(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-disabling',
+            name='Enabled filter',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IENDSWITH,
+                    field_name='last_name', values=['Stark'],
+                ),
+            ],
+        )
+        self.assertIsNone(efilter.disabled)
+
+        url = self._build_disabling_url(efilter)
+        get_response = self.assertGET200(url)
+        self.assertTemplateUsed(
+            get_response, 'creme_core/generics/blockform/edit-popup.html',
+        )
+        self.assertEqual(
+            _('Disable «{object}»').format(object=efilter.name),
+            get_response.context['title'],
+        )
+        self.assertEqual(
+            _('Save the modifications'), get_response.context['submit_label'],
+        )
+
+        with self.assertNoException():
+            fields = get_response.context['form'].fields
+            reason_f = fields['reason']
+
+        self.assertIsInstance(reason_f, CharField)
+        self.assertEqual(_('Reason'), reason_f.label)
+        self.assertFalse(reason_f.initial)
+
+        # ---
+        message = "It's now useless"
+        self.assertNoFormError(self.client.post(url, data={'reason': message}))
+
+        efilter.refresh_from_db()
+        self.assertDatetimesAlmostEqual(now(), efilter.disabled)
+        self.assertEqual(message, efilter.disabling_reason)
+
+    def test_disabling__update_message(self):
+        self.login_as_root()
+
+        efilter = EntityFilter(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        efilter.disabled = disabled = now() - timedelta(days=1)
+        efilter.disabling_reason = old_reason = 'Reasno wiz typo'
+        efilter.save()
+
+        url = self._build_disabling_url(efilter)
+        get_response = self.assertGET200(url)
+
+        with self.assertNoException():
+            reason_f = get_response.context['form'].fields['reason']
+        self.assertEqual(old_reason, reason_f.initial)
+
+        # ---
+        new_reason = 'New reason'
+        self.assertNoFormError(self.client.post(url, data={'reason': new_reason}))
+
+        efilter.refresh_from_db()
+        self.assertDatetimesAlmostEqual(disabled, efilter.disabled)
+        self.assertEqual(new_reason, efilter.disabling_reason)
+
+    def test_disabling__not_superuser(self):
+        self.login_as_standard(admin_4_apps='creme_core')
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        self.assertGET403(self._build_disabling_url(efilter))
+
+    def test_disabling__referenced__sub_filter__regular(self):
+        self.login_as_root()
+
+        sub_filter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+
+        parent_filter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-test_parent_filter',
+            name='Filter with child',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[SubFilterConditionHandler.build_condition(subfilter=sub_filter)],
+        )
+
+        response = self.assertGET409(self._build_disabling_url(sub_filter))
+        self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
+        self.assertStillExists(sub_filter)
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            '</ul>'
+            .format(
+                message=_(
+                    'This filter can not be disabled because it is used as sub-filter by:'
+                ),
+                url=parent_filter.get_absolute_url(),
+                label=parent_filter,
+            ),
+            msg,
+        )
+
+    def test_disabling__referenced__sub_filter__relation(self):
+        self.login_as_root()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving', models=[FakeContact],
+        ).symmetric(
+            id='test-object_love', predicate='Is loved by',
+        ).get_or_create()[0]
+
+        sub_filter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        parent_filter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-test_parent_filter',
+            name='Filter with child',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[
+                RelationSubFilterConditionHandler.build_condition(
+                    model=FakeContact, rtype=rtype, subfilter=sub_filter,
+                ),
+            ],
+        )
+
+        response = self.assertGET409(self._build_disabling_url(sub_filter))
+        self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
+        self.assertStillExists(sub_filter)
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            '</ul>'
+            .format(
+                message=_(
+                    'This filter can not be disabled because it is used as sub-filter by:'
+                ),
+                url=parent_filter.get_absolute_url(),
+                label=parent_filter,
+            ),
+            msg,
+        )
+
+    def test_disabling__referenced__sub_filter__limit(self):
+        self.login_as_root()
+
+        # TODO: in setup etc...
+        original_limit = efilter_views.EntityFilterDisabling.dependencies_limit
+        self.assertEqual(3, original_limit)
+
+        efilter_views.EntityFilterDisabling.dependencies_limit = 2
+
+        sub_filter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+
+        for i in range(1, 5):
+            EntityFilter.objects.smart_update_or_create(
+                pk=f'creme_core-test_parent_filter{i}',
+                name=f'Filter with child #{i}',
+                model=FakeContact,
+                is_custom=True,
+                conditions=[SubFilterConditionHandler.build_condition(subfilter=sub_filter)],
+            )
+
+        response = self.assertGET409(self._build_disabling_url(sub_filter))
+        self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertEqual(3, msg.count('<li>'))
+        self.assertIn('<li>…</li>', msg)
+
+        efilter_views.EntityFilterDisabling.dependencies_limit = original_limit
+
+    def test_disabling__referenced__fk(self):
+        user = self.login_as_root_and_get()
+
+        report_filter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+        )
+        report = FakeReport.objects.create(
+            user=user, ctype=report_filter.entity_type, efilter=report_filter,
+        )
+
+        response = self.assertGET409(self._build_disabling_url(report_filter))
+        self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            '</ul>'
+            .format(
+                message=_(
+                    'This filter can not be disabled because it is used by:'
+                ),
+                url=report.get_absolute_url(),
+                label=report,
+            ),
+            msg,
+        )
+
+    def test_enabling(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+            disabled=now(),
+            disabling_reason='Interesting message',
+        )
+
+        url = self._build_enabling_url(efilter)
+        self.assertGET405(url)
+        self.assertPOST200(url)
+
+        efilter.refresh_from_db()
+        self.assertIsNone(efilter.disabled)
+        self.assertFalse(efilter.disabling_reason)
+
+        # Twice ---
+        self.assertPOST200(url)
+
+    def test_enabling__not_superuser(self):
+        self.login_as_standard(admin_4_apps='creme_core')
+
+        efilter = EntityFilter.objects.create(
+            id='test-disabling', name='Enabled filter', entity_type=FakeContact,
+            disabled=now(),
+        )
+        self.assertPOST403(self._build_enabling_url(efilter))
 
 
 class CompatibleContentTypesTestCase(EntityFilterTestCaseMixin, CremeTestCase):

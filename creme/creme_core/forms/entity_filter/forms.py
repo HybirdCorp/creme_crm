@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ValidationError
+from django import forms
+from django.core.exceptions import ValidationError
+from django.forms.widgets import Textarea
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import EntityFilter, SettingValue
@@ -232,3 +235,29 @@ class EntityFilterEditionForm(_EntityFilterForm):
         )
 
         return instance
+
+
+class EntityFilterDisablingForm(CremeModelForm):
+    reason = forms.CharField(
+        label=_('Reason'),
+        help_text=_('Why this filter is getting disabled?'),
+        widget=Textarea,
+    )
+
+    class Meta(CremeModelForm.Meta):
+        model = EntityFilter
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['reason'].initial = self.instance.disabling_reason
+
+    def save(self, *args, **kwargs):
+        efilter = self.instance
+        efilter.disabling_reason = self.cleaned_data['reason']
+
+        # NB: we just edit the message if it's already disabled
+        if not efilter.disabled:
+            efilter.disabled = now()
+
+        return super().save(*args, **kwargs)

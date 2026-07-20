@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-20 09:57+0200\n"
+"POT-Creation-Date: 2026-08-21 17:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -362,6 +362,9 @@ msgstr "Un sous-filtre n'existe plus"
 
 msgid "The sub-filter «{}» has errors"
 msgstr "Le sous-filtre «{}» a des erreurs"
+
+msgid "The sub-filter «{}» is disabled"
+msgstr "Le sous-filtre «{}» est désactivé"
 
 msgid "Sub-filters"
 msgstr "Sous-filtres"
@@ -1080,6 +1083,9 @@ msgstr "Cette fiche est invalide."
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
+msgid "These filters are disabled: {}"
+msgstr "Ces filtres sont désactivés : {}"
+
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
@@ -1110,6 +1116,12 @@ msgstr ""
 "Si vous affectez un propriétaire, seul le propriétaire pourra modifier ou "
 "supprimer le filtre ; les filtres sans propriétaire peuvent être modifiés/"
 "supprimés seulement par les super-utilisateurs"
+
+msgid "Reason"
+msgstr "Raison"
+
+msgid "Why this filter is getting disabled?"
+msgstr "Pourquoi ce filtre a-t-il été désactivé ?"
 
 msgid "Has the property"
 msgstr "A la propriété"
@@ -2662,6 +2674,10 @@ msgstr "Filtre de fiche"
 msgid "Filters of Entity"
 msgstr "Filtres de fiche"
 
+msgctxt "creme_core-efilter"
+msgid "(disabled)"
+msgstr "(désactivé)"
+
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'avez pas la permission d'accéder à cette application"
 
@@ -3390,6 +3406,19 @@ msgstr ""
 "Il semble que tous les champs soient cachés. Demandez à votre administrateur "
 "de corriger la configuration."
 
+msgid "Disable"
+msgstr "Désactiver"
+
+msgid ""
+"The reason will be cleared, so you should have fix all issues. Are you sure "
+"you want to re-enable this filter?"
+msgstr ""
+"La raison va être supprimée, donc vous devriez avoir corrigé tous les "
+"problèmes. Êtes-vous sûr de vouloir ré-activer ce filtre ?"
+
+msgid "Re-enable"
+msgstr "Ré-activer"
+
 #, python-format
 msgid "Edition is forbidden (%(error)s)"
 msgstr "La modification est interdite (%(error)s)"
@@ -3415,6 +3444,21 @@ msgstr "Au moins une condition est remplie :"
 
 msgid "All these conditions are met:"
 msgstr "Toutes les conditions sont remplies :"
+
+msgid "Deactivation"
+msgstr "Désactivation"
+
+#, python-format
+msgctxt "creme_core-efilter"
+msgid "Disabled on %(date)s"
+msgstr "Désactivé le %(date)s"
+
+msgctxt "creme_core-efilter"
+msgid "Reason:"
+msgstr "Raison :"
+
+msgid "Edit the reason"
+msgstr "Modifier la raison"
 
 #, python-format
 msgid "Filter used by %(count)s %(model)s (field «%(field)s»)"
@@ -3502,9 +3546,6 @@ msgstr "Modifier la configuration du job"
 
 msgid "Delete the job"
 msgstr "Supprimer le job"
-
-msgid "Disable"
-msgstr "Désactiver"
 
 msgid "Enable"
 msgstr "Activer"
@@ -3836,9 +3877,6 @@ msgstr "Enlever la propriété"
 
 msgid "Remaining entity"
 msgstr "Fiche restante"
-
-msgid "Reason"
-msgstr "Raison"
 
 msgid "Retry"
 msgstr "Ré-essayer"
@@ -4803,6 +4841,19 @@ msgstr ""
 
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
+
+#, python-brace-format
+msgid "Disable «{object}»"
+msgstr "Désactiver «{object}»"
+
+msgid "This filter can not be disabled because it is used as sub-filter by:"
+msgstr ""
+"Vous ne pouvez pas désactiver ce filtre, car il est utilisé comme sous-filtre "
+"par :"
+
+msgid "This filter can not be disabled because it is used by:"
+msgstr ""
+"Vous ne pouvez pas désactiver ce filtre, car il est utilisé par :"
 
 msgid "It seems you logged out."
 msgstr "Vous semblez vous être déconnecté(e)."

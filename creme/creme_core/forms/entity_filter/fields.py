@@ -945,6 +945,8 @@ class RelationsConditionsField(_ConditionsField):
 
             return ct
 
+        return None
+
     def _clean_entity_id(self, entry):
         entity_id = entry.get('entity')  # TODO: improve clean_value with default value ???
 
@@ -956,6 +958,8 @@ class RelationsConditionsField(_ConditionsField):
                     self.error_messages['invalidformat'],
                     code='invalidformat',
                 ) from e
+
+        return None
 
     def _clean_rtype(self, entry):
         rtype_id = self.clean_value(entry, 'rtype', str)
@@ -1028,7 +1032,10 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
     sub_filter_types = [EF_REGULAR]
     default_error_messages = {
         'invalidfilter': _('This filter is invalid.'),
+        'disabledfilter': _('These filters are disabled: {}'),
     }
+
+    _non_hiddable_efilter_ids = ()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1075,7 +1082,16 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
                 )
 
             for kwargs in all_kwargs:
-                kwargs['subfilter'] = filters.get(kwargs['subfilter'])
+                kwargs['subfilter'] = subfilter = filters.get(kwargs['subfilter'])
+
+                # NB: it would be smarter to only accept the disabled filter in
+                #     the existing conditions, not the new ones.
+                #     It's harder to make & probably not so useful.
+                if subfilter.disabled and subfilter.id not in self._non_hiddable_efilter_ids:
+                    raise ValidationError(
+                        self.error_messages['disabledfilter'].format(subfilter.name),
+                        code='disabledfilter',
+                    )
 
         build_condition = partial(
             condition_handler.RelationSubFilterConditionHandler.build_condition,
@@ -1096,6 +1112,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         type_id = condition_handler.RelationSubFilterConditionHandler.type_id
         self.initial = f_conds = [c for c in conditions if c.type == type_id]
         self._non_hiddable_rtype_ids = {c.name for c in f_conds}
+        self._non_hiddable_efilter_ids = {c.handler.subfilter_id for c in f_conds}
 
 
 class PropertiesConditionsField(_ConditionsField):
@@ -1205,11 +1222,18 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
             self.user, types=self.sub_filter_types,
         ).filter(entity_type=ctype)
 
-        if efilter:
-            qs = qs.exclude(pk__in=efilter.get_connected_filter_ids())
-
-        self.queryset = qs
-
         if conditions:
             type_id = condition_handler.SubFilterConditionHandler.type_id
-            self.initial = [c.name for c in conditions if c.type == type_id]
+            sub_filters_ids = [c.name for c in conditions if c.type == type_id]
+        else:
+            sub_filters_ids = []
+
+        if efilter:
+            qs = qs.exclude(
+                pk__in=efilter.get_connected_filter_ids(),
+            ).filter(Q(disabled=None) | Q(pk__in=sub_filters_ids))
+        else:
+            qs = qs.filter(disabled=None)
+
+        self.queryset = qs
+        self.initial = sub_filters_ids

@@ -612,7 +612,7 @@ class EntityFilterExporter(Exporter):
     }
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_custom=True)
+        return super().get_queryset().filter(is_custom=True, disabled=None)
 
     def dump_filtercond(self, cond: models.EntityFilterCondition) -> dict:
         dumped = {'type': cond.type}

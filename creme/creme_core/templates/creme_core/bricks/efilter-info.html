@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_widgets creme_bricks %}
-{% load get_efilter_conditions print_field from creme_core_tags %}
+{% load get_efilter_conditions print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}brick-kv-list creme_core-efilter-info-brick{% endblock %}
 
@@ -53,5 +53,15 @@
               {% endif %}
             </div>
         </div>
+        {% if object.disabled %}
+        <div class="brick-kv-item item-efilter-disabled">
+            <div class="brick-kv-key">{% translate 'Deactivation' %}</div>
+            <div class="brick-kv-value">
+                {% blocktranslate with date=object.disabled context 'creme_core-efilter' %}Disabled on {{date}}{% endblocktranslate %}
+                <p>{% translate 'Reason:' context 'creme_core-efilter' %}&nbsp;{{object.disabling_reason|linebreaksbr}}</p>
+                {% brick_action id='edit' url='creme_core__disable_efilter'|url:object.id label=_('Edit the reason') enabled=user.is_superuser %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}

@@ -8,7 +8,9 @@
     {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurable types of resource') icon='config' %}
 {% endblock %}
 
-{% partialdef efilter-actions %}
+{% partialdef efilter-item %}
+    {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+
     <a class="entityfilter-config-details" data-action="popover" data-title="{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}">
         {% widget_icon name='info' label=_('Details') size='brick-action' %}
         <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with user=user hide_errors=True hide_detail_link=True %}</script>
@@ -30,9 +32,23 @@
      {% endif %}
     {% endwith %}
 
-    {% with errors=efilter.errors %}{% if errors %}
-        <ul class="errors" title="{% translate 'Errors' %}">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>
-    {% endif %}{% endwith %}
+    {% if efilter.disabled %}
+      <span class="disabled-reason">
+          {% blocktranslate with date=efilter.disabled %}Disabled on {{date}}{% endblocktranslate %}
+          <a data-action="popover" data-title="{% translate 'Reason' %}">
+              {% widget_icon name='info' label=_('Reason') size='brick-action' %}
+              <script type="text/html"><p>{{efilter.disabling_reason|linebreaksbr}}</p></script>
+          </a>
+          {% brick_action id='edit' url=disabling_url_name|url:efilter.id label=_('Edit the reason') display='text' enabled=user.is_superuser %}
+          {% brick_action id='update' url=enabling_url_name|url:efilter.id label=_('Re-enable') display='text' confirm=_('The reason will be cleared, so you should have fix all issues. Are you sure you want to re-enable this filter?') enabled=user.is_superuser %}
+      </span>
+    {% else %}
+      {% brick_action id='edit' url=disabling_url_name|url:efilter.id label=_('Disable') display='text' enabled=user.is_superuser %}
+    {% endif %}
+
+    {% if efilter.errors_count %}
+        <ul class="errors" title="{% translate 'Errors' %}">{% for error in efilter.errors %}<li>{{error}}</li>{% endfor %}</ul>
+    {% endif %}
 {% endpartialdef %}
 
 {% block brick_content %}
@@ -54,12 +70,12 @@
                 <ul>
                   {% for efilter in ctw.all_users_filters %}
                     <li data-efilter-id="{{efilter.id}}">
-                        {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}
 {% comment %}
+                        {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
 {% endcomment %}
-                        {% partial efilter-actions %}
+                        {% partial efilter-item %}
                     </li>
                   {% endfor %}
                 </ul>
@@ -71,12 +87,12 @@
                 <ul>
                   {% for efilter in efilters %}
                     <li data-efilter-id="{{efilter.id}}">
-                        {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
 {% comment %}
+                        {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
 {% endcomment %}
-                        {% partial efilter-actions %}
+                        {% partial efilter-item %}
                     </li>
                   {% endfor %}
                 </ul>

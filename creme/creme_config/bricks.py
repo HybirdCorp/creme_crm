@@ -1341,6 +1341,8 @@ class EntityFiltersBrick(PaginatedBrick):
     filter_type = EF_REGULAR
     # TODO: EntityFilter.get_popup_edit_absolute_url() ??
     edition_url_name = 'creme_config__edit_efilter'
+    disabling_url_name = 'creme_core__disable_efilter'
+    enabling_url_name = 'creme_core__enable_efilter'
 
     # def detailview_display(self, context):
     def render(self, context):
@@ -1372,6 +1374,8 @@ class EntityFiltersBrick(PaginatedBrick):
             context,
             ctypes,
             edition_url_name=self.edition_url_name,
+            disabling_url_name=self.disabling_url_name,
+            enabling_url_name=self.enabling_url_name,
         )
 
         ctypes_wrappers = btc['page'].object_list

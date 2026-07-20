@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from itertools import chain
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -24,14 +25,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist  # PermissionDenied
 from django.db.models import Field
 from django.db.models.deletion import PROTECT
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import partition
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
 from .. import utils
+from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..core.entity_filter import EF_REGULAR, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
@@ -40,15 +43,21 @@ from ..forms.entity_filter import forms as efilter_forms
 from ..gui import bricks
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
-from ..models import CremeEntity, EntityFilter, RelationType
+from ..models import (
+    CremeEntity,
+    EntityFilter,
+    EntityFilterCondition,
+    RelationType,
+)
 from ..utils import db as db_utils
+from ..utils.collections import LimitedList
 from ..utils.content_type import entity_ctypes
 from ..utils.unicode_collation import collator
 from . import generic
 from .bricks import BricksReloading
 from .decorators import jsonify
 from .enumerable import FieldChoicesView
-from .generic import base
+from .generic import CremeDeletionMixin, base
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -526,6 +535,116 @@ class EntityFilterDeletion(EntityFilterMixin,
             super().perform_deletion(request)
         except EntityFilter.DependenciesError as e:
             raise ConflictError(e) from e
+
+
+class EntityFilterDisabling(CremeDeletionMixin,
+                            EntityFilterMixin,
+                            generic.CremeModelEditionPopup):
+    model = EntityFilter
+    form_class = efilter_forms.EntityFilterDisablingForm
+    pk_url_kwarg = 'efilter_id'
+    title = _('Disable «{object}»')
+    permissions = SUPERUSER_PERM
+
+    # Models which cannot block the disabling
+    non_blocking_models = {
+        EntityFilterCondition,
+    }
+
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+
+        # TODO? (would force to implement a views for other types -- like reports' filter --
+        #       & credentials ignore the field "disabled" so it's not a real problem to
+        #       disable them :think: )
+        # if instance.filter_type != self.efilter_type:
+        #     raise ConflictError('You cannot disable this type of filter')
+
+        # TODO: only use 'self.dependencies_to_html()' => need to improve filters' display
+        # References: filters ---
+        parent_filter_ids = [
+            # TODO: public method?
+            cond.filter_id for cond in instance._iter_parent_conditions()
+        ]
+        if parent_filter_ids:
+            limit = self.dependencies_limit
+            parent_filters = EntityFilter.objects.filter(id__in=parent_filter_ids)[:limit + 1]
+            # NB: tuples are expected by format_html_join()
+            limited_filters = [
+                (
+                    format_html(
+                        '<a href="{url}" target="_blank">{label}</a>',
+                        url=parent.get_absolute_url(),
+                        label=str(parent),
+                    ),
+                ) for parent in parent_filters[:limit]
+            ]
+            if len(parent_filters) > limit:
+                limited_filters.append(('…',))
+
+            raise ConflictError(
+                format_html(
+                    '<span>{message}</span><ul>{filters}</ul>',
+                    message=_(
+                        'This filter can not be disabled because it is used as sub-filter by:'
+                    ),
+                    filters=format_html_join('', '<li>{}</li>', limited_filters),
+                )
+            )
+
+        # Other references ---
+        # TODO: factorise with 'def _is_referenced(self: Model)'
+        meta = instance._meta
+        dependencies = LimitedList(max_size=100)
+
+        for field in chain(
+            (f for f in meta.get_fields() if f.one_to_many),
+            # TODO: unit test (need M2M to EntityFilter in fake models)
+            (f for f in meta.get_fields(include_hidden=True) if f.many_to_many),
+        ):
+            if field.related_model not in self.non_blocking_models:
+                dependencies.extend(
+                    getattr(instance, field.get_accessor_name()).all()[:100]
+                )
+
+        if dependencies:
+            raise ConflictError(
+                format_html(
+                    '<span>{message}</span>{dependencies}',
+                    message=_(
+                        'This filter can not be disabled because it is used by:'
+                    ),
+                    dependencies=self.dependencies_to_html(
+                        instance=instance, dependencies=dependencies, user=user,
+                    ),
+                )
+            )
+
+
+class EntityFilterEnabling(EntityFilterMixin, generic.base.CheckedView):
+    efilter_id_url_kwarg = 'efilter_id'
+    permissions = SUPERUSER_PERM
+
+    # TODO: see above
+    # def check_efilter_permissions(self, efilter, user):
+    #     if efilter.filter_type != self.efilter_type:
+    #         raise ConflictError('You cannot enable this type of filter')
+
+    def post(self, request, *args, **kwargs):
+        efilter = get_object_or_404(EntityFilter, id=self.kwargs[self.efilter_id_url_kwarg])
+        # self.check_efilter_permissions(efilter=efilter, user=request.user)
+
+        efilter.disabled = None
+        efilter.disabling_reason = ''
+        efilter.save()
+
+        # TODO??
+        # return (
+        #     HttpResponse(self.get_ajax_success_url(), content_type='text/plain')
+        #     if is_ajax(request) else
+        #     HttpResponseRedirect(self.get_success_url())
+        # )
+        return HttpResponse()
 
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???
