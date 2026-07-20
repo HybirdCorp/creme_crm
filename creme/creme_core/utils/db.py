@@ -26,7 +26,8 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from fnmatch import fnmatch
-from functools import lru_cache
+# from functools import lru_cache
+from functools import cache
 from typing import Any, DefaultDict, Self
 
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -75,7 +76,8 @@ def build_columns_key(columns: Iterable[str]) -> str:
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
+@cache
 def get_keyed_indexes_columns(model: type[Model]) -> tuple[tuple[str, tuple[str, ...]], ...]:
     """Build a cached structure which contains information about indexes of a model
     @param model: A class inheriting DjangoModel.
@@ -277,7 +279,8 @@ def populate_related(instances: Sequence[Model],
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
+@cache
 def is_db_equal_case_sensitive() -> bool:  # TODO: argument "db" for multi-db env ?
     """Is the main database case-sensitive or not with the Django's operator
     "exact" ("=" in SQL).
@@ -289,7 +292,8 @@ def is_db_equal_case_sensitive() -> bool:  # TODO: argument "db" for multi-db en
     return not CaseSensitivity.objects.filter(text__exact='case').exists()
 
 
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
+@cache
 def is_db_like_case_sensitive() -> bool:  # TODO: idem
     """Is the main database case-sensitive or not with the Django's operators
     "contains/startswith/endswith" ("LIKE" in SQL).
