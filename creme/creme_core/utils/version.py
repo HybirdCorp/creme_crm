@@ -122,7 +122,7 @@ def get_git_info() -> dict:
     if error:
         logger.warning('Error in creme_core.utils.version.get_git_info(): %s', error)
     else:
-        print(raw_result)
+        # print(raw_result)
         try:
             changeset_id, date_str = raw_result.strip().split('#', 1)
         except ValueError:
