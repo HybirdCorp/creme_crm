@@ -36,8 +36,7 @@ class ReportFilterOverrider(FieldOverrider):
             'Filter field can only be updated when reports '
             'target the same type of entities (e.g: only contacts).'
         ),
-        # TODO: factorise?
-        'private_filter': _('The filter cannot be changed because it is private.'),
+        'private_filter': _('This filter cannot be changed because it is private.'),
     }
 
     def __init__(self, *args, **kwargs):
@@ -53,7 +52,7 @@ class ReportFilterOverrider(FieldOverrider):
         model_field = model._meta.get_field(self.field_names[0])
 
         # Use legacy form field because of filtering issues with the EnumeratorChoiceField
-        # TODO: Fix it later
+        # TODO: to be fixed
         # field = model_field.formfield()
         field = CreatorModelChoiceField(
             queryset=model_field.related_model.objects.all(),
@@ -76,6 +75,8 @@ class ReportFilterOverrider(FieldOverrider):
         self._has_same_report_ct = all(e.ct == first_ct for e in instances)
 
         if self._has_same_report_ct:
+            # NB: we do not exclude disabled filters
+            #      => 'AbstractReport.clean()' does the work
             field.queryset = EntityFilter.objects.filter_by_user(
                 user, types=[EF_REGULAR, EF_REPORTS],
             ).filter(entity_type=first_ct)

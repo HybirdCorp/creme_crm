@@ -1664,6 +1664,22 @@ class ExportingTestCase(TransferBaseTestCase):
         ef3.extra_data = {'my_attr': 'my_value'}
         ef3.save()
 
+        disabled_ef = create_efilter(
+            'creme_config_export-test_export_entityfilters_disabled',
+            name='Spikes (disabled filter)',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='first_name', values=['Spike'],
+                ),
+            ],
+        )
+        disabled_ef.disabled = now()
+        disabled_ef.save()
+
         response = self.assertGET200(self.URL)
         content = response.json()
 
@@ -1769,6 +1785,8 @@ class ExportingTestCase(TransferBaseTestCase):
             },
             loaded_efilters.get(ef3.id),
         )
+
+        self.assertNotIn(disabled_ef.id, loaded_efilters)
 
     def test_custom_forms(self):
         self.login_as_super(is_staff=True)

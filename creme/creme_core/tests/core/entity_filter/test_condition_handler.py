@@ -4518,15 +4518,31 @@ class SubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual(sub_efilter, subfilter)
 
     def test_property_error(self):
-        handler = SubFilterConditionHandler(
+        handler1 = SubFilterConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation, subfilter='invalid',
         )
-        # self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+        # self.assertEqual("'invalid' is not a valid filter ID", handler1.error)
         with self.assertLogs(level='WARNING') as logs_mngr:
-            self.assertEqual(_('A sub-filter does not exist anymore'), handler.error)
+            self.assertEqual(_('A sub-filter does not exist anymore'), handler1.error)
 
         self.assertIn('id="invalid"', logs_mngr.output[0])
+
+        # ---
+        subfilter = EntityFilter.objects.create(
+            id='creme_core-contacts_filter',
+            name='Contact filter',
+            entity_type=FakeContact,
+            disabled=now(),
+        )
+        handler2 = SubFilterConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation, subfilter=subfilter,
+        )
+        self.assertEqual(
+            _('The sub-filter «{}» is disabled').format(subfilter.name),
+            handler2.error,
+        )
 
     def test_property_error__recursive(self):
         sub_efilter = EntityFilter.objects.smart_update_or_create(
@@ -5163,6 +5179,28 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         )
         self.assertEqual(
             _('The sub-filter «{}» has errors').format(sub_filter),
+            handler.error,
+        )
+
+    def test_errors__subfilter__disabled(self):
+        sub_filter = EntityFilter.objects.create(
+            id='creme_core-contacts_filter',
+            name='Contact filter',
+            entity_type=FakeContact,
+            disabled=now(),
+        )
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
+
+        handler = RelationSubFilterConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            rtype=rtype, subfilter=sub_filter,
+        )
+        self.assertEqual(
+            _('The sub-filter «{}» is disabled').format(sub_filter.name),
             handler.error,
         )
 

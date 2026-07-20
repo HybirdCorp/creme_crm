@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-07 16:49+0200\n"
+"POT-Creation-Date: 2026-08-21 17:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -295,15 +295,18 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapports ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
-msgid "The filter cannot be changed because it is private."
-msgid_plural "The filters cannot be changed because they are private."
-msgstr[0] "Le filtre ne peut pas être changé car il est privé."
-msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
+msgid "This filter cannot be changed because it is private."
+msgstr "Ce filtre ne peut pas être changé car il est privé."
 
 # Already in creme_core
 msgctxt "creme_core-filter"
 msgid "All"
 msgstr ""
+
+msgid "The filter cannot be changed because it is private."
+msgid_plural "The filters cannot be changed because they are private."
+msgstr[0] "Le filtre ne peut pas être changé car il est privé."
+msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
 
 #, python-brace-format
 msgid ""
@@ -340,6 +343,9 @@ msgstr ""
 
 msgid "Entity type & filter"
 msgstr "Type de fiche & filtre"
+
+msgid "This filter is disabled."
+msgstr "Ce filtre est désactivé."
 
 #, python-brace-format
 msgid "Hint: you can create filters specific to Reports {here}"
@@ -439,6 +445,9 @@ msgstr "Créer un rapport"
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
+msgid "The filter is disabled."
+msgstr "Le filtre est désactivé."
+
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
@@ -528,8 +537,8 @@ msgstr "Erreur"
 
 #, python-format
 msgid ""
-"These blocks can be placed on Home & on some detail-views in the <a href="
-"\"%(config_url)s\">blocks configuration</a>."
+"These blocks can be placed on Home & on some detail-views in the <a "
+"href=\"%(config_url)s\">blocks configuration</a>."
 msgstr ""
 "Ces blocs peuvent être placés sur l'Accueil & sur certaines vues détaillées "
 "dans la <a href=\"%(config_url)s\">configuration des blocs</a>."

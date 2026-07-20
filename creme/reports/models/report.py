@@ -26,9 +26,11 @@ from typing import TYPE_CHECKING, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -128,6 +130,21 @@ class AbstractReport(CremeEntity):
     def filtered_columns(self) -> list[Field]:
         # TODO: avoid case of hand which is None (RAII) => remove <if column.hand>
         return [column for column in self.columns if column.hand and not column.hand.hidden]
+
+    def clean(self):
+        super().clean()  # TODO: unit test (need FK to Minion)
+
+        efilter = self.filter
+        if efilter and efilter.disabled:
+            from creme.creme_core.core.snapshot import Snapshot
+
+            snapshot = Snapshot.get_for_instance(self)
+            # NB: no error if the disabled filter was already used
+            if (
+                not snapshot
+                or any(diff.field.name == 'filter' for diff in snapshot.compare(self))
+            ):
+                raise ValidationError({'filter': gettext('The filter is disabled.')})
 
     def get_ascendants_reports(self) -> set[AbstractReport]:
         asc_reports = [

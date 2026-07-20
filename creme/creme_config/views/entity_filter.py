@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2024  Hybird
+#    Copyright (C) 2021-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ import creme.creme_core.forms.entity_filter.forms as efilter_forms
 from creme.creme_core.models import EntityFilter
 from creme.creme_core.views import generic
 from creme.creme_core.views.entity_filter import EntityFilterMixin
-from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..bricks import EntityFiltersBrick
 from .base import ConfigPortal
@@ -35,7 +34,7 @@ class Portal(ConfigPortal):
     brick_classes = [EntityFiltersBrick]
 
 
-class EntityFilterCreation(EntityCTypeRelatedMixin,
+class EntityFilterCreation(generic.base.EntityCTypeRelatedMixin,
                            EntityFilterMixin,
                            generic.CremeModelCreationPopup):
     model = EntityFilter
@@ -78,7 +77,7 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEditionPopup):
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
         if instance.filter_type != self.efilter_type:
-            raise PermissionDenied('You cannot edit this type of filter thought this URL')
+            raise PermissionDenied('You cannot edit this type of filter through this URL')
 
         self.check_filter_permissions(filter_obj=instance, user=user)
 

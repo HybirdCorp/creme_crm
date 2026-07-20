@@ -70,7 +70,30 @@ class FilteredCTypeSubCell(CustomFormExtraSubCell):
     verbose_name = _('Entity type & filter')
 
     def formfield(self, instance, user, **kwargs):
-        return core_fields.FilteredEntityTypeField(
+        # return core_fields.FilteredEntityTypeField(
+        #     label=self.verbose_name,
+        #     user=user,
+        #     filter_types=[EF_REGULAR, EF_REPORTS],
+        #     help_text=mark_safe(
+        #         gettext('Hint: you can create filters specific to Reports {here}').format(
+        #             here='<a href="{url}">{label}</a>'.format(
+        #                 url=reverse('creme_config__app_portal', args=('reports',)),
+        #                 label=_('here'),
+        #             ),
+        #         )
+        #     ),
+        # )
+        # TODO: exclude directly the disabled efilters from the choices (=> improve choices view)
+        class _CreationFilteredEntityTypeField(core_fields.FilteredEntityTypeField):
+            def clean(this, value):
+                ct, efilter = super().clean(value=value)
+
+                if efilter and efilter.disabled:
+                    raise ValidationError(gettext('This filter is disabled.'))
+
+                return ct, efilter
+
+        return _CreationFilteredEntityTypeField(
             label=self.verbose_name,
             user=user,
             filter_types=[EF_REGULAR, EF_REPORTS],
@@ -137,6 +160,8 @@ class FilterSubCell(CustomFormExtraSubCell):
             user, types=[EF_REGULAR, EF_REPORTS],
         ).filter(
             entity_type=getattr(instance, self.ctype_field_name),
+        ).filter(
+            Q(disabled=None) | Q(id=instance.filter_id)
         )
         choice_field.initial = efilter
 

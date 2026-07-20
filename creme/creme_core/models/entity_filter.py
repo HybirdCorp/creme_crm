@@ -35,7 +35,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext, pgettext_lazy
+from django.utils.translation import ngettext, pgettext, pgettext_lazy
 
 from ..core.entity_filter import (
     EF_REGULAR,
@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 # TODO: move to core.entity_filter ? (what about HeaderFilterList ?)
 class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
-    Indeed, it's as a cache.
+    Indeed, it's a cache.
     """
     # TODO: "model" instead of "content_type"?
     def __init__(self,
@@ -82,10 +82,24 @@ class EntityFilterList(list):
 
     @property
     def selected(self) -> EntityFilter | None:
+        """Return the selected EntityFilter within the list.
+        See select_by_id().
+        """
         return self._selected
 
+    def clear_selected(self) -> None:
+        """Reset the selected filter
+        See select_by_id().
+        """
+        self._selected = None
+
     def select_by_id(self, *ids: str) -> EntityFilter | None:
-        """Try several EntityFilter ids."""
+        """Select a filter by trying several EntityFilter IDs.
+        The selected filter is returned, and stored as current selected filter.
+
+        @param ids: IDs to try, by order of priority
+        @return: The found EntityFilter, or None if no filter has been found.
+        """
         # Linear search but with few items after all...
         for efilter_id in ids:
             for efilter in self:
@@ -186,6 +200,7 @@ class EntityFilterManager(models.Manager):
                                use_or: bool = False,
                                is_private: bool = False,
                                conditions=(),
+                               # TODO: disabled?
                                # TODO: extra_data?
                                ) -> EntityFilter:
         """Creation helper ; useful for populate.py scripts.
@@ -337,6 +352,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
+    disabled = models.DateTimeField(editable=False, null=True).set_tags(viewable=False)
+    disabling_reason = models.TextField(editable=False).set_tags(viewable=False)
+
     filter_type = models.CharField(
         max_length=TYPE_ID_MAX_LENGTH,
         editable=False, default=EF_REGULAR,
@@ -401,9 +419,18 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         pass
 
     def __str__(self):
-        tag = self.registry.tag
+        # tag = self.registry.tag
+        # return f'{self.name} [{tag}]' if tag else self.name
+        parts = [self.name]
 
-        return f'{self.name} [{tag}]' if tag else self.name
+        if self.disabled:
+            parts.append(pgettext('creme_core-efilter', '(disabled)'))
+
+        tag = self.registry.tag
+        if tag:
+            parts.append(f'[{tag}]')
+
+        return ' '.join(parts)
 
     def accept(self, entity: CremeEntity, user: CremeUser) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the filter.

@@ -4,6 +4,7 @@ from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_filter import (
@@ -355,7 +356,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_initialize(self):
-        "initialize() + filter_type."
+        """initialize() + filter_type."""
         field = RegularFieldsConditionsField(efilter_type=EF_CREDENTIALS)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact))
 
@@ -447,7 +448,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_isempty(self):
-        "ISEMPTY (true) -> boolean."
+        """ISEMPTY (true) -> boolean."""
         field = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         )
@@ -486,7 +487,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertIs(initial0.get('value'), True)
 
     def test_isempty__false(self):
-        "ISEMPTY (false) -> boolean."
+        """ISEMPTY (false) -> boolean."""
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
@@ -778,7 +779,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_choicetypes(self):
-        "Field choice types."
+        """Field choice types."""
         field_choicetype = FieldConditionSelector.field_choicetype
         get_contact_field = FakeContact._meta.get_field
 
@@ -807,7 +808,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertEqual(field_choicetype(discount_unit_field), 'choices__null')
 
     def test_iendswith_valuelist(self):
-        "Multi values."
+        """Multi values."""
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
@@ -935,7 +936,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_fields_config__hidden_fk(self):
-        "FK hidden => sub-fields hidden."
+        """FK hidden => sub-fields hidden."""
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[('image', {FieldsConfig.HIDDEN: True})],
@@ -954,7 +955,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_fields_config__already_used(self):
-        "Field is already used => still proposed."
+        """Field is already used => still proposed."""
         hidden_fname = 'description'
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -982,7 +983,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertEqual(hidden_fname,                         condition.name)
 
     def test_fields_config__sub_field_used(self):
-        "Sub-field is already used => still proposed."
+        """Sub-field is already used => still proposed."""
         hidden_sfname = 'image__description'
         FieldsConfig.objects.create(
             content_type=FakeImage,
@@ -1013,7 +1014,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertEqual(hidden_sfname,                        condition.name)
 
     def test_fields_config__hidden_fk__sub_field_used(self):
-        "Sub-field is already used => still proposed (FK hidden)."
+        """Sub-field is already used => still proposed (FK hidden)."""
         hidden_sfname = 'image__description'
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -1044,7 +1045,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertEqual(hidden_sfname,                        condition.name)
 
     def test_fields_config__hidden_fk__used(self):
-        "Field (ForeignKey) is already used => still proposed."
+        """Field (ForeignKey) is already used => still proposed."""
         hidden_fname = 'position'
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -2907,7 +2908,7 @@ class SubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
             model=FakeOrganisation,
         )
 
-    def test_choices(self):
+    def test_choices__privacy(self):
         user = self.get_root_user()
         other = self.create_user()
 
@@ -2951,6 +2952,54 @@ class SubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         choices3 = [*field.choices]
         self.assertInChoices(value=filter2.id, label=str(filter2), choices=choices3)
         self.assertNotInChoices(value=filter1.id, choices=choices3)
+
+    def test_choices__disabled_filters(self):
+        user = self.get_root_user()
+
+        sub_filter1 = self.sub_efilter01
+        sub_filter2 = EntityFilter.objects.create(
+            id='creme_core-disabled_sub_filter2',
+            name='Contact filter (will be disabled)',
+            entity_type=FakeContact,
+        )
+        sub_filter3 = EntityFilter.objects.create(
+            id='creme_core-disabled_sub_filter3',
+            name='Contact filter (already disabled)',
+            entity_type=FakeContact,
+            disabled=now(),
+        )
+
+        field = SubfiltersConditionsField(model=FakeContact)
+        field.user = user
+
+        ctype = ContentType.objects.get_for_model(FakeContact)
+        field.initialize(ctype=ctype)
+
+        unused_choices = [*field.choices]  # TODO: rename
+        self.assertInChoices(value=sub_filter1.id, label=str(sub_filter1), choices=unused_choices)
+        self.assertInChoices(value=sub_filter2.id, label=str(sub_filter2), choices=unused_choices)
+        self.assertNotInChoices(value=sub_filter3.id, choices=unused_choices)
+
+        # Already used in a filter => OK
+        parent_efilter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-test_parent_filter',
+            name='Filter with child',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[SubFilterConditionHandler.build_condition(subfilter=sub_filter2)],
+        )
+
+        sub_filter2.disabled = now()
+        sub_filter2.save()
+
+        field.initialize(
+            ctype=ctype, efilter=parent_efilter,
+            conditions=parent_efilter.conditions.all(),
+        )
+        used_choices = [*field.choices]
+        self.assertInChoices(value=sub_filter1.id, label=str(sub_filter1), choices=used_choices)
+        self.assertInChoices(value=sub_filter2.id, label=str(sub_filter2), choices=used_choices)
+        self.assertNotInChoices(value=sub_filter3.id, choices=used_choices)
 
     def test_choices__deep(self):
         user = self.get_root_user()
@@ -3025,7 +3074,8 @@ class SubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
 
 
 class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
-    def _create_rtype(self, **kwargs):
+    @staticmethod
+    def _create_rtype(**kwargs):
         return RelationType.objects.builder(
             id='test-subject_love', predicate='Is loving', models=[FakeContact],
             **kwargs
@@ -3033,17 +3083,21 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
             id='test-object_love', predicate='Is loved by',
         ).get_or_create()[0]
 
-    def _create_subfilters(self):
+    @staticmethod
+    def _create_subfilters():
         create_efilter = partial(
             EntityFilter.objects.smart_update_or_create,
             is_custom=True,
         )
-        self.sub_efilter01 = create_efilter(
-            pk='test-filter01', name='Filter 01', model=FakeContact,
-        )
-        self.sub_efilter02 = create_efilter(
-            pk='test-filter02', name='Filter 02', model=FakeOrganisation,
-        )
+
+        return [
+            create_efilter(
+                pk='test-filter01', name='Filter 01', model=FakeContact,
+            ),
+            create_efilter(
+                pk='test-filter02', name='Filter 02', model=FakeOrganisation,
+            ),
+        ]
 
     def test_clean__empty__required(self):
         field = RelationSubfiltersConditionsField(required=True)
@@ -3082,7 +3136,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         rtype1 = self._create_rtype()
         rtype2 = rtype1.symmetric_type
 
-        self._create_subfilters()
+        sub_filters = self._create_subfilters()
         user = self.get_root_user()
 
         with self.assertNumQueries(0):
@@ -3090,8 +3144,8 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
             field.user = user
 
         get_ct = ContentType.objects.get_for_model
-        filter_id1 = self.sub_efilter01.id
-        filter_id2 = self.sub_efilter02.id
+        filter_id1 = sub_filters[0].id
+        filter_id2 = sub_filters[1].id
         conditions = field.clean(json_dump([
             {
                 'rtype': rtype1.id,
@@ -3126,7 +3180,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_filter_type(self):
-        self._create_subfilters()
+        sub_filters = self._create_subfilters()
 
         rtype = self._create_rtype()
         field = RelationSubfiltersConditionsField(
@@ -3135,7 +3189,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
             efilter_type=EF_CREDENTIALS,
         )
 
-        filter_id = self.sub_efilter01.id
+        filter_id = sub_filters[0].id
         rt_id = rtype.id
         condition = self.get_alone_element(
             field.clean(json_dump([{
@@ -3153,7 +3207,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_disabled_rtype(self):
-        self._create_subfilters()
+        subfilters = self._create_subfilters()
 
         rtype = self._create_rtype(enabled=False)
 
@@ -3164,15 +3218,15 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
             value=json_dump([{
                 'rtype': rtype.id, 'has': True,
                 'ctype': ContentType.objects.get_for_model(FakeContact).id,
-                'filter': self.sub_efilter01.id,
+                'filter': subfilters[0].id,
             }]),
             messages=_('This type of relationship type is invalid with this model.'),
             codes='invalidrtype',
         )
 
     def test_disabled_rtype__used(self):
-        "Disabled RelationType is already used => still proposed."
-        self._create_subfilters()
+        """Disabled RelationType is already used => still proposed."""
+        sub_filter1 = self._create_subfilters()[0]
 
         rtype = self._create_rtype(enabled=False)
 
@@ -3185,11 +3239,71 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
                 RelationSubFilterConditionHandler.build_condition(
                     model=FakeContact,
                     rtype=rtype,
-                    subfilter=self.sub_efilter01,
+                    subfilter=sub_filter1,
                 ),
             ],
         )
-        filter_id = self.sub_efilter01.id
+        filter_id = sub_filter1.id
+        condition = self.get_alone_element(
+            field.clean(json_dump([{
+                'rtype': rtype.id, 'has': True,
+                'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                'filter': filter_id,
+            }]))
+        )
+        self.assertEqual(RelationSubFilterConditionHandler.type_id, condition.type)
+        self.assertEqual(rtype.id, condition.name)
+        self.assertDictEqual(
+            {'has': True, 'filter_id': filter_id},
+            condition.value,
+        )
+
+    def test_disabled_efilter(self):
+        subfilter = EntityFilter.objects.create(
+            id='creme_core-contacts_filter',
+            name='Contact filter',
+            entity_type=FakeContact,
+            disabled=now(),
+        )
+        rtype = self._create_rtype()
+
+        self.assertFormfieldError(
+            field=RelationSubfiltersConditionsField(
+                model=FakeContact, user=self.get_root_user(),
+            ),
+            value=json_dump([{
+                'rtype': rtype.id, 'has': True,
+                'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                'filter': subfilter.id,
+            }]),
+            messages=_('These filters are disabled: {}').format(subfilter.name),
+            codes='disabledfilter',
+        )
+
+    def test_disabled_efilter__used(self):
+        """Disabled sub-filter is already used => still proposed."""
+        subfilter = EntityFilter.objects.create(
+            id='creme_core-contacts_filter',
+            name='Contact filter',
+            entity_type=FakeContact,
+            disabled=now(),
+        )
+        rtype = self._create_rtype()
+
+        field = RelationSubfiltersConditionsField(
+            model=FakeContact, user=self.get_root_user(),
+        )
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            conditions=[
+                RelationSubFilterConditionHandler.build_condition(
+                    model=FakeContact,
+                    rtype=rtype,
+                    subfilter=subfilter,
+                ),
+            ],
+        )
+        filter_id = subfilter.id
         condition = self.get_alone_element(
             field.clean(json_dump([{
                 'rtype': rtype.id, 'has': True,

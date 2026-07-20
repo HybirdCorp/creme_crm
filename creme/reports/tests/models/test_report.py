@@ -5,8 +5,10 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.formats import number_format
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
@@ -63,6 +65,74 @@ from creme.reports.tests.base import (
 
 @skipIfCustomReport
 class ReportTestCase(BaseReportsTestCase):
+    def test_clean__disabled_efilter_creation(self):
+        user = self.login_as_root_and_get()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-clean', 'Mihana family', FakeContact, is_custom=True,
+        )
+        report = Report(user=user, name='Contact report', ct=FakeContact)
+
+        with self.assertNoException():
+            report.clean()
+
+        # ---
+        report.filter = efilter
+
+        with self.assertNoException():
+            report.clean()
+
+        # ---
+        efilter.disabled = now()
+        efilter.save()
+
+        with self.assertRaises(ValidationError) as cm:
+            report.clean()
+
+        self.assertValidationError(
+            cm.exception,
+            messages={'filter': _('The filter is disabled.')},
+            # codes='...',
+        )
+
+    def test_clean__disabled_efilter_edition(self):
+        user = self.login_as_root_and_get()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-clean', 'Mihana family', FakeContact, is_custom=True,
+        )
+
+        report = Report.objects.create(
+            user=user, name='Contact report', ct=FakeContact, filter=efilter,
+        )
+
+        with self.assertNoException():
+            report.clean()
+
+        # ---
+        disabled_efilter = EntityFilter.objects.smart_update_or_create(
+            'test-clean_disabled', 'Old Mihana family', FakeContact, is_custom=True,
+        )
+        disabled_efilter.disabled = now()
+        disabled_efilter.save()
+
+        report = self.refresh(report)
+        report.filter = disabled_efilter
+
+        with self.assertRaises(ValidationError) as cm:
+            report.clean()
+
+        self.assertValidationError(
+            cm.exception,
+            messages={'filter': _('The filter is disabled.')},
+            # codes='...',
+        )
+
+        # ---
+        report.save()
+        report = self.refresh(report)
+
+        with self.assertNoException():
+            report.clean()
+
     def test_clone(self):
         user = self.login_as_root_and_get()
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -98,7 +168,7 @@ class ReportTestCase(BaseReportsTestCase):
         check_clone(rfield2, rfields[1])
 
     def test_delete_efilter(self):
-        "The filter should not be deleted."
+        """The filter should not be deleted."""
         user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(

@@ -362,6 +362,17 @@ entity_filter_patterns = [
         name='creme_core__delete_efilter',
     ),
 
+    re_path(
+        r'^disable/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterDisabling.as_view(),
+        name='creme_core__disable_efilter',
+    ),
+    re_path(
+        r'^enable/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterEnabling.as_view(),
+        name='creme_core__enable_efilter',
+    ),
+
     # TODO: move to relation_patterns/factorise with 'creme_core__ctypes_compatible_with_rtype'
     re_path(
         r'^rtype/(?P<rtype_id>[\w-]+)/content_types[/]?$',

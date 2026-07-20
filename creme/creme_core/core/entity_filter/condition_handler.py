@@ -309,6 +309,9 @@ class SubFilterConditionHandler(FilterConditionHandler):
         if subfilter.errors_count:
             return gettext('The sub-filter «{}» has errors').format(subfilter)
 
+        if subfilter.disabled:
+            return gettext('The sub-filter «{}» is disabled').format(subfilter.name)
+
         return None
 
     @classmethod
@@ -1829,6 +1832,9 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         if subfilter.errors_count:
             return gettext('The sub-filter «{}» has errors').format(subfilter)
+
+        if subfilter.disabled:
+            return gettext('The sub-filter «{}» is disabled').format(subfilter.name)
 
         return None
 
