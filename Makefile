@@ -106,17 +106,11 @@ serve: __media
 eslint-diff:
 	git diff --name-only --diff-filter=MARC origin/main creme/ | { grep -E '.js$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
-			--config .eslintrc \
-			--ignore-path .eslintignore \
 			--format stylish \
 			--quiet
 
 	git diff --name-only --diff-filter=MARC origin/main creme/ | { grep -E '.html$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
-			--config .eslintrc \
-			--ignore-path .eslintignore \
-			--plugin template \
-			--rule 'template/no-template-branch: 2' \
 			--global '____' \
 			--format stylish \
 			--quiet
@@ -128,21 +122,23 @@ eslint:
 
 	find ${targets} -iname *.js | xargs --no-run-if-empty \
 	    node_modules/.bin/eslint \
-	        --config .eslintrc \
-	        --ignore-path .eslintignore \
 	        --format stylish \
 	        --quiet
 
 	find ${targets} -iname *.html | xargs --no-run-if-empty \
 	    node_modules/.bin/eslint \
-	        --config .eslintrc \
-	        --ignore-path .eslintignore \
 	        --plugin template \
-	        --rule 'template/no-template-branch: 2' \
 	        --global '____' \
 	        --format stylish \
 	        --quiet
 
+eslint-html:
+	find ${targets} -iname *.html | xargs --no-run-if-empty \
+	    node_modules/.bin/eslint \
+	        --plugin template \
+	        --global '____' \
+	        --format stylish \
+	        --quiet
 
 ## Validates the Python imports with isort
 .PHONY: isort-check

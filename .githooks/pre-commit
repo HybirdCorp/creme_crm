@@ -15,7 +15,9 @@ hook_check_flake8() {
 hook_check_eslint() {
     if [ -x node_modules/.bin/eslint ]; then
         local _files=$(git diff HEAD~1 --name-only --diff-filter=MARC | grep '.js$')
-        node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet $_files
+        if [ -n "$_files" ]; then
+            node_modules/.bin/eslint --config eslint.config.mjs --format stylish --quiet $_files
+        fi
     fi
 }
 
