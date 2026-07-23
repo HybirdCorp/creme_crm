@@ -21,6 +21,9 @@
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
+        * Graphs :
+            - It's now possible to create a block type related to an instance of Graph;
+              this new kind of blocks can be displayed on Home & "My Page".
 
   Developers side :
   -----------------
@@ -211,6 +214,8 @@
                 - In the method 'gui._BaseEventEntityCellVolatile._render_select()', the argument
                   'status_map' has been replaced by 'status_type'.
                 - The attribute 'views.event.BaseStatusSetting.status_map' has been replaced by 'status_type'.
+            * Graphs :
+                - The method 'bricks.RelationChartBrick.get_graph_chart_data()' has been removed.
             * SMS :
                 - In 'views.sending', the class attribute 'brick' of the view-classes
                   'Messages' & 'MessagesBrickReloading' has been renamed 'brick_classes'.

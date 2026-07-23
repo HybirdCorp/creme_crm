@@ -3,7 +3,7 @@ from django.urls import re_path
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import graph_model_is_custom
-from .views import graph, root_node
+from .views import bricks, graph, root_node
 
 urlpatterns = [
     re_path(
@@ -31,6 +31,12 @@ urlpatterns = [
         r'^root/delete[/]?$',
         root_node.RootNodeDeletion.as_view(),
         name='graphs__remove_root',
+    ),
+
+    re_path(
+        r'^graph/(?P<graph_id>\d+)/create_brick[/]?$',
+        bricks.GraphInstanceBrickCreation.as_view(),
+        name='graphs__create_instance_brick',
     ),
 
     *swap_manager.add_group(

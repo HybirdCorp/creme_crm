@@ -3,16 +3,26 @@ from unittest import skipIf
 
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-from creme.creme_core.models import FakeContact, FakeOrganisation, RelationType
+from creme import graphs
+from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    InstanceBrickConfigItem,
+    RelationType,
+)
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.graphs import get_graph_model, graph_model_is_custom
-from creme.graphs.bricks import OrbitalRelationTypesBrick, RootNodesBrick
+from creme.creme_core.tests.views import base as views_base
+from creme.graphs.bricks import (
+    GraphInstanceBrick,
+    OrbitalRelationTypesBrick,
+    RootNodesBrick,
+)
 from creme.graphs.models import RootNode
 
-skip_graph_tests = graph_model_is_custom()
-Graph = get_graph_model()
+skip_graph_tests = graphs.graph_model_is_custom()
+Graph = graphs.get_graph_model()
 
 
 def skipIfCustomGraph(test_func):
@@ -20,7 +30,9 @@ def skipIfCustomGraph(test_func):
 
 
 @skipIfCustomGraph
-class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
+class GraphsTestCase(views_base.BrickTestCaseMixin,
+                     views_base.ButtonTestCaseMixin,
+                     CremeTestCase):
     def login_as_graphs_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(
             allowed_apps=['graphs', *allowed_apps],
@@ -350,3 +362,81 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         cloned_node = self.get_alone_element(cloned_graph.roots.all())
         self.assertEqual(orga, cloned_node.real_entity)
         self.assertCountEqual([rtype2], cloned_node.relation_types.all())
+
+    def test_instance_brick_creation(self):
+        user = self.login_as_standard(admin_4_apps=['graphs'])
+        self.add_credentials(role=user.role, own=['VIEW'])
+
+        graph = Graph.objects.create(user=user, name='Nodz-a-lapalooza')
+        detail_response = self.assertGET200(graph.get_absolute_url())
+        brick_creation_url = reverse('graphs__create_instance_brick', args=(graph.id,))
+        button_node = self.get_alone_element(self.iter_button_nodes(
+            self.get_instance_buttons_node(self.get_html_tree(detail_response.content)),
+            tags=['a'], href=brick_creation_url,
+        ))
+        self.assertIn(
+            _('Create a block'),
+            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+        )
+
+        # ---
+        self.assertPOST200(brick_creation_url)
+        ibci = self.get_object_or_fail(InstanceBrickConfigItem, entity_id=graph.id)
+        self.assertEqual(GraphInstanceBrick.id, ibci.brick_class_id)
+
+    def test_instance_brick_creation__already_exists(self):
+        user = self.login_as_root_and_get()
+        graph = Graph.objects.create(user=user, name='Nodz-a-lapalooza')
+        InstanceBrickConfigItem.objects.create(
+            entity=graph, brick_class_id=GraphInstanceBrick.id,
+        )
+
+        detail_response = self.assertGET200(graph.get_absolute_url())
+        button_nodes = [*self.iter_button_nodes(
+            self.get_instance_buttons_node(self.get_html_tree(detail_response.content)),
+            tags=['span'],
+        )]
+        self.assertTrue(button_nodes)
+
+        button_node = button_nodes[0]
+        self.assertIn(
+            _('Create a block'),
+            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+        )
+        self.assertEqual(
+            _('A block is already available in the configuration'),
+            button_node.attrib.get('title'),
+        )
+
+        # ---
+        self.assertPOST409(
+            reverse('graphs__create_instance_brick', args=(graph.id,))
+        )
+
+    def test_instance_brick_creation__forbidden(self):
+        user = self.login_as_standard(allowed_apps=['graphs'])  # admin_4_apps=['graphs']
+        self.add_credentials(role=user.role, own=['VIEW'])
+
+        graph = Graph.objects.create(user=user, name='Nodz-a-lapalooza')
+        detail_response = self.assertGET200(graph.get_absolute_url())
+
+        button_nodes = [*self.iter_button_nodes(
+            self.get_instance_buttons_node(self.get_html_tree(detail_response.content)),
+            tags=['span'],
+        )]
+        self.assertTrue(button_nodes)
+
+        button_node = button_nodes[0]
+        self.assertIn(
+            _('Create a block'),
+            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+        )
+        self.assertEqual(
+            _('You are not allowed to configure this app: {}').format(
+                pgettext('graphs', 'Graphs')
+            ),
+            button_node.attrib.get('title'),
+        )
+
+        # ---
+        self.assertPOST403(reverse('graphs__create_instance_brick', args=(graph.id,)))

@@ -51,11 +51,20 @@ class GraphsConfig(CremeAppConfig):
             bricks.RootNodesBrick,
             bricks.RelationChartBrick,
             bricks.OrbitalRelationTypesBrick,
+        ).register_4_instance(
+            (brick_registry.Tag.HOME, brick_registry.Tag.MY_PAGE),
+            bricks.GraphInstanceBrick,
         )
 
     @override
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Graph)
+
+    @override
+    def register_buttons(self, button_registry):
+        from . import buttons
+
+        button_registry.register_mandatory(buttons.CreateInstanceBrickButton)
 
     @override
     def register_custom_forms(self, cform_registry):

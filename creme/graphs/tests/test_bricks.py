@@ -1,15 +1,20 @@
 from functools import partial
 
+from django.urls import reverse
+from django.utils.translation import gettext as _
+
 from creme.creme_core.models import (
+    BrickHomeLocation,
     FakeContact,
     FakeOrganisation,
+    InstanceBrickConfigItem,
     Relation,
     RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.graphs import get_graph_model
-from creme.graphs.bricks import RelationChartBrick
+from creme.graphs.bricks import GraphInstanceBrick, RelationChartBrick
 from creme.graphs.models import RootNode
 
 Graph = get_graph_model()
@@ -325,3 +330,35 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
             RelationChartBrick().get_chart_data({'object': graph, 'user': user}),
         )
+
+
+class GraphInstanceBrickTestCase(BrickTestCaseMixin, CremeTestCase):
+    def test_main(self):
+        # TODO?
+        # user = self.login_as_standard(
+        #     allowed_apps=['creme_core', 'graphs'],
+        # )
+        # self.add_credentials(role=user.role, all=['VIEW'])
+        user = self.login_as_root_and_get()
+
+        graph = Graph.objects.create(user=user, name='Managers')
+
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=graph, brick_class_id=GraphInstanceBrick.id,
+        )
+
+        brick = GraphInstanceBrick(self.refresh(ibci))
+        verbose_name = _('Relationship graph — {graph}').format(graph=graph.name)
+        self.assertEqual(verbose_name, brick.verbose_name)
+        self.assertFalse(brick.errors)
+
+        # ---
+        BrickHomeLocation.objects.create(brick_id=brick.id, order=1)
+        response = self.assertGET200(reverse('creme_core__home'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=brick.id,
+        )
+        self.assertEqual(verbose_name, self.get_brick_title(brick_node))
+
+        # TODO: complete tests on rendered HTML
