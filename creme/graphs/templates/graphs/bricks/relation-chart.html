@@ -1,6 +1,11 @@
 {% extends 'sketch/bricks/chart.html' %}
+{% load creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} graphs-sketch-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=verbose_name icon='graph' %}
+{% endblock %}
 
 {% block brick_script %}
     <script type="text/javascript">
