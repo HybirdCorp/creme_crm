@@ -46,7 +46,7 @@ from ..fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
 from ..views.base import BrickTestCaseMixin
 
 
-class BrickRegistryTestCase(CremeTestCase):
+class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -671,7 +671,7 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
     def test_get_brick_4_instance(self):
-        "With 'entity' argument."
+        """With 'entity' argument."""
         user = self.get_root_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
@@ -705,7 +705,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(ibrick, FoobarInstanceBrick)
         self.assertEqual((FakeOrganisation, FakeContact), ibrick.dependencies)
 
-        # ---
+        # Error ---
         with self.assertLogs(level='WARNING'):
             error_ibrick = brick_registry.get_brick_4_instance(
                 ibi=ibci, entity=casca, tag=brick_registry.Tag.HOME,
@@ -713,7 +713,22 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(error_ibrick, InstanceBrick)
         self.assertNotIsInstance(error_ibrick, FoobarInstanceBrick)
         self.assertEqual('??', error_ibrick.verbose_name)
-        self.assertListEqual([_('Unknown type of block (bad uninstall?)')], error_ibrick.errors)
+        self.assertEqual(
+            'creme_core/bricks/generic/error.html', error_ibrick.template_name,
+        )
+        err_msg = _('Unknown type of block (bad uninstall?)')
+        self.assertListEqual([err_msg], error_ibrick.errors)
+
+        with self.assertNoException():
+            render = error_ibrick.render(self.build_context(user=user))
+
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=ibci.brick_id)
+        self.assertBrickHasClass(brick_node=brick_node, css_class='brick-error')
+
+        content_node = self.get_html_node_or_fail(
+            brick_node, './/div[@class="brick-content"]'
+        )
+        self.assertIn(err_msg, content_node.text)
 
     # def test_get_compatible_bricks(self):  # DEPRECATED
     #     user = self.get_root_user()
