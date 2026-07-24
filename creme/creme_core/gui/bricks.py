@@ -658,6 +658,11 @@ class InstanceBrick(Brick):
         #     So here no specific prefix (like "instance-") is useful.
         return f'{app_name}-{name}'
 
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context, **{'errors': self.errors, ** extra_kwargs}
+        )
+
 
 # class CustomBrick(SimpleBrick):
 class CustomBrick(Brick):
@@ -1101,7 +1106,7 @@ class BrickRegistry:
 
             brick = InstanceBrick(ibi)
             brick.verbose_name = '??'
-            # TODO: add this attribute to the class
+            brick.template_name = 'creme_core/bricks/generic/error.html'
             brick.errors = [_('Unknown type of block (bad uninstall?)')]
         else:
             brick = brick_class(ibi)
