@@ -71,10 +71,16 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'relation_types',
-                    models.ManyToManyField(to='creme_core.RelationType', editable=False)
+                    models.ManyToManyField(
+                        to='creme_core.RelationType', editable=False,
+                        verbose_name='Types of relationship',
+                    )
                 ),
             ],
-            options={},
+            options={
+                'verbose_name': 'Root node',
+                'verbose_name_plural': 'Root nodes',
+            },
             bases=(models.Model,),
         ),
     ]
