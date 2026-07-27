@@ -120,6 +120,8 @@ class RelationChartBrick(ChartBrick):
 
     # def detailview_display(self, context):
     #     return self._render_chart(context)
+    def render(self, context):
+        return self._render_chart(context)
 
 
 class RootNodesBrick(QuerysetBrick):
