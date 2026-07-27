@@ -8,6 +8,10 @@
       <choices> & <multiple choices> when operator is "is empty".
         - The description was broken.
         - The initial value of form-field was empty.
+    # Apps :
+        * Graphs :
+            - The History lines for root nodes were ugly.
+            - The form to add some root nodes has been improved (autocompletion for content type).
 
   Developers side :
   -----------------

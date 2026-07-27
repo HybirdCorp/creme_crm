@@ -580,7 +580,6 @@ class ButtonMenuTestCase(CremeTestCase):
             for button_cls, button in zip(expected_classes, buttons):
                 self.assertIsInstance(button, button_cls)
 
-        request = self.build_request(user=self.get_root_user())
         assertButtonsEqual(
             [TestButton1, TestButton2],
             [*registry.mandatory_buttons(entity=FakeOrganisation())],
