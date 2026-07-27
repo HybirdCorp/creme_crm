@@ -59,9 +59,18 @@ class Migration(migrations.Migration):
                         related_name='roots', editable=False, on_delete=CASCADE,
                     )
                 ),
-                ('relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False)),
+                # ('relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False)),
+                (
+                    'relation_types',
+                    models.ManyToManyField(
+                        to='creme_core.RelationType', editable=False,
+                        verbose_name='Types of relationship',
+                    )
+                ),
             ],
             options={
+                'verbose_name': 'Root node',
+                'verbose_name_plural': 'Root nodes',
             },
             bases=(models.Model,),
         ),
