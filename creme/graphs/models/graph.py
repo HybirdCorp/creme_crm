@@ -247,10 +247,17 @@ class RootNode(CremeModel):
     )
 
     # TODO: editable=False is only to avoid inner edition with an ugly widget
-    relation_types = models.ManyToManyField(RelationType, editable=False)
+    relation_types = models.ManyToManyField(
+        RelationType, verbose_name=_('Types of relationship'), editable=False,
+    )
 
     class Meta:
         app_label = 'graphs'
+        verbose_name = _('Root node')   # Used by History Brick
+        verbose_name_plural = _('Root nodes')
+
+    def __str__(self):  # Used by History Brick
+        return str(self.real_entity)
 
     def get_edit_absolute_url(self):
         return reverse('graphs__edit_root', args=(self.id,))

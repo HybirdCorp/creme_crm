@@ -227,8 +227,10 @@ class GraphsTestCase(views_base.BrickTestCaseMixin,
             [rtype1, rtype2], rnodes[0].relation_types.all(),
         )
 
-        # Delete
         rnode = rnodes[1]
+        self.assertEqual(str(rnode.real_entity), str(rnode))
+
+        # Delete ---
         url = reverse('graphs__remove_root')
         data = {'id': rnode.id}
         self.assertGET405(url, data=data)

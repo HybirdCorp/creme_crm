@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-27 12:37+0200\n"
+"POT-Creation-Date: 2026-07-27 15:02+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -103,6 +103,13 @@ msgstr "Enregistrer le graphe"
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
+
+# Already in creme_core
+msgid "Types of relationship"
+msgstr ""
+
+msgid "Root node"
+msgstr "Nœud racine"
 
 msgid "Graph view"
 msgstr "Vue de Graphe"
