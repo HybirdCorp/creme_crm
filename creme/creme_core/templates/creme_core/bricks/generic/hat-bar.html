@@ -40,7 +40,7 @@
                {% brick_bar_button action='update' icon='pin' url='creme_core__unpin_entity'|url:object.id label=_('Unpin') %}
              {% else %}
                {% if user|has_max_pins %}
-                 {% brick_bar_button action='update' icon='pin' url='' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
+                 {% brick_bar_button action='update' icon='pin' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
                {% else %}
                  {% brick_bar_button action='update' icon='pin' url='creme_core__pin_entity'|url:object.id label=_('Pin') help_text=_('Pin this entity to put it in the menu entry «Quick access»') %}
                {% endif %}
@@ -54,7 +54,7 @@
             <div class='bar-action'>
               {% if cloning.error %}
                 {% blocktranslate asvar clone_button_label with error=cloning.error %}Cloning is forbidden ({{error}}){% endblocktranslate %}
-                {% brick_bar_button action='' label=clone_button_label url='#' icon='clone' enabled=False %}
+                {% brick_bar_button action='clone' label=clone_button_label enabled=False %}
               {% else %}
                 {% brick_bar_button action='creme_core-detailview-clone' label=cloning.label url=cloning.url __id=object.id icon='clone' confirm=_('Do you really want to clone this entity?') enabled=True %}
               {% endif %}
@@ -84,7 +84,7 @@
             <div class='bar-action'>
               {% if deletion.error %}
                 {% blocktranslate asvar del_button_label with error=deletion.error %}Deletion is forbidden ({{error}}){% endblocktranslate %}
-                {% brick_bar_button action='creme_core-detailview-delete' label=del_button_label url='#' icon='delete' enabled=False %}
+                {% brick_bar_button action='delete' label=del_button_label enabled=False %}
               {% else %}
                 {% brick_bar_button action='creme_core-detailview-delete' label=deletion.label url=deletion.url icon='delete' confirm=deletion.confirmation enabled=True %}
               {% endif %}

@@ -32,7 +32,7 @@
               {% with edition_error=object|efilter_edition_forbidden:user %}
                {% if edition_error %}
                  {% blocktranslate asvar edit_button_label with error=edition_error %}Edition is forbidden ({{error}}){% endblocktranslate %}
-                 {% brick_bar_button action='redirect' label=edit_button_label url='#' icon='edit' enabled=False %}
+                 {% brick_bar_button action='edit' label=edit_button_label enabled=False %}
                {% else %}
                  {% brick_bar_button action='redirect' label=_('Edit') url=edition_url icon='edit' %}
                {% endif %}
@@ -61,7 +61,7 @@
               {% with deletion_error=object|efilter_deletion_forbidden:user %}
                {% if deletion_error %}
                  {% blocktranslate asvar del_button_label with error=deletion_error %}Deletion is forbidden ({{error}}){% endblocktranslate %}
-                 {% brick_bar_button action='redirect' label=del_button_label url='#' icon='delete' enabled=False %}
+                 {% brick_bar_button action='delete' label=del_button_label enabled=False %}
                {% else %}
                  {% brick_bar_button action='creme_core-detailview-delete' __callback_url='creme_config__efilters'|url label=_('Delete') url=deletion_url icon='delete' confirm=_('Do you really want to delete this filter?') %}
                {% endif %}

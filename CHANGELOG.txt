@@ -177,6 +177,12 @@
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
               do not inject the key "allowed" in their data anymore (the key "error" is enough).
+            - In 'creme_bricks', some tags take now more arguments as keyword-only :
+                - {% brick_action %}
+                - {% brick_bar_button %}
+                - {% brick_card_button %}
+                - {% brick_card_action %}
+                - {% brick_card_action_for_field %}
             - In 'creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
               do not inject the keys "edition_*" & "deletion_*" anymore.
             - In 'creme_widgets', some tags' arguments are now keyword-only :

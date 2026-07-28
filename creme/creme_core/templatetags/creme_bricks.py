@@ -79,8 +79,7 @@ def brick_header_title(context, title,
         {% block brick_header_title %}
             {% brick_header_title title=_('Customers and providers') %}
         {% endblock %}
-
-        ...
+        …
 
     Example 2 - paginated & named icon:
         {% extends 'creme_core/bricks/base/paginated-table.html' %}
@@ -91,8 +90,7 @@ def brick_header_title(context, title,
                title=_('{count} Customers') plural=_('{count} Customers')
                empty=_('Customers') icon='phone' %}
         {% endblock %}
-
-        ...
+        …
 
     Example 3 - instanced icon (notice the size):
         {% extends 'creme_core/bricks/base/list.html' %}
@@ -102,8 +100,7 @@ def brick_header_title(context, title,
             {% widget_icon ctype=my_ct size='brick-header' as my_icon %}
             {% brick_header_title title=my_title icon=my_icon %}
         {% endblock %}
-
-        ...
+        …
     """
     if count is None:
         count = context.get('page').paginator.count if 'page' in context else 0
@@ -145,7 +142,9 @@ _DISPLAY_VALUES = frozenset(('text', 'icon', 'both'))
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/action.html', takes_context=True)
-def brick_action(context, id, url='',
+def brick_action(context, id,
+                 *,
+                 url='',
                  label=None, icon=None, icon_size='brick-action', display='icon',
                  enabled=True,
                  confirm=None, loading=None, help_text=None,
@@ -158,7 +157,7 @@ def brick_action(context, id, url='',
     This kind of action will reload the brick (& its dependencies) when it's needed.
     There are more specialised templatetags (wrappers) for specific
     context (brick header, table-brick):
-      {% brick_header_action .. %}, {% brick_table_action ... %}...
+      {% brick_header_action … %}, {% brick_table_action … %}…
 
     @param context: Template context.
     @param id: ID of the action. An ID 'foo-bar' will correspond to the method
@@ -192,19 +191,19 @@ def brick_action(context, id, url='',
               The extra data '__title' is optional (title of the inner-popup).
             - redirect: redirect the page to the given 'url'.
             - refresh: reload the brick & its dependencies (internal use)
-    @param url: URL (string) used by the action (creation, edition etc...).
+    @param url: URL (string) used by the action (creation, edition etc…).
            Most of the actions need the URL to be given (see 'id' documentation).
     @param label: String. Default labels are available for some action IDs
            (see DEFAULT_ACTION_LABELS), if not, the placeholder 'Information' will be used.
     @param icon: The string identifying an Icon (e.g. 'add'), or an Icon instance
            (see the templatetag {% widget_icon  %} of the lib creme_widget).
-           Default is None ; but when an icon is need (parameter 'display' is
+           Default is <None>; but when an icon is needed (parameter 'display' is
            'icon or 'both') but no 'icon' is given, the parameter 'type' & 'id'
            are used as icon name (so actions like 'add' use a default icon).
     @param icon_size: Size-tag (see creme/creme_core/gui/icons.py -> _ICON_SIZES_MAP).
            Only useful if you pass a string as 'icon' parameter.
            Default is 'brick-action'.
-           Notice that wrappers (brick_header_action, brick_table_action etc...)
+           Notice that wrappers (brick_header_action, brick_table_action etc…)
            will pass a correct size for them.
     @param display: String in {'text', 'icon', 'both'} ('both' means 'text' AND 'icon'}.
            Default is 'icon' (but wrappers can override this default value).
@@ -223,7 +222,7 @@ def brick_action(context, id, url='',
     @param kwargs:
            These keys have a precise meaning:
                 - 'type': String used to generate the CSS class "action-type-{{action_type}}" ;
-                          classical provided types are the actions IDs (add, edit...)
+                          classical provided types are the actions IDs (add, edit…)
                 - 'class': Extra CSS class.
            Remaining keys must start with '__' ; they are serialised to JSON &
            can be used by the code of the action.
@@ -319,15 +318,12 @@ def brick_header_action(context, display='both', **kwargs):
     Example:
         {% extends 'creme_core/bricks/base/base.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block brick_header_actions %}
             {% brick_header_action id='add' url=creation_url
                label=_('Add a stuff') enabled=can_create_stuff %}
         {% endblock %}
-
-        ...
+        …
     """
     return brick_action(context, display=display, **kwargs)
 
@@ -336,7 +332,8 @@ def brick_header_action(context, display='both', **kwargs):
     'creme_core/templatetags/bricks/card-button.html',
     takes_context=True,
 )
-def brick_card_button(context, action, url, label,
+# def brick_card_button(context, action, url, label,
+def brick_card_button(context, action, *, url='', label,
                       icon=None, enabled=True, confirm=None,
                       **kwargs):
     """Action (see brick_brick_action()) for "card" (hat) bricks.
@@ -356,7 +353,8 @@ def brick_card_button(context, action, url, label,
     'creme_core/templatetags/bricks/bar-button.html',
     takes_context=True,
 )
-def brick_bar_button(context, action, url, label, icon,
+# def brick_bar_button(context, action, url='', label=None, icon=None,
+def brick_bar_button(context, action, *, url='', label=None, icon=None,
                      enabled=True, confirm=None,
                      **kwargs):
     """Action (see brick_brick_action()) for "bar" (hat) bricks.
@@ -382,9 +380,7 @@ def brick_menu_action(context, id, **kwargs):
     Example:
         {% extends 'creme_core/bricks/base/base.html' %}
         {% load i18n creme_core_tags creme_bricks %}
-
-        ...
-
+        …
         {% block brick_menu_actions %}
             {{block.super}}
 
@@ -392,8 +388,7 @@ def brick_menu_action(context, id, **kwargs):
             {% brick_menu_action id='edit' url=config_url icon='config'
                label=_('Configure the block') enabled=config_perm %}
         {% endblock %}
-
-        ...
+        …
     """
     return brick_action(context, id=id, icon_size='brick-menu-action', **kwargs)
 
@@ -452,16 +447,13 @@ def brick_table_column(title, status='', **attrs):
     Example:
         {% extends 'creme_core/bricks/base/table.html' %}
         {% load i18n creme_bricks %}
-
-        ....
-
+        …
         {% block brick_table_columns %}
             {% brick_table_column title=_('Name') status='primary' %}
             {% brick_table_column title=_('Information') %}
             {% brick_table_column title=_('Action') status='action' %}
         {% endblock %}
-
-        ...
+        …
     """
     return {
         'title':      title,
@@ -554,16 +546,13 @@ def brick_table_column_for_field(context, ctype, field, title='', status='', **a
     Example:
       {% extends 'creme_core/bricks/base/paginated-table.html' %}
       {% load i18n creme_bricks %}
-
-      ...
-
+      …
       {% block brick_table_columns %}
         {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
         {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('My status') %}
         {% brick_table_column_for_field ctype=objects_ctype field='info' %}
       {% endblock %}
-
-      ...
+      …
     """
     cell = EntityCellRegularField.build(ctype.model_class(), field)
 
@@ -584,23 +573,20 @@ def brick_table_action(context, id, **kwargs):
     Example:
         {% extends 'creme_core/bricks/base/paginated-table.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block brick_table_rows %}
-            {% for object in page.object_list %}
+          {% for object in page.object_list %}
             <tr>
-                <td>...</td>
-                <td>...</td>
+                <td>…</td>
+                <td>…</td>
                 <td {% brick_table_data_status action %}>
                     {% brick_table_action id='edit' url=object.get_edit_absolute_url
                                           label=_('Edit this stuff') enabled=has_perm %}
                 </td>
             </tr>
-            {% endfor %}
+          {% endfor %}
         {% endblock %}
-
-        ...
+        …
     """
     return brick_action(context, id=id, **kwargs)
 
@@ -623,14 +609,12 @@ def brick_table_data_status(parser, token):
     Example:
         {% extends 'creme_core/bricks/base/table.html' %}
         {% load creme_bricks %}
-
-        ...
-
+        …
         {% block brick_table_rows %}
             <tr>
                 {# Will have "data-table-primary-column" attribute #}
-                <td {% brick_table_data_status primary %}> ... </td>
-                ...
+                <td {% brick_table_data_status primary %}> … </td>
+                …
             </tr>
         {% endblock %}
     """
@@ -666,14 +650,12 @@ def brick_tile_action(context, id, **kwargs):
     Example:
         {% extends 'creme_core/bricks/base/tiles.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block brick_content %}
             {% for object in objects %}
             <div class="brick-tile">
                 <span class="brick-tile-value">
-                    ...
+                    …
                 </span>
                 <span class="brick-tile-name">
                     {% url 'my_app__remove_stuff' object.id as remove_url %}
@@ -702,12 +684,10 @@ def brick_tile(label, value, multiline=False, data_type=None):
     Example:
         {% extends 'creme_core/bricks/base/tiles.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block brick_content %}
             {% brick_tile label=_('Name') value=my_name %}
-            ...
+            …
         {% endblock %}
     """
     return {
@@ -733,13 +713,11 @@ def brick_tile_for_cell(cell, instance, user):
     Example:
         {% extends 'creme_core/bricks/base/tiles.html' %}
         {% load i18n creme_bricks creme_cells %}
-
-        ...
-
+        …
         {% block brick_content %}
             {% cell_4_regularfield instance=my_instance field='name' as name_cell %}
-            {% brick_tile_for_cell cell=name_cell instance=my_instance  user=user %}
-            ...
+            {% brick_tile_for_cell cell=name_cell instance=my_instance user=user %}
+            …
         {% endblock %}
     """
     try:
@@ -769,16 +747,15 @@ def brick_tile_for_cell(cell, instance, user):
     'creme_core/templatetags/bricks/card-action.html',
     takes_context=True,
 )
-def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs):
+# def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs):
+def brick_card_action(context, *, url, enabled=True, id='edit', display='both', **kwargs):
     """Action (see brick_action()) for the content of a hat-card-brick
     (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
 
     Example:
         {% extends 'creme_core/bricks/base/hat-card.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block card_fields %}
             <div class="card-info-field">
                 <span class='card-info-key'>{% translate 'My label' %}</span>
@@ -787,8 +764,7 @@ def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs
                     {% brick_card_action url=my_url enabled=True %}
                 </span>
             </div>
-
-            ...
+            …
         {% endblock %}
     """
     return brick_action(
@@ -806,16 +782,15 @@ def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs
     'creme_core/templatetags/bricks/card-action.html',
     takes_context=True,
 )
-def brick_card_action_for_field(context, instance, field, user, **kwargs):
+# def brick_card_action_for_field(context, instance, field, user, **kwargs):
+def brick_card_action_for_field(context, *, instance, field, user, **kwargs):
     """Inner-edition action (see brick_action()) for a field in a hat-card-brick
     (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
 
     Example:
         {% extends 'creme_core/bricks/base/hat-card.html' %}
         {% load i18n creme_bricks %}
-
-        ...
-
+        …
         {% block card_fields %}
             <div class="card-info-field">
                 <span class='card-info-key'>{% translate 'My field' %}</span>
@@ -824,8 +799,7 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
                     {% brick_card_action_for_field instance=object field='my_field' user=user %}
                 </span>
             </div>
-
-            ...
+            …
         {% endblock %}
     """
     cell = EntityCellRegularField.build(type(instance), field)
@@ -866,12 +840,11 @@ def brick_import(context, app=None, name=None, object=None, tag=None):
             from creme.creme_core.gui.bricks import Brick
 
             class MyBrick(Brick):
-                # Beware to the ID: app-label + name
+                # Beware of the ID: app-label + name
                 id = Brick.generate_id('my_app', 'my_brick')
+                …
 
-                [...]
-
-        my_app/app.py
+        my_app/app.py:
             from creme.creme_core.apps import CremeAppConfig
 
             class MyAppConfig(CremeAppConfig):
@@ -882,14 +855,13 @@ def brick_import(context, app=None, name=None, object=None, tag=None):
                     from . import bricks
 
                     brick_registry.register(bricks.MyBrick)  # <== Registration is mandatory
+                …
 
-                [...]
-
-        my_app/templates/my_app/my_template.html
+        my_app/templates/my_app/my_template.html:
             {% load creme_bricks %}
 
             {% brick_import app='my_app' name='my_brick' as my_brick_instance %}
-            {# See {% brick_display ... %}  to display this instance #}
+            {# See {% brick_display … %}  to display this instance #}
 
     2. Import the 'object' Brick for a specific instance.
 
@@ -945,9 +917,8 @@ def brick_declare(context, *bricks):
     you have to declare anyway, so they are known by the current BricksManager
     (it's used to regroup queries about Bricks states).
 
-    my_app/views.py
-        [...]
-
+    my_app/views.py:
+        …
         def my_view(request):
             return render(
                 request, 'my_app/foo.html',
@@ -963,11 +934,11 @@ def brick_declare(context, *bricks):
                 },
             )
 
-    my_app/templates/my_app/my_template.html
+    my_app/templates/my_app/my_template.html:
         {% load creme_bricks %}
 
         {% brick_declare my_bricks my_brick3 %}
-        {# See {% brick_display ... %}  to display this instance #}
+        {# See {% brick_display … %}  to display this instance #}
     """
     add_group = BrickManager.get(context).add_group
 
@@ -999,7 +970,7 @@ def brick_get_by_ids(*brick_ids, entity=None, tag=None):
         <span>{{bricks.0.verbose_name}}</span>
 
     An instance of CremeEntity can be given to retrieve correctly EntityBricks
-    (even if this case is not currently used in Creme...) :
+    (even if this case is not currently used in Creme…):
 
         {% brick_get_by_ids brick_id1 brick_id2 tag='DETAIL' entity=my_instance as bricks %}
     """
@@ -1031,9 +1002,7 @@ def brick_display(context, *bricks, **kwargs):
     instances in your context.
 
         {% load creme_bricks %}
-
-        [...]
-
+        …
         {% brick_display my_brick1 my_brick2 %}
     """
     context_dict = context.flatten()

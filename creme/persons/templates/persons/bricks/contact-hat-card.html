@@ -127,7 +127,7 @@ should we reduce the number of lines to copy/paste?
  {% if deletion.enabled %}
   <div class='card-action'>
     {% if deletion.error %}
-      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label help_text=deletion.error url='#' icon='delete' enabled=False %}
+      {% brick_card_button action='delete' label=deletion.label help_text=deletion.error enabled=False %}
     {% else %}
       {% brick_card_button action='creme_core-detailview-delete' label=deletion.label url=deletion.url __callback_url='creme_core__home'|url icon='delete' confirm=deletion.confirmation enabled=True %}
     {% endif %}
