@@ -1148,10 +1148,9 @@ class BrickRegistry:
 
         instance_bricks_items = {
             ibi.brick_id: ibi
-            # TODO: CremeEntity.populate_real_entities
             for ibi in InstanceBrickConfigItem.objects
                                               .for_brick_ids(brick_ids)
-                                              .prefetch_related('entity')
+                                              .prefetch_related('real_entity')
         }
         custom_bricks_items = {
             cbci.brick_id: cbci

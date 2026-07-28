@@ -901,7 +901,7 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
         brick_classes = brick_registry.instance_brick_classes
         btc = self.get_template_context(
             context,
-            core_models.InstanceBrickConfigItem.objects.prefetch_related('entity'),
+            core_models.InstanceBrickConfigItem.objects.prefetch_related('real_entity'),
             detail_brick_ids={cls.id for cls in brick_classes(brick_registry.Tag.DETAIL)},
             home_brick_ids={cls.id for cls in brick_classes(brick_registry.Tag.HOME)},
             mypage_brick_ids={cls.id for cls in brick_classes(brick_registry.Tag.MY_PAGE)},

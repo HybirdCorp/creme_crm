@@ -797,7 +797,8 @@ class ExportingTestCase(TransferBaseTestCase):
 
         ibi = InstanceBrickConfigItem.objects.create(
             brick_class_id=TransferInstanceBrick.id,
-            entity=naru,
+            # entity=naru,
+            real_entity=naru,
             json_extra_data={'foo': 123},
         )
         BrickDetailviewLocation.objects.create_if_needed(
@@ -851,8 +852,8 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=TransferInstanceBrick.id,
-            entity=naru,
+            # brick_class_id=TransferInstanceBrick.id, entity=naru,
+            brick_class_id=TransferInstanceBrick.id, real_entity=naru,
         )
 
         BrickHomeLocation.objects.create(brick_id=ibi.brick_id, order=1, superuser=True)
@@ -898,8 +899,8 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=TransferInstanceBrick.id,
-            entity=naru,
+            # brick_class_id=TransferInstanceBrick.id, entity=naru,
+            brick_class_id=TransferInstanceBrick.id, real_entity=naru,
         )
         BrickMypageLocation.objects.create(brick_id=ibi.brick_id, order=1)
         response = self.assertGET200(self.URL)

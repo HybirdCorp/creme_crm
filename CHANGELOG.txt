@@ -157,9 +157,12 @@
                   as keyword only now, & a new mandatory argument "tag" has been added.
                 - The method '__getitem__' has been removed.
         # In 'creme_core.models' :
-            - The method 'bricks.InstanceBrickConfigItem.generate_base_id()' has been removed;
-              use the method 'creme_core.gui.bricks.InstanceBrick.generate_id()' instead
-              (notice that the returned value has changed, but it should not affect your code).
+            - In the model 'bricks.InstanceBrickConfigItem' :
+                - A non nullable field 'entity_ctype' ('EntityCTypeForeignKey') has been added;
+                  you can use the new virtual field 'real_entity' to fill the fields 'entity_ctype' & 'entity' at once.
+                - The method 'generate_base_id()' has been removed;
+                  use the method 'creme_core.gui.bricks.InstanceBrick.generate_id()' instead
+                  (notice that the returned value has changed, but it should not affect your code).
             - In 'custom_field' :
                 - In the class 'CustomField' :
                     - The field 'is_required' has been replaced by a field 'requirement_mode'.

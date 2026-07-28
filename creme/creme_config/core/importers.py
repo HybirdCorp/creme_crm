@@ -1689,6 +1689,7 @@ class InstanceBrickConfigItemsImporter(Importer):
                 data.append({
                     'uuid': info['uuid'],
                     'brick_class_id': info['brick_class'],
+                    'entity_ctype': entity.entity_type,
                     'entity_id': entity.id,
                     'json_extra_data': info['extra_data'],
                 })

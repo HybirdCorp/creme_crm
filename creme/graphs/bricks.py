@@ -271,7 +271,7 @@ class GraphInstanceBrick(RelationsChartBrickMixin, core_bricks.InstanceBrick):
 
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
-        self.graph = graph = instance_brick_config_item.entity.get_real_entity()
+        self.graph = graph = instance_brick_config_item.real_entity
         self.verbose_name = gettext('Relationship graph — {graph}').format(graph=graph)
 
     def render(self, context):

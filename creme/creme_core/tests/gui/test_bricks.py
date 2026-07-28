@@ -481,7 +481,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
             FoobarInstanceBrick1.id,
         )
 
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, real_entity=casca)
         ibci1 = create_ibci(brick_class_id=FoobarInstanceBrick1.id)
         ibci2 = create_ibci(brick_class_id=FoobarInstanceBrick2.id)
         brick_registry = BrickRegistry()
@@ -570,7 +571,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
                 )
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca, brick_class_id=FoobarInstanceBrick1.id,
+            # entity=casca, brick_class_id=FoobarInstanceBrick1.id,
+            real_entity=casca, brick_class_id=FoobarInstanceBrick1.id,
         )
 
         tag1 = BrickRegistry.Tag.HOME
@@ -690,8 +692,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
                 )
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca,
-            brick_class_id=FoobarInstanceBrick.id,
+            # entity=casca, brick_class_id=FoobarInstanceBrick.id,
+            real_entity=casca, brick_class_id=FoobarInstanceBrick.id,
         )
         brick_registry = BrickRegistry()
 
@@ -958,7 +960,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
 
             # def home_display(self, context):  # <====== not detailview_display()
 
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, real_entity=casca)
         ibci1 = create_ibci(
             brick_class_id=InstanceBrickOk1.id,
             uuid='585f1df4-5bdc-4696-aa45-a2f49865580e',
@@ -1327,7 +1330,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
         casca = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Casca', last_name='Mylove',
         )
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, real_entity=casca)
         ibci = create_ibci(
             brick_class_id=InstanceBrickOk.id,
             uuid='585f1df5-5bdc-4696-aa45-a2f49865580e',
@@ -1389,7 +1393,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
         casca = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Casca', last_name='Mylove',
         )
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, real_entity=casca)
         ibci = create_ibci(
             brick_class_id=InstanceBrickOk.id,
             uuid='685f1df5-5bdc-4696-aa45-a2f49865580e',
@@ -1801,8 +1806,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
                 )  # useless :)
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca,
-            brick_class_id=ContactBrick.id,
+            # entity=casca, brick_class_id=ContactBrick.id,
+            real_entity=casca, brick_class_id=ContactBrick.id,
         )
 
         brick_registry = BrickRegistry()
@@ -1844,7 +1849,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ----------------------------------------------------------------------
         bad_ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca,
+            # entity=casca,
+            real_entity=casca,
             # brick_class_id=InstanceBrickConfigItem.generate_base_id(
             brick_class_id=InstanceBrick.generate_id(
                 'creme_core',
@@ -2050,7 +2056,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
         copied = deepcopy(brick_registry)
 
         ibci1 = InstanceBrickConfigItem(
-            entity=orga, brick_class_id=OrgaBrick1.id,
+            # entity=orga, brick_class_id=OrgaBrick1.id,
+            real_entity=orga, brick_class_id=OrgaBrick1.id,
         )
 
         # ibrick11 = brick_registry.get_brick_4_instance(ibci1)
@@ -2072,7 +2079,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_registry.register_4_instance(tag, OrgaBrick2)
 
         ibci2 = InstanceBrickConfigItem(
-            entity=orga, brick_class_id=OrgaBrick2.id,
+            # entity=orga, brick_class_id=OrgaBrick2.id,
+            real_entity=orga, brick_class_id=OrgaBrick2.id,
         )
 
         # ibrick21 = brick_registry.get_brick_4_instance(ibci2)

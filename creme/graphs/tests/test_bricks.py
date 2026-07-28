@@ -344,7 +344,7 @@ class GraphInstanceBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         graph = Graph.objects.create(user=user, name='Managers')
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=graph, brick_class_id=GraphInstanceBrick.id,
+            real_entity=graph, brick_class_id=GraphInstanceBrick.id,
         )
 
         brick = GraphInstanceBrick(self.refresh(ibci))
