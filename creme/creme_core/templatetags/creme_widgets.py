@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -296,9 +296,10 @@ class IconRendererNode(TemplateNode):
 
 # WIDGET ICON [END] ------------------------------------------------------------
 
-# TODO: "target" argument?
+# TODO: "target" argument? "relative" argument? (see widget_entity_hyperlink)
 @register.simple_tag
-def widget_hyperlink(instance, label=None, disabled: bool | str = False):
+# def widget_hyperlink(instance, label=None, disabled: bool | str = False):
+def widget_hyperlink(instance, label=None, *, disabled: bool | str = False):
     """ Prints a <a> tag referencing the page of a model instance.
     @param instance: Instance of DjangoModel which has a method 'get_absolute_url()'
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
@@ -369,7 +370,8 @@ def widget_ctype_hyperlink(ctype, user):
 
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
+# def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
+def widget_entity_hyperlink(entity, user, *, ignore_deleted=False, label=None,
                             target: str = '_self',  # TODO: Literal? Enum?
                             relative: bool = True,
                             ):
@@ -414,7 +416,8 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')
-def widget_enumerator(items, threshold=3, empty='', summary=None):
+# def widget_enumerator(items, threshold=3, empty='', summary=None):
+def widget_enumerator(items, *, threshold=3, empty='', summary=None):
     """Enumerate a list of items in a compact manner.
     If the number of items exceed a given threshold, another way to display the
     items is used (currently an inner popup).
