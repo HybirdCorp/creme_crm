@@ -20,7 +20,7 @@ from ..fake_models import FakeContact, FakeOrganisation, FakeSector, FakeTicket
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
     def test_widget_hyperlink__not_url(self):
-        "No method get_absolute_url()."
+        """No method get_absolute_url()."""
         s = FakeSector(title='<i>Yello</i>')
 
         with self.assertLogs(level='WARNING'):
@@ -32,28 +32,40 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertHTMLEqual('&lt;i&gt;Yello&lt;/i&gt;', render)
 
     def test_widget_hyperlink__url_ok(self):
-        "The method get_absolute_url() exists()."
+        """The method get_absolute_url() exists()."""
         s = FakeSector(title='Yello<br>')
-        s.get_absolute_url = lambda: '/creme_core/sectors'
+
+        url = '/creme_core/sector/42'
+        s.get_absolute_url = lambda: url
 
         with self.assertNoException():
             render1 = Template(
                 r'{% load creme_widgets %}{% widget_hyperlink object %}'
             ).render(Context({'object': s}))
         self.assertHTMLEqual(
-            '<a href="/creme_core/sectors">Yello&lt;br&gt;</a>',
+            f'<a href="{url}">Yello&lt;br&gt;</a>',
             render1,
         )
 
-        # Label given
+        # Label given ---
         with self.assertNoException():
             render2 = Template(
                 r'{% load creme_widgets %}{% widget_hyperlink object label=label %}'
             ).render(Context({'object': s, 'label': 'My favorite <i>one</i>'}))
         self.assertHTMLEqual(
-            '<a href="/creme_core/sectors">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
+            f'<a href="{url}">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
             render2,
         )
+
+        # # Class given ---
+        # with self.assertNoException():
+        #     render3 = Template(
+        #         r'{% load creme_widgets %}{% widget_hyperlink object class="my_css_cls" %}'
+        #     ).render(Context({'object': s}))
+        # self.assertHTMLEqual(
+        #     f'<a href="{url}">Yello&lt;br&gt;</a>',
+        #     render3,
+        # )
 
     def test_widget_hyperlink__disabled(self):
         s = FakeSector(title='Yellow')
@@ -107,7 +119,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertEqual(f'<a href="{url}">Test Contacts</a>', render)
 
     def test_widget_ctype_hyperlink__no_list_view(self):
-        "Model without related list-view."
+        """Model without related list-view."""
         self.assertHasNoAttr(FakeTicket, 'get_lv_absolute_url')
 
         user = self.get_root_user()
@@ -206,7 +218,6 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertEqual(settings.HIDDEN_VALUE, render)
 
     def test_widget_entity_hyperlink__is_deleted(self):
-        "Is deleted."
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
         ctxt = Context({'user': user, 'my_entity': orga})
@@ -299,7 +310,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     def test_widget_enumerator__under_threshold(self):
-        "Items (length < threshold)."
+        """Items (length < threshold)."""
         items = ['Cat', 'Dog']
 
         with self.assertNoException():
@@ -315,8 +326,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_widget_enumerator__empty(self):
-        "Empty (no message)."
+    def test_widget_enumerator__empty__no_message(self):
         with self.assertNoException():
             render = Template(
                 r'{% load creme_widgets %}'
@@ -326,7 +336,6 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertHTMLEqual('<span class="enumerator-empty"></span>', render.strip())
 
     def test_widget_enumerator__empty__message(self):
-        "Empty with message."
         msg = 'No item'
 
         with self.assertNoException():
@@ -340,7 +349,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     def test_widget_enumerator__threshold_exceeded(self):
-        "Items with length >= threshold (no message)."
+        """Items with length >= threshold (no message)."""
         items = ['Cat', 'Dog', 'Fish']
 
         with self.assertNoException():
@@ -363,7 +372,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     def test_widget_enumerator__long_items(self):
-        "Items with length >= threshold."
+        """Items with length >= threshold."""
         items = ['Cat', 'Dog', 'Fish']
 
         with self.assertNoException():
@@ -420,7 +429,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     def test_widget_join__error__no_for(self):
-        "Not inside {% for %}."
+        """Not inside {% for %}."""
         with self.assertRaises(ValueError) as cm:
             Template(
                 r'{% load creme_widgets %}'

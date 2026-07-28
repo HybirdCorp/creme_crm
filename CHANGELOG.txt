@@ -179,6 +179,10 @@
               do not inject the key "allowed" in their data anymore (the key "error" is enough).
             - In 'creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
               do not inject the keys "edition_*" & "deletion_*" anymore.
+            - In 'creme_widgets', some tags' arguments are now keyword-only :
+                - {% widget_hyperlink %}: "disabled".
+                - {% widget_entity_hyperlink %}: "ignore_deleted", "label", "target", "relative".
+                - {% widget_enumerator %}: "threshold", "empty", "summary".
         # Apps :
             * Creme_config :
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
