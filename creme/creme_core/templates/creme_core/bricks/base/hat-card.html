@@ -103,7 +103,7 @@
                     {% brick_card_button action='update' icon='pin' url='creme_core__unpin_entity'|url:object.id label=_('Unpin') %}
                   {% else %}
                     {% if user|has_max_pins %}
-                      {% brick_card_button action='update' icon='pin' url='' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
+                      {% brick_card_button action='update' icon='pin' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
                     {% else %}
                       {% brick_card_button action='update' icon='pin' url='creme_core__pin_entity'|url:object.id label=_('Pin') help_text=_('Pin this entity to put it in the menu entry «Quick access»') %}
                     {% endif %}
@@ -117,7 +117,7 @@
                   <div class='card-action'>
                     {% if cloning.error %}
                       {% blocktranslate asvar clone_button_help with error=cloning.error %}Cloning is forbidden ({{error}}){% endblocktranslate %}
-                      {% brick_card_button action='' label=_('Clone') help_text=clone_button_help url='#' icon='clone' enabled=False %}
+                      {% brick_card_button action='clone' label=_('Clone') help_text=clone_button_help enabled=False %}
                     {% else %}
                       {% brick_card_button action='creme_core-detailview-clone' label=_('Clone') url=cloning.url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=True %}
                     {% endif %}
@@ -146,7 +146,7 @@
                  {% if deletion.enabled %}
                   <div class='card-action'>
                     {% if deletion.error %}
-                      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label help_text=deletion.error url='#' icon='delete' enabled=False %}
+                      {% brick_card_button action='delete' label=deletion.label help_text=deletion.error enabled=False %}
                     {% else %}
                       {% brick_card_button action='creme_core-detailview-delete' label=deletion.label url=deletion.url icon='delete' confirm=deletion.confirmation enabled=True %}
                     {% endif %}

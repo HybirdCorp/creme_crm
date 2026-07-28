@@ -17,17 +17,16 @@
         </div>
         <div class="bar-actions">
          {% block buttons %}
-
-{% comment %}
+{% comment %} TODO?
           {% block edit_button %}
            {% if object.enabled %}
              <div class='bar-action'>
                {% if not admin_perm %}
-                 {% brick_bar_button action='edit' icon='edit' url='' label=_('You are not allowed to edit this property type') enabled=False %}
+                 {% brick_bar_button action='edit' label=_('You are not allowed to edit this relationship type') enabled=False %}
                {% elif not object.is_custom %}
-                 {% brick_bar_button action='edit' icon='edit' url='' label=_('This property type cannot be edited') enabled=False %}
+                 {% brick_bar_button action='edit' label=_('This relationship type cannot be edited') enabled=False %}
                {% else %}
-                 {% brick_bar_button action='redirect' icon='edit' label=_('Edit this property type') url=object.get_edit_absolute_url %}
+                 {% brick_bar_button action='redirect' icon='edit' label=_('Edit this relationship type') url=object.get_edit_absolute_url %}
                {% endif %}
              </div>
            {% endif %}
@@ -36,17 +35,16 @@
           {% block delete_button %}
             <div class='bar-action'>
               {% if not admin_perm %}
-                {% brick_bar_button action='delete' icon='delete' url='' label=_('You are not allowed to delete this property type') enabled=False %}
+                {% brick_bar_button action='delete' label=_('You are not allowed to delete this relationship type') enabled=False %}
               {% elif not object.is_custom %}
-                {% brick_bar_button action='delete' icon='delete' url='' label=_('This property type cannot be deleted') enabled=False %}
+                {% brick_bar_button action='delete' label=_('This relationship type cannot be deleted') enabled=False %}
               {% elif object.properties_count %}
-                {% brick_bar_button action='delete' icon='delete' url='' label=_('This property type cannot be deleted because it is used') enabled=False %}
+                {% brick_bar_button action='delete' label=_('This relationship type cannot be deleted because it is used') enabled=False %}
               {% else %}
-                {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete this property type') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') %}
+                {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete this relationship type') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') %}
               {% endif %}
             </div>
           {% endblock %}
-
 {% endcomment %}
          {% endblock buttons %}
         </div>
