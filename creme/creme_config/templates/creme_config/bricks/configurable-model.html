@@ -34,6 +34,15 @@
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
+{% comment #}
+    If a DeletionCommand exists:
+        - for this model, we could disable all deletion buttons.
+        - for a displayed instance of this model, we could display this state in
+          the corresponding line & disable all buttons (enabling, edition, deletion).
+    Issue: as the deletion process should be fast, should we automatically reload the brick
+           when it's done to avoid displaying an old state (yes it's always the case in Creme,
+           but here we are sure that the information will be quickly obsolete).
+{% endcomment #}
 {% block brick_table_body %}
 {% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     <tbody{% if model_is_reorderable %} class="brick-reorderable-items ui-sortable"{% endif %}>
@@ -70,7 +79,7 @@
             </td>
             <td {% brick_table_data_status action %}>
               {% block config_deletion_action %}
-                {% config_model_deletion_url model_config=model_config instance=object user=user as delete_url %}{# TODO: disable if a job exists for this model #}
+                {% config_model_deletion_url model_config=model_config instance=object user=user as delete_url %}
                 {% if delete_url %}{% brick_table_action id='edit' url=delete_url enabled=object|config_is_custom icon='delete' label=_('Delete') %}{% endif %}
               {% endblock %}
             </td>

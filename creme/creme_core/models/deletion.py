@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025 Hybird
+#    Copyright (C) 2019-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,6 +90,16 @@ class DeletionCommand(CremeModel):
                  **kwargs):
         self.replacers_registry = replacers_registry or REPLACERS_MAP
         super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return (
+            f'DeletionCommand('
+            f'content_type={self.content_type!r}, '
+            # f'job={self.job!r}, '
+            f'pk_to_delete={self.pk_to_delete!r}'
+            # TODO: complete?
+            f')'
+        )
 
     @property
     def instance_to_delete(self) -> models.Model:

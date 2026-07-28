@@ -20,7 +20,11 @@ import logging
 from fnmatch import fnmatch
 
 from django import forms
+from django.core.exceptions import FieldDoesNotExist
 from django.db.migrations.serializer import serializer_factory
+from django.db.models import DateTimeField
+from django.db.transaction import atomic
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -445,13 +449,15 @@ class DeletionForm(CremeModelForm):
 
         return cdata
 
+    @atomic
     def save(self, *args, **kwargs):
-        instance = self.instance
+        command = self.instance
+        instance_to_delete = self.instance_to_delete
 
-        instance.instance_to_delete = self.instance_to_delete
+        command.instance_to_delete = instance_to_delete
         # TODO: improve CremeJSONEncoder to serialize iterators & remove list().
         get_data = self.cleaned_data.get
-        instance.replacers = [
+        command.replacers = [
             *filter(
                 None,
                 (
@@ -460,12 +466,22 @@ class DeletionForm(CremeModelForm):
                 )
             ),
         ]
-        instance.total_count = sum(handler.count for handler in self.handlers)
-        instance.job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=self.user,
+        command.total_count = sum(handler.count for handler in self.handlers)
+        command.job = Job.objects.create(
+            type_id=deletor_type.id, user=self.user,
         )
 
-        # TODO: <instance_to_delete.is_deleted = True> if field exists
+        # NB: if the model gets a valid field "disabled" but its
+        #     _ModelConfigDisablor is set to ignore the disabling feature, we
+        #     set 'disabled' anyway. Is it an issue?
+        try:
+            disabled_f = type(instance_to_delete)._meta.get_field('disabled')
+        except FieldDoesNotExist:
+            pass
+        else:
+            # TODO: unit test not DateTimeField case
+            if isinstance(disabled_f, DateTimeField) and not instance_to_delete.disabled:
+                instance_to_delete.disabled = now()
+                instance_to_delete.save(update_fields=['disabled'])
 
         return super().save(*args, **kwargs)

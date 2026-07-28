@@ -45,6 +45,14 @@ from ..registry import _AppConfigRegistry, _ModelConfig, config_registry
 logger = logging.getLogger(__name__)
 
 
+def no_deletion_in_progress_or_die(instance):
+    if DeletionCommand.objects.filter(
+        content_type=ContentType.objects.get_for_model(type(instance)),
+        pk_to_delete=str(instance.pk),
+    ):
+        raise ConflictError(gettext('This object is being deleted.'))
+
+
 class AppRegistryMixin:
     app_name_url_kwarg = 'app_name'
     config_registry = config_registry
@@ -130,6 +138,10 @@ class FromWidgetCreation(GenericCreation):
 
 class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
     template_name = 'creme_core/generics/form/edit-popup.html'
+
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        no_deletion_in_progress_or_die(instance)
 
     def get_form_class(self):
         editor = self.get_model_conf().editor
@@ -236,6 +248,8 @@ class GenericDisabling(ModelConfMixin, generic.CheckedView):
                     instance.save(update_fields=['disabled'])
 
             case 'enable':
+                no_deletion_in_progress_or_die(instance)
+
                 if instance.disabled:
                     instance.disabled = None
                     instance.save(update_fields=['disabled'])
