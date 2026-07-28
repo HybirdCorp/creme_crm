@@ -18,12 +18,12 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
 )
 from creme.creme_core.gui.bricks import Brick, InstanceBrick
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     BrickMypageLocation,
     BrickState,
-    CremeEntity,
     CustomBrickConfigItem,
     CustomField,
     FakeContact,
@@ -973,7 +973,7 @@ class CustomBrickTestCase(CremeTestCase):
         self.assertEqual(0, count)
 
 
-class InstanceBrickManagerTestCase(BaseBrickTestCase):
+class InstanceBrickTestCase(BaseBrickTestCase):
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
     def test_create(self):
         user = self.get_root_user()
@@ -983,13 +983,22 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
             # id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
             id = InstanceBrick.generate_id('creme_core', 'invalid_id')
 
-        brick_entity = CremeEntity.objects.create(user=user)
+        # brick_entity = CremeEntity.objects.create(user=user)
+        contact = FakeContact.objects.create(user=user, last_name='Doe')
         ibi = InstanceBrickConfigItem(
-            brick_class_id=TestInstanceBrick.id,
-            entity=brick_entity,
+            # brick_class_id=TestInstanceBrick.id, entity=brick_entity,
+            brick_class_id=TestInstanceBrick.id, real_entity=contact,
         )
 
         ibi.save()
+
+        ibi = self.refresh(ibi)
+        self.assertEqual(TestInstanceBrick.id, ibi.brick_class_id)
+        self.assertEqual(contact.id,  ibi.entity_id)
+        self.assertEqual(contact,     ibi.entity.get_real_entity())
+        self.assertEqual(FakeContact, ibi.entity_ctype.model_class())
+        self.assertEqual(contact,     ibi.real_entity)
+
         brick_id = f'instance-{ibi.uuid}'
         self.assertEqual(brick_id, ibi.brick_id)
 
@@ -1015,11 +1024,12 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
             # id = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
             id = InstanceBrick.generate_id('creme_core', 'invalid_id')
 
-        brick_entity = CremeEntity.objects.create(user=user)
+        # brick_entity = CremeEntity.objects.create(user=user)
+        contact = FakeContact.objects.create(user=user, last_name='Doe')
 
         ibi = InstanceBrickConfigItem(
-            brick_class_id=TestInstanceBrick.id,
-            entity=brick_entity,
+            # brick_class_id=TestInstanceBrick.id, entity=brick_entity,
+            brick_class_id=TestInstanceBrick.id, real_entity=contact,
         )
         self.assertIsNone(ibi.get_extra_data('key1'))
 
@@ -1047,14 +1057,14 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick1.id,
-            entity=naru,
+            # brick_class_id=self.TestBrick1.id, entity=naru,
+            brick_class_id=self.TestBrick1.id, real_entity=naru,
         )
 
         brick_id = ibi.brick_id
 
         create_state = BrickState.objects.create
-        state1 = create_state(brick_id=brick_id,             user=user)
+        state1 = create_state(brick_id=brick_id,           user=user)
         state2 = create_state(brick_id=self.TestBrick2.id, user=user)
 
         ibi.delete()
@@ -1063,15 +1073,15 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         self.assertStillExists(state2)
 
     def test_delete__used__detail(self):
-        "Cannot delete because it is used by detail-view configuration."
+        """Cannot delete because it is used by detail-view configuration."""
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick1.id,
-            entity=naru,
+            # brick_class_id=self.TestBrick1.id, entity=naru,
+            brick_class_id=self.TestBrick1.id, real_entity=naru,
         )
         loc = BrickDetailviewLocation.objects.create_if_needed(
             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
@@ -1095,15 +1105,15 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         self.assertStillExists(loc)
 
     def test_delete__used__home(self):
-        "Cannot delete because it is used by home configuration."
+        """Cannot delete because it is used by home configuration."""
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick1.id,
-            entity=naru,
+            # brick_class_id=self.TestBrick1.id, entity=naru,
+            brick_class_id=self.TestBrick1.id, real_entity=naru,
         )
 
         def try_delete(msg, locs):
@@ -1154,7 +1164,8 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick1.id, entity=naru,
+            # brick_class_id=self.TestBrick1.id, entity=naru,
+            brick_class_id=self.TestBrick1.id, real_entity=naru,
         )
 
         def try_delete(msg, locs):
@@ -1188,7 +1199,7 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         )
         self.assertStillExists(loc2)
 
-    def test_manager(self):
+    def test_manager__for_brick_ids(self):
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
@@ -1196,9 +1207,12 @@ class InstanceBrickManagerTestCase(BaseBrickTestCase):
         inn = FakeOrganisation.objects.create(user=user, name='Hinata')
 
         create_ibi = InstanceBrickConfigItem.objects.create
-        ibi1 = create_ibi(brick_class_id=self.TestBrick1.id, entity=naru)
-        ibi2 = create_ibi(brick_class_id=self.TestBrick2.id, entity=naru)
-        ibi3 = create_ibi(brick_class_id=self.TestBrick2.id, entity=inn)
+        # ibi1 = create_ibi(brick_class_id=self.TestBrick1.id, entity=naru)
+        # ibi2 = create_ibi(brick_class_id=self.TestBrick2.id, entity=naru)
+        # ibi3 = create_ibi(brick_class_id=self.TestBrick2.id, entity=inn)
+        ibi1 = create_ibi(brick_class_id=self.TestBrick1.id, real_entity=naru)
+        ibi2 = create_ibi(brick_class_id=self.TestBrick2.id, real_entity=naru)
+        ibi3 = create_ibi(brick_class_id=self.TestBrick2.id, real_entity=inn)
 
         self.assertCountEqual(
             [ibi1, ibi3],

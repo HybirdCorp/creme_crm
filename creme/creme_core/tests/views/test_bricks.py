@@ -160,8 +160,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                        f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca,
-            brick_class_id=ContactBrick.id,
+            # entity=casca, brick_class_id=ContactBrick.id,
+            real_entity=casca, brick_class_id=ContactBrick.id,
         )
 
         brick_registry = BrickRegistry()

@@ -200,7 +200,8 @@ class ChartInstanceBrickForm(CremeModelForm):
     def save(self, *args, **kwargs) -> InstanceBrickConfigItem:
         ibci: InstanceBrickConfigItem = self.instance
         ibci.brick_class_id = self.brick_class.id
-        ibci.entity = self.chart.linked_report
+        # ibci.entity = self.chart.linked_report
+        ibci.real_entity = self.chart.linked_report
         # TODO: factorise with ChartFetcher.create_brick_config_item()
         ibci.set_extra_data(
             key=ReportChartInstanceBrick.chart_key,

@@ -100,7 +100,8 @@ class ChartFetcher:
 
         chart = self.chart
         ibci = InstanceBrickConfigItem(
-            entity=chart.linked_report,
+            # entity=chart.linked_report,
+            real_entity=chart.linked_report,
             brick_class_id=brick_class.id,
         )
         ibci.set_extra_data(key=brick_class.chart_key, value=str(chart.uuid))

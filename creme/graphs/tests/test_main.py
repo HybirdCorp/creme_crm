@@ -390,7 +390,7 @@ class GraphsTestCase(views_base.BrickTestCaseMixin,
         user = self.login_as_root_and_get()
         graph = Graph.objects.create(user=user, name='Nodz-a-lapalooza')
         InstanceBrickConfigItem.objects.create(
-            entity=graph, brick_class_id=GraphInstanceBrick.id,
+            real_entity=graph, brick_class_id=GraphInstanceBrick.id,
         )
 
         detail_response = self.assertGET200(graph.get_absolute_url())

@@ -3218,8 +3218,10 @@ class ImportingTestCase(TransferBaseTestCase):
             InstanceBrickConfigItem.objects.create,
             brick_class_id=TransferInstanceBrick.id,
         )
-        create_ibi(entity=contact1)
-        create_ibi(entity=contact2)
+        # create_ibi(entity=contact1)
+        # create_ibi(entity=contact2)
+        create_ibi(real_entity=contact1)
+        create_ibi(real_entity=contact2)
 
         ibi_uuid1 = uuid4()
         extra_data1 = {'foo': 128}

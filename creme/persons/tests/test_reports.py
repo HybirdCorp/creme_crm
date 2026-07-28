@@ -34,7 +34,7 @@ else:
 class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomReport
     def test_report_chart_fetcher__user_contact(self):
-        "Contact-user."
+        """Contact-user."""
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         chart = ReportChart.objects.create(

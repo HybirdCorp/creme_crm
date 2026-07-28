@@ -427,7 +427,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         report = self._create_simple_contacts_report(user=user)
         uuid_str = str(uuid4())
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=report,
+            # entity=report,
+            real_entity=report,
             brick_class_id=ReportChartInstanceBrick.id,
             json_extra_data={'chart': uuid_str},
         )
@@ -624,7 +625,8 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
         report = self._create_simple_contacts_report(user=user)
         uuid_str = str(uuid4())
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=report,
+            # entity=report,
+            real_entity=report,
             brick_class_id=ReportChartInstanceBrick.id,
             json_extra_data={'chart': uuid_str},
         )

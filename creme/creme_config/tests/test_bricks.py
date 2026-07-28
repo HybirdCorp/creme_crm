@@ -1266,7 +1266,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post(modelbrick)
 
     def test_edit_detailview__special_bricks(self):
-        "Instance brick, RelationType brick."
+        """Instance brick, RelationType brick."""
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -1278,7 +1278,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             user=self.user, first_name='Naru', last_name='Narusegawa',
         )
         ibci = InstanceBrickConfigItem.objects.create(
-            brick_class_id=DetailviewInstanceBrick.id, entity=naru,
+            # brick_class_id=DetailviewInstanceBrick.id, entity=naru,
+            brick_class_id=DetailviewInstanceBrick.id, real_entity=naru,
         )
 
         response = self.assertGET200(self._build_editdetail_url(ct))
@@ -1659,8 +1660,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             user=self.user, first_name='Naru', last_name='Narusegawa',
         )
         ibci = InstanceBrickConfigItem.objects.create(
-            brick_class_id=HomeInstanceBrick.id,
-            entity=naru,
+            # brick_class_id=HomeInstanceBrick.id, entity=naru,
+            brick_class_id=HomeInstanceBrick.id, real_entity=naru,
         )
 
         url = reverse('creme_config__edit_home_bricks', args=('default',))
@@ -2566,8 +2567,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=DetailviewInstanceBrick.id,
-            entity=naru,
+            # brick_class_id=DetailviewInstanceBrick.id, entity=naru,
+            brick_class_id=DetailviewInstanceBrick.id, real_entity=naru,
         )
 
         create_state = BrickState.objects.create
@@ -2590,8 +2591,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=DetailviewInstanceBrick.id,
-            entity=naru,
+            # brick_class_id=DetailviewInstanceBrick.id, entity=naru,
+            brick_class_id=DetailviewInstanceBrick.id, real_entity=naru,
         )
         BrickDetailviewLocation.objects.create_if_needed(
             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,

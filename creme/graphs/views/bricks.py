@@ -40,7 +40,7 @@ class GraphInstanceBrickCreation(generic.base.EntityRelatedMixin,
         self.no_brick_instance_or_die(graph=graph)
 
         InstanceBrickConfigItem.objects.create(
-            entity=graph, brick_class_id=self.brick_class.id,
+            real_entity=graph, brick_class_id=self.brick_class.id,
         )
 
         return HttpResponse()

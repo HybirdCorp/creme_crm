@@ -36,10 +36,10 @@ from django.utils.translation import gettext_lazy as _
 from .. import setting_keys
 from ..constants import MODELBRICK_ID
 from ..utils.content_type import entity_ctypes
+from . import fields as core_fields
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
-from .fields import CTypeForeignKey
 from .relation import RelationType
 from .setting_value import SettingValue
 
@@ -159,7 +159,7 @@ class BrickDetailviewLocationManager(models.Manager):
 
 
 class BrickDetailviewLocation(CremeModel):
-    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
+    content_type = core_fields.CTypeForeignKey(verbose_name=_('Related type'), null=True)
 
     role = models.ForeignKey(
         UserRole, verbose_name=_('Related role'),
@@ -620,10 +620,15 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         'Block class ID',
         max_length=300, editable=False,
     )
+
+    entity_ctype = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
         CremeEntity,
         verbose_name=_('Block related entity'),
         on_delete=models.CASCADE, editable=False,
+    )
+    real_entity = core_fields.RealEntityForeignKey(
+        ct_field='entity_ctype', fk_field='entity',
     )
 
     # NB1: do not use directly ; use the function get_extra_data() & set_extra_data()
@@ -712,7 +717,9 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
-    content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
+    content_type = core_fields.CTypeForeignKey(
+        verbose_name=_('Related type'), editable=False,
+    )
     name = models.CharField(_('Name'), max_length=200)
     json_cells = models.JSONField(editable=False, default=list)
 
