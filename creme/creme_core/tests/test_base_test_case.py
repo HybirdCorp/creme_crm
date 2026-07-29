@@ -150,7 +150,7 @@ class BaseTestCaseTestCase(CremeTestCase):
 
         with self.assertRaises(self.failureException) as cm:
             self.assertStillExists(instance)
-        self.assertEqual('Your object does not exist any more.', str(cm.exception))
+        self.assertEqual('Your object does not exist anymore.', str(cm.exception))
 
     def test_assertFound(self):
         idx1 = self.assertFound('bar', 'foobar')
