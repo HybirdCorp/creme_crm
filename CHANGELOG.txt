@@ -1,6 +1,6 @@
 == Version 2.7.11 Work in progress (not released -- this is a draft) ==
 
-  # TODO: compile .po (graphs)
+  # TODO: compile .po (core, graphs)
 
   Users side :
   ------------

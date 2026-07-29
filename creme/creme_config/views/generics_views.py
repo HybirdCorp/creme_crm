@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -212,7 +212,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
         context = super().get_context_data(**kwargs)
         context['help_message'] = _(
             'The deleted value can be replaced in existing entities by another value. '
-            'If a field cannot be empty, you must chose a replacing value.'
+            'If a field cannot be empty, you must choose a replacing value.'
         )
 
         return context
