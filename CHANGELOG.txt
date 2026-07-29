@@ -74,6 +74,7 @@
             - Apps :
                 * Creme_config :
                     - The class 'registry._ConfigRegistry' has been renamed 'ConfigRegistry'.
+                    - The module 'views.generics_views' is deprecated; use 'generics' instead.
                     - The template file "creme_config/bricks/frags/rtype_property_contraints.html" is deprecated.
                 * Emails :
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
