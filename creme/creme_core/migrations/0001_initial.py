@@ -2022,6 +2022,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Workflow',
                 'verbose_name_plural': 'Workflows',
+                'ordering': ('id',),
             },
         ),
         migrations.CreateModel(

@@ -72,7 +72,7 @@ class Workflow(CremeModel):
         app_label = 'creme_core'
         verbose_name = ('Workflow')
         verbose_name_plural = _('Workflows')
-        # ordering = ('id',)
+        ordering = ('id',)
 
     def __str__(self):
         return self.title
