@@ -380,7 +380,7 @@ class _CremeTestCase:
         try:
             return model.objects.get(pk=pk)
         except model.DoesNotExist:
-            self.fail('Your object does not exist any more.')
+            self.fail('Your object does not exist anymore.')
 
     def assertGET(self, expected_status, *args, **kwargs):
         response = self.client.get(*args, **kwargs)
