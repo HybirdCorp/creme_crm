@@ -1,6 +1,6 @@
 from django.urls import include, re_path
 
-from .views import (
+from .views import (  # generics_views
     bricks,
     button_menu,
     creme_property_type,
@@ -10,7 +10,7 @@ from .views import (
     entity_filter,
     fields_config,
     file_ref,
-    generics_views,
+    generics,
     header_filter,
     history,
     menu,
@@ -925,17 +925,19 @@ urlpatterns = [
     # Generic portal config
     re_path(
         r'^deletor/finish/(?P<job_id>\d+)[/]?$',
-        generics_views.DeletorEnd.as_view(),
+        # generics_views.DeletorEnd.as_view(),
+        generics.DeletorEnd.as_view(),
         name='creme_config__finish_deletor',
     ),
     re_path(
         r'^(?P<app_name>\w+)/portal[/]?$',
-        generics_views.AppPortal.as_view(),
+        # generics_views.AppPortal.as_view(),
+        generics.AppPortal.as_view(),
         name='creme_config__app_portal',
     ),
     re_path(
         r'^(?P<app_name>\w+)/reload[/]?$',
-        generics_views.AppBricksReloading.as_view(),
+        generics.AppBricksReloading.as_view(),
         name='creme_config__reload_app_bricks',
     ),
     re_path(
@@ -943,42 +945,42 @@ urlpatterns = [
         include([
             re_path(
                 r'^portal[/]?$',
-                generics_views.ModelPortal.as_view(),
+                generics.ModelPortal.as_view(),
                 name='creme_config__model_portal',
             ),
             re_path(
                 r'^add[/]?$',
-                generics_views.GenericCreation.as_view(),
+                generics.GenericCreation.as_view(),
                 name='creme_config__create_instance',
             ),
             re_path(
                 r'^add_widget[/]?$',
-                generics_views.FromWidgetCreation.as_view(),
+                generics.FromWidgetCreation.as_view(),
                 name='creme_config__create_instance_from_widget',
             ),
             re_path(
                 r'^edit/(?P<object_id>[\w-]+)[/]?$',
-                generics_views.GenericEdition.as_view(),
+                generics.GenericEdition.as_view(),
                 name='creme_config__edit_instance',
             ),
             re_path(
                 r'^(?P<object_id>[\w-]+)/reorder[/]?$',
-                generics_views.Reorder.as_view(),
+                generics.Reorder.as_view(),
                 name='creme_config__reorder_instance',
             ),
             re_path(
                 r'^disable/(?P<object_id>[\w-]+)[/]?$',
-                generics_views.GenericDisabling.as_view(),
+                generics.GenericDisabling.as_view(),
                 name='creme_config__disable_instance',
             ),
             re_path(
                 r'^delete/(?P<object_id>[\w-]+)[/]?$',
-                generics_views.GenericDeletion.as_view(),
+                generics.GenericDeletion.as_view(),
                 name='creme_config__delete_instance',
             ),
             re_path(
                 r'^reload[/]?$',
-                generics_views.ModelBrickReloading.as_view(),
+                generics.ModelBrickReloading.as_view(),
                 name='creme_config__reload_model_brick',
             ),
         ])

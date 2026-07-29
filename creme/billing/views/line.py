@@ -27,7 +27,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from creme import billing
-from creme.creme_config.views.generics_views import ReorderInstances
+# from creme.creme_config.views.generics_views import ReorderInstances
+from creme.creme_config.views.generics import ReorderInstances
 from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
