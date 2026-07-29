@@ -21,6 +21,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db.models import DateTimeField
+from django.db.transaction import atomic
 # from django.db.models import IntegerField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -236,26 +237,33 @@ class GenericDisabling(ModelConfMixin, generic.CheckedView):
                 raise ConflictError('This model has no "disabled" field.')
 
         request = self.request
-        instance = get_object_or_404(model, pk=kwargs[self.pk_url_kwarg])
-        if not disablor.enable_func(instance=instance, user=request.user):
-            raise ConflictError(gettext('Disabling is not possible for this instance.'))
 
-        action = get_from_POST_or_404(request.POST, self.action_arg)
-        match action:
-            case 'disable':
-                if instance.disabled is None:
-                    instance.disabled = now()
-                    instance.save(update_fields=['disabled'])
+        with atomic():
+            instance = get_object_or_404(
+                model.objects.select_for_update(), pk=kwargs[self.pk_url_kwarg],
+            )
 
-            case 'enable':
-                no_deletion_in_progress_or_die(instance)
+            if not disablor.enable_func(instance=instance, user=request.user):
+                raise ConflictError(
+                    gettext('Disabling is not possible for this instance.')
+                )
 
-                if instance.disabled:
-                    instance.disabled = None
-                    instance.save(update_fields=['disabled'])
+            action = get_from_POST_or_404(request.POST, self.action_arg)
+            match action:
+                case 'disable':
+                    if instance.disabled is None:
+                        instance.disabled = now()
+                        instance.save(update_fields=['disabled'])
 
-            case _:
-                raise Http404(f'Invalid action: {action}')
+                case 'enable':
+                    no_deletion_in_progress_or_die(instance)
+
+                    if instance.disabled:
+                        instance.disabled = None
+                        instance.save(update_fields=['disabled'])
+
+                case _:
+                    raise Http404(f'Invalid action: {action}')
 
         return HttpResponse()
 
