@@ -70,7 +70,7 @@ class Workflow(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = ('Workflow')
+        verbose_name = _('Workflow')
         verbose_name_plural = _('Workflows')
         ordering = ('id',)
 
