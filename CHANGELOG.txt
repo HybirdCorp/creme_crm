@@ -18,6 +18,7 @@
 
     Non breaking changes :
     ----------------------
+        # The natural ordering for 'creme_core.models.WorkFlow' is now "id".
         # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
         # A crash in the button registry with mandatory buttons has been fixed.
 
