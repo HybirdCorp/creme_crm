@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,13 @@ from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 
-# UUIDs for instances which can be deleted
+# UUIDs for instances which can be deleted ---
+
+# Beware if your DataBase has been migrated from Creme 2.5:
+# the UUIDs for SalesPhase instances has not been correctly migrated & these
+# values may be swapped. So, you may have to fix your DB if your use these values
+# in your code (these phases can be edited/deleted so it's probably not a good
+# idea to use them, excepted in unit tests -- they get a fresh DB).
 UUID_PHASE_FORTHCOMING = '9fc5ff38-b358-4131-b03e-6c1f800bfb08'
 UUID_PHASE_PROGRESS    = '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'
 UUID_PHASE_NEGOTIATION = 'aa59fcec-2dde-46e1-a362-c30c18386c19'
@@ -98,6 +104,7 @@ UUID_RCHART_SALES_PER_QUARTER = '47d9f0db-b96e-48e1-b975-4ffdbe5f4fa4'
 
 UUID_IBRICK_SALES_PER_PHASE   = '0ba26e9c-5525-4ca1-b7e4-aea9828fc876'
 UUID_IBRICK_SALES_PER_QUARTER = 'b3e54a05-f050-4d33-9476-1e8c85aeab08'
+# UUIDs for instances which can be deleted [end] ---
 
 
 class Populator(BasePopulator):
