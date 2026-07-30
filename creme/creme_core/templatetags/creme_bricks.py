@@ -394,7 +394,9 @@ def brick_menu_action(context, id, **kwargs):
 
 
 def _brick_menu_state_action(
-        context, action_id, current_state, in_label, out_label, icon='view_less',
+        # TODO: we need the possibility to get 2 icons for the 2 states
+        # context, action_id, current_state, in_label, out_label, icon='view_less',
+        context, action_id, current_state, in_label, out_label, icon='view',
         **kwargs):
     return brick_action(
         context, id=action_id,
