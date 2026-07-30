@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -398,7 +398,9 @@ def brick_menu_action(context, id, **kwargs):
 
 
 def _brick_menu_state_action(
-        context, action_id, current_state, in_label, out_label, icon='view_less',
+        # TODO: we need the possibility to get 2 icons for the 2 states
+        # context, action_id, current_state, in_label, out_label, icon='view_less',
+        context, action_id, current_state, in_label, out_label, icon='view',
         **kwargs):
     return brick_action(
         context, id=action_id,
