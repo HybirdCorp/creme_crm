@@ -1,5 +1,14 @@
 == Version 2.6.23 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+    # Apps:
+        * Opportunities:
+            - The UUIDs for 'SalesPhases' were badly fixed from Creme 2.5 ;
+              it's probably not a big issue because the concerned instances are
+              marked as <is_custom=True>, so tjeir UUIDs should not be used directly
+              by the code in the future.
+
 
 == Version 2.6.22 ==
 
