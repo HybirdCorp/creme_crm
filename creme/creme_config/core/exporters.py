@@ -700,3 +700,24 @@ class NotificationChannelsExporter(Exporter):
             data['description'] = instance.description
 
         return data
+
+
+@EXPORTERS.register(data_id=constants.ID_WORKFLOWS)
+class WorkflowsExporter(Exporter):
+    model = models.Workflow
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_custom=True, disabled=None)
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.Workflow)
+
+        return {
+            'uuid': str(instance.uuid),
+            'title': instance.title,
+            'content_type': instance.content_type.portable_key(),
+            'extra_data': instance.extra_data,
+            'trigger': instance.json_trigger,
+            'conditions': instance.json_conditions,
+            'actions': instance.json_actions,
+        }
