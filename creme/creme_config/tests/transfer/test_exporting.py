@@ -29,6 +29,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.forms import (
     LAYOUT_DUAL_FIRST,
     LAYOUT_DUAL_SECOND,
@@ -68,11 +69,17 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
     SetCredentials,
+    Workflow,
 )
 from creme.creme_core.populate import UUID_ROLE_REGULAR
 from creme.creme_core.tests import fake_custom_forms, fake_forms
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import FakeContactsEntry
+from creme.creme_core.workflows import (
+    CreatedEntitySource,
+    EntityCreationTrigger,
+    PropertyAddingAction,
+)
 
 from .base import TransferBaseTestCase, TransferInstanceBrick
 
@@ -90,7 +97,7 @@ class ExportingTestCase(TransferBaseTestCase):
         BrickMypageLocation.objects.filter(brick_id__startswith=prefix).delete()
 
     def test_creds(self):
-        "Not staff."
+        """Not staff."""
         self.login_as_root()
         self.assertGET403(self.URL)
 
@@ -136,7 +143,7 @@ class ExportingTestCase(TransferBaseTestCase):
                     return [{'value': 2}]  # pragma: no cover
 
     def test_register__priority__after(self):
-        "Priority (stronger after)."
+        """Priority (stronger after)."""
         registry = ExportersRegistry()
         data_id = 'my_exporter'
 
@@ -156,7 +163,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsInstance(item[1], TestExporter02)
 
     def test_register__priority__before(self):
-        "Priority (stronger before)."
+        """Priority (stronger before)."""
         registry = ExportersRegistry()
         data_id = 'my_exporter'
 
@@ -461,7 +468,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_detail_bricks__default(self):
-        "Default detail-views config."
+        """Default detail-views config."""
         self.login_as_super(is_staff=True)
 
         existing_default_bricks_data = defaultdict(list)
@@ -524,7 +531,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_detail_bricks__ctype(self):
-        "CT config."
+        """"ContentType configuration."""
         self.login_as_super(is_staff=True)
 
         self.assertFalse(
@@ -599,7 +606,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_detail_bricks__role(self):
-        "CT config per role."
+        """ContentType configuration per role."""
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
 
@@ -664,7 +671,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_detail_bricks__superusers(self):
-        "CT config for superusers."
+        """ContentType configuration for superusers."""
         self.login_as_super(is_staff=True)
 
         LEFT = BrickDetailviewLocation.LEFT
@@ -710,7 +717,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks__role(self):
-        "Config per role."
+        """Configuration per role."""
         self.login_as_super(is_staff=True)
         norole_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
@@ -743,7 +750,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks__superusers(self):
-        "Config for superusers."
+        """Configuration for superusers."""
         self.login_as_super(is_staff=True)
         nosuper_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
@@ -891,7 +898,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_instance_bricks__my_page(self):
-        "<My page> view."
+        """<My page> view."""
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
@@ -2059,3 +2066,80 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_channels.get(str(channel1.uuid)),
         )
         self.assertNotIn(str(channel2.uuid), loaded_channels)
+
+    def test_workflows(self):
+        self.login_as_super(is_staff=True)
+
+        model = FakeContact
+
+        source = CreatedEntitySource(model=model)
+        trigger = EntityCreationTrigger(model=model)
+        condition = RegularFieldConditionHandler.build_condition(
+            model=model,
+            operator=operators.ENDSWITH, field_name='email', values=['@acme.org'],
+        )
+        ptype = CremePropertyType.objects.create(text='Is cool')
+        action = PropertyAddingAction(entity_source=source, ptype=ptype)
+        wf = Workflow.objects.create(
+            title='WF for Contact',
+            content_type=model,
+            trigger=trigger,
+            conditions=WorkflowConditions().add(source=source, conditions=[condition]),
+            actions=[action],
+            extra_data={'foo': 'bar'},
+        )
+
+        not_custom_wf = Workflow.objects.create(
+            title='WF for Contact (not custom)',
+            content_type=model,
+            trigger=trigger,
+            actions=[action],
+            is_custom=False,
+        )
+        disabled_wf = Workflow.objects.create(
+            title='WF for Contact (not custom)',
+            content_type=model,
+            trigger=trigger,
+            actions=[action],
+            disabled=now(),
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        with self.assertNoException():
+            loaded_workflows = {d['uuid']: d for d in content['workflows']}
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                'uuid': str(wf.uuid),
+                'title': wf.title,
+                'content_type': 'creme_core.fakecontact',
+                # 'extra_data': wf.extra_data,
+                'extra_data': {'foo': 'bar', 'portablekeymigr': True},
+
+                'trigger': {
+                    'model': 'creme_core.fakecontact',
+                    'type': 'creme_core-entity_creation',
+                },
+                'conditions': [{
+                    'conditions': [{
+                        'type': 'regular_field',
+                        'name': 'email',
+                        'value': {'operator': 'endswith', 'values': ['@acme.org']},
+                    }],
+                    'entity': {
+                        'model': 'creme_core.fakecontact', 'type': 'created_entity',
+                    },
+                }],
+                'actions': [{
+                    'type': 'creme_core-property_adding',
+                    'entity': {'model': 'creme_core.fakecontact', 'type': 'created_entity'},
+                    'ptype': str(ptype.uuid),
+                }],
+            },
+            loaded_workflows.get(str(wf.uuid)),
+        )
+        self.assertNotIn(str(not_custom_wf.uuid), loaded_workflows)
+        self.assertNotIn(str(disabled_wf.uuid),   loaded_workflows)

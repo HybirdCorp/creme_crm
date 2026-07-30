@@ -32,7 +32,9 @@ from django.db.models import Model
 from django.forms import ValidationError
 from django.template.defaultfilters import linebreaks
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import EF_REGULAR
@@ -77,6 +79,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SetCredentials,
     UserRole,
+    Workflow,
 )
 from creme.creme_core.models.custom_field import _TABLES as CF_TABLES
 from creme.creme_core.utils.dependence_sort import (
@@ -223,8 +226,10 @@ class CellProxyCustomField(CellProxy):
     def _validate(self, validated_data):
         value = self.value
 
-        if value not in validated_data[CustomField] and \
-           not CustomField.objects.filter(uuid=value).exists():
+        if (
+            value not in validated_data[CustomField]
+            and not CustomField.objects.filter(uuid=value).exists()
+        ):
             raise ValidationError(
                 _(
                     'The column with custom-field="{uuid}" is invalid in «{container}».'
@@ -256,8 +261,10 @@ class CellProxyRelation(CellProxy):
     def _validate(self, validated_data):
         value = self.value
 
-        if value not in validated_data[RelationType] and \
-           not RelationType.objects.filter(pk=value).exists():
+        if (
+            value not in validated_data[RelationType]
+            and not RelationType.objects.filter(pk=value).exists()
+        ):
             raise ValidationError(
                 _(
                     'The column with relation-type="{rtype}" is invalid in «{container}».'
@@ -294,7 +301,7 @@ class Importer:
                  deserialized_data: DeserializedData,
                  validated_data: ValidatedData) -> None:
         """Validate some deserialized data before saving them
-        (i.e. call save() _after_)).
+        (i.e. call save() _after_).
 
         Internal data are built using deserialized_data ; it can raise various
         exception types during this process (ValueError, KeyError) which
@@ -1891,3 +1898,35 @@ class NotificationChannelsImporter(Importer):
             else:
                 uid = data.pop('uuid')
                 NotificationChannel.objects.update_or_create(uuid=uid, defaults=data)
+
+
+@IMPORTERS.register(data_id=constants.ID_WORKFLOWS)
+class WorkflowsImporter(Importer):
+    def _validate_section(self, deserialized_section, validated_data):
+        get_ct = ContentType.objects.get_by_portable_key
+        self._data = data = [
+            {
+                'content_type': get_ct(wf_info['content_type']),
+
+                'uuid': wf_info['uuid'],
+                'title': wf_info['title'],
+                'extra_data': wf_info['extra_data'],
+
+                'json_trigger': wf_info['trigger'],
+                'json_conditions': wf_info['conditions'],
+                'json_actions': wf_info['actions'],
+            } for wf_info in deserialized_section
+        ]
+
+        validated_data[Workflow].update(d['uuid'] for d in data)
+
+    def save(self):
+        # Workflow.objects.filter(is_custom=True).delete()  TODO?
+
+        now_value = now()
+        reason = pgettext('creme_config-workflow', 'Just imported')
+        for data in self._data:
+            Workflow.objects.create(
+                disabled=now_value, disabling_reason=reason,
+                **data
+            )

@@ -6,7 +6,9 @@ from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_config.core.importers import Importer, ImportersRegistry
 from creme.creme_core import bricks, constants
@@ -72,6 +74,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SetCredentials,
     UserRole,
+    Workflow,
 )
 from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
@@ -79,6 +82,11 @@ from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import (
     FakeContactsEntry,
     FakeOrganisationsEntry,
+)
+from creme.creme_core.workflows import (
+    CreatedEntitySource,
+    EntityCreationTrigger,
+    PropertyAddingAction,
 )
 
 from .base import TransferBaseTestCase, TransferInstanceBrick
@@ -88,7 +96,7 @@ class ImportingTestCase(TransferBaseTestCase):
     URL = reverse('creme_config__transfer_import')
 
     def test_creds(self):
-        "Not staff."
+        """Not staff."""
         self.login_as_root()
         self.assertGET403(self.URL)
 
@@ -130,7 +138,7 @@ class ImportingTestCase(TransferBaseTestCase):
                 pass
 
     def test_register__priority__after(self):
-        "Priority (stronger after)."
+        """Priority (stronger after)."""
         registry = ImportersRegistry()
         data_id = 'my_importer'
 
@@ -147,7 +155,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertIsInstance(importer, TestImporter02)
 
     def test_register__priority__before(self):
-        "Priority (stronger before)."
+        """Priority (stronger before)."""
         registry = ImportersRegistry()
         data_id = 'my_importer'
 
@@ -3798,3 +3806,91 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(description2, channel2.description)
         self.assertFalse(channel2.required)
         self.assertListEqual(['web'], channel2.default_outputs)
+
+    def test_workflows(self):
+        user = self.login_as_super(is_staff=True)
+
+        uid = uuid4()
+        title = 'My workflow #1'
+
+        ptype = CremePropertyType.objects.create(text='Is cool')
+        email = '@acme.org'
+
+        workflows_data = [
+            {
+                'uuid': str(uid),
+                'title': title,
+                'content_type': 'creme_core.fakecontact',
+                'extra_data': {'foo': 'bar'},
+
+                'trigger': {
+                    'model': 'creme_core.fakecontact',
+                    'type': 'creme_core-entity_creation',
+                },
+                'conditions': [{
+                    'conditions': [{
+                        'type': 'regular_field',
+                        'name': 'email',
+                        'value': {'operator': 'contains', 'values': [email]},
+                    }],
+                    'entity': {
+                        'model': 'creme_core.fakecontact', 'type': 'created_entity',
+                    },
+                }],
+                'actions': [{
+                    'type': 'creme_core-property_adding',
+                    'entity': {'model': 'creme_core.fakecontact', 'type': 'created_entity'},
+                    'ptype': str(ptype.uuid),
+                }],
+            }
+        ]
+        data = {
+            'version': self.VERSION,
+            'workflows': workflows_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-31-07-2026.csv'
+
+        response = self.assertPOST200(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        wf = self.get_object_or_fail(Workflow, uuid=uid)
+        model = FakeContact
+        self.assertEqual(model, wf.content_type.model_class())
+        self.assertEqual(title, wf.title)
+        self.assertDictEqual({'foo': 'bar', 'portablekeymigr': True}, wf.extra_data)
+        self.assertDatetimesAlmostEqual(now(), wf.disabled)
+        self.assertEqual(
+            pgettext('creme_config-workflow', 'Just imported'), wf.disabling_reason,
+        )
+
+        with self.assertNoException():
+            trigger = wf.trigger
+        self.assertEqual(EntityCreationTrigger(model=model), trigger)
+
+        with self.assertNoException():
+            conditions = wf.conditions
+        cond_descriptions = [*conditions.descriptions(user=user)]
+        self.assertEqual(1, len(cond_descriptions), cond_descriptions)
+
+        source = CreatedEntitySource(model=model)
+        self.assertHTMLEqual(
+            '{label}<ul><li>{condition}</li></ul>'.format(
+                label=_('Conditions on «{source}»:').format(
+                    source=source.render(user=user, mode=source.RenderMode.TEXT_PLAIN),
+                ),
+                condition=_('«{field}» contains {values}').format(
+                    field=_('Email address'),
+                    values=_('«{enum_value}»').format(enum_value=email),
+                ),
+            ),
+            cond_descriptions[0],
+        )
+
+        with self.assertNoException():
+            actions1 = wf.actions
+        self.assertEqual(1, len(actions1))
+        self.assertEqual(
+            PropertyAddingAction(entity_source=source, ptype=ptype), actions1[0]
+        )
