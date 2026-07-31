@@ -2,6 +2,7 @@ from functools import partial
 
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_SUB_HAS
@@ -877,7 +878,9 @@ class WorkflowEngineTestCase(CremeTestCase):
         ptype = CremePropertyType.objects.create(text='Is cool')
         Workflow.objects.create(
             title='Created Organisations are cool',
-            enabled=False,
+            # enabled=False,
+            disabled=now(),
+            disabling_reason='Deprecated',
             content_type=FakeOrganisation,
             trigger=EntityCreationTrigger(model=FakeOrganisation),
             actions=[

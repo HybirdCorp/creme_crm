@@ -28,8 +28,8 @@ from ..core.workflow import (
     WorkflowTrigger,
     workflow_registry,
 )
+from . import fields as core_fields
 from .base import CremeModel
-from .fields import EntityCTypeForeignKey
 
 
 class Workflow(CremeModel):
@@ -44,15 +44,26 @@ class Workflow(CremeModel):
     """
     title = models.CharField(verbose_name=_('Title'), max_length=100)
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
-    content_type = EntityCTypeForeignKey(verbose_name=_('Related resource'))
+    content_type = core_fields.EntityCTypeForeignKey(verbose_name=_('Related resource'))
 
     # NB: use the getter/setter instead of these raw fields.
     json_trigger = models.JSONField(default=dict)
     json_conditions = models.JSONField(default=list)
     json_actions = models.JSONField(default=list)
 
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField(
+        _('Last modification'),
+    ).set_tags(viewable=False)
+
     # A disabled Workflow won't be executed
-    enabled = models.BooleanField(default=True, editable=False)
+    # enabled = models.BooleanField(default=True, editable=False)
+    disabled = models.DateTimeField(
+        _('Disabled'), editable=False, null=True,
+    ).set_tags(viewable=False)
+    disabling_reason = models.TextField(editable=False).set_tags(viewable=False)
+
     # False => not editable/deletable
     is_custom = models.BooleanField(default=True, editable=False)
 

@@ -1081,7 +1081,8 @@ class WorkflowEngine:
 
             wf = cache[cache_key] = cls()
             wf._queue = WorkflowEventQueue()
-            wf._workflows = Workflow.objects.filter(enabled=True)
+            # wf._workflows = Workflow.objects.filter(enabled=True)
+            wf._workflows = Workflow.objects.filter(disabled=None)
 
         return wf
 

@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 from django.utils.translation import ngettext
 
 from creme.creme_core.models import FakeContact, FakeOrganisation, Workflow
@@ -13,13 +14,15 @@ from ..base import CremeTestCase
 
 class WorkflowTestCase(CremeTestCase):
     def test_form_help_message__empty(self):
-        Workflow.objects.update(enabled=False)
+        # Workflow.objects.update(enabled=False)
+        Workflow.objects.update(disabled=now(), disabling_reason='Tests')
         self.assertEqual(
             '', form_help_message(model=FakeOrganisation),
         )
 
     def test_form_help_message__singular(self):
-        Workflow.objects.update(enabled=False)
+        # Workflow.objects.update(enabled=False)
+        Workflow.objects.update(disabled=now(), disabling_reason='Tests')
 
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(Workflow.objects.filter(content_type=ct))
@@ -59,7 +62,8 @@ class WorkflowTestCase(CremeTestCase):
         )
 
     def test_form_help_message__plural(self):
-        Workflow.objects.update(enabled=False)
+        # Workflow.objects.update(enabled=False)
+        Workflow.objects.update(disabled=now(), disabling_reason='Tests')
 
         self.assertFalse(Workflow.objects.filter(
             content_type=ContentType.objects.get_for_model(FakeOrganisation),
@@ -79,7 +83,8 @@ class WorkflowTestCase(CremeTestCase):
             title='My disabled workflow',
             content_type=FakeOrganisation,
             trigger=EntityEditionTrigger(model=FakeOrganisation),
-            enabled=False,
+            # enabled=False,
+            disabled=now(), disabling_reason='Tests',
         )
 
         self.assertEqual(

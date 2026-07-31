@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,8 @@ def form_help_message(model: type[CremeEntity]) -> str:
     """Generates a help message for forms to recall (if needed) there are
     enabled Workflows.
     """
-    workflows = Workflow.objects.filter(enabled=True)
+    # workflows = Workflow.objects.filter(enabled=True)
+    workflows = Workflow.objects.filter(disabled=None)
     if not workflows:
         return ''
 

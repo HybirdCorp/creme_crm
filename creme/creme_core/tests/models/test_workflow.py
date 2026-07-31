@@ -1,5 +1,6 @@
 import uuid
 
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_filter import condition_handler, operators
@@ -37,7 +38,15 @@ class WorkflowTestCase(CremeTestCase):
         self.assertEqual(title, wf.title)
         self.assertEqual(title, str(wf))
         self.assertIsInstance(wf.uuid, uuid.UUID)
-        self.assertIs(wf.enabled, True)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(wf.created, now_value)
+        self.assertDatetimesAlmostEqual(wf.modified, now_value)
+
+        self.assertIsNone(wf.disabled)
+        # self.assertIs(wf.enabled, True)
+        self.assertEqual('', wf.disabling_reason)
+
         self.assertIs(wf.is_custom, True)
         self.assertEqual(EntityEditionTrigger(model=FakeOrganisation), wf.trigger)
         self.assertTupleEqual((), wf.actions)
@@ -48,16 +57,22 @@ class WorkflowTestCase(CremeTestCase):
         self.assertFalse([*conditions.descriptions(user=self.get_root_user())])
 
     def test_create__disabled(self):
-        "Enabled=False, other model..."
+        """Disabled, other model..."""
+        now_value = now()
+        reason = 'Obsolete'
         wf = Workflow.objects.create(
             title='Organisation flow',
             content_type=FakeOrganisation,
-            enabled=False,
+            # enabled=False,
+            disabled=now_value,
+            disabling_reason=reason,
             trigger=EntityCreationTrigger(model=FakeOrganisation),
         )
         self.assertIsInstance(wf, Workflow)
         self.assertIsNotNone(wf.pk)
-        self.assertFalse(wf.enabled)
+        # self.assertFalse(wf.enabled)
+        self.assertEqual(now_value,        wf.disabled)
+        self.assertEqual(reason,           wf.disabling_reason)
         self.assertEqual(FakeOrganisation, wf.content_type.model_class())
 
     def test_trigger(self):

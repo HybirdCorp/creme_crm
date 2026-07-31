@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -154,6 +155,26 @@ class WorkflowRenamingForm(CremeModelForm):
     class Meta:
         model = Workflow
         fields = ('title',)
+
+
+class WorkflowDisablingForm(CremeModelForm):
+    reason = forms.CharField(label=_('Reason'), widget=forms.Textarea)
+
+    class Meta:
+        model = Workflow
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['reason'].initial = self.instance.disabling_reason
+
+    def save(self, *args, **kwargs):
+        workflow = self.instance
+        if workflow.disabled is None:
+            workflow.disabled = now()
+        workflow.disabling_reason = self.cleaned_data['reason']
+
+        return super().save(*args, **kwargs)
 
 
 # TODO: factorise with ConditionsStep

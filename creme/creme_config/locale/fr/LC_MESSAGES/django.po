@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-29 16:56+0200\n"
+"POT-Creation-Date: 2026-08-03 15:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1016,6 +1016,9 @@ msgstr "Conditions de «{source}»"
 
 msgid "Type of action"
 msgstr "Type d'action"
+
+msgid "Reason"
+msgstr "Raison"
 
 msgid "The file is too large (maximum size: {} bytes)"
 msgstr "Le fichier est trop gros (taille maximum : {} octets)"
@@ -2191,6 +2194,14 @@ msgstr "Types de ressource configurés"
 msgid "Create a Workflow for «%(ctype)s»"
 msgstr "Créer un Processus pour «%(ctype)s»"
 
+#, python-format
+msgctxt "creme_config-workflow"
+msgid "Disabled on %(date)s"
+msgstr "Désactivé le %(date)s"
+
+msgid "Edit the reason"
+msgstr "Modifier la raison"
+
 msgid "Rename"
 msgstr "Renommer"
 
@@ -3137,6 +3148,10 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 msgid "Your are not allowed to change your displayed name"
 msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
+msgctxt "creme_config-workflow"
+msgid "Just created"
+msgstr "Vient d'être créé"
+
 #, python-brace-format
 msgid "Create a Workflow for «{model}»"
 msgstr "Créer un Processus automatisé pour «{model}»"
@@ -3144,6 +3159,10 @@ msgstr "Créer un Processus automatisé pour «{model}»"
 #, python-brace-format
 msgid "Rename «{object}»"
 msgstr "Renommer «{object}»"
+
+#, python-brace-format
+msgid "Disable «{object}»"
+msgstr "Désactiver «{object}»"
 
 msgid "This Workflow cannot be deleted"
 msgstr "Ce Processus automatisé ne peut pas être supprimé"
