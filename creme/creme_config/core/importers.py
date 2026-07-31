@@ -90,7 +90,7 @@ from .. import constants
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Union
 
-    ValidatedData = Dict[Model, Set[str]]
+    ValidatedData = Dict[type[Model], Set[str]]
     DeserializedInstance = Dict[str, Any]
     DeserializedInstances = List[DeserializedInstance]
     DeserializedData = Dict[str, Union[str, DeserializedInstances]]
