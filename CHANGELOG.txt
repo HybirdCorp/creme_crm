@@ -15,9 +15,11 @@
                 - An existing entity using a Minion which has been disabled later can continue to use it
                   (but the disabled choices are displayed differently).
             - The custom-fields can now be configured to be required only at creation.
-            - A new action for the workflows is available: sending a notification.
-              You can now create customised notification channels, which are the
-              only ones which can be used by the new action.
+            - Workflows have been improved :
+                - A new action is available: sending a notification.
+                  You can now create customised notification channels, which are
+                  the only ones which can be used by this new action.
+                - When you disable a Workflow, a reason must now be given.
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
@@ -171,6 +173,8 @@
                       & the new argument 'creation' is mandatory.
                 - The method 'CustomFieldValue.get_formfield()' takes now its arguments
                   as keywords only, & the new argument 'creation' is mandatory.
+            - In the model 'workflow.WorkFlow', the field 'enabled' has been replaced by the fields
+              'disabled' & 'disabling_reason'.
         # In 'creme_core.utils' :
             - In 'meta', the classes 'Order' & 'OrderedField' are now "immutable"
               (you should not write the internal attributes).
@@ -197,6 +201,8 @@
             * Creme_config :
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
                   So the attribute 'forms.fields.BricksConfigField.zones' has been renamed 'Zone'.
+                - The class-view 'views.workflow.WorkflowEnabling' has been reworked & can only be
+                  used to enable a 'WorkFlow' (a view 'WorkflowDisabling' has been added).
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.

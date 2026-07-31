@@ -24,12 +24,28 @@
         </div>
         <div class="workflow-config-group workflow-config-content-group">
           {% for workflow in workflow_group.workflows %}
-            <div class="workflow-config {% if workflow.enabled %}workflow-enabled{% else %}workflow-disabled{% endif %}" data-workflow-id="{{workflow.id}}">
+{#            <div class="workflow-config {% if workflow.enabled %}workflow-enabled{% else %}workflow-disabled{% endif %}" data-workflow-id="{{workflow.id}}"> #}
+            <div class="workflow-config {% if workflow.disabled %}workflow-disabled{% else %}workflow-enabled{% endif %}" data-workflow-id="{{workflow.id}}">
                 <div class="workflow-config-global_buttons">
+{% comment %}
                   {% if workflow.enabled %}
                     {% brick_action id='update' url='creme_config__disable_workflow'|url:workflow.id label=_('Disable') display='text' enabled=admin_perm %}
                   {% else %}
                     {% brick_action id='update' url='creme_config__enable_workflow'|url:workflow.id label=_('Enable') display='text' enabled=admin_perm %}
+                  {% endif  %}
+{% endcomment %}
+                  {% if workflow.disabled %}
+                    {% brick_action id='update' url='creme_config__enable_workflow'|url:workflow.id label=_('Enable') display='text' enabled=admin_perm %}
+                    <span>
+                        {% blocktranslate with date=workflow.disabled context 'creme_config-workflow' %}Disabled on {{date}}{% endblocktranslate %}
+                        <a data-action="popover" data-title="{% translate 'Reason' %}">
+                            {% widget_icon name='info' label=_('Reason') size='brick-action' %}
+                            <script type="text/html"><p>{{workflow.disabling_reason|linebreaksbr}}</p></script>
+                        </a>
+                        {% brick_action id='edit' url='creme_config__disable_workflow'|url:workflow.id label=_('Edit the reason') enabled=admin_perm %}
+                    </span>
+                  {% else %}
+                    {% brick_action id='edit' url='creme_config__disable_workflow'|url:workflow.id label=_('Disable') display='text' enabled=admin_perm %}
                   {% endif  %}
                   {% if workflow.is_custom %}
                     {% brick_action id='delete' url=delete_url __id=workflow.id enabled=admin_perm %}

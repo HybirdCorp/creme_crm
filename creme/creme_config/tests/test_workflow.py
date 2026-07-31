@@ -1,10 +1,14 @@
+from datetime import timedelta
 from functools import partial
 from json import dumps as json_dump
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.forms.fields import CharField
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_config.bricks import WorkflowsBrick
 from creme.creme_config.forms.workflow import TriggerField
@@ -268,7 +272,12 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         workflow = new_workflows[0]
         self.assertEqual(title, workflow.title)
         self.assertEqual(model, workflow.content_type.model_class())
-        self.assertFalse(workflow.enabled)
+        # self.assertFalse(workflow.enabled)
+        self.assertDatetimesAlmostEqual(now(), workflow.disabled)
+        self.assertEqual(
+            pgettext_lazy('creme_config-workflow', 'Just created'),
+            workflow.disabling_reason,
+        )
         self.assertTrue(workflow.is_custom)
         self.assertEqual(EntityCreationTrigger(model=model), workflow.trigger)
 
@@ -545,7 +554,8 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         wf = Workflow.objects.create(
             title='My WF #1',
             content_type=FakeContact,
-            enabled=False,
+            # enabled=False,
+            disabled=now(),
             trigger=EntityCreationTrigger(model=FakeContact),
         )
 
@@ -574,13 +584,17 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         wf1 = Workflow.objects.create(
             title='My WF #1',
             content_type=FakeContact,
-            enabled=False,
+            # enabled=False,
+            disabled=now(),
+            disabling_reason='Test #1',
             trigger=EntityCreationTrigger(model=FakeContact),
         )
         wf2 = Workflow.objects.create(
             title='My WF #2',
             content_type=FakeOrganisation,
-            enabled=False,
+            # enabled=False,
+            disabled=now(),
+            disabling_reason='Test #2',
             trigger=EntityCreationTrigger(model=FakeOrganisation),
         )
 
@@ -588,8 +602,25 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET405(url)
 
         self.assertPOST200(url)
-        self.assertTrue(self.refresh(wf1).enabled)
-        self.assertFalse(self.refresh(wf2).enabled)
+        # self.assertTrue(self.refresh(wf1).enabled)
+        # self.assertFalse(self.refresh(wf2).enabled)
+        wf1 = self.refresh(wf1)
+        self.assertIsNone(wf1.disabled)
+        self.assertFalse(wf1.disabling_reason)
+
+        self.assertIsNotNone(self.refresh(wf2).disabled)
+
+    def test_enable__forbidden(self):
+        self.login_as_standard()  # NOT <admin_4_apps=('creme_core',)>
+
+        wf = Workflow.objects.create(
+            title='My WF',
+            content_type=FakeContact,
+            disabled=now(),
+            disabling_reason='Test',
+            trigger=EntityCreationTrigger(model=FakeContact),
+        )
+        self.assertPOST403(reverse('creme_config__enable_workflow', args=(wf.id,)))
 
     def test_disable(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
@@ -599,18 +630,64 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
             content_type=FakeContact,
             trigger=EntityCreationTrigger(model=FakeContact),
         )
-        wf2 = Workflow.objects.create(
-            title='My WF #2',
-            content_type=FakeOrganisation,
-            trigger=EntityCreationTrigger(model=FakeOrganisation),
-        )
+        # wf2 = Workflow.objects.create(
+        #     title='My WF #2',
+        #     content_type=FakeOrganisation,
+        #     trigger=EntityCreationTrigger(model=FakeOrganisation),
+        # )
 
         url = reverse('creme_config__disable_workflow', args=(wf1.id,))
-        self.assertGET405(url)
+        # self.assertGET405(url)
+        #
+        # self.assertPOST200(url)
+        # self.assertFalse(self.refresh(wf1).enabled)
+        # self.assertTrue(self.refresh(wf2).enabled)
+        get_ctxt = self.assertGET200(url).context
+        self.assertEqual(
+            _('Disable «{object}»').format(object=wf1.title), get_ctxt['title'],
+        )
+        self.assertEqual(_('Save the modifications'), get_ctxt['submit_label'])
 
-        self.assertPOST200(url)
-        self.assertFalse(self.refresh(wf1).enabled)
-        self.assertTrue(self.refresh(wf2).enabled)
+        with self.assertNoException():
+            fields = get_ctxt['form'].fields
+            reason_f = fields['reason']
+        self.assertEqual(1, len(fields))
+        self.assertIsInstance(reason_f, CharField)
+
+        # POST ---
+        reason = 'Now deprecated'
+        self.assertNoFormError(self.client.post(url, data={'reason': reason}))
+
+        wf1 = self.refresh(wf1)
+        self.assertDatetimesAlmostEqual(now(), wf1.disabled)
+        self.assertEqual(reason, wf1.disabling_reason)
+
+    def test_disable__edit_reason(self):
+        self.login_as_standard(admin_4_apps=('creme_core',))
+
+        disabled = now() - timedelta(days=1)
+        old_reason = 'Mesgae wit tyop'
+        wf = Workflow.objects.create(
+            title='My WF #1',
+            content_type=FakeContact,
+            trigger=EntityCreationTrigger(model=FakeContact),
+            disabled=disabled,
+            disabling_reason=old_reason,
+        )
+
+        url = reverse('creme_config__disable_workflow', args=(wf.id,))
+        get_response = self.assertGET200(url)
+        with self.assertNoException():
+            reason_f = get_response.context['form'].fields['reason']
+        self.assertEqual(old_reason, reason_f.initial)
+
+        # POST ---
+        new_reason = 'New reason'
+        self.assertNoFormError(self.client.post(url, data={'reason': new_reason}))
+
+        wf = self.refresh(wf)
+        self.assertDatetimesAlmostEqual(disabled, wf.disabled)
+        self.assertEqual(new_reason, wf.disabling_reason)
 
     def test_delete(self):
         self.login_as_standard(admin_4_apps=('creme_core',))

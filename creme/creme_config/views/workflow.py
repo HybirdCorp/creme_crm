@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,10 @@
 from django.forms import Form
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.workflow import workflow_registry
@@ -55,7 +57,11 @@ class WorkflowCreationWizard(generic.base.EntityCTypeRelatedMixin,
     def __init__(self, *args, registry=workflow_registry, **kwargs):
         super().__init__(*args, **kwargs)
         self.registry = registry
-        self.workflow = Workflow(enabled=False)
+        # self.workflow = Workflow(enabled=False)
+        self.workflow = Workflow(
+            disabled=now(),
+            disabling_reason=pgettext('creme_config-workflow', 'Just created'),
+        )
 
     def get_ctype(self):
         ctype = super().get_ctype()
@@ -117,18 +123,35 @@ class WorkflowRenaming(base.ConfigModelEdition):
     title = _('Rename «{object}»')
 
 
+# class WorkflowEnabling(generic.CheckedView):
+#     permissions = base._PERM
+#     pk_url_kwarg = 'workflow_id'
+#     enabled_arg = 'enabled'
+#     enabled_default = True
+#
+#     def post(self, *args, **kwargs):
+#         Workflow.objects.filter(id=kwargs[self.pk_url_kwarg]).update(
+#             enabled=kwargs.get(self.enabled_arg, self.enabled_default),
+#         )
+#
+#         return HttpResponse()
 class WorkflowEnabling(generic.CheckedView):
     permissions = base._PERM
     pk_url_kwarg = 'workflow_id'
-    enabled_arg = 'enabled'
-    enabled_default = True
 
     def post(self, *args, **kwargs):
         Workflow.objects.filter(id=kwargs[self.pk_url_kwarg]).update(
-            enabled=kwargs.get(self.enabled_arg, self.enabled_default),
+            disabled=None, disabling_reason='',
         )
 
         return HttpResponse()
+
+
+class WorkflowDisabling(base.ConfigModelEdition):
+    model = Workflow
+    form_class = workflow_forms.WorkflowDisablingForm
+    pk_url_kwarg = 'workflow_id'
+    title = _('Disable «{object}»')
 
 
 class WorkflowDeletion(base.ConfigDeletion):

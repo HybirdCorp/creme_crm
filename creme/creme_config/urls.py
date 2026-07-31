@@ -426,8 +426,9 @@ workflow_patterns = [
     ),
     re_path(
         r'^disable/(?P<workflow_id>\d+)[/]?$',
-        workflow.WorkflowEnabling.as_view(),
-        {'enabled': False},
+        # workflow.WorkflowEnabling.as_view(),
+        workflow.WorkflowDisabling.as_view(),
+        # {'enabled': False},
         name='creme_config__disable_workflow',
     ),
 
