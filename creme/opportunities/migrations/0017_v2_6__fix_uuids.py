@@ -1,12 +1,19 @@
 from django.db import migrations
 
 OPPORTUNITIES_SALESPHASE_UUIDS = [
+    # BAD data, based on 'order'...
+    # (1, '9fc5ff38-b358-4131-b03e-6c1f800bfb08'),  # Forthcoming
+    # (2, '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'),  # In progress
+    # (3, 'aa59fcec-2dde-46e1-a362-c30c18386c19'),  # Under negotiation
+    # (4, '779931a8-a2ed-47b1-96a1-8694452e9905'),  # Abandoned
+    # (5, 'd8b5429f-89e5-46cc-9e53-5d1a0127f880'),  # Won
+    # (6, '597d796e-a368-48f0-8dfb-56f16965792b'),  # Lost
     (1, '9fc5ff38-b358-4131-b03e-6c1f800bfb08'),  # Forthcoming
-    (2, '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'),  # In progress
-    (3, 'aa59fcec-2dde-46e1-a362-c30c18386c19'),  # Under negotiation
-    (4, '779931a8-a2ed-47b1-96a1-8694452e9905'),  # Abandoned
-    (5, 'd8b5429f-89e5-46cc-9e53-5d1a0127f880'),  # Won
-    (6, '597d796e-a368-48f0-8dfb-56f16965792b'),  # Lost
+    (2, '779931a8-a2ed-47b1-96a1-8694452e9905'),  # Abandoned
+    (3, 'd8b5429f-89e5-46cc-9e53-5d1a0127f880'),  # Won
+    (4, '597d796e-a368-48f0-8dfb-56f16965792b'),  # Lost
+    (5, 'aa59fcec-2dde-46e1-a362-c30c18386c19'),  # Under negotiation
+    (6, '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'),  # In progress
 ]
 
 OPPORTUNITIES_ORIGIN_UUIDS = [
