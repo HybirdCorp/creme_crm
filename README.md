@@ -55,8 +55,8 @@ It's recommended to use a database engine which supports transactions :
  - SQLite support is principally done for developers, but it remains a solution
    for small databases (e.g. a use as mono-user app with the server running of your computer).
 
-You probably should use 'virtualenv' (for an upgrade from Creme 2.4, you should create a new
-virtual env, in order to keep the old one working).
+You probably should use 'virtualenv' (for an upgrade from a previous version of Creme,
+you should create a new virtual env, in order to keep the old one working).
 
 
 ### Dependencies
@@ -87,8 +87,8 @@ virtual env, in order to keep the old one working).
        If you want PDF export, you can use :
        - xhtml2pdf (default)
        - weasyprint (easy to install on Linux; harder on Windows)
-       - you can also use the binary "latexmk" with "lualatex";
-         For example on Ubuntu you'll need these packages:
+       - you can also use the binary "latexmk" with "lualatex"; for example on
+         Ubuntu you'll need these packages:
          - minimum: latexmk texlive-latex-base
          - for french templates: texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
 
@@ -104,13 +104,13 @@ Installation with 'pip':
      'pip install creme-crm[pgsql]==2.X' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
-   For example, here a list of Debian/Ubuntu packages you'll have to install before:
+   For example, here a list of Debian/Ubuntu packages you'll have to install before
+   (you could need a C compilator, like 'gcc'):
    - python-dev
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
    - redis-server
    - libjpeg-dev, libpng-dev, libtiff-dev, libgif-dev (to manage these different formats)
    - libcairo-dev
-   Notice that you could need a compilator, like 'gcc'.
 
 
 ### Install
@@ -163,7 +163,8 @@ Note for MariaDB users:
 If you have an existing instance of Creme & you upgrade your MariaDB server to 10.7+,
 you have to convert all the UUID fields (which were just CharFields before MariaDB 10.7)
 to real UUID fields.
-TO BE COMPLETED.
+See "creme/creme_core/migrations/migrate_uuid.sql" ; copy it & remove the lines
+related to app which are not installed) before importing it.
 
 ### Launch
 

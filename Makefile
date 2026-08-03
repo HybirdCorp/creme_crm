@@ -40,7 +40,7 @@ reset-db:
 ## Upgrade the Python development requirements
 ## .PHONY: install-dev
 ## install-dev:
-## 	pip install --upgrade -e .[dev,mysql,pgsql,graphs]
+## 	pip install --upgrade -e .[dev,mysql,pgsql]
 
 
 ## Upgrade the Python requirements, run the migrations, the creme_populate and generatemedia commands
@@ -234,7 +234,7 @@ gettext-collect:
 			django-admin makemessages -l ${CREME_LANGUAGE} --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*"  -i "custom_entities/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
 			popd; \
 		pushd ./creme/graphs && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/polls && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \

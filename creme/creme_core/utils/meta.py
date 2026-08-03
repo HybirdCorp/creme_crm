@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ################################################################################
+
+from __future__ import annotations
 
 from collections.abc import Callable
 from functools import partial
@@ -103,7 +105,10 @@ class FieldInfo:
 
         fields.append(model._meta.get_field(subfield_names[-1]))
 
-    def __getitem__(self, idx: int | slice):
+    def __getitem__(self, idx: int | slice) -> Field | FieldInfo:
+        """
+        @return A Field if you pass an index (int), a FieldInfo if you pass a slice.
+        """
         if isinstance(idx, slice):
             step = idx.step
             if step is not None and step != 1:
@@ -135,13 +140,32 @@ class FieldInfo:
         return iter(self.__fields)
 
     def __repr__(self):
-        return 'FieldInfo(model={}, field_name="{}")'.format(
-            self._model.__name__,
-            '__'.join(self.__attnames),
+        return (
+            f'FieldInfo('
+            f'model={self._model.__name__}, '
+            f'''field_name="{self.field_name}"'''
+            f')'
         )
 
-    def attname(self, index):
+    def attname(self, index: int) -> str:
+        """Name of the corresponding attribute for a given depth.
+
+        >> fi = FieldInfo(Contact, 'sector__title')
+        >> fi.attname(0)
+        'sector'
+        >> fi.attname(1)
+        'title'
+        """
         return self.__attnames[index]
+
+    @property
+    def field_name(self) -> str:
+        """Deep field name.
+
+        >> FieldInfo(Contact, 'sector__title').field_name
+        'sector__title'
+        """
+        return '__'.join(self.__attnames)
 
     @property
     def model(self) -> type[Model]:
@@ -149,10 +173,17 @@ class FieldInfo:
 
     @property
     def verbose_name(self) -> str:
+        """User-friendly label describing the deep field."""
         return ' - '.join(str(field.verbose_name) for field in self.__fields)
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance: Model):
+        """Extract the value corresponding to a FieldInfo from an instance.
+
+        >> c = Contact(first_name='John', last_name='Doe')
+        >> FieldInfo(Contact, 'first_name').value_from(c)
+        'John'
+        """
         if not isinstance(instance, self._model):
             raise ValueError(
                 f'"{instance}" (type={type(instance)}) is not an instance of {self._model}'

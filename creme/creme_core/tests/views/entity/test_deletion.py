@@ -509,9 +509,9 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # entity1, entity2 = (create_entity() for __ in range(2))
         # entity3, entity4 = (create_entity(is_deleted=True) for __ in range(2))
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_orga(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_orga(name=f'Orga #{i + 1}') for i in range(2))
         entity3, entity4 = (
-            create_orga(name=f'Del Orga #{i+1}', is_deleted=True) for i in range(2)
+            create_orga(name=f'Del Orga #{i + 1}', is_deleted=True) for i in range(2)
         )
 
         url = self.DEL_ENTITIES_URL
@@ -544,7 +544,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # create_entity = partial(CremeEntity.objects.create, user=user)
         # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         response = self.assertPOST404(
             self.DEL_ENTITIES_URL,
@@ -683,7 +683,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # create_entity = partial(CremeEntity.objects.create, user=user)
         # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         url = self.DEL_ENTITIES_URL
         data = {'ids': f'{entity1.id},{entity2.id}'}
@@ -725,7 +725,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # create_entity = partial(CremeEntity.objects.create, user=user, is_deleted=True)
         # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user, is_deleted=True)
-        entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
+        entity1, entity2 = (create_entity(name=f'Orga #{i + 1}') for i in range(2))
 
         response = self.assertPOST200(
             self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id},{entity2.id}'},

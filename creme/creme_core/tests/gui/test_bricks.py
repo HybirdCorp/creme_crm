@@ -813,12 +813,19 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
         # Not registered -------------
-        brick = self.get_alone_element(
-            brick_registry.get_bricks([
-                SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4'),
+        # brick = self.get_alone_element(
+        #     brick_registry.get_bricks([
+        #         SimpleBrick.generate_id(
+        #             'creme_core', 'BrickRegistryTestCase__test_get_bricks_4'),
+        #     ])
+        # )
+        # self.assertIsInstance(brick, Brick)
+        with self.assertLogs(level='WARNING'):
+            self.assertFalse([
+                *brick_registry.get_bricks([Brick.generate_id(
+                    'creme_core', 'BrickRegistryTestCase__test_get_bricks_4',
+                )]),
             ])
-        )
-        self.assertIsInstance(brick, Brick)
 
     def test_get_bricks__model(self):
         "Model brick."
