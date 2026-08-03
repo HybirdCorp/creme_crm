@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.field_tags import FieldTag
@@ -28,16 +29,30 @@ class ContentTypeTestCase(CremeTestCase):
         self.assertFalse(model_f.get_tag(FieldTag.VIEWABLE))
 
     def test_portable_key(self):
-        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        ct1 = ContentType.objects.get_for_model(FakeOrganisation)
 
         with self.assertNoException():
-            key = ct.portable_key()
-        self.assertEqual('creme_core.fakeorganisation', key)
+            key1 = ct1.portable_key()
+        self.assertEqual('creme_core.fakeorganisation', key1)
 
         # ---
         with self.assertNoException():
-            got_ct = ContentType.objects.get_by_portable_key(key)
-        self.assertEqual(ct, got_ct)
+            got_ctype = ContentType.objects.get_by_portable_key(key1)
+        self.assertEqual(ct1, got_ctype)
+
+        with self.assertRaises(ValidationError):
+            ContentType.objects.get_by_portable_key('one_part')
+
+        # ---
+        ct2 = ContentType.objects.get_for_model(FakeContact)
+        key2 = ct2.portable_key()
+        self.assertEqual('creme_core.fakecontact', key2)
+        with self.assertNumQueries(0):
+            got_ctypes = ContentType.objects.get_by_portable_keys([key1, key2])
+        self.assertCountEqual([ct1, ct2], got_ctypes)
+
+        with self.assertRaises(ValidationError):
+            next(ContentType.objects.get_by_portable_keys(['three.parts.are_to_much']))
 
     def test_get_fresh_for_id(self):
         ct = ContentType.objects.get_for_model(FakeOrganisation)

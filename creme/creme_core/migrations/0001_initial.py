@@ -490,6 +490,9 @@ class Migration(migrations.Migration):
                     )
                 ),
             ],
+            options={
+                'ordering': ('id',),
+            },
         ),
         migrations.CreateModel(
             name='CustomFieldEnum',
@@ -1323,6 +1326,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Workflow',
                 'verbose_name_plural': 'Workflows',
+                'ordering': ('id',),
             },
         ),
         migrations.CreateModel(
@@ -1364,17 +1368,35 @@ class Migration(migrations.Migration):
 
     if settings.TESTS_ON:
         from creme.creme_core.tests.fake_models import get_sentinel_priority
-
         operations.extend([
             migrations.CreateModel(
                 name='FakeActivityType',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+
                 ],
                 options={
                     'ordering': ('name',),
@@ -1552,11 +1574,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeImageCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1620,12 +1660,30 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeCivility',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1637,11 +1695,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeCountry',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1653,11 +1729,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakePosition',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1669,12 +1763,30 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeSector',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('order',),
@@ -1911,11 +2023,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeLegalForm',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1985,11 +2115,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeProductType',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
                     'ordering': ('name',),
@@ -2092,12 +2240,30 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTicketStatus',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('color', core_fields.ColorField(verbose_name='Color', default='ff0000')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -2109,11 +2275,29 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeTicketPriority',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={
                     'ordering': ('name',),
@@ -2173,7 +2357,28 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeIngredient',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     (
                         'group',
@@ -2184,9 +2389,6 @@ class Migration(migrations.Migration):
                             related_name='fake_ingredients',
                         )
                     ),
-                    ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -2343,3 +2545,4 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
         ])
+

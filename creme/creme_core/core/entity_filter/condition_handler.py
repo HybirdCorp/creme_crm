@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1083,9 +1083,14 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             # NB: should not happen because EntityFilterCondition with errors are removed.
             return '???'
 
+        operator = self.get_operator(self._operator_id)
+
         values = self._verbose_values
         if values is None:
-            if cfield.field_type in {CustomField.ENUM, CustomField.MULTI_ENUM}:
+            if (
+                cfield.field_type in {CustomField.ENUM, CustomField.MULTI_ENUM}
+                and not isinstance(operator, operators.BooleanOperatorBase)
+            ):
                 try:
                     values = [*CustomFieldEnumValue.objects.filter(pk__in=self._values)]
                 except ValueError:
@@ -1100,10 +1105,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
             self._verbose_values = values
 
-        return self.get_operator(self._operator_id).description(
-            field_vname=cfield.name,
-            values=values,
-        )
+        return operator.description(field_vname=cfield.name, values=values)
 
     @property
     def error(self):
@@ -1508,7 +1510,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         if self._entity_uuid:
             kwargs['object_entity'] = self.entity.id if self.entity else 0
         elif self._ct_key:
-            kwargs['object_entity__entity_type'] = self.content_type
+            # kwargs['object_entity__entity_type'] = self.content_type
+            kwargs['object_ctype'] = self.content_type
 
         query = Q(
             pk__in=Relation.objects

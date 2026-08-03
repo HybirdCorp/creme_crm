@@ -1,3 +1,41 @@
+== Version 2.8.4 ==
+
+  Users side :
+  ------------
+    # There were sevaral issues in filter conditions on CustomFields with types
+      <choices> & <multiple choices> when operator is "is empty".
+        - The description was broken.
+        - The initial value of form-field was empty.
+    # Apps :
+        * Graphs :
+            - The History lines for root nodes were ugly.
+            - The form to add some root nodes has been improved (autocompletion for content type).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # BEWARE! With version 2.8.0, the models which can be used by EntityFilters
+          should have a default manager with a method 'get_by_portable_key()'.
+          Now, a second method should be implemented: 'get_by_portable_keys()'
+          (see 'creme_core.models.manager.CremeEntityManager').
+          A warning is displayed when the server starts if this method is not found.
+        # In 'creme_core.models', the natural ordering for 'CustomFieldEnumValue' & 'WorkFlow' is now "id".
+        # A new property has been added to 'creme_core.utils.meta.FieldInfo': 'field_name'.
+        # A crash in the button registry with mandatory buttons has been fixed.
+
+    Breaking changes :
+    ------------------
+        # The method 'get_by_portable_key()' (as seen above) should use an exception
+          'django.core.exceptions.ValidationError' when a key is malformed
+          (idem for the "new" method 'get_by_portable_keys()').
+        # The method 'creme_core.gui.bricks.BrickRegistry.get_bricks()' does not yield
+          odd empty bricks for invalid IDs anymore. It fixes a crash when you have several
+          invalid IDs in your configuration (it's probably not possible by using the UI,
+          it needs some custom import code which does not remove invalid IDs).
+
+
 == Version 2.8.3 ==
 
   Users side :

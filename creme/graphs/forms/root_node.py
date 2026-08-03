@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
 
 
 class AddRootNodesForm(core_forms.CremeForm):
-    entities = MultiGenericEntityField(label=_('Root entities'))
+    entities = MultiGenericEntityField(label=_('Root entities'), autocomplete=True)
     relation_types = RelationTypeMultipleChoiceField(
         label=_('Related types of relations'),
         queryset=RelationType.objects.filter(enabled=True),

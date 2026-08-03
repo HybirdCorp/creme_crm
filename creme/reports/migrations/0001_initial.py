@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
+from django.utils.timezone import now
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.core.entity_filter import EF_REGULAR
@@ -175,10 +176,28 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeReportsColorCategory',
                 fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    (
+                        'id',
+                        models.AutoField(
+                            verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                        )
+                    ),
+                    ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
                     ('is_custom', models.BooleanField(default=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     (
                         'color',

@@ -862,19 +862,33 @@ class HeaderFilterTestCase(CremeTestCase):
                 hf.populate_entities(contacts, user)
 
     def test_portable_key(self):
-        hf = HeaderFilter.objects.proxy(
-            id='test-hf_test_portable_key', name='Contact view', model=FakeContact,
+        hf1 = HeaderFilter.objects.proxy(
+            id='test-hf_test_portable_key1', name='Contact view',
+            model=FakeContact,
             cells=[(EntityCellRegularField, 'last_name')],
         ).get_or_create()[0]
 
         with self.assertNoException():
-            key = hf.portable_key()
-        self.assertEqual(hf.id, key)
+            key1 = hf1.portable_key()
+        self.assertEqual(hf1.id, key1)
 
         # ---
         with self.assertNoException():
-            got_hf = HeaderFilter.objects.get_by_portable_key(key)
-        self.assertEqual(hf, got_hf)
+            got_hfilter = HeaderFilter.objects.get_by_portable_key(key1)
+        self.assertEqual(hf1, got_hfilter)
+
+        # ---
+        hf2 = HeaderFilter.objects.proxy(
+            id='test-hf_test_portable_key2', name='Orga view',
+            model=FakeOrganisation,
+            cells=[(EntityCellRegularField, 'name')],
+        ).get_or_create()[0]
+
+        with self.assertNumQueries(1):
+            got_hfilters = [*HeaderFilter.objects.get_by_portable_keys(
+                [key1, hf2.portable_key()]
+            )]
+        self.assertCountEqual([hf1, hf2], got_hfilters)
 
 
 class HeaderFilterListTestCase(CremeTestCase):

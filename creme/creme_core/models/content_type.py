@@ -23,6 +23,8 @@
 
 import logging
 
+from django.core.exceptions import ValidationError
+
 from .utils import model_verbose_name
 
 logger = logging.getLogger(__name__)
@@ -41,9 +43,20 @@ def ct_portable_key(ct):
 
 # Hint: can be used as get_portable_key() method for manager (see apps.py)
 def get_ct_by_portable_key(manager, key):
-    app_label, model_name = key.split('.', 2)
+    try:
+        app_label, model_name = key.split('.', 2)
+    except ValueError as e:
+        raise ValidationError(
+            '"%s" is not a valid ContentType key ("app.model") ', key,
+        ) from e
 
     return manager.get_by_natural_key(app_label=app_label, model=model_name)
+
+
+# Hint: can be used as get_portable_keys() method for manager (see apps.py)
+def get_ct_by_portable_keys(manager, keys):
+    for key in keys:
+        yield get_ct_by_portable_key(manager, key)
 
 
 # Hint: can be used as method for manager (see apps.py)

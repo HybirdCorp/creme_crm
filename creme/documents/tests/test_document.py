@@ -79,6 +79,17 @@ class MimeTypeTestCase(_DocumentsTestCase):
         self.assertIsInstance(mtype, MimeType)
         self.assertEqual(name, mtype.name)
 
+    def test_get_by_portable_keys(self):
+        get_or_create = MimeType.objects.get_or_create
+        mtype1 = get_or_create(name='image/png')[0]
+        mtype2 = get_or_create(name='image/jpg')[0]
+
+        with self.assertNumQueries(1):
+            mtypes = [*MimeType.objects.get_by_portable_keys(
+                [mtype1.portable_key(), mtype2.portable_key()]
+            )]
+        self.assertCountEqual([mtype1, mtype2], mtypes)
+
 
 @skipIfCustomDocument
 @skipIfCustomFolder

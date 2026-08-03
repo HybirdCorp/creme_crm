@@ -576,6 +576,59 @@ class ButtonMenuTestCase(CremeTestCase):
         with self.assertLogs(level='CRITICAL'):
             registry.register_mandatory(ProblematicTestButton)
 
+    def test_registry__mandatory_buttons__duplicated_priority(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_1')
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_2')
+
+        registry = ButtonRegistry().register_mandatory(
+            button_class=TestButton1, priority=1,
+        ).register_mandatory(
+            button_class=TestButton2,  priority=1,
+        )
+
+        # TODO: factorise?
+        def assertButtonsEqual(expected_classes, buttons):
+            self.assertEqual(len(expected_classes), len(buttons))
+            for button_cls, button in zip(expected_classes, buttons):
+                self.assertIsInstance(button, button_cls)
+
+        request = self.build_request()
+        assertButtonsEqual(
+            [TestButton1, TestButton2],
+            [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
+        )
+
+    def test_registry__mandatory_buttons__duplicated_priority__mixed_types(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_1')
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_2')
+
+            def get_ctypes(this):
+                return [FakeOrganisation]
+
+        registry = ButtonRegistry().register_mandatory(
+            button_class=TestButton1,
+        ).register_mandatory(
+            button_class=TestButton2,  # priority=0,
+        )
+
+        # TODO: factorise?
+        def assertButtonsEqual(expected_classes, buttons):
+            self.assertEqual(len(expected_classes), len(buttons))
+            for button_cls, button in zip(expected_classes, buttons):
+                self.assertIsInstance(button, button_cls)
+
+        request = self.build_request()
+        assertButtonsEqual(
+            [TestButton1, TestButton2],
+            [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
+        )
+
     def test_registry__unregister_mandatory__errors(self):
         class TestButton1(Button):
             # id = ''

@@ -1,3 +1,4 @@
+from functools import partial
 from uuid import UUID
 
 from django.core.exceptions import ValidationError
@@ -188,6 +189,33 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
         self.assertDictEqual({user.id: cal1}, calendars)
         self.assertTrue(self.refresh(cal1).is_default)
         self.assertFalse(self.refresh(cal2).is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
+    def test_get_by_portable_key(self):
+        user = self.create_user()
+        calendar = self.get_object_or_fail(Calendar, user=user)
+
+        with self.assertNoException():
+            got_calendar = Calendar.objects.get_by_portable_key(calendar.portable_key())
+        self.assertEqual(calendar, got_calendar)
+
+        with self.assertRaises(ValidationError):
+            Calendar.objects.get_by_portable_key('not-uuid')
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_get_by_portable_keys(self):
+        create_cal = partial(Calendar.objects.create, user=self.create_user())
+        cal1 = create_cal(name='Cal#1')
+        cal2 = create_cal(name='Cal#2')
+
+        with self.assertNumQueries(1):
+            calendars = [*Calendar.objects.get_by_portable_keys(
+                [cal1.portable_key(), cal2.portable_key()]
+            )]
+        self.assertCountEqual([cal1, cal2], calendars)
+
+        with self.assertRaises(ValidationError):
+            next(Calendar.objects.get_by_portable_keys(['not-uuid']))
 
 
 class CalendarTestCase(_ActivitiesTestCase):

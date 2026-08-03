@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2023 Hybird
+# Copyright (c) 2017-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -120,9 +120,9 @@ def get_git_info() -> dict:
     raw_result, error = git_log.communicate()
 
     if error:
-        logger.warning('Error in creme_core.utils.version.get_hg_info(): %s', error)
+        logger.warning('Error in creme_core.utils.version.get_git_info(): %s', error)
     else:
-        print(raw_result)
+        # print(raw_result)
         try:
             changeset_id, date_str = raw_result.strip().split('#', 1)
         except ValueError:

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,6 +66,7 @@ class ListViewState:
 
     @classmethod
     def get_state(cls, request, url=None) -> ListViewState | None:
+        """Try to build a state, corresponding to an URL from data stored in session."""
         lvs = None
         data = request.session.get(url or request.path)
 
@@ -79,6 +80,7 @@ class ListViewState:
 
     @classmethod
     def build_from_request(cls, arguments, url: str, **kwargs) -> ListViewState:
+        """Build a state from the arguments of a GET/POST request."""
         kwargs.update((str(k), v) for k, v in arguments.items())
         kwargs['url'] = url
 
@@ -87,6 +89,7 @@ class ListViewState:
     # TODO: rename "url" => "id" ?
     @classmethod
     def get_or_create_state(cls, request, url: str, **kwargs) -> ListViewState:
+        """Retrieve the state stored in session, and create one if no state is stored."""
         state = cls.get_state(request, url)
 
         if state is None:
@@ -100,6 +103,15 @@ class ListViewState:
                          id: str = '',
                          default_id: str = '',
                          ) -> HeaderFilter:
+        """Select a HeaderFilter & store it.
+
+        @param header_filters: HeaderFilterList where filters are searched.
+               Its 'selected' state is set.
+        @param id: ID of the filter to select.
+        @param default_id: ID to use if <id> is not found.
+        @return: A HeaderFilter instance
+        @raise NoHeaderFilterAvailable.
+        """
         # Try first to get the posted header filter which is the most recent.
         # Then try to retrieve the header filter from session, then fallback
         hf = header_filters.select_by_id(
@@ -120,7 +132,8 @@ class ListViewState:
                          ) -> EntityFilter | None:
         """Select an EntityFilter & store it.
 
-        @param entity_filters: EntityFilterList instance
+        @param entity_filters: EntityFilterList where filters are searched.
+               Its 'selected' state is set.
         @param filter_id: ID of the filter to select.
                An empty string means we want to clear the selection.
         @param default_id: ID to use if <filter_id> is not found.

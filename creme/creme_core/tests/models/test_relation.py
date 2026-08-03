@@ -878,6 +878,36 @@ class RelationTypeManagerTestCase(CremeTestCase):
         sym.add_subject_forbidden_properties(str(ptype2.uuid))
         self.assertListEqual([ptype2], [*sym.subject_forbidden_properties])
 
+    def test_get_by_portable_key(self):
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(
+            id='test-object_foobar', predicate='is loved by',
+        ).get_or_create()[0]
+
+        with self.assertNoException():
+            got_rtype = RelationType.objects.get_by_portable_key(rtype.portable_key())
+        self.assertEqual(rtype, got_rtype)
+
+    def test_get_by_portable_keys(self):
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foo', predicate='is loving',
+        ).symmetric(
+            id='test-object_foob', predicate='is loved by',
+        ).get_or_create()[0]
+
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_bar', predicate='is liking',
+        ).symmetric(
+            id='test-object_bar', predicate='is liked by',
+        ).get_or_create()[0]
+
+        with self.assertNumQueries(1):
+            got_rtypes = [*RelationType.objects.get_by_portable_keys(
+                [rtype1.portable_key(), rtype2.portable_key()]
+            )]
+        self.assertCountEqual([rtype1, rtype2], got_rtypes)
+
 
 class RelationTypeTestCase(CremeTestCase):
     def test_repr(self):

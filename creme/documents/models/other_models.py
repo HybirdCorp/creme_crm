@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 ################################################################################
 
 from __future__ import annotations
+
+from typing import Iterable, Iterator
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -59,7 +61,12 @@ class DocumentCategory(core_models.MinionModel):
 
 class MimeTypeManager(models.Manager):
     def get_by_portable_key(self, key: str) -> MimeType:
+        # TODO: validate key
         return self.get_or_create(name=key)[0]
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[MimeType]:
+        # TODO: create if does not exist?
+        yield from self.filter(name__in=keys)
 
 
 class MimeType(core_models.CremeModel):

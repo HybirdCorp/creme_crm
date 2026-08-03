@@ -1802,7 +1802,8 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(url, data={'choice': 'Haskell'})
         self.assertNoFormError(response)
 
-        evalues = CustomFieldEnumValue.objects.filter(custom_field=cfield1).order_by('id')
+        # evalues = CustomFieldEnumValue.objects.filter(custom_field=cfield1).order_by('id')
+        evalues = CustomFieldEnumValue.objects.filter(custom_field=cfield1)
         self.assertListEqual(
             ['C', 'ABC', 'Java', 'Haskell'],
             [cfev.value for cfev in evalues],

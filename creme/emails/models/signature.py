@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from typing import Iterable, Iterator
 from uuid import uuid4
 
 from django.conf import settings
@@ -31,8 +32,11 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class EmailSignatureManager(models.Manager):
-    def get_by_portable_key(self, key) -> EmailSignature:
+    def get_by_portable_key(self, key: str) -> EmailSignature:
         return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[EmailSignature]:
+        yield from self.filter(uuid__in=keys)
 
 
 class EmailSignature(CremeModel):  # TODO: MinionModel?

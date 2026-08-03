@@ -23,6 +23,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
 from heapq import heappop, heappush
+from itertools import count
 from typing import DefaultDict, Literal
 
 from django.core.exceptions import PermissionDenied
@@ -294,7 +295,7 @@ class ButtonRegistry:
         return self
 
     def get_button(self, button_id: str) -> Button | None:
-        "Get a button instance found by its ID."
+        """Get a button instance found by its ID."""
         cls = self._button_classes.get(button_id)
 
         return cls() if cls else None
@@ -358,17 +359,27 @@ class ButtonRegistry:
         (based of its model).
         Instances are ordered by their priority (see <register_mandatory()>).
         """
-        heap: list[tuple[int, type[Button]]] = []
+        # heap: list[tuple[int, type[Button]]] = []
+        # NB: the first integer is the given priority, the second one is a unique
+        #     value made to avoid issues with duplicated priorities (the heap
+        #     would try to compare brick classes => crash)
+        heap: list[tuple[int, int, type[Button]]] = []
         classes = self._mandatory_classes
+        uid_generator = count(start=0)
 
-        for prio_n_cls in classes[None].values():
-            heappush(heap, prio_n_cls)
+        # for prio_n_cls in classes[None].values():
+        #     heappush(heap, prio_n_cls)
+        for prio, cls in classes[None].values():
+            heappush(heap, (prio, next(uid_generator), cls))
 
-        for prio_n_cls in classes[type(entity)].values():
-            heappush(heap, prio_n_cls)
+        # for prio_n_cls in classes[type(entity)].values():
+        #     heappush(heap, prio_n_cls)
+        for prio, cls in classes[type(entity)].values():
+            heappush(heap, (prio, next(uid_generator), cls))
 
         while heap:
-            button = heappop(heap)[1]()
+            # button = heappop(heap)[1]()
+            button = heappop(heap)[2]()
 
             # if button.ok_4_display(entity=entity):
             if button.is_displayed(entity=entity, request=request):
