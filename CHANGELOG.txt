@@ -1,7 +1,5 @@
 == Version 2.7.11 Work in progress (not released -- this is a draft) ==
 
-  # TODO: compile .po (core, graphs)
-
   Users side :
   ------------
     # There were sevaral issues in filter conditions on CustomFields with types
