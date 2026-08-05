@@ -164,7 +164,7 @@ class FlowPaginator:
             raise ValueError(
                 f'Invalid key: last sub-field "{last_field}" seems to be a '
                 f'ForeignKey & cannot be used as key (not order-able). '
-                f'Hint: use a the raw field ("myfk_id") or a subfield ("myfk__name").'
+                f'Hint: use the raw field ("myfk_id") or a subfield ("myfk__name").'
             )
 
         self._attr_name = attr_name
