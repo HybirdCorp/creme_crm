@@ -930,10 +930,17 @@ class VisitTestCase(CremeTestCase):
                 )
             ],
         )
-        response2 = self.assertGET404(build_uri(efilter=efilter.id))
-        self.assertIn(
-            b'No EntityFilter matches the given query.',
-            response2.content,
+        # response2 = self.assertGET404(build_uri(efilter=efilter.id))
+        # self.assertIn(
+        #     b'No EntityFilter matches the given query.',
+        #     response2.content,
+        # )
+        response2 = self.client.get(build_uri(efilter=efilter.id))
+        self.assertContains(
+            response2,
+            # text='No EntityFilter matches the given query.',
+            text=_('No %s matches the given query.') % 'EntityFilter',
+            status_code=404,
         )
 
         # EntityFilter is not allowed
@@ -950,10 +957,17 @@ class VisitTestCase(CremeTestCase):
                 )
             ],
         )
-        response3 = self.assertGET404(build_uri(efilter=private_efilter.id))
-        self.assertIn(
-            b'No EntityFilter matches the given query.',
-            response3.content,
+        # response3 = self.assertGET404(build_uri(efilter=private_efilter.id))
+        # self.assertIn(
+        #     b'No EntityFilter matches the given query.',
+        #     response3.content,
+        # )
+        response3 = self.client.get(build_uri(efilter=private_efilter.id))
+        self.assertContains(
+            response3,
+            # text='No EntityFilter matches the given query.',
+            text=_('No %s matches the given query.') % 'EntityFilter',
+            status_code=404,
         )
 
     def test_extra_q_errors(self):

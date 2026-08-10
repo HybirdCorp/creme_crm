@@ -1903,7 +1903,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(eval2)
 
     def test_delete_enum_value__replacing(self):
-        "ENUM used + replacing."
+        """ENUM used + replacing."""
         user = self.login_as_root_and_get()
 
         create_cfield = partial(
@@ -1937,7 +1937,8 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn('info', fields)
 
-        self.assertInChoices(value='',          label='---------',    choices=choices)
+        # self.assertInChoices(value='',         label='---------',    choices=choices)
+        self.assertInChoices(value='', label=_('- Select an option -'), choices=choices)
         self.assertInChoices(value=eval1_1.id, label=eval1_1.value, choices=choices)
         self.assertInChoices(value=eval1_3.id, label=eval1_3.value, choices=choices)
         self.assertNotInChoices(value=eval1_2.id, choices=choices)
@@ -2153,7 +2154,8 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn('info', fields)
 
-        self.assertInChoices(value='',          label='---------',    choices=choices)
+        # self.assertInChoices(value='', label='---------', choices=choices)
+        self.assertInChoices(value='', label=_('- Select an option -'), choices=choices)
         self.assertInChoices(value=eval1_1.id, label=eval1_1.value, choices=choices)
         self.assertInChoices(value=eval1_3.id, label=eval1_3.value, choices=choices)
         self.assertNotInChoices(value=eval1_2.id, choices=choices)

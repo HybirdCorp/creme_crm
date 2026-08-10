@@ -68,11 +68,13 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.original_send_messages = EmailBackend.send_messages
+        # cls.original_send_messages = EmailBackend.send_messages
+        cls.original_send_messages = [EmailBackend.send_messages]
 
     def tearDown(self):
         super().tearDown()
-        EmailBackend.send_messages = self.original_send_messages
+        # EmailBackend.send_messages = self.original_send_messages
+        EmailBackend.send_messages = self.original_send_messages[0]
 
     @skipIfCustomContact
     def test_from_contact(self):
@@ -700,7 +702,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     def test_sending_error(self):
-        "Mail sending error."
+        """Mail sending error."""
         user = self.login_as_root_and_get()
 
         queue = get_queue()

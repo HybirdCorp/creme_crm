@@ -19,7 +19,8 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives, get_connection
+# from django.core.mail import EmailMultiAlternatives, get_connection
+from django.core.mail import EmailMultiAlternatives, mailers
 from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -77,8 +78,9 @@ class _NotificationEmailsSenderType(JobType):
             messages.append(msg)
 
         try:
-            with get_connection() as connection:
-                connection.send_messages(messages)
+            # with get_connection() as connection:
+            #     connection.send_messages(messages)
+            mailers.default.send_messages(messages)
         except Exception as e:
             logger.critical('Error while sending notification emails (%s)', e)
             JobResult.objects.create(

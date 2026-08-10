@@ -525,24 +525,46 @@ EXPORT_BACKENDS = [
 # This is a Creme parameter which specifies from_email (sender) when sending email.
 EMAIL_SENDER = 'sender@domain.org'
 
-# Following values are from Django :
-#  See https://docs.djangoproject.com/en/5.2/ref/settings/#email-host
-#  or the file "django/conf/global_settings.py"
-#  for a complete documentation.
-#  BEWARE: the Django's names for secure parameters may be misleading.
-#    EMAIL_USE_TLS is for startTLS (often with port 587) ; for communication
-#    with TLS use EMAIL_USE_SSL. See :
-#     - https://docs.djangoproject.com/fr/5.2/ref/settings/#email-use-tls
-#     - https://docs.djangoproject.com/fr/5.2/ref/settings/#email-use-ssl
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS = False
-# EMAIL_PORT = 25
-# EMAIL_SSL_CERTFILE = None
-# EMAIL_SSL_KEYFILE = None
-# EMAIL_TIMEOUT = None
-# ...
+# Configuration of the email backend (i.e. to send emails)
+# See https://docs.djangoproject.com/en/6.1/ref/settings/#mailers
+# NB: THESE OLD SETTINGS ARE DEPRECATED ! (remove this message in Creme 3.1)
+#      EMAIL_HOST
+#      EMAIL_HOST_USER
+#      EMAIL_HOST_PASSWORD
+#      EMAIL_USE_TLS
+#      EMAIL_PORT
+#      EMAIL_SSL_CERTFILE
+#      EMAIL_SSL_KEYFILE
+#      EMAIL_TIMEOUT
+#      ...
+#      See https://docs.djangoproject.com/en/6.1/howto/mailers-migration/#migrating-settings
+#  BEWARE: the Django's names for secure parameters may be misleading:
+#    - 'use_tls' is for startTLS (often with port 587).
+#    - for communication with TLS (often with port 465) use 'use_ssl'.
+#    https://docs.djangoproject.com/en/6.1/ref/settings/#email-use-tls
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+        'OPTIONS': {
+            'host': 'localhost',
+            'use_tls': False,
+            'use_ssl': False,
+            'port': 25,
+            'password': '',
+        },
+    },
+    # Another example from the Django's documentation
+    # 'newsletters': {
+    #     'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+    #     'OPTIONS': {
+    #         'host': 'smtp.bulk-email-service.example.com',
+    #         'username': os.environ["BULK_EMAIL_SERVICE_ACCOUNT_ID"],
+    #         'password': os.environ["BULK_EMAIL_SERVICE_API_KEY"],
+    #         'use_tls': True,
+    #         # port is not needed: it defaults to 587 with 'use_tls' == True.
+    #     },
+    # },
+}
 
 # Tip: _development_ SMTP server
 # => python -m smtpd -n -c DebuggingServer localhost:1025

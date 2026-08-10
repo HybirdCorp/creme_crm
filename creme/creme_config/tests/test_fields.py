@@ -6,6 +6,7 @@ from json import dumps as json_dump
 from django import forms
 from django.db import models
 from django.forms.fields import InvalidJSONInput
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.choices import CallableChoiceIterator
 from django.utils.timezone import now
@@ -78,6 +79,7 @@ class _ConfigFieldTestCase(CremeTestCase):
             apps.clear_cache()
 
 
+@override_settings(USE_BLANK_CHOICE_DASH=False)  # TODO: remove with Django 7.0
 class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
     ADD_URL = reverse(
         'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
@@ -165,7 +167,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         self.assertListEqual(
             [
-                ('', '---------'),
+                # ('', '---------'),
+                ('', _('- Select an option -')),
                 *((p.pk, str(p)) for p in FakeSector.objects.all()),
             ],
             choices,
@@ -180,7 +183,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         self.assertListEqual(
             [
-                ('', '---------'),
+                # ('', '---------'),
+                ('', _('- Select an option -')),
                 *((p.pk, str(p)) for p in FakeSector.objects.all()),
             ],
             options,
@@ -188,7 +192,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         # ------
         render_str = field.widget.render('sector', None)
-        self.assertIn('---------', render_str)
+        # self.assertIn('---------', render_str)
+        self.assertIn(_('- Select an option -'), render_str)
 
         for sector in FakeSector.objects.all():
             self.assertIn(str(sector), render_str)
@@ -202,7 +207,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         self.assertListEqual(
             [
-                ('', '---------'),
+                # ('', '---------'),
+                ('', _('- Select an option -')),
                 (pk, FakeSector.objects.get(pk=pk).title),
             ],
             choices,
@@ -215,7 +221,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         field.user = self.admin
 
         render_str = field.widget.render('sector', None)
-        self.assertIn('---------', render_str)
+        # self.assertIn('---------', render_str)
+        self.assertIn(_('- Select an option -'), render_str)
         self.assertIn(first.title, render_str)
         self.assertNotIn(second.title, render_str)
 
@@ -223,14 +230,16 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
 
         self.assertHasNoAttr(field.widget, 'actions')
-        self.assertListEqual([('', '---------')], [*field.widget.choices])
+        # self.assertListEqual([('', '---------')], [*field.widget.choices])
+        self.assertListEqual([('', _('- Select an option -'))], [*field.widget.choices])
 
         field.queryset = FakeSector.objects.all()
 
         self.assertHasNoAttr(field.widget, 'actions')
         self.assertListEqual(
             [
-                ('', '---------'),
+                # ('', '---------'),
+                ('', _('- Select an option -')),
                 *((s.pk, str(s)) for s in FakeSector.objects.all()),
             ],
             [*field.choices],
@@ -240,7 +249,8 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
         field.user = self.admin
 
-        sectors = [('', '---------')]
+        # sectors = [('', '---------')]
+        sectors = [('', _('- Select an option -'))]
         self.assertListEqual(sectors, [*field.widget.choices])
 
         field.queryset = FakeSector.objects.all()

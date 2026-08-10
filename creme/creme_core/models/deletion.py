@@ -113,12 +113,12 @@ class DeletionCommand(CremeModel):
 
     @property
     def replacers(self) -> list[Replacer]:
-        "@return List of <creme_core.core.deletion.Replacer> instances."
+        """@return List of <creme_core.core.deletion.Replacer> instances."""
         return self.replacers_registry.deserialize(self.json_replacers)
 
     @replacers.setter
     def replacers(self, values: list[Replacer]):
-        "@param: List of <creme_core.core.deletion.Replacer> instances."
+        """@param: List of <creme_core.core.deletion.Replacer> instances."""
         self.json_replacers = self.replacers_registry.serialize(values)
 
 

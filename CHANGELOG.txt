@@ -3,10 +3,22 @@
   Users side :
   ------------
       # The minimal version of Python is now '3.12'.
-      # The version of Django has been upgraded to '6.0' ; for users it means that :
-        - The minimal version of MariaDB is now '10.6'.
+      # The version of Django has been upgraded to '6.1' ; for users it means that :
+        - The minimal versions of supported SQL servers has evolved :
+            - For MySQL it's now '8.4+'.
+            - For MariaDB it's now '10.11+'.
+            - For PostgreSQL it's now '15+'.
         - The settings 'ADMINS' & 'MANAGERS' should be list of simple strings, like :
           ADMINS = ['admin@example.com', '"John Doe" <jdoe@example.com>']
+        - These settings should be migrated :
+            - 'EMAIL_BACKEND'
+            - 'EMAIL_HOST*'
+            - 'EMAIL_PORT'
+            - 'EMAIL_USE_*'
+            - 'EMAIL_SSL_*'
+            - 'EMAIL_TIMEOUT'
+          Use the new settings 'MAILERS': https://docs.djangoproject.com/en/6.1/ref/settings/#mailers
+          How to migrate: https://docs.djangoproject.com/en/6.1/howto/mailers-migration/#migrating-settings
       # A new hint has been created to prevent apps to not be populated.
       # The list-views can now be ordered by a Custom-Field columns (for most types of Custom-Fields).
       # Apps :
@@ -30,12 +42,16 @@
 
   Developers side :
   -----------------
-    # The version of 'Django' is now "6.0".
+    # The version of 'Django' is now "6.1".
       You should probably read the following releases notes for Django versions :
-        - https://docs.djangoproject.com/en/6.0/releases/6.0/
+        - https://docs.djangoproject.com/en/6.1/releases/6.0/
           Some important items :
-            - Some changes in email management; eg.in 'django.core.mail',
+            - Some changes in email management; e.g. in 'django.core.mail',
               'SafeMIMEText' & 'SafeMIMEMultipart' are now deprecated.
+        - https://docs.djangoproject.com/en/6.1/releases/6.1/
+          Some important items :
+            - The way to send emails has changed, like avoiding 'connection'
+              object & prefer 'using' parameter.
     # The 'Brick' class has now only one 'render()' method, and the registration
       methods take a tag ('DETAIL', 'HOME', 'MY_PAGE', 'STATIC').
        - It would be easier to remove a render target (detail-view, home etc..) of an

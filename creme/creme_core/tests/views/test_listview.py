@@ -97,8 +97,10 @@ class ListViewTestCase(CremeTestCase):
             )
         elif db_engine == 'django.db.backends.sqlite3':
             trash_sql = (
+                # 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
+                # 'WHERE "creme_core_cremeentity"."is_deleted"'
                 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
-                'WHERE "creme_core_cremeentity"."is_deleted"'
+                'WHERE "creme_core_cremeentity"."is_deleted" = 1'
             )
         elif db_engine.startswith('django.db.backends.postgresql'):
             trash_sql = (
@@ -1161,20 +1163,45 @@ class ListViewTestCase(CremeTestCase):
             )
 
         db_engine = settings.DATABASES['default']['ENGINE']
-        if db_engine == 'django.db.backends.mysql':
-            main_sql_match = re.compile(
-                r'SELECT .creme_core_cremeentity.\..id., .*'
-                r'.creme_core_fakecontact.\..last_name., .*'
-                r'WHERE .creme_core_cremeentity.\..is_deleted. = 0'
-            ).match
-        else:
-            main_sql_match = re.compile(
-                r'SELECT .creme_core_cremeentity.\..id., .*'
-                r'.creme_core_fakecontact.\..last_name., .*'
-                r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
-            ).match
+        # if db_engine == 'django.db.backends.mysql':
+        #     main_sql_match = re.compile(
+        #         r'SELECT .creme_core_cremeentity.\..id., .*'
+        #         r'.creme_core_fakecontact.\..last_name., .*'
+        #         r'WHERE .creme_core_cremeentity.\..is_deleted. = 0'
+        #     ).match
+        # else:
+        #     main_sql_match = re.compile(
+        #         r'SELECT .creme_core_cremeentity.\..id., .*'
+        #         r'.creme_core_fakecontact.\..last_name., .*'
+        #         r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
+        #     ).match
+        # main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
+        match db_engine:
+            case 'django.db.backends.mysql':
+                raw_regex = (
+                    r'SELECT .creme_core_cremeentity.\..id., .*'
+                    r'.creme_core_fakecontact.\..last_name., .*'
+                    r'WHERE .creme_core_cremeentity.\..is_deleted. = 0'
+                )
 
-        main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
+            case 'django.db.backends.postgresql':
+                raw_regex = (
+                    r'SELECT .creme_core_cremeentity.\..id., .*'
+                    r'.creme_core_fakecontact.\..last_name., .*'
+                    r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
+                )
+
+            case 'django.db.backends.sqlite3':
+                raw_regex = (
+                    r'SELECT .creme_core_cremeentity.\..id., .*'
+                    r'.creme_core_fakecontact.\..last_name., .*'
+                    r'WHERE .creme_core_cremeentity.\..is_deleted. = 0'
+                )
+
+            case _:
+                self.fail(f'Unknown DB engine: {db_engine}')
+
+        main_sql = [sql for sql in context.captured_sql if re.compile(raw_regex).match(sql)]
 
         if not main_sql:
             self.fail(

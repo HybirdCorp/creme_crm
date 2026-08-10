@@ -343,7 +343,11 @@ class DeletionForm(CremeModelForm):
         'id': 'general', 'label': _('Replacement'), 'fields': '*',
     })
 
-    # TODO: what about deletion.DO_NOTHING ?!
+    # TODO: what about?
+    #   deletion.DO_NOTHING
+    #   deletion.DB_CASCADE
+    #   deletion.DB_SET_NULL (forbids for viewable FK because it avoids history?)
+    #   deletion.DB_SET_DEFAULT (idem)
     # TODO: manage deletion.RESTRICT (handler would need a smarter counting method)
     fk_handler_classes = {
         'django.db.models.deletion.CASCADE':     CascadeHandler,

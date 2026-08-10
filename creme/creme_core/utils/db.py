@@ -345,6 +345,7 @@ class PreFetcher:
         return self
 
 
+# TODO: what about QuerySet.totally_ordered (Django6.1)?
 def get_stable_ordering(queryset: QuerySet) -> list[str]:
     """Returns a list of strings (fields names, annotations) usable as stable
     ordering (in order to get consistent results through different pages).

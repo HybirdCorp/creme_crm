@@ -34,11 +34,13 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.original_send_messages = EmailBackend.send_messages
+        # cls.original_send_messages = EmailBackend.send_messages
+        cls.original_send_messages = [EmailBackend.send_messages]
 
     def tearDown(self):
         super().tearDown()
-        EmailBackend.send_messages = self.original_send_messages
+        # EmailBackend.send_messages = self.original_send_messages
+        EmailBackend.send_messages = self.original_send_messages[0]
 
     @staticmethod
     def _build_add_url(entity=None):
