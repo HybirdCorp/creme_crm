@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,7 +130,8 @@ class CremeTestLoader(unittest.TestLoader):
 
 class EmailBackend(locmem.EmailBackend):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
+        super().__init__()
         self.args = args
         self.kwargs = kwargs
 
@@ -145,8 +146,15 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     parallel_test_suite = CremeParallelTestSuite
 
-    # Not "django.core.mail.backends.locmem.EmailBackend"
-    EMAIL_BACKEND = 'creme.creme_core.utils.test.EmailBackend'
+    # # Not "django.core.mail.backends.locmem.EmailBackend"
+    # EMAIL_BACKEND = 'creme.creme_core.utils.test.EmailBackend'
+    MAILERS = {
+        'default': {
+            # Not "django.core.mail.backends.locmem.EmailBackend"
+            'BACKEND': 'creme.creme_core.utils.test.EmailBackend',
+            # 'OPTIONS': { 'host': ..., ...},
+        },
+    }
 
     def __init__(self, *args, **kwargs):
         # Create the instance here to prevent issues if django.setup() was not called
@@ -178,7 +186,8 @@ class CremeDiscoverRunner(DiscoverRunner):
         self.log('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         self.log(f' ... {self._mock_media_path} created.')
-        settings.EMAIL_BACKEND = self.EMAIL_BACKEND
+        # settings.EMAIL_BACKEND = self.EMAIL_BACKEND
+        settings.MAILERS.update(self.MAILERS)
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)

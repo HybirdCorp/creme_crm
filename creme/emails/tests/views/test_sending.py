@@ -397,6 +397,11 @@ class EmailSendingConfigItemViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
 class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        _EmailsTestCase.setUpClass()
+        EmailSending.BACKEND = 'creme.creme_core.utils.test.EmailBackend'
+
     @staticmethod
     def _build_add_url(campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
@@ -852,18 +857,20 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(message.attachments)
 
         # See 'creme.creme_core.utils.test.EmailBackend'
-        connection = message.connection
+        connection = message.connection  # DEPRECATED
         self.assertHasAttr(connection, 'kwargs')
         self.assertFalse(connection.args)
         self.assertDictEqual(
             {
+                'alias': f'emails-campaign-{sending.id}',
+
                 'host':     item.host,
                 'port':     item.port,
                 'username': item.username,
                 'password': item.password,
                 'use_tls':  item.use_tls,
 
-                'fail_silently': False,
+                # 'fail_silently': False,
             },
             connection.kwargs,
         )

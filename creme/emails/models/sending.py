@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,14 @@ from json import loads as json_load
 from time import sleep
 
 from django.conf import settings
-from django.core.mail import get_connection, send_mail
+# from django.core.mail import get_connection, send_mail
+from django.core.mail import send_mail
 from django.db import IntegrityError, models
 from django.db.transaction import atomic
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.formats import date_format
+from django.utils.module_loading import import_string
 from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -203,6 +205,8 @@ class EmailSending(CremeModel):
     save_label     = pgettext_lazy('emails', 'Save the sending')
 
     email_sender_cls = LightWeightEmailSender
+    # TODO: in settings.py (e.g. EMAILS_CAMPAIGN_BACKEND)? live settings?
+    BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
     class Meta:
         app_label = 'emails'
@@ -227,32 +231,49 @@ class EmailSending(CremeModel):
     def send_mails(self):
         config_item = self.config_item
         if config_item is None:
-            logger.warning('It seems the config of an active EmailSending has been removed.')
+            logger.warning(
+                'It seems the config of an active EmailSending has been removed.'
+            )
             return self.State.ERROR
 
         try:
             sender_obj = self.email_sender_cls(sending=self)
         except ImageFromHTMLError as e:
             send_mail(
-                gettext('[{software}] Campaign email sending error.').format(
-                    software=settings.SOFTWARE_LABEL,
-                ),
-                gettext(
-                    "Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
-                    "because the image «{image}» is no longer available in the template."
+                subject=gettext(
+                    '[{software}] Campaign email sending error.'
+                ).format(software=settings.SOFTWARE_LABEL),
+                message=gettext(
+                    "Emails in the sending of the campaign «{campaign}» on "
+                    "{date} weren't sent because the image «{image}» is no "
+                    "longer available in the template."
                 ).format(
                     campaign=self.campaign,
                     date=self.sending_date,
                     image=e.filename,
                 ),
-                settings.EMAIL_HOST_USER,
-                [self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
-                fail_silently=False,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
+                # fail_silently=False,
             )
 
             return self.State.ERROR
 
-        connection = get_connection(
+        # connection = get_connection(
+        #     host=config_item.host,
+        #     port=config_item.port,
+        #     username=config_item.username,
+        #     password=config_item.password,
+        #     use_tls=config_item.use_tls,
+        # )
+        # TODO: this will probably break with <Django 7.0>. The current way
+        #       seems to dynamically modify settings.MAILERS (seems prone to race
+        #       conditions, need cleaning after...); or to duplicate the Django's code...
+        backend_class = import_string(self.BACKEND)
+        connection = backend_class(
+            # HACK: avoid having deprecation warning (direct instantiation of backend)
+            alias=f'emails-campaign-{self.id}',
+
             host=config_item.host,
             port=config_item.port,
             username=config_item.username,

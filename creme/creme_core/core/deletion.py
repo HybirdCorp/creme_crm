@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Self
 
@@ -59,7 +58,6 @@ class Replacer:
         raise NotImplementedError
 
 
-# class ReplacersRegistry:
 class ReplacerRegistry:
     __slots__ = ('_replacer_classes', )
 
@@ -258,7 +256,7 @@ class EntityDeletor:
             self._trash(user=user, entity=entity)
 
     def is_definitive(self, *, user: CremeUser, entity: CremeEntity) -> bool:
-        "@return <True> means the instance will not be moved to the trash."
+        """@return <True> means the instance will not be moved to the trash."""
         return hasattr(entity, 'get_related_entity') or entity.is_deleted
 
 

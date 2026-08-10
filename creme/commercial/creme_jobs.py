@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import get_connection
+# from django.core.mail import get_connection
+from django.core.mail import mailers
 from django.core.mail.message import EmailMessage
 from django.utils.timezone import now
 from django.utils.translation import gettext
@@ -124,8 +125,9 @@ class _ComApproachesEmailsSendType(JobType):
         # TODO: factorise jobs which send emails
         if emails:
             try:
-                with get_connection() as connection:
-                    connection.send_messages(emails)
+                # with get_connection() as connection:
+                #     connection.send_messages(emails)
+                mailers.default.send_messages(emails)
             except Exception as e:
                 JobResult.objects.create(
                     job=job,

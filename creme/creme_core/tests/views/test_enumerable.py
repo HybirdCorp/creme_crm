@@ -316,7 +316,12 @@ class EnumerableViewsTestCase(CremeTestCase):
         self.login_as_root()
 
         response = self.assertGET404(reverse('creme_core__cfield_enums', args=(666,)))
-        self.assertContains(response, 'No CustomField matches the given query', status_code=404)
+        self.assertContains(
+            response,
+            # text='No CustomField matches the given query',
+            text=_('No %s matches the given query.') % 'CustomField',
+            status_code=404,
+        )
 
     def test_custom_enum(self):
         self.login_as_root()

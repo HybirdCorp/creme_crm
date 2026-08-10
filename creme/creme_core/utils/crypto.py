@@ -60,7 +60,7 @@ class SymmetricEncrypter:
             length=32,
             salt=salt,
             # see django/contrib/auth/hashers.py (PBKDF2PasswordHasher)
-            iterations=1_200_000,
+            iterations=1_500_000,
         )
         self.fernet = Fernet(key=base64.urlsafe_b64encode(kdf.derive(secret)))
 

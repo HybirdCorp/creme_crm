@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-05-2026 pour la version 3.0 de Creme
+:Version: 10-08-2026 pour la version 3.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -30,8 +30,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/5.2/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/5.2/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/6.1/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/6.1/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
@@ -66,7 +66,7 @@ Pour des raisons de brièveté, nous parlerons nous aussi d'"app" pour notre mod
 
 Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
- - Vous avez un *virtualenv* dans lequel Creme 2.4 est installé ;
+ - Vous avez un *virtualenv* dans lequel Creme 3.0 est installé ;
    dans le reste du document nous partirons du principe que notre *virtualenv*
    est activé (c'est nécessaire pour avoir accès à la commande ``creme``).
  - Vous avez créé un projet (on considérera dans le reste du document qu'il

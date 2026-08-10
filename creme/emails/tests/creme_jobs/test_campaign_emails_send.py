@@ -27,6 +27,11 @@ from ..base import (
 
 
 class CampaignEmailsSendTestCase(_EmailsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        EmailSending.BACKEND = 'creme.creme_core.utils.test.EmailBackend'
+
     def setUp(self):
         super().setUp()
         self.job = self.get_object_or_fail(Job, type_id=campaign_emails_send_type.id)
@@ -43,7 +48,7 @@ class CampaignEmailsSendTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_deferred(self):
-        "Deferred => notification."
+        """Deferred => notification."""
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',

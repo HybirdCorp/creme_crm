@@ -612,8 +612,9 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             replace_field.label,
         )
 
-        self.assertInChoices(value='',      label='---------', choices=choices)
-        self.assertInChoices(value=civ1.id, label=str(civ1),   choices=choices)
+        # self.assertInChoices(value='',      label='---------', choices=choices)
+        self.assertInChoices(value='', label=_('- Select an option -'), choices=choices)
+        self.assertInChoices(value=civ1.id, label=str(civ1), choices=choices)
         self.assertNotInChoices(value=civ2del.id, choices=choices)
 
         response = self.client.post(url)
@@ -683,7 +684,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             choices1 = [*replace_field1.choices]
             choices2 = [*replace_field2.choices]
 
-        self.assertInChoices(value='',         label='---------',  choices=choices1)
+        # self.assertInChoices(value='',         label='---------',  choices=choices1)
+        self.assertInChoices(value='', label=_('- Select an option -'),  choices=choices1)
         self.assertInChoices(value=sector1.id, label=str(sector1), choices=choices1)
         self.assertInChoices(value=sector2.id, label=str(sector2), choices=choices1)
         self.assertInChoices(value=sector3.id, label=str(sector3), choices=choices1)
@@ -1149,7 +1151,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(replace_field.required)
 
-        self.assertInChoices(value='',      label='---------', choices=choices)
+        # self.assertInChoices(value='',      label='---------', choices=choices)
+        self.assertInChoices(value='', label=_('- Select an option -'), choices=choices)
         self.assertInChoices(value=cat1.id, label=str(cat1),   choices=choices)
         self.assertInChoices(value=cat2.id, label=str(cat2),   choices=choices)
         self.assertNotInChoices(value=cat2del.id, choices=choices)
@@ -1260,7 +1263,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             replace_field.label
         )
 
-        self.assertInChoices(value='',       label='---------', choices=choices)
+        # self.assertInChoices(value='',       label='---------', choices=choices)
+        self.assertInChoices(value='', label=_('- Select an option -'), choices=choices)
         self.assertInChoices(value=lform.id, label=str(lform),  choices=choices)
         self.assertNotInChoices(value=lform2del.id, choices=choices)
 
