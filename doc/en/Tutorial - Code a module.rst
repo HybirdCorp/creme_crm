@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 09/10/2025 for Creme 2.8
+:Version: 10/08/2025 for Creme 2.8
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -63,7 +63,7 @@ word "app" for our module.
 
 Firstly you must have a working instance of Creme:
 
- - You have a *virtualenv* with an installed Creme 2.4 ;
+ - You have a *virtualenv* with an installed Creme 2.8 ;
    in this document we start from the principle that your *virtualenv*
    is activated (it's necessary to get the command ``creme``).
  - You have created a project (in this document we call it «my_project») with
