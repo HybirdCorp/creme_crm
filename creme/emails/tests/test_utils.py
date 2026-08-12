@@ -115,7 +115,8 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
 </html>"""  # NOQA
 
         MySender = self.TestEMailSender
-        e_sender = MySender(body, body_html, sender_address=sender)
+        # e_sender = MySender(body, body_html, sender_address=sender)
+        e_sender = MySender(body=body, body_html=body_html, sender_address=sender)
         mail = EntityEmail(user=user, sender=sender, recipient='bato@section9.jp')
 
         e_sender.send(mail)
@@ -149,7 +150,10 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
 
         MySender = self.TestEMailSender
         sender = 'm.kusanagi@section9.jp'
-        e_sender = MySender(body, body_html, signature=signature, sender_address=sender)
+        # e_sender = MySender(body, body_html, signature=signature, sender_address=sender)
+        e_sender = MySender(
+            body=body, body_html=body_html, signature=signature, sender_address=sender,
+        )
         mail = EntityEmail(user=user, sender=sender, recipient='bato@section9.jp')
 
         e_sender.send(mail)

@@ -161,11 +161,15 @@ class SignatureRenderer:
 class EMailSender:
     signature_render_cls = SignatureRenderer
 
-    # TODO: keywords only
-    def __init__(self, body: str, body_html: str,
+    # def __init__(self, body: str, body_html: str,
+    #              signature: EmailSignature | None = None,
+    #              attachments: Iterable[AbstractDocument] = (),
+    #              *, sender_address: str,
+    #              ):
+    def __init__(self, *, body: str, body_html: str,
                  signature: EmailSignature | None = None,
                  attachments: Iterable[AbstractDocument] = (),
-                 *, sender_address: str,
+                 sender_address: str,
                  ):
         """
         @raise ImageFromHTMLError.
