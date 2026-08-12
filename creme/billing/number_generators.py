@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,9 +31,9 @@ from .forms.number_generation import RegularNumberGeneratorItemEditionForm
 
 
 class ResetType(TextChoices):
-    NEVER   = 'never',   pgettext_lazy('billing-reset', 'Never'),
-    MONTHLY = 'monthly', _('Monthly'),
-    YEARLY  = 'yearly',  _('Yearly'),
+    NEVER   = 'never',   pgettext_lazy('billing-reset', 'Never')
+    MONTHLY = 'monthly', _('Monthly')
+    YEARLY  = 'yearly',  _('Yearly')
 
 
 class RegularNumberGenerator(NumberGenerator):

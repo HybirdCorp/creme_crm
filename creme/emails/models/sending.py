@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -152,14 +152,14 @@ class EmailSendingConfigItem(CremeModel):
 
 class EmailSending(CremeModel):
     class Type(models.IntegerChoices):
-        IMMEDIATE = 1, _('Immediate'),
-        DEFERRED  = 2, pgettext_lazy('emails-sending', 'Deferred'),
+        IMMEDIATE = 1, _('Immediate')
+        DEFERRED  = 2, pgettext_lazy('emails-sending', 'Deferred')
 
     class State(models.IntegerChoices):
-        DONE        = 1, pgettext_lazy('emails-sending', 'Done'),
-        IN_PROGRESS = 2, _('In progress'),
-        PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
-        ERROR       = 4, _('Error during sending'),
+        DONE        = 1, pgettext_lazy('emails-sending', 'Done')
+        IN_PROGRESS = 2, _('In progress')
+        PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned')
+        ERROR       = 4, _('Error during sending')
 
     # Not viewable by users, For administrators currently.
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
