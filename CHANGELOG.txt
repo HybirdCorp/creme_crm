@@ -36,6 +36,9 @@
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
+        * Emails :
+            - If you set the settings EMAILCAMPAIGN_SIZE, rename it EMAILS_CAMPAIGN_SIZE.
+            - If you set the settings EMAILCAMPAIGN_SLEEP_TIME, rename it EMAILS_CAMPAIGN_SLEEP_TIME.
         * Graphs :
             - It's now possible to create a block type related to an instance of Graph;
               this new kind of blocks can be displayed on Home & "My Page".

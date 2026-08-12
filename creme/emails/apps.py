@@ -23,6 +23,9 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_config.apps import CremeConfigConfigMixin
 from creme.creme_core.apps import CremeAppConfig
 
+# NB: importing registers checks too
+from . import checks  # NOQA
+
 
 class EmailsConfig(CremeConfigConfigMixin, CremeAppConfig):
     default = True
