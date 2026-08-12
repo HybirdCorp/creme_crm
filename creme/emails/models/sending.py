@@ -87,7 +87,7 @@ class EmailSendingConfigItem(CremeModel):
         _('Username'), max_length=254, blank=True, help_text=_('E.g. me@mydomain.org'),
     )
     encoded_password = models.CharField(
-        ('Password'), max_length=128, editable=False,
+        _('Password'), max_length=128, editable=False,
     )
     port = models.PositiveIntegerField(
         _('Port'),
