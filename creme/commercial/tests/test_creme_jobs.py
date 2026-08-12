@@ -31,7 +31,8 @@ class ComApproachesEmailsSendTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.original_send_messages = EmailBackend.send_messages
+        # cls.original_send_messages = EmailBackend.send_messages
+        cls.original_send_messages = [EmailBackend.send_messages]
 
     def setUp(self):
         super().setUp()
@@ -39,7 +40,8 @@ class ComApproachesEmailsSendTestCase(CremeTestCase):
 
     def tearDown(self):
         super().tearDown()
-        EmailBackend.send_messages = self.original_send_messages
+        # EmailBackend.send_messages = self.original_send_messages
+        EmailBackend.send_messages = self.original_send_messages[0]
 
     def _send_mails(self):
         # Empty the Queue to avoid log messages
