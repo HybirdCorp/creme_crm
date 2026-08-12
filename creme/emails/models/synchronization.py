@@ -33,8 +33,8 @@ logger = logging.getLogger(__name__)
 
 class EmailSyncConfigItem(core_models.CremeModel):
     class Type(models.IntegerChoices):
-        POP  = 1, 'POP',
-        IMAP = 2, 'IMAP',
+        POP  = 1, 'POP'
+        IMAP = 2, 'IMAP'
 
     type = models.PositiveSmallIntegerField(choices=Type, default=Type.POP)
 
@@ -129,8 +129,8 @@ class EmailToSync(core_models.CremeModel):
 
 class EmailToSyncPerson(core_models.CremeModel):
     class Type(models.IntegerChoices):
-        SENDER    = 1, 'Sender',
-        RECIPIENT = 2, 'Recipient',
+        SENDER    = 1, 'Sender'
+        RECIPIENT = 2, 'Recipient'
 
     type = models.PositiveSmallIntegerField(
         choices=Type, default=Type.RECIPIENT, editable=False,
