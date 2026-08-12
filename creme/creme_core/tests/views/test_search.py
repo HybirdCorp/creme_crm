@@ -1,5 +1,7 @@
 from functools import partial
+from urllib.parse import unquote, urlparse
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -25,9 +27,43 @@ from ..base import CremeTestCase
 from .base import BrickTestCaseMixin
 
 
-class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
-    LIGHT_URL = reverse('creme_core__light_search')
+class SearchViewTestCaseMixin:
+    def _build_contacts(self, user):
+        sector = FakeSector.objects.create(title='Linux dev')
 
+        create_contact = partial(FakeContact.objects.create, user=user)
+        self.linus = create_contact(
+            first_name='Linus',  last_name='Torvalds',
+        )
+        self.alan = create_contact(
+            first_name='Alan', last_name='Cox', description='Cool beard',
+        )
+        self.linus2 = create_contact(
+            first_name='Linus',  last_name='Impostor', is_deleted=True,
+        )
+        self.andrew = create_contact(
+            first_name='Andrew', last_name='Morton', sector=sector,
+        )
+
+    def _setup_contacts(self, *, user, disabled=False):
+        SearchConfigItem.objects.builder(
+            model=FakeContact,
+            fields=['first_name', 'last_name', 'sector__title'],
+            disabled=disabled,
+        ).get_or_create()
+        self._build_contacts(user=user)
+
+    def _setup_orgas(self, user):
+        SearchConfigItem.objects.builder(
+            model=FakeOrganisation, fields=['name'],
+        ).get_or_create()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        self.linusfo = create_orga(name='FoobarLinusFoundation')
+        self.coxco   = create_orga(name='StuffCoxCorp')
+
+
+class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase):
     CONTACT_BRICKID = 'found-creme_core-fakecontact-'
     ORGA_BRICKID    = 'found-creme_core-fakeorganisation-'
 
@@ -81,40 +117,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
                     f'A brick unexpectedly found for prefix "{brick_id_prefix}".'
                 )  # pragma: no cover
 
-    def _build_contacts(self, user):
-        sector = FakeSector.objects.create(title='Linux dev')
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        self.linus = create_contact(
-            first_name='Linus',  last_name='Torvalds',
-        )
-        self.alan = create_contact(
-            first_name='Alan', last_name='Cox', description='Cool beard',
-        )
-        self.linus2 = create_contact(
-            first_name='Linus',  last_name='Impostor', is_deleted=True,
-        )
-        self.andrew = create_contact(
-            first_name='Andrew', last_name='Morton', sector=sector,
-        )
-
-    def _setup_contacts(self, *, user, disabled=False):
-        SearchConfigItem.objects.builder(
-            model=FakeContact,
-            fields=['first_name', 'last_name', 'sector__title'],
-            disabled=disabled,
-        ).get_or_create()
-        self._build_contacts(user=user)
-
-    def _setup_orgas(self, user):
-        SearchConfigItem.objects.builder(
-            model=FakeOrganisation, fields=['name'],
-        ).get_or_create()
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        self.linusfo = create_orga(name='FoobarLinusFoundation')
-        self.coxco   = create_orga(name='StuffCoxCorp')
-
     def _search(self, searched=None, ct_id=None):
         data = {}
 
@@ -126,7 +128,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         return self.client.get(reverse('creme_core__search'), data=data)
 
-    def test_search(self):
+    def test_page(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
@@ -168,8 +170,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
-    def test_search__regular_fields__1_ctype(self):
-        "Find result in field & sub-field; deleted entities are found too."
+    def test_regular_fields__1_ctype(self):
+        """Find result in field & sub-field; deleted entities are found too."""
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
@@ -186,7 +188,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=self.andrew)  # In sector__title
         self.assertNoInstanceLink(brick_node, entity=self.alan)
 
-    def test_search__regular_fields__2_ctypes(self):
+    def test_regular_fields__2_ctypes(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -213,7 +215,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             context['verbose_names'],
         )
 
-    def test_search__regular_fields__error(self):
+    def test_regular_fields__error(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -224,8 +226,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(404, self._search('linus', self.UNUSED_PK).status_code)
 
-    def test_search__regular_fields__no_config(self):
-        "No config for FakeContact."
+    def test_regular_fields__no_config(self):
+        """No config for FakeContact."""
         user = self.login_as_root_and_get()
         self._build_contacts(user=user)
         self._setup_orgas(user=user)
@@ -236,8 +238,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             brick_id_prefix=self.CONTACT_BRICKID,
         )
 
-    def test_search__regular_fields__only_configured_fields(self):
-        "Search only in configured fields if the config exists."
+    def test_regular_fields__only_configured_fields(self):
+        """Search only in configured fields if the config exists."""
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -253,7 +255,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoInstanceLink(brick_node, entity=linus)
 
-    def test_search__disabled(self):
+    def test_disabled(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user, disabled=True)
         self._setup_orgas(user=user)
@@ -272,8 +274,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             context['verbose_names'],
         )
 
-    def test_search__for_role(self):
-        "Use Role's config if it exists."
+    def test_for_role(self):
+        """Use Role's config if it exists."""
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own='*')
 
@@ -290,8 +292,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(tree, entity=self.linus2)
         self.assertInstanceLinkNoLabel(tree, entity=self.alan)
 
-    def test_search__super_user(self):
-        "Use Role's config if it exists (super-user)."
+    def test_super_user(self):
+        """Use Role's config if it exists (super-user)."""
         user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.builder(
@@ -310,7 +312,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=self.linus2)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.alan)
 
-    def test_search__fields_config(self):
+    def test_fields_config(self):
         user = self.login_as_root_and_get()
 
         hidden_fname1 = 'description'
@@ -362,8 +364,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotContains(response, _('Description'))
         self.assertNotContains(response, _('Sector'))
 
-    def test_search__fields_config__all_hidden(self):
-        "With FieldsConfig: all fields are hidden."
+    def test_fields_config__all_hidden(self):
+        """With FieldsConfig: all fields are hidden."""
         user = self.login_as_root_and_get()
 
         hidden_fname = 'description'
@@ -396,22 +398,22 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_search__not_entity(self):
-        "Model is not a CremeEntity."
+    def test_not_entity(self):
+        """Model is not a CremeEntity."""
         self.login_as_root()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
         self.assertEqual(409, response.status_code)
 
-    def test_search__empty_page(self):
+    def test_empty_page(self):
         self.login_as_root()
 
         response = self._search(searched='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
 
-    def test_search__words__split(self):
-        "String is split."
+    def test_words__split(self):
+        """String is split."""
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
@@ -427,8 +429,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=self.alan)
         self.assertNoInstanceLink(brick_node, entity=self.andrew)
 
-    def test_search__words__groups(self):
-        "Grouped words."
+    def test_words__groups(self):
+        """Grouped words."""
         user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.builder(
@@ -454,8 +456,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=orga3)
         self.assertNoInstanceLink(brick_node, entity=orga2)
 
-    def test_search__custom_field__str(self):
-        "Type <CustomField.STR>."
+    def test_custom_field__str(self):
+        """Type <CustomField.STR>."""
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -486,8 +488,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search__custom_field__enum(self):
-        "Type <CustomField.ENUM>."
+    def test_custom_field__enum(self):
+        """Type <CustomField.ENUM>."""
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -524,8 +526,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search__custom_field__multi_enum(self):
-        "Type <CustomField.MULTI_ENUM>."
+    def test_custom_field__multi_enum(self):
+        """Type <CustomField.MULTI_ENUM>."""
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -562,8 +564,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search__invalid_cell_type(self):
-        "No error."
+    def test_invalid_cell_type(self):
+        """No error."""
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -605,7 +607,54 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         assertBadID('found-creme_core-invalid-123')
         assertBadID('found-creme_core-fakesector-123')
 
-    def test_light_search01(self):
+    def test_app_credentials(self):
+        from creme.documents import get_document_model
+
+        user = self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
+        self.add_credentials(user.role, own='*')
+        self._setup_contacts(user=user)
+
+        Document = get_document_model()
+        SearchConfigItem.objects.builder(model=Document, fields=['title']).get_or_create()
+
+        searched = 'linu'
+        response1 = self._search(searched)
+        self.assertEqual(200, response1.status_code)
+
+        tree1 = self.get_html_tree(response1.content)
+        self.assertNoSearchBrick(tree1, brick_id_prefix=self.ORGA_BRICKID)
+        self.assertNoSearchBrick(tree1, brick_id_prefix=self.CONTACT_BRICKID)
+
+        context1 = response1.context
+        models = context1['models']
+        self.assertNotIn(FakeContact, models)
+        self.assertNotIn(FakeOrganisation, models)
+
+        vnames = {str(vname) for vname in context1['verbose_names']}
+        self.assertNotIn('Test Contact', vnames)
+        self.assertNotIn('Test Organisation', vnames)
+        self.assertIn(str(Document._meta.verbose_name), vnames)
+
+        # ---
+        response2 = self._search(searched, self.contact_ct_id)
+        self.assertEqual(403, response2.status_code)
+
+        # ---
+        reload_url = reverse('creme_core__reload_search_brick')
+        self.assertGET200(
+            reload_url,
+            data={'brick_id': 'found-documents-document-', 'search': searched},
+        )
+        self.assertGET403(
+            reload_url,
+            data={'brick_id': self.CONTACT_BRICKID + '456132', 'search': searched},
+        )
+
+
+class LightSearchTestCase(SearchViewTestCaseMixin, CremeTestCase):
+    LIGHT_URL = reverse('creme_core__light_search')
+
+    def test_simple(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
@@ -613,7 +662,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self._setup_orgas(user=user)
 
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
-
         results = response.json()
 
         alan = self.alan
@@ -664,7 +712,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             results,
         )
 
-    def test_light_search__credentials(self):
+    def test_credentials(self):
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -703,7 +751,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_light_search__errors(self):
+    def test_errors(self):
         self.login_as_root()
 
         url = self.LIGHT_URL
@@ -731,8 +779,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_light_search__deleted_entities(self):
-        "Deleted entities are ignored."
+    def test_deleted_entities(self):
+        """Deleted entities are ignored."""
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'Linu'})
@@ -771,52 +819,220 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_search_app_credentials(self):
-        from creme.documents import get_document_model
-
+    def test_app_credentials(self):
         user = self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
         self.add_credentials(user.role, own='*')
         self._setup_contacts(user=user)
 
-        Document = get_document_model()
-        SearchConfigItem.objects.builder(model=Document, fields=['title']).get_or_create()
+        response = self.assertGET200(self.LIGHT_URL, data={'value': 'linu'})
+        self.assertDictEqual({'best': None, 'results': []}, response.json())
 
-        searched = 'linu'
-        response1 = self._search(searched)
-        self.assertEqual(200, response1.status_code)
 
-        tree1 = self.get_html_tree(response1.content)
-        self.assertNoSearchBrick(tree1, brick_id_prefix=self.ORGA_BRICKID)
-        self.assertNoSearchBrick(tree1, brick_id_prefix=self.CONTACT_BRICKID)
+class SearchAndViewTestCase(CremeTestCase):
+    URL  = reverse('creme_core__search_n_view_entities')
 
-        context1 = response1.context
-        models = context1['models']
-        self.assertNotIn(FakeContact, models)
-        self.assertNotIn(FakeOrganisation, models)
+    def assertDetailview(self, response, entity):
+        self.assertEqual(200, response.status_code)
+        self.assertRedirects(response, entity.get_absolute_url())
 
-        vnames = {str(vname) for vname in context1['verbose_names']}
-        self.assertNotIn('Test Contact', vnames)
-        self.assertNotIn('Test Organisation', vnames)
-        self.assertIn(str(Document._meta.verbose_name), vnames)
+    def test_value_error(self):
+        self.login_as_root()
 
-        # ---
-        response2 = self._search(searched, self.contact_ct_id)
-        self.assertEqual(403, response2.status_code)
-
-        # ---
-        reload_url = reverse('creme_core__reload_search_brick')
-        self.assertGET200(
-            reload_url,
-            data={'brick_id': 'found-documents-document-', 'search': searched},
-        )
-        self.assertGET403(
-            reload_url,
-            data={'brick_id': self.CONTACT_BRICKID + '456132', 'search': searched},
+        url = self.URL
+        data = {'models': 'creme_core-fakecontact', 'fields': 'phone'}
+        response1 = self.client.get(url, data=data)
+        self.assertContains(
+            response1,
+            text='No GET argument with this key: &quot;value&quot;',
+            status_code=404,
         )
 
         # ---
-        response3 = self.assertGET200(self.LIGHT_URL, data={'value': searched})
-        self.assertDictEqual(
-            {'best': None, 'results': []},
-            response3.json(),
+        response2 = self.client.get(url, data={**data, 'value': ''})
+        self.assertContains(
+            response2, text='Void &quot;value&quot; arg', status_code=404,
+        )
+
+    def test_one_model_one_field(self):
+        user = self.login_as_root_and_get()
+
+        phone = '123456789'
+        url = self.URL
+        data = {
+            'models': 'creme_core-fakecontact',
+            'fields': 'phone',
+            'value':  phone,
+        }
+        self.assertGET404(url, data=data)
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        onizuka = create_contact(first_name='Eikichi', last_name='Onizuka')
+        create_contact(first_name='Ryuji', last_name='Danma', phone='987654', mobile=phone)
+        self.assertGET404(url, data=data)
+
+        onizuka.phone = phone
+        onizuka.save()
+        self.assertPOST405(url, data=data)
+        self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_one_model_two_fields(self):
+        user = self.login_as_root_and_get()
+
+        phone = '999999999'
+        url = self.URL
+        data = {
+            'models': 'creme_core-fakecontact',
+            'fields': 'phone,mobile',
+            'value':  phone,
+        }
+        self.assertGET404(url, data=data)
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        onizuka  = create_contact(first_name='Eikichi', last_name='Onizuka', mobile=phone)
+        create_contact(first_name='Ryuji', last_name='Danma', phone='987654')
+        self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_two_models_two_fields(self):
+        user = self.login_as_root_and_get()
+
+        phone = '696969'
+        url = self.URL
+        data = {
+            'models': 'creme_core-fakecontact,creme_core-fakeorganisation',
+            'fields': 'phone,mobile',
+            'value': phone,
+        }
+        self.assertGET404(url, data=data)
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        onizuka = create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
+        create_contact(first_name='Ryuji', last_name='Danma', phone='987654')
+
+        onibaku = FakeOrganisation.objects.create(user=user, name='Onibaku', phone=phone)
+        self.assertDetailview(self.client.get(url, data=data, follow=True), onibaku)
+
+        onizuka.mobile = phone
+        onizuka.save()
+        self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_errors(self):
+        user = self.login_as_root_and_get()
+
+        url = self.URL
+        base_data = {
+            'models': 'creme_core-fakecontact,creme_core-fakeorganisation',
+            'fields': 'mobile,phone',
+            'value':  '696969',
+        }
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
+        create_contact(first_name='Ryuji',   last_name='Danma', phone='987654')
+        FakeOrganisation.objects.create(user=user, name='Onibaku', phone='54631357')
+
+        self.assertGET404(url, data={**base_data, 'models': 'foo-bar'})
+        self.assertGET404(url, data={**base_data, 'models': 'foobar'})
+        self.assertGET404(url, data={**base_data, 'values': ''})
+        self.assertGET404(url, data={**base_data, 'models': ''})
+        self.assertGET404(url, data={**base_data, 'fields': ''})
+        # Not CremeEntity
+        self.assertGET404(url, data={**base_data, 'models': 'persons-civility'})
+
+    def test_credentials(self):
+        user = self.login_as_standard()
+        self.add_credentials(user.role, own='*')
+
+        phone = '44444'
+        url = self.URL
+        data = {
+            'models': 'creme_core-fakecontact,creme_core-fakeorganisation',
+            'fields': 'phone,mobile',
+            'value':  phone,
+        }
+
+        create_contact = FakeContact.objects.create
+        # Phone is OK but not readable
+        onizuka = create_contact(
+            user=self.get_root_user(), first_name='Eikichi', last_name='Onizuka', mobile=phone,
+        )
+        # Phone is KO
+        ryuji = create_contact(
+            user=user, first_name='Ryuji', last_name='Danma', phone='987654',
+        )
+
+        onibaku = FakeOrganisation.objects.create(
+            user=user, name='Onibaku', phone=phone,
+        )  # Phone OK and readable
+
+        has_perm = user.has_perm_to_view
+        self.assertFalse(has_perm(onizuka))
+        self.assertTrue(has_perm(ryuji))
+        self.assertTrue(has_perm(onibaku))
+        self.assertDetailview(self.client.get(url, data=data, follow=True), onibaku)
+
+    def test_app_credentials(self):
+        user = self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
+
+        phone = '31337'
+        data = {
+            'models': 'creme_core-fakecontact',
+            'fields': 'phone',
+            'value':  phone,
+        }
+        # Would match if apps was allowed
+        FakeContact.objects.create(
+            user=user, first_name='Eikichi', last_name='Onizuka', phone=phone,
+        )
+        self.assertGET403(self.URL, data=data)
+
+    def test_fields_config(self):
+        """Phone field is hidden."""
+        self.login_as_root()
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
+        )
+        self.assertGET409(
+            self.URL,
+            data={
+                'models': 'creme_core-fakecontact',
+                'fields': 'phone',
+                'value':  '123456789',
+            },
+        )
+
+    def test_not_logged(self):
+        url = self.URL
+        models = 'creme_core-fakecontact'
+        fields = 'phone'
+        value = '123456789'
+        response = self.assertGET200(
+            url, follow=True,
+            data={
+                'models': models,
+                'fields': fields,
+                'value':  value,
+            },
+        )
+        # NB: problem with order (only python3.5- ?)
+        # self.assertRedirects(
+        #     response,
+        #     '{login_url}?next={search_url}'
+        #     '%3Fmodels%3Dcreme_core-fakecontact'
+        #     '%26fields%3Dphone'
+        #     '%26value%3D123456789'.format(
+        #         login_url=reverse(settings.LOGIN_URL),
+        #         search_url=url,
+        #     )
+        # )
+        self.assertEqual(1, len(response.redirect_chain))
+
+        parsed_url = urlparse(response.redirect_chain[0][0])
+        self.assertEqual(reverse(settings.LOGIN_URL), parsed_url.path)
+
+        next_param = parsed_url.query
+        self.assertStartsWith(next_param, 'next=')
+        self.assertURLEqual(
+            f'{url}?models={models}&fields={fields}&value={value}',
+            unquote(next_param.removeprefix('next=')),
         )

@@ -212,8 +212,10 @@
               (you should not write the internal attributes).
             - The function 'chunktools.iter_as_slices()' takes now a positional-only & a keyword-only arguments.
               The second argument has been renamed too, so you'll have to update to code.
-        # In 'creme_core.views.bricks.BricksReloading', the attribute 'brick_render_method' has
-          been removed ; define 'brick_tag' instead.
+        # In 'creme_core.views' :
+            - In 'bricks.BricksReloading', the attribute 'brick_render_method'
+              has been removed ; define 'brick_tag' instead.
+            - The class-view 'SearchAndView' has moved from the module 'entity' to the module 'search'.
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the tags {% get_cloning_info %} & {% get_deletion_info %}
               do not inject the key "allowed" in their data anymore (the key "error" is enough).

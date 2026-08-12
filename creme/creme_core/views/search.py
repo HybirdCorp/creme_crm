@@ -22,16 +22,21 @@ from time import time
 from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Q
 from django.http import Http404
+from django.shortcuts import redirect
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.exceptions import ConflictError
 from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
 from ..http import CremeJsonResponse
-from ..models import CremeEntity, EntityCredentials
+from ..models import CremeEntity, EntityCredentials, FieldsConfig
 from ..models.utils import model_verbose_name
 from ..registry import creme_registry
+from ..utils import get_from_GET_or_404
 from ..utils.unicode_collation import collator
 from .bricks import BricksReloading
 from .generic import base
@@ -340,3 +345,93 @@ class LightSearch(SearcherMixin, base.CheckedView):
 
     def get_search_terms(self):
         return self.request.GET.get(self.search_terms_arg, '')
+
+
+class SearchAndView(base.CheckedView):
+    allowed_classes = CremeEntity
+    value_arg = 'value'
+    field_names_arg = 'fields'
+    model_ids_arg = 'models'
+
+    def build_q(self, *, model, value, field_names, fields_configs):
+        query = Q()
+
+        for field_name in field_names:
+            try:
+                field = model._meta.get_field(field_name)
+            except FieldDoesNotExist:
+                pass
+            else:
+                if fields_configs[model].is_field_hidden(field):
+                    raise ConflictError(gettext('This field is hidden.'))
+
+                query |= Q(**{field.name: value})
+
+        return query
+
+    def build_response(self, entity):
+        return redirect(entity)
+
+    def get_field_names(self):
+        return get_from_GET_or_404(self.request.GET, self.field_names_arg).split(',')
+
+    def get_model_ids(self):
+        return get_from_GET_or_404(self.request.GET, self.model_ids_arg).split(',')
+
+    def get_models(self):
+        model_ids = self.get_model_ids()
+
+        check_app = self.request.user.has_perm_to_access_or_die
+        models = []
+        get_ct = ContentType.objects.get_by_natural_key
+
+        for model_id in model_ids:
+            try:
+                ct = get_ct(*model_id.split('-'))
+            except (ContentType.DoesNotExist, TypeError) as e:
+                raise Http404(f'This model does not exist: {model_id}') from e
+
+            check_app(ct.app_label)
+
+            model = ct.model_class()
+
+            if self.is_model_allowed(model):
+                models.append(model)
+
+        if not models:
+            raise Http404('No valid model')
+
+        return models
+
+    def get_value(self):
+        value = get_from_GET_or_404(self.request.GET, self.value_arg)
+
+        if not value:  # Avoid useless queries
+            raise Http404('Void "value" arg')
+
+        return value
+
+    def get(self, request, *args, **kwargs):
+        value = self.get_value()
+        field_names = self.get_field_names()
+        models = self.get_models()
+        fconfigs = FieldsConfig.objects.get_for_models(models)
+        user = request.user
+
+        for model in models:
+            query = self.build_q(
+                model=model, value=value,
+                field_names=field_names, fields_configs=fconfigs,
+            )
+
+            if query:  # Avoid useless query
+                # TODO: what about entities with <is_deleted=True>?
+                found = EntityCredentials.filter(user, model.objects.filter(query)).first()
+
+                if found:
+                    return self.build_response(found)
+
+        raise Http404(gettext('No entity corresponding to your search was found.'))
+
+    def is_model_allowed(self, model):
+        return issubclass(model, self.allowed_classes)
