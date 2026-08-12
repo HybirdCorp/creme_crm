@@ -120,9 +120,11 @@ entity_patterns = [
         entity.NextEntityVisiting.as_view(),
         name='creme_core__visit_next_entity',
     ),
+    # TODO: group with other search views (change URLs)
     re_path(
         r'^search_n_view[/]?$',
-        entity.SearchAndView.as_view(),
+        # entity.SearchAndView.as_view(),
+        search.SearchAndView.as_view(),
         name='creme_core__search_n_view_entities',
     ),
     re_path(
