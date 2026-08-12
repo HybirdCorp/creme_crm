@@ -257,6 +257,8 @@
                   the related class 'views.line.ReorderLines' has been modfied to use this new information.
             * Commercial :
                 - The attribute 'views.strategy.MatrixBricksReloading.allowed_bricks' has been replaced by 'brick_classes'.
+            * Emails :
+                - The constructor of 'utils.EMailSender' is now keywords-only.
             * Events :
                 - In 'constanst', 'INV_STATUS_*' & 'PRES_STATUS_*' have been removed; see the new types
                   'models.event.InvitationStatus' & 'models.event.PresenceStatus' instead.
