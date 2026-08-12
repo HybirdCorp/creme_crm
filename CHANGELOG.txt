@@ -23,8 +23,8 @@
       # The list-views can now be ordered by a Custom-Field columns (for most types of Custom-Fields).
       # Apps :
         * Creme_config :
-            - Many Minions (the small models like "Sector" or "Activity status" can now be disabled;
-                - A disabled cannot be used in new entities.
+            - Many Minions (the small models like "Sector" or "Activity status") can now be disabled;
+                - A disabled Minion cannot be used in new entities.
                 - An existing entity using a Minion which has been disabled later can continue to use it
                   (but the disabled choices are displayed differently).
             - The custom-fields can now be configured to be required only at creation.
@@ -59,10 +59,10 @@
          some targets, not to remove a method anymore -- which was annoying with inheriting classes).
        - It's now possible to have a 'Brick' class which renders on Home but not on
          "My page" (or the contrary).
-     You have to replace the methods 'detailview_display()' & 'home_display()' in your
-     'Brick' classes by the method 'render()' (note: you can check 'context["object"]'
-     if you have to manage the both cases -- or even define 2 classes).
-     More details below.
+      You have to replace the methods 'detailview_display()' & 'home_display()' in your
+      'Brick' classes by the method 'render()' (note: you can check 'context["object"]'
+      if you have to manage the both cases -- or even define 2 classes).
+      More details below.
 
     Non breaking changes :
     ----------------------

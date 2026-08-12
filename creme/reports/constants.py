@@ -19,23 +19,23 @@ RFT_RELATED    = 7  # Related entities (only allowed by the model)
 
 
 class AbscissaGroup(models.IntegerChoices):
-    DAY          = 1,  _('By days'),
-    MONTH        = 2,  _('By months'),
-    YEAR         = 3,  _('By years'),
-    RANGE        = 4,  _('By X days'),
-    FK           = 5,  _('By values (configurable)'),
-    RELATION     = 6,  _('By values (of related entities)'),
-    CHOICES      = 7,  _('By values (not configurable)'),
-    CUSTOM_DAY   = 11, _('By days (custom field)'),
-    CUSTOM_MONTH = 12, _('By months (custom field)'),
-    CUSTOM_YEAR  = 13, _('By years (custom field)'),
-    CUSTOM_RANGE = 14, _('By X days (custom field)'),
-    CUSTOM_FK    = 15, _('By values (of custom choices)'),
+    DAY          = 1,  _('By days')
+    MONTH        = 2,  _('By months')
+    YEAR         = 3,  _('By years')
+    RANGE        = 4,  _('By X days')
+    FK           = 5,  _('By values (configurable)')
+    RELATION     = 6,  _('By values (of related entities)')
+    CHOICES      = 7,  _('By values (not configurable)')
+    CUSTOM_DAY   = 11, _('By days (custom field)')
+    CUSTOM_MONTH = 12, _('By months (custom field)')
+    CUSTOM_YEAR  = 13, _('By years (custom field)')
+    CUSTOM_RANGE = 14, _('By X days (custom field)')
+    CUSTOM_FK    = 15, _('By values (of custom choices)')
 
 
 class OrdinateAggregator(models.TextChoices):
-    COUNT = 'count', _('Count'),
-    AVG   = 'avg',   _('Average'),
-    MAX   = 'max',   _('Maximum'),
-    MIN   = 'min',   _('Minimum'),
-    SUM   = 'sum',   _('Sum'),
+    COUNT = 'count', _('Count')
+    AVG   = 'avg',   _('Average')
+    MAX   = 'max',   _('Maximum')
+    MIN   = 'min',   _('Minimum')
+    SUM   = 'sum',   _('Sum')

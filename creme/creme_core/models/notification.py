@@ -302,9 +302,9 @@ class NotificationManager(models.Manager):
 class Notification(models.Model):
     """Contains the notification for a User on an output."""
     class Level(models.IntegerChoices):
-        LOW    = 1, pgettext_lazy('creme_core-notif', 'Low'),
-        NORMAL = 2, pgettext_lazy('creme_core-notif', 'Normal'),
-        HIGH   = 3, pgettext_lazy('creme_core-notif', 'High'),
+        LOW    = 1, pgettext_lazy('creme_core-notif', 'Low')
+        NORMAL = 2, pgettext_lazy('creme_core-notif', 'Normal')
+        HIGH   = 3, pgettext_lazy('creme_core-notif', 'High')
 
     id = models.BigAutoField(primary_key=True)
     channel = models.ForeignKey(

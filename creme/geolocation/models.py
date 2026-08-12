@@ -34,10 +34,10 @@ from .utils import location_bounding_box
 
 class GeoAddress(models.Model):
     class Status(models.IntegerChoices):
-        UNDEFINED = 0, _('Not localized'),
-        MANUAL    = 1, _('Manual location'),
-        PARTIAL   = 2, _('Partially matching location'),
-        COMPLETE  = 3, '',
+        UNDEFINED = 0, _('Not localized')
+        MANUAL    = 1, _('Manual location')
+        PARTIAL   = 2, _('Partially matching location')
+        COMPLETE  = 3, ''
 
     address = models.OneToOneField(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),

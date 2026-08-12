@@ -43,10 +43,10 @@ ID_LENGTH = 32
 
 class _Email(CremeModel):
     class Status(models.IntegerChoices):
-        SENT          = 1, pgettext_lazy('emails', 'Sent'),
-        NOT_SENT      = 2, pgettext_lazy('emails', 'Not sent'),
-        SENDING_ERROR = 3, _('Sending error'),
-        SYNCHRONIZED  = 4, pgettext_lazy('emails', 'Synchronized'),
+        SENT          = 1, pgettext_lazy('emails', 'Sent')
+        NOT_SENT      = 2, pgettext_lazy('emails', 'Not sent')
+        SENDING_ERROR = 3, _('Sending error')
+        SYNCHRONIZED  = 4, pgettext_lazy('emails', 'Synchronized')
 
     reads = models.PositiveIntegerField(
         _('Number of reads'), null=True, default=0, editable=False,

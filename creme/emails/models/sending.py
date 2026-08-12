@@ -154,14 +154,14 @@ class EmailSendingConfigItem(CremeModel):
 
 class EmailSending(CremeModel):
     class Type(models.IntegerChoices):
-        IMMEDIATE = 1, _('Immediate'),
-        DEFERRED  = 2, pgettext_lazy('emails-sending', 'Deferred'),
+        IMMEDIATE = 1, _('Immediate')
+        DEFERRED  = 2, pgettext_lazy('emails-sending', 'Deferred')
 
     class State(models.IntegerChoices):
-        DONE        = 1, pgettext_lazy('emails-sending', 'Done'),
-        IN_PROGRESS = 2, _('In progress'),
-        PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
-        ERROR       = 4, _('Error during sending'),
+        DONE        = 1, pgettext_lazy('emails-sending', 'Done')
+        IN_PROGRESS = 2, _('In progress')
+        PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned')
+        ERROR       = 4, _('Error during sending')
 
     # Not viewable by users, For administrators currently.
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
