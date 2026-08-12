@@ -283,8 +283,10 @@ class EmailSending(CremeModel):
 
         mails_count = 0
         one_mail_sent = False
-        SENDING_SIZE = getattr(settings, 'EMAILCAMPAIGN_SIZE', 40)
-        SLEEP_TIME = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
+        # SENDING_SIZE = getattr(settings, 'EMAILCAMPAIGN_SIZE', 40)
+        sending_size = settings.EMAILS_CAMPAIGN_SIZE
+        # SLEEP_TIME = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
+        sleep_time = settings.EMAILS_CAMPAIGN_SLEEP_TIME
 
         for mail in LightWeightEmail.objects.filter(sending=self):
             if sender_obj.send(mail, connection=connection):
@@ -292,16 +294,19 @@ class EmailSending(CremeModel):
                 one_mail_sent = True
                 logger.debug('Mail sent to %s', mail.recipient)
 
-            if mails_count > SENDING_SIZE:
+            # if mails_count > SENDING_SIZE:
+            if mails_count > sending_size:
                 logger.debug('Sending: waiting timeout')
 
                 mails_count = 0
-                sleep(SLEEP_TIME)  # Avoiding the mail to be classed as spam
+                # sleep(SLEEP_TIME)
+                sleep(sleep_time)  # Avoiding the mail to be classed as spam
 
         if not one_mail_sent:
             return self.State.ERROR
 
-        # TODO: close the connection ??
+        # TODO: close the connection?
+        return None
 
     send_mails.alters_data = True
 

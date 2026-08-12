@@ -1427,8 +1427,10 @@ EMAILS_EMAIL_FORCE_NOT_CUSTOM    = False
 EMAILS_MLIST_FORCE_NOT_CUSTOM    = False
 
 # Emails are sent by chunks, and sleep between 2 chunks.
-EMAILCAMPAIGN_SIZE = 40
-EMAILCAMPAIGN_SLEEP_TIME = 2
+# EMAILCAMPAIGN_SIZE = 40
+# EMAILCAMPAIGN_SLEEP_TIME = 2
+EMAILS_CAMPAIGN_SIZE = 40
+EMAILS_CAMPAIGN_SLEEP_TIME = 2  # In seconds
 
 # Sketch -----------------------------------------------------------------------
 SKETCH_ENABLE_DEMO_BRICKS = False
