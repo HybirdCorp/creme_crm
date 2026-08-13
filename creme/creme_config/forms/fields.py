@@ -20,6 +20,7 @@ from copy import deepcopy
 from typing import override
 
 # from django.apps import apps
+from django.db.models import fields as model_fields
 from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
@@ -206,14 +207,16 @@ class CreatorCustomEnumChoiceMixin(CreatorChoiceMixin):
         self._update_creation_info()
 
 
+# TODO: unit test
 class CreatorCustomEnumerableChoiceField(CreatorCustomEnumChoiceMixin,
                                          enum_forms.EnumerableChoiceField):
-    def __init__(self, *, custom_field=None, user=None, empty_label="---------", **kwargs):
+    # def __init__(self, *, custom_field=None, user=None, empty_label="---------", **kwargs):
+    def __init__(self, *, custom_field=None, user=None, empty_label: str | None = None, **kwargs):
         super().__init__(
             EnumerableChoiceSet(enumerator=EmptyEnumerator(None)),
             **kwargs
         )
-        self.enum_empty_label = empty_label
+        self.enum_empty_label = empty_label or model_fields.BLANK_CHOICE_LABEL
         self.custom_field = custom_field
         self.user = user
 

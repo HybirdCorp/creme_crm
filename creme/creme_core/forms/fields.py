@@ -31,6 +31,7 @@ from typing import Any
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
+from django.db.models import fields as model_fields
 from django.db.models.query import Q, QuerySet, prefetch_related_objects
 from django.forms import ValidationError, fields
 from django.forms import models as mforms
@@ -1911,7 +1912,7 @@ class ChoiceOrCharField(fields.MultiValueField):
 
 
 class CTypeChoiceField(fields.Field):
-    "A ChoiceField whose choices are a ContentType instances."
+    """A ChoiceField whose choices are a ContentType instances."""
     # widget = widgets.Select
     widget = core_widgets.DynamicSelect(attrs={'autocomplete': True})
     default_error_messages = {
@@ -1923,18 +1924,19 @@ class CTypeChoiceField(fields.Field):
     # TODO: ctypes_or_models ??
     def __init__(self, *,
                  ctypes: Iterable[ContentType] | Callable = (),
-                 empty_label='---------',
+                 # empty_label='---------',
+                 empty_label: str | None = None,
                  required=True, widget=None, label=None, initial=None,
                  help_text='',
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?
                  **kwargs):
-        "@param ctypes: A sequence of ContentTypes or a callable which returns one."
+        """@param ctypes: A sequence of ContentTypes or a callable which returns one."""
         super().__init__(
             required=required, widget=widget, label=label,
             initial=initial, help_text=help_text,
             **kwargs
         )
-        self.empty_label = empty_label
+        self.empty_label = empty_label or model_fields.BLANK_CHOICE_LABEL
         self.ctypes = ctypes
 
     def __deepcopy__(self, memo):

@@ -992,11 +992,12 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         ct1 = self.ct1
         ct2 = self.ct2
         field = CTypeChoiceField(ctypes=[ct1, ct2], required=False)
-        clean = field.clean
 
+        empty_label = _('- Select an option -')
+        self.assertEqual(empty_label, field.empty_label)
         self.assertListEqual(
             [
-                ('', field.empty_label),
+                ('', empty_label),
                 *sorted(
                     [(ct1.pk, str(ct1)), (ct2.pk, str(ct2))],
                     key=lambda ct: ct[1],
@@ -1005,9 +1006,17 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
             [*field.widget.choices],
         )
 
+        clean = field.clean
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
         self.assertEqual(None, clean(''))
+
+    def test_empty_label(self):
+        empty_label = 'Plz Select an option'
+        field = CTypeChoiceField(
+            ctypes=[self.ct1, self.ct2], empty_label=empty_label,
+        )
+        self.assertEqual(empty_label, field.empty_label)
 
     def test_invalid(self):
         self.assertFormfieldError(
