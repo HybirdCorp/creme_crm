@@ -262,8 +262,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         self.get_alone_element(TicketNumber.objects.all())
 
-    def test_get_resolving_duration01(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
+    def test_get_resolving_duration(self):
         user = self.login_as_root_and_get()
 
         get_status = Status.objects.get
@@ -280,6 +279,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
+        # Closed ticket (date ok) ---
         ticket.status = get_status(uuid=constants.UUID_STATUS_CLOSED)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
@@ -288,8 +288,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             funf(ticket, user).render(ViewTag.HTML_LIST),
         )
 
-    def test_get_resolving_duration02(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
+    def test_get_resolving_duration__empty_date(self):
+        """Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."""
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
