@@ -36,6 +36,8 @@
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
+        * Opportunities :
+            - It's now possible to order the list-views by the column "Weighted sales" (function-field).
         * Emails :
             - If you set the settings EMAILCAMPAIGN_SIZE, rename it EMAILS_CAMPAIGN_SIZE.
             - If you set the settings EMAILCAMPAIGN_SLEEP_TIME, rename it EMAILS_CAMPAIGN_SLEEP_TIME.
