@@ -39,6 +39,8 @@
         * Emails :
             - If you set the settings EMAILCAMPAIGN_SIZE, rename it EMAILS_CAMPAIGN_SIZE.
             - If you set the settings EMAILCAMPAIGN_SLEEP_TIME, rename it EMAILS_CAMPAIGN_SLEEP_TIME.
+        * Tickets :
+            - It's now possible to order the list-views by the column "Resolving duration" (function-field).
         * Graphs :
             - It's now possible to create a block type related to an instance of Graph;
               this new kind of blocks can be displayed on Home & "My Page".
