@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
+from django.db.models import F
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core import sorter
 from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
+from creme.tickets.models import AbstractTicket
+
+
+class ResolvingDurationSorter(sorter.AbstractCellSorter):
+    @override
+    def get_sorting_item(self, cell):
+        return sorter.AnnotationSortingItem(
+            name='tickets-duration',
+            model=AbstractTicket,
+            db_expression=F('closing_date') - F('created'),
+        )
 
 
 class ResolvingDurationField(FunctionField):
     name         = 'get_resolving_duration'
     verbose_name = _('Resolving duration')
+    # search_field_builder = TODO: filter min < duration < max
+    sorter_class = ResolvingDurationSorter
 
+    @override
     def __call__(self, entity, user):
         if entity.status.is_closed:
             closing_date = entity.closing_date

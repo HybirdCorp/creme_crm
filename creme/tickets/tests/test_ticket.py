@@ -11,7 +11,9 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 import creme.creme_core.tests.views.base as views_base
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.core.sorter import AnnotationSortingItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import HeaderFilter, RelationType
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
@@ -20,6 +22,7 @@ from creme.persons import get_contact_model
 
 from .. import constants
 from ..bricks import TicketBrick
+from ..function_fields import ResolvingDurationSorter
 from ..models import Criticity, Priority, Status, TicketNumber
 from .base import Ticket, TicketTemplate, skipIfCustomTicket
 
@@ -303,6 +306,64 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('?', funf(ticket, user).render(ViewTag.HTML_LIST))
+
+    def test_get_resolving_duration__sorting(self):
+        user = self.login_as_root_and_get()
+
+        get_status = Status.objects.get
+        create_ticket = partial(
+            Ticket.objects.create,
+            user=user,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
+        open_ticket = create_ticket(
+            title='Open ticket', status=get_status(uuid=constants.UUID_STATUS_OPEN),
+        )
+
+        def update_created(ticket, created):
+            Ticket.objects.filter(id=ticket.id).update(created=created)
+
+        now_value = now()
+        closed_status = get_status(uuid=constants.UUID_STATUS_CLOSED)
+        closed_ticket = create_ticket(
+            title='Closed ticket', status=closed_status, closing_date=now_value,
+        )
+        small_delta = timedelta(hours=1)
+        update_created(closed_ticket, now_value - small_delta)
+
+        old_closed_ticket = create_ticket(
+            title='Old closed ticket', status=closed_status, closing_date=now_value,
+        )
+        big_delta = timedelta(days=10)
+        update_created(old_closed_ticket, now_value - big_delta)
+
+        qs = Ticket.objects.filter(
+            id__in=[open_ticket.id, closed_ticket.id, old_closed_ticket.id],
+        )
+        # Normal alphabetical order
+        self.assertListEqual([closed_ticket, old_closed_ticket, open_ticket], [*qs])
+
+        funf = function_field_registry.get(Ticket, 'get_resolving_duration')
+        sorter_class = funf.sorter_class
+        self.assertEqual(ResolvingDurationSorter, sorter_class)
+
+        sorting_item = sorter_class().get_sorting_item(
+            cell=EntityCellFunctionField(model=Ticket, func_field=funf),
+        )
+        self.assertIsInstance(sorting_item, AnnotationSortingItem)
+        self.assertEqual('tickets-duration', sorting_item.name)
+
+        annotated_qs = qs.annotate(ann_duration=sorting_item.db_expression)
+        annotated_tickets = [*annotated_qs]
+        self.assertEqual(small_delta, annotated_tickets[0].ann_duration)
+        self.assertEqual(big_delta,   annotated_tickets[1].ann_duration)
+        self.assertIsNone(annotated_tickets[2].ann_duration)
+
+        self.assertListEqual(
+            [t.title for t in (open_ticket, closed_ticket, old_closed_ticket)],
+            [*annotated_qs.order_by('ann_duration').values_list('title', flat=True)],
+        )
 
     def test_edition(self):
         user = self.login_as_root_and_get()
