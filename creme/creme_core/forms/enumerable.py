@@ -22,7 +22,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import Model
+from django.db.models import Model, fields
 from django.forms import models as mforms
 from django.forms import widgets
 from django.urls import reverse
@@ -330,7 +330,8 @@ class EnumerableChoiceField(mforms.ChoiceField):
         ),
     }
 
-    def __init__(self, enum: EnumerableChoiceSet, *, empty_label="---------",
+    # def __init__(self, enum: EnumerableChoiceSet, *, empty_label="---------",
+    def __init__(self, enum: EnumerableChoiceSet, *, empty_label: str | None = None,
                  required=True, label=None, initial=None, help_text='',
                  **kwargs):
         # Call Field instead of ChoiceField __init__() because we don't need
@@ -346,7 +347,8 @@ class EnumerableChoiceField(mforms.ChoiceField):
         if required and initial is not None:
             self.empty_label = None
         else:
-            self.empty_label = empty_label
+            # self.empty_label = empty_label
+            self.empty_label = empty_label or fields.BLANK_CHOICE_LABEL
 
     def __deepcopy__(self, memo):
         result = mforms.Field.__deepcopy__(self, memo)

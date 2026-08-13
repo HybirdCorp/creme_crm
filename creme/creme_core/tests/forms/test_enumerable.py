@@ -605,7 +605,9 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         field = EnumerableModelChoiceField(FakeContact, 'sector')
 
-        self.assertEqual('---------', field.empty_label)
+        # self.assertEqual('---------', field.empty_label)
+        blank_label = _('- Select an option -')
+        self.assertEqual(blank_label, field.empty_label)
         self.assertIsNone(field.initial)
         self.assertIsNone(field.user)
 
@@ -613,7 +615,8 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
         self.assertListEqual([], field.widget.choices)
 
         expected = [
-            EnumerableChoice('', '---------').as_dict(),
+            # EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice('', blank_label).as_dict(),
             EnumerableChoice(farming.pk, str(farming)).as_dict(),
             EnumerableChoice(industry.pk, str(industry)).as_dict(),
             EnumerableChoice(software.pk, str(software)).as_dict(),
@@ -745,7 +748,8 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
         field = EnumerableModelChoiceField(FakeContact, 'sector', required=False)
 
         expected = [
-            EnumerableChoice('', '---------').as_dict(),
+            # EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice('', _('- Select an option -')).as_dict(),
             EnumerableChoice(farming.pk, str(farming)).as_dict(),
             EnumerableChoice(industry.pk, str(industry)).as_dict(),
         ]
@@ -759,3 +763,13 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError):
             field.to_python('unknown')
+
+    def test_empty_label(self):
+        label = 'Plz select an option'
+        field = EnumerableModelChoiceField(
+            FakeContact, 'sector', required=False, empty_label=label,
+        )
+        self.assertEqual(
+            EnumerableChoice('', label).as_dict(),
+            field.choices[0].as_dict(),
+        )

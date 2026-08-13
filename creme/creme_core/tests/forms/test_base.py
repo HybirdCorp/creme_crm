@@ -373,7 +373,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(cfield3, cf_f3.custom_field)
         self.assertListEqual(
             [
-                EnumerableChoice('', '---------').as_dict(),
+                # EnumerableChoice('', '---------').as_dict(),
+                EnumerableChoice('', _('- Select an option -')).as_dict(),
                 EnumerableChoice(eval1_01.id, eval1_01.value).as_dict(),
                 EnumerableChoice(eval1_02.id, eval1_02.value).as_dict(),
             ],
