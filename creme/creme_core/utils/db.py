@@ -38,6 +38,7 @@ from django.db.models import (
     QuerySet,
     prefetch_related_objects,
 )
+from django.db.models.expressions import BaseExpression
 
 from ..models import CaseSensitivity
 from .meta import FieldInfo, OrderedField
@@ -346,7 +347,7 @@ class PreFetcher:
 
 
 # TODO: what about QuerySet.totally_ordered (Django6.1)?
-def get_stable_ordering(queryset: QuerySet) -> list[str]:
+def get_stable_ordering(queryset: QuerySet) -> list[str | BaseExpression]:
     """Returns a list of strings (fields names, annotations) usable as stable
     ordering (in order to get consistent results through different pages).
 
@@ -366,7 +367,7 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
     orm_annotations = queryset.query.annotations
 
     # TODO: extract as standalone function?
-    def _explicit_ordering(ordering: Iterable[str]) -> list[str]:
+    def _explicit_ordering(ordering: Iterable[str | BaseExpression]) -> list[str | BaseExpression]:
         # Examples (with Contact):
         #   >> _explicit_ordering(['position', 'last_name'])
         #   ['position__title', 'last_name']
@@ -384,27 +385,31 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         #         ).as_explicit_orders
         #     )
         # return explicit_fields
-        explicit: list[str] = []
+        explicit: list[str | BaseExpression] = []
         for ordering_part in ordering:
-            ordered_field = OrderedField(ordering_part)
-            name = ordered_field.field_name
-            if name in orm_annotations:
-                # Annotations are already explicit
-                explicit.append(ordering_part)
+            if isinstance(ordering_part, str):
+                ordered_field = OrderedField(ordering_part)
+                name = ordered_field.field_name
+                if name in orm_annotations:
+                    # Annotations are already explicit
+                    explicit.append(ordering_part)
+                else:
+                    # Real fields are made explicit
+                    desc = ordered_field.order.desc
+                    explicit.extend(
+                        str(expl_field.reversed() if desc else expl_field)
+                        for expl_field in FieldInfo(
+                            model=model, field_name=name,
+                        ).as_explicit_orders
+                    )
             else:
-                # Real fields are made explicit
-                desc = ordered_field.order.desc
-                explicit.extend(
-                    str(expl_field.reversed() if desc else expl_field)
-                    for expl_field in FieldInfo(
-                        model=model, field_name=name,
-                    ).as_explicit_orders
-                )
+                # DB expressions are already explicit
+                explicit.append(ordering_part)
 
         return explicit
 
     # TODO: extract as standalone function?
-    def _is_ordering_stable(ordering: Iterable[str]) -> bool:
+    def _is_ordering_stable(ordering: Iterable[str | BaseExpression]) -> bool:
         # Examples:
         #  With CremeUser:
         #    >> _is_ordering_stable(['username']) => True  # username is unique
@@ -412,13 +417,16 @@ def get_stable_ordering(queryset: QuerySet) -> list[str]:
         #    >> is_ordering_stable(('last_name', 'email')) => False
 
         # asc_ordering = [field_name.removeprefix('-') for field_name in ordering]
-        # NB: we cannot know if an annotation produces a unique result, so we
-        #     currently just exclude them.
+        # NB: we cannot know if an annotation/exppression produces a unique result,
+        #     so we currently just exclude them.
         # TODO: way to indicate unique (& unique together) annotations?
         asc_ordering = [
             asc_part
             for ordering_part in ordering
-            if (asc_part := ordering_part.removeprefix('-')) not in orm_annotations
+            if (
+                isinstance(ordering_part, str)
+                and (asc_part := ordering_part.removeprefix('-')) not in orm_annotations
+            )
         ]
 
         if any(
