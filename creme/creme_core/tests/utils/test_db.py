@@ -734,3 +734,19 @@ class DBTestCase(CremeTestCase):
             ['lname_len', 'id'],
             get_stable_ordering(qs.order_by('lname_len', 'id')),
         )
+
+    def test_get_stable_ordering__db_expression(self):
+        expr = Length('last_name')
+        qs = FakeContact.objects.all()
+
+        # self._create_contacts()
+        # print([qs.order_by(expr)])
+
+        self.assertListEqual(
+            [expr, 'cremeentity_ptr'],
+            get_stable_ordering(qs.order_by(expr)),
+        )
+        self.assertListEqual(
+            [expr, 'id'],
+            get_stable_ordering(qs.order_by(expr, 'id')),
+        )
