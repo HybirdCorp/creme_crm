@@ -234,6 +234,12 @@ class FlowPaginator:
     def _set_key(self, queryset, value: str) -> None:
         self._key = value
 
+        # 'value' could be a DB expression
+        if not isinstance(value, str):
+            raise ValueError(
+                f'FlowPaginator only accepts first ordering part to be a string: {value}'
+            )
+
         if value.startswith('-'):
             attr_name = value[1:]
             self._reverse_order = True

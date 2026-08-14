@@ -3,7 +3,8 @@ from datetime import date
 from functools import partial
 from random import shuffle
 
-from django.db.models.functions import ExtractYear, Length
+from django.db.models import Value as V
+from django.db.models.functions import Concat, ExtractYear, Length
 from parameterized import parameterized
 
 from creme.creme_core.core.paginator import (
@@ -1829,6 +1830,20 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual([contacts[6]], [*page4.object_list])
         self.assertFalse(page4.has_next())
         self.assertDictEqual({'key': '-year', 'type': 'last'}, page4.info())
+
+    def test_db_expression(self):
+        # self._build_contacts()
+
+        qs = FakeContact.objects.order_by(Concat('last_name', V('#'), 'first_name'))
+        # print('==>', qs)
+
+        with self.assertRaises(ValueError) as cm:
+            FlowPaginator(qs, per_page=2, count=qs.count())
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'FlowPaginator only accepts first ordering part to be a string: ',
+        )
 
     def test_pages(self):
         self._build_contacts()
