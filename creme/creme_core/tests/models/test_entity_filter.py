@@ -1354,7 +1354,7 @@ class EntityFilterTestCase(CremeTestCase):
         self.assertDictEqual({'name': 'current_year'}, condition22.value)
 
     def test_clone__other_attr_values(self):
-        "Other values for attributes."
+        """Other values for attributes."""
         user = self.get_root_user()
         efilter1 = EntityFilter.objects.smart_update_or_create(
             pk='test', name='My great filter',
@@ -1487,7 +1487,7 @@ class EntityFilterTestCase(CremeTestCase):
         self.assertEqual('invalid_id',                      condition.name)
 
     def test_set_conditions__different_ctypes(self):
-        "Related ContentTypes are different between filter & condition => error."
+        """Related ContentTypes are different between filter & condition => error."""
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Misato', FakeContact,
             conditions=[
@@ -1502,7 +1502,7 @@ class EntityFilterTestCase(CremeTestCase):
         self.assertFalse(efilter.conditions.all())
 
     def test_get_conditions__errors(self):
-        "Invalid stored data."
+        """Invalid stored data."""
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Test', model=FakeContact, is_custom=True,
         )
@@ -1513,10 +1513,30 @@ class EntityFilterTestCase(CremeTestCase):
         )
         condition1.filter = efilter
         condition1.save()
+        self.assertIsTuple(efilter.errors, length=0)
 
         condition2 = self.get_alone_element(self.refresh(efilter).get_conditions())
         EntityFilterCondition.objects.filter(id=condition2.id).update(value=[])
-        self.assertFalse(self.refresh(efilter).get_conditions())
+
+        efilter = self.refresh(efilter)
+        with (
+            self.assertNumQueries(1),
+            self.assertNoException(),
+            self.assertLogs(level='WARNING'),
+        ):
+            conditions = efilter.get_conditions()
+        self.assertFalse(conditions)
+
+        with self.assertNumQueries(0):
+            errors1 = efilter.errors
+        expected_errors = ('Invalid data, cannot build a handler',)
+        self.assertTupleEqual(expected_errors, errors1)
+
+        # Retrieve errors before => fill conditions ---
+        efilter = self.refresh(efilter)
+        with self.assertNumQueries(1):
+            errors2 = efilter.errors
+        self.assertTupleEqual(expected_errors, errors2)
 
     def test_get_verbose_conditions__no_condition(self):
         efilter = EntityFilter.objects.smart_update_or_create(

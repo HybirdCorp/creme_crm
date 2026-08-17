@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-03 17:17+0200\n"
+"POT-Creation-Date: 2026-08-18 10:36+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1498,6 +1498,16 @@ msgstr "{count} Type de ressource configurable"
 msgid "{count} Configurable types of resource"
 msgstr "{count} Types de ressource configurables"
 
+#, python-format
+msgid "Conditions of «%(efilter)s»"
+msgstr "Conditions de «%(efilter)s»"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "Errors"
+msgstr "Erreurs"
+
 msgid "Create a filter"
 msgstr "Créer un filtre"
 
@@ -1636,9 +1646,6 @@ msgstr ""
 
 msgid "Can be displayed on"
 msgstr "Peut être affiché sur"
-
-msgid "Errors"
-msgstr "Erreurs"
 
 msgid "Home"
 msgstr "Accueil"
@@ -2125,10 +2132,6 @@ msgstr "Supprimer ces droits"
 #, python-format
 msgid "Filter «%(efilter)s»"
 msgstr "Filtre «%(efilter)s»"
-
-#, python-format
-msgid "Conditions of «%(efilter)s»"
-msgstr "Conditions de «%(efilter)s»"
 
 # Already in creme_core
 msgid "Information on the current filter"

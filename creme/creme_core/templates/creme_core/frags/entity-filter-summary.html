@@ -9,7 +9,7 @@
   {% else %}
     <span>{{vconds.0}}</span>
   {% endif %}
-  {% if efilter.registry.detail_url_name %}
+  {% if not hide_detail_link and efilter.registry.detail_url_name %}
    {% widget_hyperlink efilter label=_('Details on the filter') disabled=efilter|efilter_view_forbidden:user %}
   {% endif %}
 </div>

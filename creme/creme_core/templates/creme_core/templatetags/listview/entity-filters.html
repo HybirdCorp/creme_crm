@@ -1,5 +1,8 @@
 {% load i18n creme_ctype creme_entity_filter creme_widgets %}{% load blockjsondata from creme_core_tags %}
-<fieldset title="{% translate 'Filter the lines of the table with conditions on fields, relationships…' %}">
+<fieldset class="{% if errors %}invalid-selected{% endif%}"
+          title="{% if errors %}{% blocktranslate %}The current filter has errors ({{errors}}){% endblocktranslate %}
+{% else %}{% translate 'Filter the lines of the table with conditions on fields, relationships…' %}
+{% endif %}">
     <div class="legend">
         {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
