@@ -52,6 +52,10 @@
     padding: 0;
 }
 
+.list-control-group fieldset.invalid-selected {
+    background-color: red;
+}
+
 .list-control-group .legend {
     display: inline-block;
     margin-right: 10px;

@@ -75,6 +75,10 @@
     font-size: 0px;
 }
 
+.list-control-group fieldset.invalid-selected {
+    background-color: red;
+}
+
 .list-control-group .legend {
     display: inline-block;
     text-transform: uppercase;

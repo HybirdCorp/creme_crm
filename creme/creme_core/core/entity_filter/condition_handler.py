@@ -143,11 +143,11 @@ class FilterConditionHandler:
               name: str,
               data: dict | None,
               ) -> FilterConditionHandler:
-        "Get an instance of FilterConditionHandler from serialized data."
+        """Get an instance of FilterConditionHandler from serialized data."""
         raise NotImplementedError
 
     def description(self, user):
-        "Human-readable string explaining the handler."
+        """Human-readable string explaining the handler."""
         raise NotImplementedError
 
     def entities_are_distinct(self) -> bool:
@@ -195,7 +195,7 @@ class FilterConditionHandler:
 
     @property
     def subfilter(self) -> EntityFilter | bool:
-        "@return: An EntityFilter instance or 'False' is there is no valid sub-filter."
+        """@return: An EntityFilter instance or 'False' is there is no valid sub-filter."""
         subfilter = self._subfilter
 
         if subfilter is None:
@@ -212,7 +212,7 @@ class FilterConditionHandler:
 
     @property
     def subfilter_id(self) -> str | None:
-        "@return: An ID of an EntityFilter, or None."
+        """@return: An ID of an EntityFilter, or None."""
         return None
 
 
@@ -1033,8 +1033,9 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             }
         except (TypeError, KeyError, ValueError) as e:
             raise cls.DataError(
-                f'{cls.__name__}.build(): invalid data ({e})'
-            )
+                # f'{cls.__name__}.build(): invalid data ({e})'
+                f'invalid data ({e})'
+            ) from e
 
         return cls(efilter_type=efilter_type, model=model, custom_field=cf_uuid, **kwargs)
 

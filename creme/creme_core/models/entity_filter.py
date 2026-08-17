@@ -380,6 +380,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     efilter_registries = entity_filter_registries
 
+    _errors_cache = None
     _conditions_cache = None
     _connected_filter_cache = None
     _subfilter_conditions_cache = None
@@ -458,7 +459,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         # if not self.user.is_team:
         #     if self.user_id == user.id:
         #         return True, 'OK'
-        # elif user.id in self.user.teammates:  # TODO: move in a User method ??
+        # elif user.id in self.user.teammates:
         #     return True, 'OK'
         #
         # return (
@@ -848,7 +849,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
                       is_private: bool,
                       owner: CremeUser,
                       ) -> None:
-        "@raises EntityFilter.PrivacyError"
+        """@raises EntityFilter.PrivacyError"""
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
@@ -895,6 +896,14 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         # TODO ?
         # conds = self.get_conditions()
         # return all(cond.entities_are_distinct(conds) for cond in conds)
+
+    @property
+    def errors(self) -> tuple[str]:
+        """Errors like invalid data for condition."""
+        if self._errors_cache is None:
+            self.get_conditions()  # NOQA
+
+        return tuple(self._errors_cache)
 
     @property
     def registry(self) -> EntityFilterRegistry:
@@ -987,6 +996,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         append = checked_conds.append
 
         model = self.entity_type.model_class()
+        self._errors_cache = errors = []
 
         for condition in conditions:
             condition.filter = self
@@ -997,6 +1007,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
                 #     be temporarily erroneous (e.g. commented app which
                 #     registers handler/operator)
                 logger.warning('%s => EntityFilterCondition instance is ignored', error)
+                errors.append(error)
             elif model != condition.handler.model:
                 logger.warning(
                     'EntityFilterCondition related to a different model => we removed it'
@@ -1093,6 +1104,7 @@ class EntityFilterCondition(models.Model):
 
     efilter_registries = entity_filter_registries
 
+    # TODO: False|None|EntityFilterCondition?
     _handler = None  # Cache for FilterConditionHandler instance.
     _model = None
 
@@ -1168,7 +1180,7 @@ class EntityFilterCondition(models.Model):
         )
 
     def description(self, user: CremeUser) -> str:
-        "Human-readable string explaining the condition."
+        """Human-readable string explaining the condition."""
         return self.handler.description(user)
 
     @property
@@ -1201,6 +1213,7 @@ class EntityFilterCondition(models.Model):
     def error(self) -> str | None:
         handler = self.handler
         if handler is None:
+            # NB: critical error not understandable by a regular user
             return 'Invalid data, cannot build a handler'
 
         return handler.error

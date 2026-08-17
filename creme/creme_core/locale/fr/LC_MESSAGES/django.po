@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-03 16:00+0200\n"
+"POT-Creation-Date: 2026-08-18 10:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -4301,6 +4301,10 @@ msgstr ""
 msgid "Display the available actions for «&nbsp;%(entity)s&nbsp;»"
 msgstr "Afficher les actions disponibles pour «&nbsp;%(entity)s&nbsp;»"
 
+#, python-format
+msgid "The current filter has errors (%(errors)s)"
+msgstr "Le filtre courant a des erreurs (%(errors)s)"
+
 msgid "Filter the lines of the table with conditions on fields, relationships…"
 msgstr ""
 "Filtrer les lignes de la table avec des conditions sur les champs, relations…"
@@ -4642,12 +4646,6 @@ msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 msgid "The exploration is over"
 msgstr "L'exploration est finie"
 
-msgid "This field is hidden."
-msgstr "Ce champ est caché."
-
-msgid "No entity corresponding to your search was found."
-msgstr "Aucun élément correspondant à votre recherche n'a été trouvé."
-
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'avez pas la permission de modifier cette fiche"
 
@@ -4852,6 +4850,12 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+msgid "This field is hidden."
+msgstr "Ce champ est caché."
+
+msgid "No entity corresponding to your search was found."
+msgstr "Aucun élément correspondant à votre recherche n'a été trouvé."
 
 msgid "An entity has been created"
 msgstr "Une fiche a été créée"

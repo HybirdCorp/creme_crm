@@ -1587,6 +1587,12 @@ svg.icon {
     text-align: left;
 }
 
+.creme_core-efilter-info-brick .item-efilter-errors .brick-kv-value ul {
+    margin: 3px;
+    padding-left: 18px;
+    color: red;
+}
+
 .creme_core-efilter-info-brick .item-efilter-conditions .brick-kv-value {
     margin: 10px;
     color: #5b5b5b;

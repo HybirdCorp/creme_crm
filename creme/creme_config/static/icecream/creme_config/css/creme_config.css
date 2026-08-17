@@ -1154,6 +1154,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     background: #f7f6f6;
 }
 
+.creme_config-entityfilters-brick ul.errors {
+    color: red;
+}
+
 .creme_config-entityfilters-brick .entityfilter-config-user-title,
 .creme_config-headerfilters-brick .headerfilter-config-user-title {
     text-transform: uppercase;
@@ -1171,14 +1175,27 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-workflows-brick .workflow-config .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li a.entityfilter-config-details,
 .creme_config-headerfilters-brick .headerfilter-config-group li .brick-action {
     visibility: hidden;
 }
 
 .creme_config-workflows-brick .workflow-config:hover .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover a.entityfilter-config-details,
 .creme_config-headerfilters-brick .headerfilter-config-group li:hover .brick-action {
     visibility: visible;
+}
+
+.creme_config-entityfilters-brick a.entityfilter-config-details img {
+    /* NB: copied form brick-action-icon */
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 }
 
 .creme_config-workflows-brick .empty-message,

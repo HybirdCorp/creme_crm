@@ -1151,6 +1151,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #2b4058;
 }
 
+.creme_config-entityfilters-brick ul.errors {
+    color: red;
+}
+
 .creme_config-entityfilters-brick .entityfilter-config-user-title,
 .creme_config-headerfilters-brick .headerfilter-config-user-title {
     text-transform: uppercase;
@@ -1174,12 +1178,14 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-workflows-brick .workflow-config .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li a.entityfilter-config-details,
 .creme_config-headerfilters-brick .headerfilter-config-group li .brick-action {
     visibility: hidden;
 }
 
 .creme_config-workflows-brick .workflow-config:hover .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover a.entityfilter-config-details,
 .creme_config-headerfilters-brick .headerfilter-config-group li:hover .brick-action {
     visibility: visible;
 }

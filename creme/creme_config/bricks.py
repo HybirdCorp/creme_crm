@@ -1383,7 +1383,7 @@ class EntityFiltersBrick(PaginatedBrick):
         for efilter in core_models.EntityFilter.objects.filter(
             filter_type=self.filter_type,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
-        ).prefetch_related('user', 'user__teammates_set'):
+        ).prefetch_related('user', 'user__teammates_set', 'conditions'):
             # efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
             # efilter.edition_perm = efilter.can_edit(user)[0]
             # efilter.deletion_perm = efilter.can_delete(user)[0]

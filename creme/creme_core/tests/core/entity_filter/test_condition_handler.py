@@ -2144,23 +2144,28 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual(rname,       handler._related_name)
 
     def test_build__invalid_data(self):
-        cfield_id = '6'
+        # cfield_id = '6'
+        cfield_uuid = str(uuid4())
         operator_id = operators.GT
         value = 25
         rname = 'customfieldinteger'
 
-        with self.assertRaises(FilterConditionHandler.DataError):
+        with self.assertRaises(FilterConditionHandler.DataError) as cm1:
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
-                model=FakeOrganisation, name=cfield_id,
+                model=FakeOrganisation,
+                # name=cfield_id,
+                name=cfield_uuid,
                 data=[],  # <= not a dict.
             )
+        self.assertIn('invalid data (', str(cm1.exception))
 
         with self.assertRaises(FilterConditionHandler.DataError):
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name=cfield_id,
+                # name=cfield_id,
+                name=cfield_uuid,
                 data={
                     'operator': operator_id,
                     'rname': rname,
@@ -2172,7 +2177,8 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name=cfield_id,
+                # name=cfield_id,
+                name=cfield_uuid,
                 data={
                     'operator': operator_id,
                     # 'rname': rname,  # Missing
@@ -2184,7 +2190,8 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name=cfield_id,
+                # name=cfield_id,
+                name=cfield_uuid,
                 data={
                     # 'operator': operator_id,   # Missing
                     'rname': rname,
@@ -2196,7 +2203,8 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name=cfield_id,
+                # name=cfield_id,
+                name=cfield_uuid,
                 data={
                     'operator': 'notanint',  # <==
                     'rname': rname,
@@ -2208,7 +2216,8 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             CustomFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name='notanint',  # <==
+                # name='notanint',  # <==
+                name='notauuid',  # <==
                 data={
                     'operator': operator_id,
                     'rname': rname,
