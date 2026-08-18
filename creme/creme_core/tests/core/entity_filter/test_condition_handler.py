@@ -140,18 +140,26 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual([value],     handler._values)
 
     def test_property_error(self):
-        self.assertEqual(
-            "FakeOrganisation has no field named 'invalid'",
-            RegularFieldConditionHandler(
-                efilter_type=EF_REGULAR,
-                model=FakeOrganisation,
-                field_name='invalid',
-                operator_id=operators.ICONTAINS,
-                values=['Corp'],
-            ).error,
+        with self.assertLogs(level='WARNING') as logs_mngr1:
+            self.assertEqual(
+                # "FakeOrganisation has no field named 'invalid'",
+                _('There is no field named «{name}»').format(name='invalid'),
+                RegularFieldConditionHandler(
+                    efilter_type=EF_REGULAR,
+                    model=FakeOrganisation,
+                    field_name='invalid',
+                    operator_id=operators.ICONTAINS,
+                    values=['Corp'],
+                ).error,
+            )
+        self.assertIn(
+            'FakeOrganisation has no field named "invalid"',
+            logs_mngr1.output[0],
         )
+
         self.assertEqual(
-            "Operator ID '1234' is invalid",
+            # "Operator ID '1234' is invalid",
+            _('The operator «{}» is invalid').format('1234'),
             RegularFieldConditionHandler(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
@@ -160,29 +168,40 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
                 values=['Corp'],
             ).error,
         )
-        self.assertEqual(
-            'FakeOrganisation.header_filter_search_field is not viewable',
-            RegularFieldConditionHandler(
-                efilter_type=EF_REGULAR,
-                model=FakeOrganisation,
-                field_name='header_filter_search_field',  # Not viewable
-                operator_id=operators.ICONTAINS,
-                values=['Corp'],
-            ).error,
-        )
-        self.assertEqual(
-            'FakeContact.cremeentity_ptr__description is not viewable',
-            RegularFieldConditionHandler(
-                efilter_type=EF_REGULAR,
-                model=FakeContact,
-                field_name='cremeentity_ptr__description',  # Root not viewable
-                operator_id=operators.EQUALS,
-                values=['contact'],
-            ).error,
+
+        with self.assertLogs(level='WARNING'):
+            self.assertEqual(
+                # 'FakeOrganisation.header_filter_search_field is not viewable',
+                _('The field «{name}» is not viewable').format(name='header filter search field'),
+                RegularFieldConditionHandler(
+                    efilter_type=EF_REGULAR,
+                    model=FakeOrganisation,
+                    field_name='header_filter_search_field',  # Not viewable
+                    operator_id=operators.ICONTAINS,
+                    values=['Corp'],
+                ).error,
+            )
+
+        with self.assertLogs(level='WARNING') as logs_mngr4:
+            self.assertEqual(
+                # 'FakeContact.cremeentity_ptr__description is not viewable',
+                _('The field «{name}» is not viewable').format(
+                    name='cremeentity ptr - ' + _('Description'),
+                ),
+                RegularFieldConditionHandler(
+                    efilter_type=EF_REGULAR,
+                    model=FakeContact,
+                    field_name='cremeentity_ptr__description',  # Root not viewable
+                    operator_id=operators.EQUALS,
+                    values=['contact'],
+                ).error,
+            )
+        self.assertIn(
+            'FakeContact.cremeentity_ptr__description', logs_mngr4.output[0],
         )
 
     def test_applicable_on_entity_base(self):
-        "Field belongs to CremeEntity."
+        """Field belongs to CremeEntity."""
         handler = RegularFieldConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
@@ -1307,6 +1326,14 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         with self.assertNumQueries(0):
             handler1.description(user)
 
+        with self.assertLogs(level='WARNING'):
+            self.assertEqual(
+                _('Some «{model}» does not exist anymore').format(
+                    model=FakePosition._meta.verbose_name_plural,
+                ),
+                handler1.error,
+            )
+
         # ---
         handler2 = RegularFieldConditionHandler(
             efilter_type=EF_REGULAR,
@@ -1336,6 +1363,7 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             _('«{field}» is not empty').format(field=_('Position')),
             handler3.description(user),
         )
+        self.assertIsNone(handler3.error)
 
         # Operator IS_EMPTY (+True)
         handler4 = RegularFieldConditionHandler(
@@ -1463,6 +1491,7 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             ),
             handler1.description(user),
         )
+        self.assertIsNone(handler1.error)
 
         # ----
         handler2 = RegularFieldConditionHandler(
@@ -1507,6 +1536,7 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             ),
             cond.description(user1),
         )
+        self.assertIsNone(cond.handler.error)
 
         # ---
         with self.assertNoException():
@@ -1562,11 +1592,11 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
                 **date_range_registry.get_range(name=range_name)
                                      .get_q_dict(field=fname, now=now())
             ),
-            handler.get_q(user=None),
+            handler.get_q(user=self.get_root_user()),
         )
 
     def test_property_error(self):
-        "<error> property."
+        """<error> property."""
         self.assertEqual(
             "FakeOrganisation has no field named 'unknown'",
             DateRegularFieldConditionHandler(
@@ -2007,16 +2037,18 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual([value],           handler._values)
         self.assertEqual(rname,             handler._related_name)
 
-        self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, True)
 
+        user = self.get_root_user()
         with self.assertNumQueries(1):
-            q = handler.get_q(user=None)
+            q = handler.get_q(user=user)
 
         self.assertQEqual(
             Q(pk__in=FakeOrganisation.objects.none()),
             q,
         )
+
+        self.assertIsNone(handler.error)
 
         # ---
         with self.assertNumQueries(0):
@@ -2069,9 +2101,9 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual('customfieldboolean', handler._related_name)
 
     def test_property_error(self):
-        "<error> property."
+        """<error> property."""
         custom_field = CustomField.objects.create(
-            name='Base line', field_type=CustomField.STR,
+            name='Baseline', field_type=CustomField.STR,
             content_type=FakeOrganisation,
         )
 
@@ -2082,7 +2114,8 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             operator_id=1234,  # <=
             values=['Corp'],
         )
-        self.assertEqual("Operator ID '1234' is invalid", handler1.error)
+        # self.assertEqual("Operator ID '1234' is invalid", handler1.error)
+        self.assertEqual("Operator '1234' is invalid", handler1.error)
 
         # ---
         handler2 = CustomFieldConditionHandler(
@@ -2094,6 +2127,77 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             related_name='invalid',  # <===
         )
         self.assertEqual("related_name 'invalid' is invalid", handler2.error)
+
+        # ---
+        uid3 = uuid4()
+        handler3 = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=uid3,
+            operator_id=operators.EQUALS,
+            values=['True'],
+            related_name='customfieldinteger',
+        )
+        with self.assertLogs(level='WARNING') as log_mngr3:
+            self.assertEqual(
+                _('A custom field does not exist anymore'), handler3.error,
+            )
+        self.assertIn(f' uuid="{uid3}"', log_mngr3.output[0])
+
+    def test_property_error__enum(self):
+        custom_field = CustomField.objects.create(
+            name='Type of ship', field_type=CustomField.ENUM,
+            content_type=FakeOrganisation,
+        )
+        enum_small = CustomFieldEnumValue.objects.create(
+            custom_field=custom_field, value='Small',
+        )
+
+        uid = str(uuid4())
+        equals_handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[str(enum_small.uuid), uid],
+            related_name='customfieldenum',
+        )
+        with self.assertLogs(level='WARNING') as log_manager:
+            self.assertEqual(
+                _('A custom field choice does not exist anymore'), equals_handler.error,
+            )
+        self.assertIn(uid, log_manager.output[0])
+
+        # ---
+        isempty_handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.ISEMPTY,
+            values=[True],
+            related_name='customfieldenum',
+        )
+        self.assertIsNone(isempty_handler.error)
+
+    def test_property_error__multi_enum(self):
+        custom_field = CustomField.objects.create(
+            name='Types of ship', field_type=CustomField.MULTI_ENUM,
+            content_type=FakeOrganisation,
+        )
+        enum_small = CustomFieldEnumValue.objects.create(
+            custom_field=custom_field, value='Small',
+        )
+        handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[str(enum_small.uuid), str(uuid4())],
+            related_name='customfieldenum',
+        )
+        self.assertEqual(
+            _('A custom field choice does not exist anymore'), handler.error,
+        )
 
     def test_build(self):
         model = FakeContact
@@ -2792,7 +2896,7 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertListEqual(uuids_strings, handler._values)
 
     def test_get_q__bool(self):
-        "get_q() not empty."
+        """get_q() not empty."""
         user = self.get_root_user()
 
         custom_field = CustomField.objects.create(
@@ -3210,7 +3314,6 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsNone(handler._start)
         self.assertIsNone(handler._end)
 
-        self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, True)
 
         # ---
@@ -3225,11 +3328,13 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         # ---
         self.assertQEqual(
             Q(pk__in=FakeOrganisation.objects.none()),
-            handler.get_q(user=None),
+            handler.get_q(user=self.get_root_user()),
         )
 
+        self.assertIsNone(handler.error)
+
     def test_init__datetime_start_end(self):
-        "Pass a DATETIME CustomField instance + start/end."
+        """Pass a DATETIME CustomField instance + start/end."""
         custom_field = CustomField.objects.create(
             name='First fight',
             content_type=FakeOrganisation,
@@ -3714,13 +3819,12 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsNone(handler1._ct_key)
         self.assertIsNone(handler1._entity_uuid)
 
-        self.assertIsNone(handler1.error)
         self.assertIs(handler1.applicable_on_entity_base, True)
         self.assertIs(handler1.entities_are_distinct(), True)
 
         self.assertQEqual(
             Q(pk__in=Relation.objects.none()),
-            handler1.get_q(user=None),
+            handler1.get_q(user=user),
         )
 
         # ---
@@ -3736,6 +3840,8 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         with self.assertNumQueries(0):
             e1 = handler1.entity
         self.assertIsNone(e1)
+
+        self.assertIsNone(handler1.error)
 
         # ---
         ctype_id = ContentType.objects.get_for_model(FakeContact).id
@@ -4250,7 +4356,7 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler3.description(user),
         )
 
-    def test_relation_description__credentials(self):
+    def test_description__credentials(self):
         user = self.login_as_standard()
 
         rtype = RelationType.objects.builder(
@@ -4273,7 +4379,7 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler.description(user),
         )
 
-    def test_description__errors(self):
+    def test_errors(self):
         user = self.get_root_user()
 
         handler1 = RelationConditionHandler(
@@ -4283,16 +4389,26 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             exclude=True,
         )
         self.assertEqual('???', handler1.description(user))
+        with self.assertLogs(level='WARNING') as log_mngr1:
+            self.assertEqual(
+                _('A type of relationship does not exist anymore'),
+                handler1.error,
+            )
+        self.assertIn(' id="doesnotexistanymore"', log_mngr1.output[0])
 
         # ---
         rtype = RelationType.objects.builder(
             id='test-subject_like', predicate='is liking',
-        ).symmetric(id='test-object_like', predicate='is liked by').get_or_create()[0]
+        ).symmetric(
+            id='test-object_like', predicate='is liked by',
+        ).get_or_create()[0]
+        uid2 = uuid4()
         handler2 = RelationConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeContact,
             rtype=rtype,
-            entity=self.UNUSED_PK,
+            # entity=self.UNUSED_PK,
+            entity=uid2,
         )
         self.assertEqual(
             _('The entities have relationships «{predicate}» to «{entity}»').format(
@@ -4301,6 +4417,14 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             ),
             handler2.description(user),
         )
+        with self.assertLogs(level='WARNING') as log_mngr2:
+            self.assertEqual(
+                _(
+                    'An entity (related to «{predicate}») does not exist anymore'
+                ).format(predicate=rtype.predicate),
+                handler2.error,
+            )
+        self.assertIn(f' uuid="{uid2}"', log_mngr2.output[0])
 
         # ---
         handler3 = RelationConditionHandler(
@@ -4316,6 +4440,12 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
                 model='???',
             ),
             handler3.description(user),
+        )
+        self.assertEqual(
+            _('A type of entity does not exist anymore («{type}»)').format(
+                type='invalid_app.invalid_model',
+            ),
+            handler3.error,
         )
 
 
@@ -4352,7 +4482,9 @@ class SubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler.applicable_on_entity_base, False)
         self.assertIs(handler.entities_are_distinct(), True)
 
-        self.assertQEqual(Q(name__exact='Bebop'), handler.get_q(user=None))
+        self.assertQEqual(
+            Q(name__exact='Bebop'), handler.get_q(user=self.get_root_user()),
+        )
 
         # --
         with self.assertRaises(TypeError):
@@ -4390,7 +4522,33 @@ class SubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             efilter_type=EF_REGULAR,
             model=FakeOrganisation, subfilter='invalid',
         )
-        self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+        # self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+        with self.assertLogs(level='WARNING') as logs_mngr:
+            self.assertEqual(_('A sub-filter does not exist anymore'), handler.error)
+
+        self.assertIn('id="invalid"', logs_mngr.output[0])
+
+    def test_property_error__recursive(self):
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-sub_filter01', name='Sub Filter', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator=operators.EQUALS, values=['Spiegel'],
+                ),
+            ],
+        )
+        EntityFilterCondition.objects.filter(filter=sub_efilter).update(name='invalid')
+
+        handler2 = SubFilterConditionHandler.build(
+            efilter_type=EF_REGULAR,
+            model=FakeContact, name=sub_efilter.id, data={},
+        )
+
+        self.assertEqual(
+            _('The sub-filter «{}» has errors').format(sub_efilter.name),
+            handler2.error,
+        )
 
     def test_build(self):
         model = FakeContact
@@ -4576,14 +4734,17 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
                 ),
             ],
         )
-        rtype_id = 'creme_core-subject_loves'
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
+
         handler = RelationSubFilterConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
-            subfilter=sub_efilter.id, rtype=rtype_id, exclude=False,
+            subfilter=sub_efilter.id, rtype=rtype.id, exclude=False,
         )
         self.assertEqual(FakeOrganisation, handler.model)
-        self.assertEqual(rtype_id, handler._rtype_id)
+        self.assertEqual(rtype.id, handler._rtype_id)
         self.assertIs(handler._exclude, False)
         self.assertEqual(sub_efilter.id, handler.subfilter_id)
         self.assertEqual(sub_efilter.id, handler._subfilter_id)
@@ -4645,14 +4806,14 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler._exclude, False)
         self.assertEqual(rtype.id, handler._rtype_id)
 
-    def test_property_error(self):
-        handler = RelationSubFilterConditionHandler(
-            efilter_type=EF_REGULAR,
-            model=FakeOrganisation,
-            subfilter='invalid',
-            rtype='creme_core-subject_test',
-        )
-        self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+    # def test_property_error(self):
+    #     handler = RelationSubFilterConditionHandler(
+    #         efilter_type=EF_REGULAR,
+    #         model=FakeOrganisation,
+    #         subfilter='invalid',
+    #         rtype='creme_core-subject_test',
+    #     )
+    #     self.assertEqual("'invalid' is not a valid filter ID", handler.error)
 
     def test_build(self):
         model = FakeContact
@@ -4915,7 +5076,7 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler2.description(user),
         )
 
-    def test_description__errors(self):
+    def test_errors(self):
         user = self.get_root_user()
 
         sub_filter = EntityFilter.objects.smart_update_or_create(
@@ -4934,6 +5095,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             rtype='deosnotexist', subfilter=sub_filter,
         )
         self.assertEqual('???', handler1.description(user))
+        self.assertEqual(
+            _('A type of relationship does not exist anymore'), handler1.error,
+        )
 
         # ---
         rtype = RelationType.objects.builder(
@@ -4952,6 +5116,14 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             ),
             handler2.description(user),
         )
+        with self.assertLogs(level='WARNING') as log_mngr2:
+            self.assertEqual(
+                _('A sub-filter (related to «{predicate}») does not exist anymore').format(
+                    predicate=rtype.predicate,
+                ),
+                handler2.error,
+            )
+        self.assertIn('id="doesnotexist"', log_mngr2.output[0])
 
 
 class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
@@ -4969,7 +5141,6 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual(ptype.uuid, handler._ptype_uuid)
         self.assertIs(handler._exclude, False)
 
-        self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
@@ -4985,6 +5156,8 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
 
         with self.assertNumQueries(0):
             handler.property_type  # NOQA
+
+        self.assertIsNone(handler.error)
 
     def test_init__ptype_instance(self):
         ptype = CremePropertyType.objects.create(text='Kawaii')
@@ -5192,6 +5365,7 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
             _('The entities have the property «{}»').format(cute.text),
             handler.description(user),
         )
+        self.assertIsNone(handler.error)
 
     def test_description__exclude(self):
         user = self.get_root_user()
@@ -5206,10 +5380,24 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
         )
 
     def test_description__deleted_ptype(self):
-        user = self.get_root_user()
         handler = PropertyConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
-            ptype=UUID('e61782ee-cc12-4239-9274-bd464c21f473'),
+            ptype=uuid4(),
         )
-        self.assertEqual('???', handler.description(user))
+        self.assertEqual('???', handler.description(self.get_root_user()))
+
+    def test_property_error(self):
+        uid = uuid4()
+        handler = PropertyConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            ptype=uid,
+        )
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            self.assertEqual(
+                _('A property type does not exist anymore'),
+                handler.error,
+            )
+        self.assertIn(f' uuid="{uid}"', log_mngr.output[0])

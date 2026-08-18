@@ -389,6 +389,19 @@ div.efilter-summary span.disabled-link:last-child {
     padding-top: 10px;
 }
 
+div.efilter-summary ul {
+    margin: 2px;
+    padding-left: 20px;
+}
+
+div.efilter-summary .efilter-no-condition {
+    font-style: italic;
+}
+
+div.efilter-summary .efilter-errors {
+    color: red;
+}
+
 /* Title bar */
 
 .hat-bar-container {

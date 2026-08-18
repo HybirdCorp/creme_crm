@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-18 10:38+0200\n"
+"POT-Creation-Date: 2026-08-20 09:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -357,6 +357,12 @@ msgstr "Filtre normal (utilisable dans les vues en liste)"
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
 
+msgid "A sub-filter does not exist anymore"
+msgstr "Un sous-filtre n'existe plus"
+
+msgid "The sub-filter «{}» has errors"
+msgstr "Le sous-filtre «{}» a des erreurs"
+
 msgid "Sub-filters"
 msgstr "Sous-filtres"
 
@@ -369,6 +375,21 @@ msgstr "Vrai"
 
 msgid "False"
 msgstr "Faux"
+
+#, python-brace-format
+msgid "There is no field named «{name}»"
+msgstr "Il n'y a pas de champ nommé «{name}»"
+
+#, python-brace-format
+msgid "The field «{name}» is not viewable"
+msgstr "Le champ «{name}» n'est pas visible"
+
+msgid "The operator «{}» is invalid"
+msgstr "L'opérateur «{}» est invalide"
+
+#, python-brace-format
+msgid "Some «{model}» does not exist anymore"
+msgstr "Certains «{model}» n'existent plus"
 
 msgid "On regular fields"
 msgstr "Sur les champs normaux"
@@ -395,11 +416,20 @@ msgstr "«{field}» finit le «{date}»"
 msgid "On date fields"
 msgstr "Sur les champs de date"
 
+msgid "A custom field does not exist anymore"
+msgstr "Un champ personnalisé n'existe plus"
+
+msgid "A custom field choice does not exist anymore"
+msgstr "Un choix de champ personnalisé n'existe plus"
+
 msgid "On custom fields"
 msgstr "Sur les champs personnalisés"
 
 msgid "On date custom fields"
 msgstr "Sur les champs personnalisés de date"
+
+msgid "A type of relationship does not exist anymore"
+msgstr "Un type de relation n'existe plus"
 
 #, python-brace-format
 msgid "The entities have relationships «{predicate}»"
@@ -425,6 +455,14 @@ msgstr "Les fiches ont des relations «{predicate}» vers «{entity}»"
 msgid "The entities have no relationship «{predicate}» to «{entity}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{entity}»"
 
+#, python-brace-format
+msgid "A type of entity does not exist anymore («{type}»)"
+msgstr "Un type de fiche n'existe plus («{type}»)"
+
+#, python-brace-format
+msgid "An entity (related to «{predicate}») does not exist anymore"
+msgstr "Un fiche (liée à «{predicate}») n'existe plus"
+
 msgid "On relationships"
 msgstr "Sur les relations"
 
@@ -439,6 +477,10 @@ msgstr "Les fiches ont des relations «{predicate}» vers «{filter}»"
 msgid "The entities have no relationship «{predicate}» to «{filter}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{filter}»"
 
+#, python-brace-format
+msgid "A sub-filter (related to «{predicate}») does not exist anymore"
+msgstr "Un sous-filtre (lié à «{predicate}») n'existe plus"
+
 msgid "On relationships with results of other filters"
 msgstr "Sur les relations avec les résultats d'autres filtres"
 
@@ -447,6 +489,9 @@ msgstr "Les fiches ont la propriété «{}»"
 
 msgid "The entities have no property «{}»"
 msgstr "Les fiches n'ont pas la propriété «{}»"
+
+msgid "A property type does not exist anymore"
+msgstr "Un type de propriété n'existe plus"
 
 msgid "On properties"
 msgstr "Sur les propriétés"
@@ -4015,6 +4060,12 @@ msgstr "Recherche"
 msgid "More"
 msgstr "Plus"
 
+msgid "No valid condition"
+msgstr "Aucune condition valide"
+
+msgid "Errors:"
+msgstr "Erreurs :"
+
 msgid "Details on the filter"
 msgstr "Détails sur le filtre"
 
@@ -4301,9 +4352,8 @@ msgstr ""
 msgid "Display the available actions for «&nbsp;%(entity)s&nbsp;»"
 msgstr "Afficher les actions disponibles pour «&nbsp;%(entity)s&nbsp;»"
 
-#, python-format
-msgid "The current filter has errors (%(errors)s)"
-msgstr "Le filtre courant a des erreurs (%(errors)s)"
+msgid "The current filter has errors"
+msgstr "Le filtre courant a des erreurs"
 
 msgid "Filter the lines of the table with conditions on fields, relationships…"
 msgstr ""
@@ -5111,9 +5161,6 @@ msgstr "Corps :"
 
 #~ msgid "Reminder"
 #~ msgstr "Mémento"
-
-#~ msgid "The field «{}» is empty"
-#~ msgstr "Le champ «{}» est vide"
 
 #~ msgid "Execute all reminders"
 #~ msgstr "Exécuter tous les mémentos"

@@ -11,7 +11,7 @@
 {% partialdef efilter-actions %}
     <a class="entityfilter-config-details" data-action="popover" data-title="{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}">
         {% widget_icon name='info' label=_('Details') size='brick-action' %}
-        <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with user=user hide_detail_link=True %}</script>
+        <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with user=user hide_errors=True hide_detail_link=True %}</script>
     </a>
 
     {% with edition_error=efilter|efilter_edition_forbidden:user %}

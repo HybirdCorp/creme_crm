@@ -897,13 +897,21 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         # conds = self.get_conditions()
         # return all(cond.entities_are_distinct(conds) for cond in conds)
 
-    @property
-    def errors(self) -> tuple[str]:
-        """Errors like invalid data for condition."""
+    def _get_errors_cache(self):
         if self._errors_cache is None:
             self.get_conditions()  # NOQA
 
-        return tuple(self._errors_cache)
+        return self._errors_cache
+
+    @property
+    def errors(self) -> Iterator[str]:
+        """Errors like invalid data for condition."""
+        yield from self._get_errors_cache()
+
+    @property
+    def errors_count(self) -> int:
+        """Number of errors (see 'errors')."""
+        return len(self._get_errors_cache())
 
     @property
     def registry(self) -> EntityFilterRegistry:

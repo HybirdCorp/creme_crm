@@ -295,8 +295,21 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
     @property
     def error(self):
-        if self.subfilter is False:
-            return f"'{self.subfilter_id}' is not a valid filter ID"
+        subfilter = self.subfilter
+
+        if subfilter is False:
+            # return f"'{self.subfilter_id}' is not a valid filter ID"
+            logger.warning(
+                '%s: the sub-filter with id="%s" cannot be found',
+                type(self).__name__, self._subfilter_id,
+            )
+
+            return gettext('A sub-filter does not exist anymore')
+
+        if subfilter.errors_count:
+            return gettext('The sub-filter «{}» has errors').format(subfilter)
+
+        return None
 
     @classmethod
     def formfield(cls, form_class=ef_fields.SubfiltersConditionsField, **kwargs):
@@ -324,7 +337,7 @@ class OperatorConditionHandlerMixin:
 
     def _check_operator(self, operator_id):
         if self.get_operator(operator_id) is None:
-            return f"Operator ID '{operator_id}' is invalid"
+            return f"Operator '{operator_id}' is invalid"
 
     def get_operand(self, value, user) -> operands.ConditionDynamicOperand | None:
         return self.efilter_registry.get_operand(type_id=value, user=user)
@@ -611,13 +624,42 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     def error(self):
         try:
             field_info = self.field_info
-        except FieldDoesNotExist as e:
-            return str(e)
+        except FieldDoesNotExist:  # as e:
+            # return str(e)
+            logger.warning(
+                '%s: %s has no field named "%s"',
+                type(self).__name__, self.model.__name__, self._field_name
+            )
 
+            return gettext('There is no field named «{name}»').format(name=self._field_name)
+
+        # TODO: manage fields hidden by configuration
         if not all(field.get_tag(FieldTag.VIEWABLE) for field in field_info):
-            return f'{self._model.__name__}.{self._field_name} is not viewable'
+            # return f'{self._model.__name__}.{self._field_name} is not viewable'
+            logger.warning('%s.%s is not viewable', self._model.__name__, self._field_name)
 
-        return self._check_operator(self._operator_id)
+            return gettext('The field «{name}» is not viewable').format(
+                name=field_info.verbose_name,
+            )
+
+        # return self._check_operator(self._operator_id)
+        # TODO: improve self._check_operator()?
+        operator_id = self._operator_id
+        operator = self.get_operator(operator_id)
+        if operator is None:
+            return gettext('The operator «{}» is invalid').format(operator_id)
+
+        # TODO: factorise
+        last_field = field_info[-1]
+        if last_field.is_relation and not isinstance(operator, operators.IsEmptyOperator):
+            keys = set(self.resolve_operands(values=self._values, user=None))
+            model = last_field.related_model
+            if len(keys) != len([*model.objects.get_by_portable_keys(keys)]):
+                return gettext('Some «{model}» does not exist anymore').format(
+                    model=model._meta.verbose_name_plural,
+                )
+
+        return None
 
     @classmethod
     def formfield(cls, form_class=ef_fields.RegularFieldsConditionsField, **kwargs):
@@ -723,7 +765,7 @@ class DateFieldHandlerMixin:
         return '??'
 
     def _get_date_range(self):
-        "Get a <creme_core.utils.date_range.DateRange> instance from the attributes."
+        """Get a <creme_core.utils.date_range.DateRange> instance from the attributes."""
         return date_range_registry.get_range(
             name=self._range_name, start=self._start, end=self._end,
         )
@@ -761,7 +803,8 @@ class DateFieldHandlerMixin:
                 except TypeError as e:
                     raise cls.DataError(
                         f'{cls.__name__}._load_daterange_kwargs() -> '
-                        f'invalid data for date ({e})')
+                        f'invalid data for date ({e})'
+                    )
                 else:
                     kwargs[key] = make_aware(dt)
 
@@ -827,6 +870,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
             value=cls._build_daterange_dict(date_range, start, end),
         )
 
+    # TODO: factorise
     @staticmethod
     def _check_field(model, field_name):
         try:
@@ -836,10 +880,17 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
 
         # TODO: test
         if not all(field.get_tag(FieldTag.VIEWABLE) for field in field_info):
-            return f'{model.__name__}.{field_name} is not viewable'
+            # return f'{model.__name__}.{field_name} is not viewable'
+            logger.warning('%s.%s is not viewable', model.__name__, field_name)
+
+            return gettext('The field «{name}» is not viewable').format(
+                name=field_info.verbose_name,
+            )
 
         if not is_date_field(field_info[-1]):
             return f"'{field_name}' is not a date field"
+
+        return None
 
     def description(self, user):
         return self._datefield_description(verbose_field=self.field_info.verbose_name)
@@ -927,7 +978,17 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
         if not any(rname == cf_cls.get_related_name() for cf_cls in _TABLES.values()):
             return f"related_name '{rname}' is invalid"
 
-        # TODO: check existence of the CustomField ? (normally the condition should be removed)
+        if self.custom_field is False:
+            logger.warning(
+                '%s: the CustomField uuid="%s" cannot be found',
+                type(self).__name__, self._custom_field_uuid
+            )
+
+            return gettext('A custom field does not exist anymore')
+
+        # TODO: error if <is_deleted == True>?
+
+        return None
 
     @classmethod
     def query_for_related_conditions(cls, instance):
@@ -1176,7 +1237,28 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
     @property
     def error(self):
-        return self._check_operator(self._operator_id) or super().error
+        # return self._check_operator(self._operator_id) or super().error
+        if error := (self._check_operator(self._operator_id) or super().error):
+            return error
+
+        if (
+            self.custom_field.field_type in {CustomField.ENUM, CustomField.MULTI_ENUM}
+            and not isinstance(self.get_operator(self._operator_id), operators.IsEmptyOperator)
+        ):
+            # TODO: test with operand
+            keys = set(self.resolve_operands(values=self._values, user=None))
+            invalid_keys = keys - {*map(
+                str,
+                CustomFieldEnumValue.objects.filter(uuid__in=keys).values_list('uuid', flat=True)
+            )}
+            if invalid_keys:
+                logger.warning(
+                    'CustomFieldConditionHandler: some custom-field enum values are invalid: %s',
+                    invalid_keys,
+                )
+                return gettext('A custom field choice does not exist anymore')
+
+        return None
 
     @classmethod
     def formfield(cls, form_class=ef_fields.CustomFieldsConditionsField, **kwargs):
@@ -1188,6 +1270,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         # NB: Sadly we retrieve the ids of the entity that match with this condition
         #     instead of use a 'JOIN', in order to avoid the interaction between
         #     several conditions on the same type of CustomField (i.e. same table).
+        # TODO: use a Subquery + OuterRef? (see <CustomFieldSorterRegistry.get_sorting_item>)
         operator = self.get_operator(self._operator_id)
         related_name = self._related_name
         fname = f'{related_name}__value'
@@ -1354,6 +1437,18 @@ class BaseRelationConditionHandler(FilterConditionHandler):
     @property
     def applicable_on_entity_base(self):
         return True
+
+    @property
+    def error(self):
+        if self.relation_type is False:
+            logger.warning(
+                '%s: the relation type with id="%s" cannot be found.',
+                type(self).__name__, self._rtype_id,
+            )
+
+            return gettext('A type of relationship does not exist anymore')
+
+        return None
 
     @classmethod
     def query_for_related_conditions(cls, instance):
@@ -1564,6 +1659,28 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return entity
 
+    @property
+    def error(self):
+        if err := super().error:
+            return err
+
+        if self.content_type is False:
+            return gettext(
+                'A type of entity does not exist anymore («{type}»)'
+            ).format(type='.'.join(self._ct_key))
+
+        if self.entity is False:
+            logger.warning(
+                '%s: the CremeEntity with uuid="%s" cannot be found.',
+                type(self).__name__, self._entity_uuid,
+            )
+
+            return gettext(
+                'An entity (related to «{predicate}») does not exist anymore'
+            ).format(predicate=self.relation_type.predicate)
+
+        return None
+
     @classmethod
     def formfield(cls, form_class=ef_fields.RelationsConditionsField, **kwargs):
         defaults = {
@@ -1694,9 +1811,22 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
     @property
     def error(self):
-        # TODO: error if relation type not found ?
+        # if self.subfilter is False:
+        #     return f"'{self.subfilter_id}' is not a valid filter ID"
+        if err := super().error:
+            return err
+
         if self.subfilter is False:
-            return f"'{self.subfilter_id}' is not a valid filter ID"
+            logger.warning(
+                '%s: the sub-filter with id="%s" cannot be found',
+                type(self).__name__, self.subfilter_id,
+            )
+
+            return gettext(
+                'A sub-filter (related to «{predicate}») does not exist anymore'
+            ).format(predicate=self.relation_type.predicate)
+
+        return None
 
     @classmethod
     def formfield(cls, form_class=ef_fields.RelationSubfiltersConditionsField, **kwargs):
@@ -1828,6 +1958,19 @@ class PropertyConditionHandler(FilterConditionHandler):
     def description(self, user):
         ptype = self.property_type
         return self.DESCRIPTION_FORMATS[self._exclude].format(ptype) if ptype else '???'
+
+    @property
+    def error(self):
+        if self.property_type is False:
+            logger.warning(
+                '%s: CremepPropertyType with uuid="%s" cannot be found.',
+                type(self).__name__, self._ptype_uuid,
+            )
+
+            return gettext('A property type does not exist anymore')
+
+        # TODO: error if disabled?
+        return None
 
     @classmethod
     def formfield(cls, form_class=ef_fields.PropertiesConditionsField, **kwargs):
