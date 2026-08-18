@@ -725,7 +725,8 @@ class EntityFilterConditionTestCase(CremeTestCase):
             value=condition1.value,
         )
         self.assertEqual(
-            "FakeContact has no field named 'invalid'",
+            # "FakeContact has no field named 'invalid'",
+            _('There is no field named «{name}»').format(name='invalid'),
             condition2.error,
         )
 
@@ -1513,7 +1514,8 @@ class EntityFilterTestCase(CremeTestCase):
         )
         condition1.filter = efilter
         condition1.save()
-        self.assertIsTuple(efilter.errors, length=0)
+        self.assertEqual(0, self.refresh(efilter).errors_count)
+        self.assertFalse([*self.refresh(efilter).errors])
 
         condition2 = self.get_alone_element(self.refresh(efilter).get_conditions())
         EntityFilterCondition.objects.filter(id=condition2.id).update(value=[])
@@ -1528,15 +1530,16 @@ class EntityFilterTestCase(CremeTestCase):
         self.assertFalse(conditions)
 
         with self.assertNumQueries(0):
-            errors1 = efilter.errors
-        expected_errors = ('Invalid data, cannot build a handler',)
-        self.assertTupleEqual(expected_errors, errors1)
+            errors1 = [*efilter.errors]
+        expected_errors = ['Invalid data, cannot build a handler']
+        self.assertListEqual(expected_errors, errors1)
+        self.assertEqual(1, self.refresh(efilter).errors_count)
 
         # Retrieve errors before => fill conditions ---
         efilter = self.refresh(efilter)
         with self.assertNumQueries(1):
-            errors2 = efilter.errors
-        self.assertTupleEqual(expected_errors, errors2)
+            errors2 = [*efilter.errors]
+        self.assertListEqual(expected_errors, errors2)
 
     def test_get_verbose_conditions__no_condition(self):
         efilter = EntityFilter.objects.smart_update_or_create(

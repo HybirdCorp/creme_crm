@@ -3,11 +3,17 @@
 <div class="efilter-summary">
   {% if vconds|length > 1 %}
     <span>{% if efilter.use_or %}{% translate 'Any condition is met:' %}{% else %}{% translate 'All these conditions are met:' %}{% endif %}</span>
-    <ul>
-        {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
-    </ul>
-  {% else %}
+    <ul>{% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}</ul>
+  {% elif vconds %}
     <span>{{vconds.0}}</span>
+  {% else %}
+    <span class="efilter-no-condition">{% translate 'No valid condition' %}</span>
+  {% endif %}
+  {% if not hide_errors and efilter.errors_count %}
+    <div class="efilter-errors">
+        <span>{% translate 'Errors:' %}</span>
+        <ul>{% for error in efilter.errors %}<li>{{error}}</li>{% endfor %}</ul>
+    </div>
   {% endif %}
   {% if not hide_detail_link and efilter.registry.detail_url_name %}
    {% widget_hyperlink efilter label=_('Details on the filter') disabled=efilter|efilter_view_forbidden:user %}

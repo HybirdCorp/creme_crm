@@ -1092,10 +1092,20 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
                 raw_json = field.prepare_value([condition])
         self.assertEqual('[]', raw_json)
 
+        # self.assertIn(
+        #     "The condition is invalid & so we ignored it: "
+        #     "FakeOrganisation has no field named 'invalid'",
+        #     logs_manager.output[0],
+        # )
+        self.assertEqual(2, len(logs_manager.output))
+        self.assertIn(
+            'FakeOrganisation has no field named "invalid"',
+            logs_manager.output[0],
+        )
         self.assertIn(
             "The condition is invalid & so we ignored it: "
-            "FakeOrganisation has no field named 'invalid'",
-            logs_manager.output[0],
+            + _('There is no field named «{name}»').format(name='invalid'),
+            logs_manager.output[1],
         )
 
 
