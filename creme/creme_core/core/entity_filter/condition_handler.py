@@ -866,7 +866,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def __init__(self, *,
                  efilter_type,
                  model=None,
-                 custom_field: CustomField | str,
+                 custom_field: CustomField | UUID,
                  related_name: str | None = None,
                  ):
         """Constructor.
@@ -1518,7 +1518,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         )
 
     @property
-    def content_type(self) -> ContentType | None | bool:
+    def content_type(self) -> ContentType | None | Literal[False]:
         ct_key = self._ct_key
         try:
             return ContentType.objects.get_by_natural_key(*ct_key) if ct_key else None
