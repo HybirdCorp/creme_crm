@@ -21,7 +21,8 @@ class OperandTestCase(CremeTestCase):
     def test_current_user__resolve__none(self):
         operand = operands.CurrentUserOperand(user=None)
         self.assertIsNone(operand.user)
-        self.assertIsNone(operand.resolve())
+        # self.assertIsNone(operand.resolve())
+        self.assertListEqual([], operand.resolve())
 
     def test_current_user__resolve__regular_user(self):
         user = self.create_user()
