@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,10 +33,12 @@ class ConditionDynamicOperand:
         self.user = user
 
     def resolve(self):
-        "Get the effective value  to use in QuerySet."
+        """Get the effective value to use in QuerySet.
+        @return: Single value or list of values.
+        """
         raise NotImplementedError
 
-    def validate(self, *, field, value):
+    def validate(self, *, field, value) -> None:
         """Raise a validation error if the value is invalid.
 
         @param field: Model field.
@@ -58,7 +60,8 @@ class CurrentUserOperand(ConditionDynamicOperand):
         user = self.user
 
         if user is None:
-            return None
+            # return None
+            return []
 
         teams = user.teams
 
