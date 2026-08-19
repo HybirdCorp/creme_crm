@@ -35,10 +35,12 @@ class ConditionDynamicOperand:
         self.user = user
 
     def resolve(self):
-        """Get the effective value to use in QuerySet."""
+        """Get the effective value to use in QuerySet.
+        @return: Single value or list of values.
+        """
         raise NotImplementedError
 
-    def validate(self, *, field, value):
+    def validate(self, *, field, value) -> None:
         """Raise a validation error if the value is invalid.
 
         @param field: Model field.
@@ -61,7 +63,8 @@ class CurrentUserOperand(ConditionDynamicOperand):
         user = self.user
 
         if user is None:
-            return None
+            # return None
+            return []
 
         teams = user.teams
 
