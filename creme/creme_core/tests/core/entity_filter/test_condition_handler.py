@@ -5076,7 +5076,7 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler2.description(user),
         )
 
-    def test_errors(self):
+    def test_errors__deleted_rtype(self):
         user = self.get_root_user()
 
         sub_filter = EntityFilter.objects.smart_update_or_create(
@@ -5089,22 +5089,24 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             ],
         )
 
-        handler1 = RelationSubFilterConditionHandler(
+        handler = RelationSubFilterConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
             rtype='deosnotexist', subfilter=sub_filter,
         )
-        self.assertEqual('???', handler1.description(user))
+        self.assertEqual('???', handler.description(user))
         self.assertEqual(
-            _('A type of relationship does not exist anymore'), handler1.error,
+            _('A type of relationship does not exist anymore'), handler.error,
         )
 
-        # ---
+    def test_errors__subfilter__deleted(self):
+        user = self.get_root_user()
+
         rtype = RelationType.objects.builder(
             id='test-subject_love', predicate='is loving',
         ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
-        handler2 = RelationSubFilterConditionHandler(
+        handler = RelationSubFilterConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
             rtype=rtype, subfilter='doesnotexist',
@@ -5114,16 +5116,55 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
                 predicate=rtype.predicate,
                 filter='???',
             ),
-            handler2.description(user),
+            handler.description(user),
         )
-        with self.assertLogs(level='WARNING') as log_mngr2:
+        with self.assertLogs(level='WARNING') as log_mngr:
             self.assertEqual(
                 _('A sub-filter (related to «{predicate}») does not exist anymore').format(
                     predicate=rtype.predicate,
                 ),
-                handler2.error,
+                handler.error,
             )
-        self.assertIn('id="doesnotexist"', log_mngr2.output[0])
+        self.assertIn('id="doesnotexist"', log_mngr.output[0])
+
+    def test_errors__subfilter__errors(self):
+        user = self.get_root_user()
+
+        sector = FakeSector.objects.create(title='To be deleted')
+        sub_filter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter01', name='I have errors', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='sector',
+                    operator=operators.EQUALS, values=[str(sector.uuid)],
+                ),
+            ],
+        )
+
+        sector.delete()
+        self.clear_global_info()  # Flush the minion ccache
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
+
+        sub_filter = self.refresh(sub_filter)
+        handler = RelationSubFilterConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            rtype=rtype, subfilter=sub_filter,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{filter}»').format(
+                predicate=rtype.predicate,
+                filter=sub_filter,
+            ),
+            handler.description(user),
+        )
+        self.assertEqual(
+            _('The sub-filter «{}» has errors').format(sub_filter),
+            handler.error,
+        )
 
 
 class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
