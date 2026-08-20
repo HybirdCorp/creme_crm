@@ -1816,7 +1816,8 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         if err := super().error:
             return err
 
-        if self.subfilter is False:
+        subfilter = self.subfilter
+        if subfilter is False:
             logger.warning(
                 '%s: the sub-filter with id="%s" cannot be found',
                 type(self).__name__, self.subfilter_id,
@@ -1825,6 +1826,9 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             return gettext(
                 'A sub-filter (related to «{predicate}») does not exist anymore'
             ).format(predicate=self.relation_type.predicate)
+
+        if subfilter.errors_count:
+            return gettext('The sub-filter «{}» has errors').format(subfilter)
 
         return None
 
