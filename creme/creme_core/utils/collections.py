@@ -32,21 +32,40 @@ from collections.abc import (
     ValuesView,
 )
 from sys import maxsize
-from typing import TypeVar  # Generic
+from types import GeneratorType
+from typing import Self, TypeVar  # Generic
 
 T = TypeVar('T')
 
 
 class LimitedList:
+    """List which stores a limited number of items, but keeps the correct number
+    of items.
+    """
     def __init__(self, max_size: int):
         self._max_size = max_size
         self._size = 0
         self._data: list = []
 
-    def append(self, obj):
+    def append(self, obj) -> Self:
         if self._size < self._max_size:
             self._data.append(obj)
+
         self._size += 1
+
+        return self
+
+    def extend(self, xs) -> Self:
+        if isinstance(xs, (GeneratorType, Iterator)):
+            xs = [*xs]
+
+        limit = self._max_size - self._size
+        if limit > 0:
+            self._data.extend(xs[:limit])
+
+        self._size += len(xs)
+
+        return self
 
     @property
     def max_size(self) -> int:
@@ -58,11 +77,21 @@ class LimitedList:
     def __bool__(self):
         return bool(self._size)
 
+    def __contains__(self, item):
+        """Beware it only checks the stored items."""
+        return item in self._data
+
     def __iter__(self):
         return iter(self._data)
 
     def __repr__(self):
-        return repr(self._data)
+        # return repr(self._data)
+        size = self._size
+        return (
+            f'Limited({self._data})'
+            if size <= self._max_size else
+            f'Limited({self._data}, size={size})'
+        )
 
 
 class FluentList(list):
