@@ -15,20 +15,50 @@ class LimitedListTestCase(CremeTestCase):
         self.assertEqual(0, len(ll))
         self.assertListEqual([], [*ll])
         self.assertIs(False, bool(ll))
+        self.assertNotIn(5, ll)
 
         ll.append(5)
         self.assertEqual(1, len(ll))
         self.assertListEqual([5], [*ll])
         self.assertIs(True, bool(ll))
+        self.assertIn(5, ll)
+        self.assertEqual('Limited([5])', repr(ll))
 
         ll.append('6')
         self.assertEqual(2, len(ll))
         self.assertListEqual([5, '6'], [*ll])
 
-        ll.append(7)
-        ll.append(8)
+        ll.append(7).append(8)
         self.assertEqual(4, len(ll))
         self.assertListEqual([5, '6', 7], [*ll])
+        self.assertIn(7, ll)
+        self.assertNotIn(8, ll)
+        self.assertEqual("Limited([5, '6', 7], size=4)", repr(ll))
+
+    def test_extend(self):
+        ll = LimitedList(3)
+
+        ll.extend(['a', 'b'])
+        self.assertEqual(2, len(ll))
+        self.assertListEqual(['a', 'b'], [*ll])
+
+        ll.extend(['c', 'd'])
+        self.assertEqual(4, len(ll))
+        self.assertListEqual(['a', 'b', 'c'], [*ll])
+
+        ll.extend(['e', 'f', 'g', 'h'])
+        self.assertEqual(8, len(ll))
+        self.assertListEqual(['a', 'b', 'c'], [*ll])
+
+    def test_extend__generator(self):
+        ll = LimitedList(2).extend((s for s in ['a', 'b', 'c']))
+        self.assertEqual(3, len(ll))
+        self.assertListEqual(['a', 'b'], [*ll])
+
+    def test_extend__iterator(self):
+        ll = LimitedList(2).extend(iter(['a', 'b', 'c']))
+        self.assertEqual(3, len(ll))
+        self.assertListEqual(['a', 'b'], [*ll])
 
 
 class FluentListTestCase(CremeTestCase):
