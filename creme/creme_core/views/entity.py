@@ -1197,7 +1197,8 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
                     '<span>{message}</span>{dependencies}',
                     message=gettext(
                         'This entity can not be deleted because of its links '
-                        'with other entities:'
+                        # 'with other entities:'
+                        'with other elements:'
                     ),
                     dependencies=self.dependencies_to_html(
                         instance=entity, dependencies=e.args[1], user=user,
@@ -1205,14 +1206,14 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
                 )
             ) from e
         except Exception as e:
-            logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)
+            logger.exception('Error when trying to delete "%s" (id=%s)', entity, entity.id)
             raise ConflictError(
                 gettext('The deletion caused an unexpected error [{error}].').format(error=e),
             ) from e
 
 
 class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
-    "Delete several CremeEntities, with an Ajax call (POST method)."
+    """Delete several CremeEntities, with an Ajax call (POST method)."""
 
     def get_entity_ids(self) -> list[int]:
         try:

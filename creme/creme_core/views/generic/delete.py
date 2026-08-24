@@ -19,7 +19,7 @@
 from collections import Counter
 from collections.abc import Collection
 
-from django.db.models import ProtectedError
+from django.db.models import Model, ProtectedError
 from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -36,6 +36,7 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeModel,
     CremeUser,
+    EntityFilter,
     Relation,
 )
 from creme.creme_core.utils import get_from_POST_or_404
@@ -45,7 +46,12 @@ from .base import CheckedView
 
 
 class CremeDeletionMixin:
-    dependencies_limit = 3
+    dependencies_limit: int = 3
+    # Models whose instances get a <li> per instance, possibly with a link to
+    # their detail-view; the order of this list is kept for the result.
+    important_dependencies: list[type[Model]] = [
+        EntityFilter,
+    ]
 
     def dependencies_to_html(self, *,
                              instance: CremeModel,
@@ -66,6 +72,17 @@ class CremeDeletionMixin:
                         ''
                     ),
                     label=entity,
+                )
+
+            def obj_as_item(obj):
+                get_absolute_url = getattr(obj, 'get_absolute_url', None)
+                type_label = _('{model}:').format(model=type(obj)._meta.verbose_name)
+
+                return format_html(
+                    '{type}&nbsp;<a href="{url}" target="_blank">{label}</a>',
+                    type=type_label, url=obj.get_absolute_url(), label=dep,
+                ) if get_absolute_url else format_html(
+                    '{type}&nbsp{label}', type=type_label, label=dep,
                 )
 
             # TODO: sort entities alphabetically?
@@ -112,11 +129,7 @@ class CremeDeletionMixin:
                         count
                     ).format(count=count, predicate=predicate)
 
-                counter = Counter(
-                    type(dep)
-                    for dep in dependencies
-                    if not isinstance(dep, CremeEntity | Relation)
-                )
+                treated_types = (CremeEntity, Relation)
             else:
                 if not_viewable_count:
                     yield ngettext(
@@ -125,10 +138,18 @@ class CremeDeletionMixin:
                         not_viewable_count
                     ).format(count=not_viewable_count)
 
-                counter = Counter(
-                    type(dep) for dep in dependencies if not isinstance(dep, CremeEntity)
-                )
+                treated_types = (CremeEntity,)
 
+            for model in self.important_dependencies:
+                for dep in dependencies:
+                    if isinstance(dep, model):
+                        yield obj_as_item(dep)
+
+            excluded_types = (*treated_types, *self.important_dependencies)
+            counter = Counter(
+                type(dep)
+                for dep in dependencies if not isinstance(dep, excluded_types)
+            )
             if counter:
                 fmt = _('{count} {model}').format
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 17:32+0200\n"
+"POT-Creation-Date: 2026-08-25 09:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -329,6 +329,9 @@ msgstr "Votre rôle vous empêche de supprimer cette fiche"
 
 msgid "Deletion has been disabled by your administrator"
 msgstr "La suppression a été désactivée par votre administrateur."
+
+msgid "This entity is used by some conditions of filter."
+msgstr "Cette fiche est utilisée par des conditions de filtre."
 
 msgid "Actions"
 msgstr "Actions"
@@ -4789,10 +4792,10 @@ msgid "This type of entity does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
 msgid ""
-"This entity can not be deleted because of its links with other entities:"
+"This entity can not be deleted because of its links with other elements:"
 msgstr ""
 "Cette fiche ne peut être supprimée à cause de ses liens avec d'autres "
-"fiches :"
+"éléments :"
 
 #, python-brace-format
 msgid "The deletion caused an unexpected error [{error}]."
@@ -4848,12 +4851,11 @@ msgstr "Désactiver «{object}»"
 
 msgid "This filter can not be disabled because it is used as sub-filter by:"
 msgstr ""
-"Vous ne pouvez pas désactiver ce filtre, car il est utilisé comme sous-filtre "
-"par :"
+"Vous ne pouvez pas désactiver ce filtre, car il est utilisé comme sous-"
+"filtre par :"
 
 msgid "This filter can not be disabled because it is used by:"
-msgstr ""
-"Vous ne pouvez pas désactiver ce filtre, car il est utilisé par :"
+msgstr "Vous ne pouvez pas désactiver ce filtre, car il est utilisé par :"
 
 msgid "It seems you logged out."
 msgstr "Vous semblez vous être déconnecté(e)."
@@ -4865,6 +4867,10 @@ msgid ""
 msgstr ""
 "Aucun formulaire par défaut n'a été créé dans la Base de Données pour le "
 "modèle «{model}». Contactez votre administrateur."
+
+#, python-brace-format
+msgid "{model}:"
+msgstr "{model} :"
 
 #, python-brace-format
 msgid "{count} not viewable entity"
