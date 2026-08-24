@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Self
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.db.models import ProtectedError, Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -233,12 +234,50 @@ class EntityDeletor:
                 _('Deletion has been disabled by your administrator')
             )
 
+    def _check_efilters(self, entity: CremeEntity) -> None:
+        """Error in some EntityFilter reference the entity"""
+        from creme.creme_core.core.entity_filter import condition_handler
+        from creme.creme_core.models import EntityFilterCondition
+
+        conditions = []
+        regular_rtype_id  = condition_handler.RegularFieldConditionHandler.type_id
+        uid = str(entity.uuid)
+
+        for cond in EntityFilterCondition.objects.filter(
+            # NB: <value__values__contains=uid> does not work with SQLite
+            Q(type=regular_rtype_id, value__values__regex=uid)
+            | Q(
+                type=condition_handler.RelationConditionHandler.type_id,
+                value__entity=uid,
+            )
+        ).select_related('filter'):
+            # NB: we have regrouped the queries, so we have to test again the
+            #     type of condition.
+            if cond.type == regular_rtype_id:
+                last_field = cond.handler.field_info[-1]
+                if last_field.is_relation and isinstance(entity, last_field.related_model):
+                    conditions.append(cond)
+            else:
+                conditions.append(cond)
+
+        if conditions:
+            raise ProtectedError(
+                msg=_('This entity is used by some conditions of filter.'),
+                protected_objects={c.filter for c in conditions},
+            )
+
     # NB: separated method which can be overridden by child classes
     def _trash(self, user: CremeUser, entity: CremeEntity) -> None:
         entity.trash()
 
     # NB: separated method which can be overridden by child classes
     def _delete(self, user: CremeUser, entity: CremeEntity) -> None:
+        # TODO: we need a SoftReference system which manages this kind of
+        #       links/constraints that we cannot describe to the SQL server
+        #  - convert this code, move it to CremeModel.delete()
+        #  - remove _check_efilters()
+        self._check_efilters(entity)
+
         entity.delete()
 
     def perform(self, *, user: CremeUser, entity: CremeEntity) -> None:

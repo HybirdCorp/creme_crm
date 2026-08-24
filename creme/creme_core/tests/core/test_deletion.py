@@ -15,14 +15,18 @@ from creme.creme_core.core.deletion import (
     SETReplacer,
     entity_deletor_registry,
 )
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
+    EntityFilter,
     FakeCivility,
     FakeContact,
     FakeDocument,
     FakeDocumentCategory,
+    FakeFolder,
+    FakeImage,
     FakeInvoice,
     FakeInvoiceLine,
     FakeOrganisation,
@@ -345,7 +349,7 @@ class EntityDeletionTestCase(CremeTestCase):
             deletor.check_permissions(user=staff_user, entity=orga)
 
     def test_dependencies(self):
-        "Relations (not internal ones) & properties are deleted correctly."
+        """Relations (not internal ones) & properties are deleted correctly."""
         user = self.get_root_user()
         deletor = EntityDeletor()
 
@@ -384,8 +388,8 @@ class EntityDeletionTestCase(CremeTestCase):
         self.assertDoesNotExist(prop1)
         self.assertStillExists(prop2)
 
-    def test_dependencies__error(self):
-        "Dependencies problem (with internal Relations)."
+    def test_dependencies__error__internal_rtype(self):
+        """Dependencies problem (with internal Relations)."""
         user = self.get_root_user()
         deletor = EntityDeletor()
 
@@ -413,6 +417,151 @@ class EntityDeletionTestCase(CremeTestCase):
         self.assertIsTuple(exc_args, length=2)
         self.assertIsInstance(exc_args[0], str)
         self.assertSetEqual({rel, rel.symmetric_relation}, exc_args[1])
+
+    def test_dependencies__error__efilter__fk__folder(self):
+        """Dependency issue: a filter condition uses the entity (FK to FakeFolder)."""
+        user = self.get_root_user()
+
+        create_folder = partial(FakeFolder.objects.create, user=user)
+        folder_to_del = create_folder(title='Important docs', is_deleted=True)
+        other_folder = create_folder(title='Other')
+
+        blocking_ef1 = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-blocking_filer1', name='Test deletion blocking #1',
+            model=FakeDocument,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeDocument,
+                    operator=operators.EqualsOperator,
+                    field_name='linked_folder',
+                    values=[str(folder_to_del.uuid)],
+                ),
+            ],
+        )
+        blocking_ef2 = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-blocking_filer2', name='Test deletion blocking #2',
+            model=FakeDocument,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeDocument,
+                    operator=operators.EqualsOperator,
+                    field_name='linked_folder',
+                    values=[str(other_folder.uuid), str(folder_to_del.uuid)],
+                ),
+            ],
+        )
+        EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-ignored', name='I should not block deletion',
+            model=FakeDocument,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeDocument,
+                    operator=operators.EqualsOperator,
+                    field_name='linked_folder',
+                    values=[str(other_folder.uuid)],
+                ),
+            ],
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            EntityDeletor().perform(user=user, entity=folder_to_del)
+
+        self.assertStillExists(folder_to_del)
+
+        exc_args = cm.exception.args
+        self.assertIsTuple(exc_args, length=2)
+        self.assertEqual(
+            _('This entity is used by some conditions of filter.'), exc_args[0],
+        )
+        self.assertSetEqual({blocking_ef1, blocking_ef2}, exc_args[1])
+
+    def test_dependencies__error__efilter__fk__img(self):
+        """Dependency issue: a filter condition uses the entity (FK to FakeImage)."""
+        user = self.get_root_user()
+        img_to_del = FakeImage.objects.create(
+            user=user, name='Important image', is_deleted=True,
+        )
+
+        colliding_sector = FakeSector.objects.create(
+            title='Same UUID', uuid=img_to_del.uuid,
+        )
+
+        blocking_ef = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-blocking_filer1', name='Test deletion blocking #1',
+            model=FakeContact,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='image',
+                    values=[str(img_to_del.uuid)],
+                ),
+            ],
+        )
+        EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-ignored1', name='I should not block deletion',
+            model=FakeOrganisation,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.ContainsOperator,
+                    field_name='description',  # <== not FK
+                    values=[str(img_to_del.uuid)],
+                ),
+            ],
+        )
+
+        EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-ignored2', name='I should not block deletion either',
+            model=FakeOrganisation,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.EqualsOperator,
+                    field_name='sector',
+                    values=[str(colliding_sector.uuid)],
+                ),
+            ],
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            EntityDeletor().perform(user=user, entity=img_to_del)
+
+        self.assertSetEqual({blocking_ef}, cm.exception.args[1])
+
+    def test_dependencies__error__efilter__relation(self):
+        """Dependency issue: a filter condition uses the entity (Relation)."""
+        user = self.get_root_user()
+        orga_to_del = FakeOrganisation.objects.create(
+            user=user, name='Important organisation', is_deleted=True,
+        )
+
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
+
+        blocking_ef = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-blocking_filer1', name='Test deletion blocking #1',
+            model=FakeContact,
+            conditions=[condition_handler.RelationConditionHandler.build_condition(
+                model=FakeContact, rtype=loves, has=True, entity=orga_to_del,
+            )],
+        )
+        EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-ignored', name='I should not block deletion',
+            model=FakeContact,
+            conditions=[condition_handler.RelationConditionHandler.build_condition(
+                model=FakeContact, rtype=loves, has=True,
+            )],
+        )
+
+        with (
+            self.assertNumQueries(1),
+            self.assertRaises(ProtectedError) as cm
+        ):
+            EntityDeletor().perform(user=user, entity=orga_to_del)
+
+        self.assertSetEqual({blocking_ef}, cm.exception.args[1])
 
     @parameterized.expand([True, False])
     def test_delete_entity_auxiliary(self, deletion_allowed):
