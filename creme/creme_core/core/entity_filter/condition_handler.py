@@ -1876,9 +1876,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         return self._subfilter_id
 
 
-# NB: we do not check existence of CremePropertyType in @error to avoid a query ;
-#     the related EntityFilterCondition should be deleted if the
-#     CremePropertyType is deleted.
 class PropertyConditionHandler(FilterConditionHandler):
     """Filter entities which are have (or have not) certain CremeProperties."""
     # type_id = 15
