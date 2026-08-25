@@ -32,6 +32,7 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 
 from .. import signals
@@ -117,22 +118,34 @@ class CremePropertyTypeProxy:
         else:
             self._instance.__setattr__(name, value)
 
+    def prepare_instance(self):
+        instance = deepcopy(self._instance)
+        fields = (field for field in instance._meta.get_fields() if not field.is_relation)
+        for field in fields:
+            fname = field.attname
+            value = getattr(instance, fname)
+            if isinstance(value, Promise):
+                setattr(instance, fname, str(value))
+        return instance
+
+    def find_existing_instance(self) -> CremePropertyType | None:
+        return type(self._instance).objects.filter(uuid=self._instance.uuid).first()
+
     def get_or_create(self) -> tuple[CremePropertyType, bool]:
-        instance = self._instance
-        saved_instance = type(instance).objects.filter(uuid=instance.uuid).first()
-        if saved_instance is not None:
-            return saved_instance, False
+        existing = self.find_existing_instance()
+        if existing is not None:
+            return existing, False
 
-        saved_instance = deepcopy(instance)
-        saved_instance.save()
-        saved_instance.subject_ctypes.set(self.subject_ctypes)
+        instance = self.prepare_instance()
+        instance.save()
+        instance.subject_ctypes.set(self.subject_ctypes)
 
-        return saved_instance, True
+        return instance, True
 
     def update_or_create(self) -> tuple[CremePropertyType, bool]:
-        instance = deepcopy(self._instance)
+        instance = self.prepare_instance()
 
-        existing = type(instance).objects.filter(uuid=instance.uuid).first()
+        existing = self.find_existing_instance()
         if existing is not None:
             instance.pk = existing.pk
             created = False
