@@ -2314,12 +2314,13 @@ class EntityFilterDisablingTestCase(CremeTestCase):
         self.assertHTMLEqual(
             '<span>{message}</span>'
             '<ul>'
-            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            ' <li>{type_label}&nbsp;<a href="{url}" target="_blank">{label}</a></li>'
             '</ul>'
             .format(
                 message=_(
                     'This filter can not be disabled because it is used as sub-filter by:'
                 ),
+                type_label=_('{model}:').format(model=_('Filter of Entity')),
                 url=parent_filter.get_absolute_url(),
                 label=parent_filter,
             ),
@@ -2360,12 +2361,13 @@ class EntityFilterDisablingTestCase(CremeTestCase):
         self.assertHTMLEqual(
             '<span>{message}</span>'
             '<ul>'
-            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            ' <li>{type_label}&nbsp;<a href="{url}" target="_blank">{label}</a></li>'
             '</ul>'
             .format(
                 message=_(
                     'This filter can not be disabled because it is used as sub-filter by:'
                 ),
+                type_label=_('{model}:').format(model=_('Filter of Entity')),
                 url=parent_filter.get_absolute_url(),
                 label=parent_filter,
             ),

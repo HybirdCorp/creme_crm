@@ -29,7 +29,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import partition
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
@@ -567,28 +567,17 @@ class EntityFilterDisabling(CremeDeletionMixin,
             cond.filter_id for cond in instance._iter_parent_conditions()
         ]
         if parent_filter_ids:
-            limit = self.dependencies_limit
-            parent_filters = EntityFilter.objects.filter(id__in=parent_filter_ids)[:limit + 1]
-            # NB: tuples are expected by format_html_join()
-            limited_filters = [
-                (
-                    format_html(
-                        '<a href="{url}" target="_blank">{label}</a>',
-                        url=parent.get_absolute_url(),
-                        label=str(parent),
-                    ),
-                ) for parent in parent_filters[:limit]
-            ]
-            if len(parent_filters) > limit:
-                limited_filters.append(('…',))
-
             raise ConflictError(
                 format_html(
-                    '<span>{message}</span><ul>{filters}</ul>',
+                    '<span>{message}</span>{dependencies}',
                     message=_(
                         'This filter can not be disabled because it is used as sub-filter by:'
                     ),
-                    filters=format_html_join('', '<li>{}</li>', limited_filters),
+                    dependencies=self.dependencies_to_html(
+                        instance=instance,
+                        dependencies=EntityFilter.objects.filter(id__in=parent_filter_ids),
+                        user=user,
+                    ),
                 )
             )
 
