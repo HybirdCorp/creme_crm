@@ -74,10 +74,11 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity1_link = (
             f' <a href="/tests/organisation/{entity1.id}" target="_blank">{entity1.name}</a>'
         )
-        self.assertHTMLEqual(
-            f'<ul><li>{entity1_link}</li></ul>',
-            to_html(instance=subject, dependencies=[entity1], user=user),
-        )
+        with self.assertNoLogs():
+            self.assertHTMLEqual(
+                f'<ul><li>{entity1_link}</li></ul>',
+                to_html(instance=subject, dependencies=[entity1], user=user),
+            )
 
         entity2_link = (
             f'<a href="/tests/organisation/{entity2.id}" target="_blank" class="is_deleted">'
@@ -264,17 +265,18 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         other_folder = create_folder(title='To be deleted')
         self.assertEqual('', other_folder.get_absolute_url())
 
-        # TODO: logs
-        self.assertHTMLEqual(
-            f'<ul>'
-            f' <li>{_('{model}:').format(model='Test Folder')}&nbsp;{other_folder.title}</li>'
-            f'</ul>',
-            to_html(
-                instance=folder_to_del,
-                dependencies=[other_folder],
-                user=self.get_root_user(),
-            ),
-        )
+        with self.assertLogs(level='WARNING') as log_mngr:
+            self.assertHTMLEqual(
+                f'<ul>'
+                f' <li>{_('{model}:').format(model='Test Folder')}&nbsp;{other_folder.title}</li>'
+                f'</ul>',
+                to_html(
+                    instance=folder_to_del,
+                    dependencies=[other_folder],
+                    user=self.get_root_user(),
+                ),
+            )
+        self.assertIn('empty absolute URL', log_mngr.output[0])
 
     def test_delete_entity(self):
         """is_deleted=False -> trash."""
