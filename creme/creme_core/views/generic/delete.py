@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import Counter
 from collections.abc import Collection
 
@@ -44,6 +45,8 @@ from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from .base import CheckedView
 
+logger = logging.getLogger(__name__)
+
 
 class CremeDeletionMixin:
     dependencies_limit: int = 3
@@ -67,6 +70,18 @@ class CremeDeletionMixin:
 
             def entity_as_link(entity):
                 url = entity.get_absolute_url()
+
+                if not url:
+                    logger.warning(
+                        'The entity model %s has an empty absolute URL; '
+                        'you could add one for better deletion error report',
+                        type(entity),
+                    )
+
+                    return format_html(
+                        '{type}&nbsp{label}', type=get_type_label(entity), label=dep,
+                    )
+
                 return format_html(
                     '<a href="{url}" target="_blank"{deleted}>{label}</a>',
                     url=url,
@@ -76,8 +91,6 @@ class CremeDeletionMixin:
                         ''
                     ),
                     label=entity,
-                ) if url else format_html(
-                    '{type}&nbsp{label}', type=get_type_label(entity), label=dep,
                 )
 
             def obj_as_item(obj):
