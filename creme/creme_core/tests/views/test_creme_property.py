@@ -28,6 +28,7 @@ from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.creme_property import (
     PropertyTypeBarHatBrick,
     PropertyTypeInfoBrick,
+    RelatedEntityFiltersBrick,
     TaggedMiscEntitiesBrick,
 )
 
@@ -65,7 +66,7 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertRedirects(response2, ptype.get_absolute_url())
 
     def test_creation__constraints(self):
-        "Constraints on ContentTypes, 'is_copiable'."
+        """Constraints on ContentTypes, 'is_copiable'."""
         self.login_as_root()
 
         get_ct = ContentType.objects.get_for_model
@@ -183,7 +184,7 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST404(ptype.get_delete_absolute_url())
 
     def test_deletion__not_admin(self):
-        "Not allowed to admin <creme_core>."
+        """Not allowed to admin <creme_core>."""
         self.login_as_standard()
         ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
@@ -471,13 +472,16 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(orgas_brick_node, tagged_orga)
         self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
 
-        empty_node = self.get_brick_node(doc, 'tagged-creme_core-fakeimage')
-        self.assertBrickHasClass(empty_node, 'is-empty')
+        img_node = self.get_brick_node(doc, 'tagged-creme_core-fakeimage')
+        self.assertBrickHasClass(img_node, 'is-empty')
+
+        efilters_node = self.get_brick_node(doc, 'efilters')
+        self.assertBrickHasClass(efilters_node, 'is-empty')
 
         self.assertNoBrick(doc, 'misc_tagged_entities')
 
     def test_detailview__misc(self):
-        "Misc brick."
+        """Misc brick."""
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(
@@ -506,8 +510,50 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNoBrick(doc, 'tagged-creme_core-fakeorganisation')
 
-    def test_detailview__permissions01(self):
-        "No app permissions."
+    def test_detailview__efilters(self):
+        self.login_as_root()
+
+        ptype = CremePropertyType.objects.create(text='is cool')
+        other_ptype = CremePropertyType.objects.create(text='is mean')
+
+        related_filter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-related',
+            name='Cool people',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[condition_handler.PropertyConditionHandler.build_condition(
+                model=FakeContact, ptype=ptype, has=True
+            )],
+        )
+        not_related_filter1 = EntityFilter.objects.create(
+            id='test-not_related', name='Unrelated filter', entity_type=FakeContact,
+        )
+        not_related_filter2 = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-mean_people',
+            name='Mean people',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[condition_handler.PropertyConditionHandler.build_condition(
+                model=FakeContact, ptype=other_ptype, has=True,
+            )],
+        )
+
+        response = self.assertGET200(ptype.get_absolute_url())
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content), brick='efilters',
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Filter uses this property type',
+            plural_title='{count} Filters use this property type',
+        )
+        self.assertInstanceLink(brick_node, related_filter)
+        self.assertNoInstanceLink(brick_node, not_related_filter1)
+        self.assertNoInstanceLink(brick_node, not_related_filter2)
+
+    def test_detailview__no_app_perms(self):
+        """No app permissions."""
         user = self.login_as_standard(allowed_apps=['persons'])
 
         ptype = CremePropertyType.objects.create(
@@ -533,8 +579,8 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasClass(brick_node=brick_node, css_class='brick-forbidden')
         self.assertEqual(FakeContact._meta.verbose_name_plural, self.get_brick_title(brick_node))
 
-    def test_detailview__permissions02(self):
-        "No app permissions + no type constraint."
+    def test_detailview__no_app_perms__no_type_constraint(self):
+        """No app permissions + no type constraint."""
         self.login_as_standard(allowed_apps=['persons'])
 
         # No <subject_ctypes=[FakeContact]>
@@ -576,7 +622,7 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(url, data={'brick_id': 'tagged-persons-civility'})
 
     def test_reload_detailview_bricks__other_bricks(self):
-        "Hat/Info/Misc bricks."
+        """Hat/Info/Filters/Misc bricks."""
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(
@@ -590,17 +636,20 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         hat_brick_id = PropertyTypeBarHatBrick.id
         info_brick_id = PropertyTypeInfoBrick.id
+        efilter_brick_id = RelatedEntityFiltersBrick.id
         misc_brick_id = TaggedMiscEntitiesBrick.id
 
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
-            data={'brick_id': [misc_brick_id, info_brick_id, hat_brick_id]},
+            data={'brick_id': [
+                misc_brick_id, info_brick_id, hat_brick_id, efilter_brick_id,
+            ]},
         )
 
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(3, len(result))
+        self.assertEqual(4, len(result))
 
         doc1 = self.get_html_tree(result[0][1])
         self.get_brick_node(doc1, misc_brick_id)
@@ -611,8 +660,11 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         doc3 = self.get_html_tree(result[2][1])
         self.get_brick_node(doc3, hat_brick_id)
 
+        doc3 = self.get_html_tree(result[3][1])
+        self.get_brick_node(doc3, efilter_brick_id)
+
     def test_reload_detailview_bricks__empty(self):
-        "Empty brick."
+        """Empty brick."""
         self.login_as_root()
         ptype = CremePropertyType.objects.create(text='is american')
 
@@ -632,7 +684,7 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasClass(brick_node, 'is-empty')
 
     def test_reload_detailview_bricks__permissions(self):
-        "No app permissions."
+        """No app permissions."""
         self.login_as_standard(allowed_apps=['persons'])
         ptype = CremePropertyType.objects.create(text='is american')
 

@@ -376,6 +376,23 @@ class PropertyTypeInfoBrick(Brick):
     template_name = 'creme_core/bricks/ptype-info.html'
 
 
+class RelatedEntityFiltersBrick(QuerysetBrick):
+    id = 'efilters'
+    dependencies = [EntityFilter]
+    template_name = 'creme_core/bricks/property_type/efilters.html'
+
+    def render(self, context):
+        return self._render(self.get_template_context(
+            context,
+            # NB: no '.distinct()' because a filter won't twice a ptype
+            #     ("has" + "has not" does mean anything)
+            EntityFilter.objects.filter(
+                conditions__type=PropertyConditionHandler.type_id,
+                conditions__name=str(context['object'].uuid),
+            ),
+        ))
+
+
 class TaggedEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
@@ -470,7 +487,7 @@ class PropertyTypeDetail(generic.CremeModelDetail):
     def get_bricks(self):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
-        main_bricks = [PropertyTypeInfoBrick()]
+        main_bricks = [PropertyTypeInfoBrick(), RelatedEntityFiltersBrick()]
         user = self.request.user
 
         if ctypes:
@@ -522,6 +539,8 @@ class PropertyTypeBricksReloading(BricksReloading):
                     brick = PropertyTypeBarHatBrick()
                 case PropertyTypeInfoBrick.id:
                     brick = PropertyTypeInfoBrick()
+                case RelatedEntityFiltersBrick.id:
+                    brick = RelatedEntityFiltersBrick()
                 case TaggedMiscEntitiesBrick.id:
                     brick = TaggedMiscEntitiesBrick(excluded_ctypes=ctypes)
                 case _:
