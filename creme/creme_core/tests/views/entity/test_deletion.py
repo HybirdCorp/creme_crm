@@ -32,6 +32,7 @@ from creme.creme_core.models import (
     history,
 )
 from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+from creme.creme_core.tests.fake_models import FakeFolder
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.entity import EntityDeletionMixin
@@ -234,7 +235,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_dependencies_to_html__no_detail_view(self):
-        """An important model does not have an absolute URL."""
+        """An important model has no absolute URL."""
         class TestMixin(EntityDeletionMixin):
             important_dependencies = [FakeSector]
 
@@ -250,6 +251,27 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             to_html(
                 instance=sector1,  # NB: whatever
                 dependencies=[sector2],
+                user=self.get_root_user(),
+            ),
+        )
+
+    def test_dependencies_to_html__no_detail_view__entity(self):
+        """A CremeEntity model has no absolute URL."""
+        to_html = EntityDeletionMixin().dependencies_to_html
+
+        create_folder = partial(FakeFolder.objects.create, user=self.get_root_user())
+        folder_to_del = create_folder(title='To be deleted', is_deleted=True)
+        other_folder = create_folder(title='To be deleted')
+        self.assertEqual('', other_folder.get_absolute_url())
+
+        # TODO: logs
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li>{_('{model}:').format(model='Test Folder')}&nbsp;{other_folder.title}</li>'
+            f'</ul>',
+            to_html(
+                instance=folder_to_del,
+                dependencies=[other_folder],
                 user=self.get_root_user(),
             ),
         )

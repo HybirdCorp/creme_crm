@@ -62,21 +62,27 @@ class CremeDeletionMixin:
             not_viewable_count = 0
             can_view = user.has_perm_to_view
 
+            def get_type_label(obj):
+                return _('{model}:').format(model=type(obj)._meta.verbose_name)
+
             def entity_as_link(entity):
+                url = entity.get_absolute_url()
                 return format_html(
                     '<a href="{url}" target="_blank"{deleted}>{label}</a>',
-                    url=entity.get_absolute_url(),
+                    url=url,
                     deleted=(
                         mark_safe(' class="is_deleted"')
                         if entity.is_deleted else
                         ''
                     ),
                     label=entity,
+                ) if url else format_html(
+                    '{type}&nbsp{label}', type=get_type_label(entity), label=dep,
                 )
 
             def obj_as_item(obj):
                 get_absolute_url = getattr(obj, 'get_absolute_url', None)
-                type_label = _('{model}:').format(model=type(obj)._meta.verbose_name)
+                type_label = get_type_label(obj)
 
                 return format_html(
                     '{type}&nbsp;<a href="{url}" target="_blank">{label}</a>',
