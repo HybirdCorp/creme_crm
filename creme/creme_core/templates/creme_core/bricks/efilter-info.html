@@ -34,12 +34,12 @@
             <div class="brick-kv-key">{% translate 'Is private?' context 'creme_core-entity_filter' %}</div>
             <div class="brick-kv-value">{% print_field object=object field='is_private' %}</div>
         </div>
-        {% with errors=object.errors %}{% if errors %}
+        {% if object.errors_count %}
         <div class="brick-kv-item item-efilter-errors">
             <div class="brick-kv-key">{% translate 'Errors' %}</div>
-            <div class="brick-kv-value"><ul>{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul></div>
+            <div class="brick-kv-value"><ul>{% for error in object.errors %}<li>{{error}}</li>{% endfor %}</ul></div>
         </div>
-        {% endif %}{% endwith %}
+        {% endif %}
         <div class="brick-kv-item item-efilter-conditions">
             <div class="brick-kv-key">{% translate 'Conditions' %}</div>
             <div class="brick-kv-value">{% get_efilter_conditions efilter=object user=user as vconds %}
