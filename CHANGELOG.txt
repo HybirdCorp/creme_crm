@@ -23,6 +23,7 @@
       # The list-views can now be ordered by a Custom-Field columns (for most types of Custom-Fields).
       # The filters ('EntityFilter') can now be disabled.
       # The detail-view of property type now displays the filters which use this type.
+      # The detail-view of relationship type now displays the filters which use this type.
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status") can now be disabled;

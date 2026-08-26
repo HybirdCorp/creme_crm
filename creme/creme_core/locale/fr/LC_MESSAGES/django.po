@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-26 10:17+0200\n"
+"POT-Creation-Date: 2026-08-26 15:39+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3746,6 +3746,28 @@ msgstr[0] "%(count)s fiche avec cette propriété"
 msgstr[1] "%(count)s fiches avec cette propriété"
 
 #, python-brace-format
+msgid "{count} Other entity"
+msgstr "{count} Autre fiche"
+
+#, python-brace-format
+msgid "{count} Other entities"
+msgstr "{count} Autres fiches"
+
+#, python-format
+msgid ""
+"Remove all the properties related to the «%(models)s» which you are allowed "
+"to edit"
+msgstr ""
+"Enlever toutes les propriétés liées aux «%(models)s» que vous avoir la "
+"permission de modifier"
+
+msgid "Remove these properties"
+msgstr "Enlever les propriétés"
+
+msgid "Remove the property"
+msgstr "Enlever la propriété"
+
+#, python-brace-format
 msgid "{count} Recent entity"
 msgstr "{count} Fiche récente"
 
@@ -3757,12 +3779,40 @@ msgid "No recent entity for the moment"
 msgstr "Aucune fiche récente pour le moment"
 
 #, python-brace-format
-msgid "{count} Other entity"
-msgstr "{count} Autre fiche"
+msgid "{count} Filter uses this relationship type"
+msgstr "{count} Filtre utilise ce type de relation"
 
 #, python-brace-format
-msgid "{count} Other entities"
-msgstr "{count} Autres fiches"
+msgid "{count} Filters use this relationship type"
+msgstr "{count} Filtres utilisent ce type de relation"
+
+msgctxt "creme_core-relation_type"
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Applies on entities with properties"
+msgstr "S'applique aux fiches avec les propriétés"
+
+msgid "No constraint on properties"
+msgstr "Pas de contrainte sur les propriétés"
+
+msgid "Applies on entities without properties"
+msgstr "S'applique aux fiches sans ces propriétés"
+
+msgid "No forbidden property"
+msgstr "Aucune propriété interdite"
+
+msgid "Is an internal type"
+msgstr "Est un type interne"
+
+msgid "Is a custom type"
+msgstr "Est un type personnalisé"
+
+msgid "Display once on the subject's page"
+msgstr "Afficher une seule fois sur la page du sujet"
+
+msgid "Symmetric type"
+msgstr "Type symétrique"
 
 msgid "Other entities"
 msgstr "Autres fiches"
@@ -3797,34 +3847,6 @@ msgstr "Nouvelles relations"
 
 msgid "No relationship for the moment"
 msgstr "Aucune relation pour le moment"
-
-msgctxt "creme_core-relation_type"
-msgid "Disabled"
-msgstr "Désactivé"
-
-msgid "Applies on entities with properties"
-msgstr "S'applique aux fiches avec les propriétés"
-
-msgid "No constraint on properties"
-msgstr "Pas de contrainte sur les propriétés"
-
-msgid "Applies on entities without properties"
-msgstr "S'applique aux fiches sans ces propriétés"
-
-msgid "No forbidden property"
-msgstr "Aucune propriété interdite"
-
-msgid "Is an internal type"
-msgstr "Est un type interne"
-
-msgid "Is a custom type"
-msgstr "Est un type personnalisé"
-
-msgid "Display once on the subject's page"
-msgstr "Afficher une seule fois sur la page du sujet"
-
-msgid "Symmetric type"
-msgstr "Type symétrique"
 
 #, python-format
 msgid "Configure the fields for «%(ctype)s»'"
@@ -3871,20 +3893,6 @@ msgstr "Modifier «%(object)s»"
 
 msgid "No related entity for the moment"
 msgstr "Aucune fiche liée pour le moment"
-
-#, python-format
-msgid ""
-"Remove all the properties related to the «%(models)s» which you are allowed "
-"to edit"
-msgstr ""
-"Enlever toutes les propriétés liées aux «%(models)s» que vous avoir la "
-"permission de modifier"
-
-msgid "Remove these properties"
-msgstr "Enlever les propriétés"
-
-msgid "Remove the property"
-msgstr "Enlever la propriété"
 
 msgid "Remaining entity"
 msgstr "Fiche restante"

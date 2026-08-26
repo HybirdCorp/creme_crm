@@ -1,0 +1,20 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-rtype-efilters-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Filter uses this relationship type') plural=_('{count} Filters use this relationship type') icon='filter' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+  {% for efilter in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_hyperlink efilter %}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
