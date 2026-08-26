@@ -365,7 +365,8 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 class PropertyTypeBarHatBrick(Brick):
     id = 'property_hat_bar'
     dependencies = '*'
-    template_name = 'creme_core/bricks/ptype-hat-bar.html'
+    # template_name = 'creme_core/bricks/ptype-hat-bar.html'
+    template_name = 'creme_core/bricks/property_type/hat-bar.html'
 
 
 # class PropertyTypeInfoBrick(SimpleBrick):
@@ -373,7 +374,8 @@ class PropertyTypeInfoBrick(Brick):
     id = 'property_type_info'
     dependencies = '*'
     read_only = True
-    template_name = 'creme_core/bricks/ptype-info.html'
+    # template_name = 'creme_core/bricks/ptype-info.html'
+    template_name = 'creme_core/bricks/property_type/info.html'
 
 
 class RelatedEntityFiltersBrick(QuerysetBrick):
@@ -394,7 +396,8 @@ class RelatedEntityFiltersBrick(QuerysetBrick):
 
 
 class TaggedEntitiesBrick(QuerysetBrick):
-    template_name = 'creme_core/bricks/tagged-entities.html'
+    # template_name = 'creme_core/bricks/tagged-entities.html'
+    template_name = 'creme_core/bricks/property_type/tagged-entities.html'
 
     id_prefix = 'tagged'
 
@@ -454,7 +457,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
 class TaggedMiscEntitiesBrick(QuerysetBrick):
     id = 'misc_tagged_entities'
     dependencies = (CremeEntity,)
-    template_name = 'creme_core/bricks/tagged-entities.html'
+    # template_name = 'creme_core/bricks/tagged-entities.html'
+    template_name = 'creme_core/bricks/property_type/tagged-entities.html'
 
     def __init__(self, excluded_ctypes):
         super().__init__()

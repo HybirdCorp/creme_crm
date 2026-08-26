@@ -444,8 +444,13 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(ptype.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/detail/property-type.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/ptype-hat-bar.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/hat-bar.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/efilters.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/tagged-entities.html')
         self.assertEqual(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             response.context.get('bricks_reload_url'),
