@@ -258,6 +258,8 @@ class HeaderFilterProxy:
         saved_instance.entity_type = self._model
         saved_instance.cells = self.cells
         saved_instance.user = user
+        # Cast lazy gettext objects as string in order HeaderFilter.__str__ does not crash
+        saved_instance.name = str(saved_instance.name)
         saved_instance.save()
 
         return saved_instance, True
