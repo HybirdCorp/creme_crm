@@ -36,13 +36,14 @@ from django.utils.translation import ngettext
 from .. import utils
 from ..auth import EntityCredentials
 from ..auth.decorators import login_required
+from ..core.entity_filter import condition_handler
 from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..core.workflow import WorkflowEngine
 from ..forms import relation as rel_forms
 from ..gui import bricks
 from ..gui.bricks import ForbiddenBrick
-from ..models import CremeEntity, Relation, RelationType
+from ..models import CremeEntity, EntityFilter, Relation, RelationType
 from ..models.utils import model_verbose_name_plural
 from ..shortcuts import get_bulk_or_404
 from ..utils import get_from_POST_or_404
@@ -657,6 +658,26 @@ class RelationTypeInfoBrick(bricks.Brick):
     template_name = 'creme_core/bricks/relation_type/info.html'
 
 
+class RelatedEntityFiltersBrick(bricks.QuerysetBrick):
+    id = 'efilters'
+    dependencies = [EntityFilter]
+    template_name = 'creme_core/bricks/relation_type/efilters.html'
+
+    def render(self, context):
+        rtype = context['object']
+
+        return self._render(self.get_template_context(
+            context,
+            EntityFilter.objects.filter(
+                conditions__type__in=(
+                    condition_handler.RelationConditionHandler.type_id,
+                    condition_handler.RelationSubFilterConditionHandler.type_id,
+                ),
+                conditions__name__in=(rtype.id, rtype.symmetric_type_id),
+            ).distinct(),
+        ))
+
+
 class RelatedEntitiesBrick(bricks.QuerysetBrick):
     # template_name = 'creme_core/bricks/related-entities.html'
     template_name = 'creme_core/bricks/relation_type/related-entities.html'
@@ -788,7 +809,7 @@ class RelationTypeDetail(generic.CremeModelDetail):
     def get_bricks(self):
         rtype = self.object
         ctypes = rtype.subject_ctypes.all()
-        main_bricks = [RelationTypeInfoBrick()]
+        main_bricks = [RelationTypeInfoBrick(), RelatedEntityFiltersBrick()]
         user = self.request.user
 
         if ctypes:
@@ -838,6 +859,8 @@ class RelationTypeBricksReloading(BricksReloading):
                     brick = RelationTypeBarHatBrick()
                 case RelationTypeInfoBrick.id:
                     brick = RelationTypeInfoBrick()
+                case RelatedEntityFiltersBrick.id:
+                    brick = RelatedEntityFiltersBrick()
                 case RelatedMiscEntitiesBrick.id:
                     brick = RelatedMiscEntitiesBrick(
                         excluded_ctypes=self.get_relation_type().subject_ctypes.all(),
