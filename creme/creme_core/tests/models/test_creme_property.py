@@ -5,18 +5,19 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    FakeActivity,
     FakeContact,
     FakeOrganisation,
 )
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 from ..base import CremeTestCase
-from ..fake_models import FakeActivity
 
 
 class CremePropertyTypeTestCase(CremeTestCase):
@@ -229,6 +230,18 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIs(ptype.enabled, False)
         self.assertCountEqual([contact_ct, orga_ct], [*ptype.subject_ctypes.all()])
 
+    def test_manager__proxy__get_or_create__gettext_lazy(self):
+        ptype = CremePropertyType.objects.proxy(
+            uuid=uuid4(),
+            text=gettext_lazy('Is cool'),
+            app_label='creme_core',
+            description='Lookin cool',
+        ).get_or_create()[0]
+
+        with self.assertNoException():
+            ptype_as_str = str(ptype)
+        self.assertEqual('Is cool', ptype_as_str)
+
     def test_manager__proxy__update_or_create(self):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
@@ -273,6 +286,19 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertCountEqual(
             [contact_ct, get_ct(FakeActivity)], [*ptype1.subject_ctypes.all()],
         )
+
+    def test_manager__proxy__gettext_lazy(self):
+        """Lazy string object must be cast."""
+        ptype = CremePropertyType.objects.proxy(
+            uuid=uuid4(),
+            text=gettext_lazy('Is cool'),
+            app_label='creme_core',
+            description='Lookin cool',
+        ).update_or_create()[0]
+
+        with self.assertNoException():
+            ptype_as_str = str(ptype)
+        self.assertEqual('Is cool', ptype_as_str)
 
     def test_manager__proxy__errors(self):
         with self.assertRaises(ValueError):
