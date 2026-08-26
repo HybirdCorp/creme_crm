@@ -238,9 +238,14 @@
                 - {% widget_entity_hyperlink %}: "ignore_deleted", "label", "target", "relative".
                 - {% widget_enumerator %}: "threshold", "empty", "summary".
         # In 'creme_core.templates' :
-            - The templates of bricks for the detail-view of CremePropertyType have been moved/renamed:
-                - "creme_core/bricks/ptype-hat-bar.html" => "creme_core/bricks/property_type/hat-bar.html"
-                - "creme_core/bricks/ptype-info.html" => "creme_core/bricks/property_type/info.html"
+            - The templates of bricks for the detail-view of 'EntityFilter' have been moved/renamed:
+                - "creme_core/bricks/efilter-hat-bar.html"         => "creme_core/bricks/entity_filter/hat-bar.html"
+                - "creme_core/bricks/efilter-info.html"            => "creme_core/bricks/entity_filter/info.html"
+                - "creme_core/bricks/efilter-parents.html"         => "creme_core/bricks/entity_filter/parents.html"
+                - "creme_core/bricks/efilter-linked-entities.html" => "creme_core/bricks/entity_filter/linked-entities.html"
+            - The templates of bricks for the detail-view of 'CremePropertyType' have been moved/renamed:
+                - "creme_core/bricks/ptype-hat-bar.html"   => "creme_core/bricks/property_type/hat-bar.html"
+                - "creme_core/bricks/ptype-info.html"      => "creme_core/bricks/property_type/info.html"
                 - "creme_core/bricks/tagged-entities.html" => "creme_core/bricks/property_type/tagged-entities.html"
         # Apps :
             * Creme_config :

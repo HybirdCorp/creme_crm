@@ -145,7 +145,8 @@ class EntityFilterMixin(FilterMixin):
 class EntityFilterBarHatBrick(bricks.Brick):
     id = 'efilter_hat_bar'
     dependencies = [EntityFilter]
-    template_name = 'creme_core/bricks/efilter-hat-bar.html'
+    # template_name = 'creme_core/bricks/efilter-hat-bar.html'
+    template_name = 'creme_core/bricks/entity_filter/hat-bar.html'
 
     # def _get_edition_info(self, user, efilter):
     #     edition_allowed, edition_error = efilter.can_edit(user)
@@ -185,13 +186,15 @@ class EntityFilterBarHatBrick(bricks.Brick):
 class EntityFilterInfoBrick(bricks.Brick):
     id = 'efilter_info'
     read_only = True
-    template_name = 'creme_core/bricks/efilter-info.html'
+    # template_name = 'creme_core/bricks/efilter-info.html'
+    template_name = 'creme_core/bricks/entity_filter/info.html'
 
 
 class EntityFilterParentsBrick(bricks.PaginatedBrick):
     id = 'efilter_parents'
     read_only = True
-    template_name = 'creme_core/bricks/efilter-parents.html'
+    # template_name = 'creme_core/bricks/efilter-parents.html'
+    template_name = 'creme_core/bricks/entity_filter/parents.html'
 
     # def detailview_display(self, context):
     def render(self, context):
@@ -207,7 +210,8 @@ class EntityFilterParentsBrick(bricks.PaginatedBrick):
 
 class EntityFilterLinkedEntitiesBrick(bricks.QuerysetBrick):
     read_only = True
-    template_name = 'creme_core/bricks/efilter-linked-entities.html'
+    # template_name = 'creme_core/bricks/efilter-linked-entities.html'
+    template_name = 'creme_core/bricks/entity_filter/linked-entities.html'
 
     id_prefix = 'linked_to_efilter'
 
