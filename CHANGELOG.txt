@@ -2,6 +2,14 @@
 
  TODO: compile .po (opportunities)
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # An issue with 'CremePropertyType' created with 'CremePropertyTypeProxy' has been fixed.
+
+
 == Version 2.7.11 ==
 
   Users side :
