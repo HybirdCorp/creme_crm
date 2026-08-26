@@ -237,6 +237,11 @@
                 - {% widget_hyperlink %}: "disabled".
                 - {% widget_entity_hyperlink %}: "ignore_deleted", "label", "target", "relative".
                 - {% widget_enumerator %}: "threshold", "empty", "summary".
+        # In 'creme_core.templates' :
+            - The templates of bricks for the detail-view of CremePropertyType have been moved/renamed:
+                - "creme_core/bricks/ptype-hat-bar.html" => "creme_core/bricks/property_type/hat-bar.html"
+                - "creme_core/bricks/ptype-info.html" => "creme_core/bricks/property_type/info.html"
+                - "creme_core/bricks/tagged-entities.html" => "creme_core/bricks/property_type/tagged-entities.html"
         # Apps :
             * Creme_config :
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
