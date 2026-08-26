@@ -129,6 +129,14 @@ class EntityFilterDetailTestCase(BrickTestCaseMixin,
 
         response = self.assertGET200(efilter.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/efilter-hat-bar.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/entity_filter/hat-bar.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/efilter-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/entity_filter/info.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/efilter-parents.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/entity_filter/parents.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/efilter-linked-entities.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/entity_filter/linked-entities.html')
         self.assertEqual(
             reverse('creme_core__reload_efilter_bricks', args=(efilter.id,)),
             response.context.get('bricks_reload_url'),
