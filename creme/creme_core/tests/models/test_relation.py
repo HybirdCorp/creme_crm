@@ -3,7 +3,9 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
+from django.utils.functional import Promise
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
@@ -341,11 +343,12 @@ class RelationTypeManagerTestCase(CremeTestCase):
         object_pred  = 'is loved by'
 
         builder = RelationType.objects.builder(
-            id=subject_id, predicate=subject_pred,
-        ).symmetric(id=object_id, predicate=object_pred)
+            id=subject_id, predicate=gettext_lazy(subject_pred),
+        ).symmetric(id=object_id, predicate=gettext_lazy(object_pred))
 
         self.assertEqual(builder.id,        subject_id)
         self.assertEqual(builder.predicate, subject_pred)
+        self.assertIsInstance(builder.predicate, Promise)
         self.assertFalse(builder.is_internal)
         self.assertFalse(builder.is_custom)
         self.assertTrue(builder.is_copiable)
@@ -374,6 +377,8 @@ class RelationTypeManagerTestCase(CremeTestCase):
         self.assertEqual(subject_id, rtype1.pk)
         self.assertIs(created, True)
         self.assertEqual(object_id, rtype1.symmetric_type_id)
+        self.assertIsInstance(rtype1.predicate, str)
+        self.assertIsInstance(rtype1.symmetric_type.predicate, str)
 
         rtype1 = self.refresh(rtype1)
         self.assertEqual(rtype1.id,        subject_id)
@@ -600,13 +605,15 @@ class RelationTypeManagerTestCase(CremeTestCase):
         object_pred  = 'is loved by'
 
         builder = RelationType.objects.builder(
-            id=subject_id, predicate=subject_pred,
-        ).symmetric(id=object_id, predicate=object_pred)
+            id=subject_id, predicate=gettext_lazy(subject_pred),
+        ).symmetric(id=object_id, predicate=gettext_lazy(object_pred))
 
         rtype1, created1 = builder.get_or_create()
         self.assertIsInstance(rtype1, RelationType)
         self.assertEqual(subject_id, rtype1.pk)
         self.assertIs(created1, True)
+        self.assertIsInstance(rtype1.predicate, str)
+        self.assertIsInstance(rtype1.symmetric_type.predicate, str)
 
         rtype1 = self.refresh(rtype1)
         self.assertEqual(rtype1.id,        subject_id)
