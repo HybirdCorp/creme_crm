@@ -161,8 +161,12 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(rtype.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/detail/relation-type.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/rtype-info.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/related-entities.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/rtype-hat-bar.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/hat-bar.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/rtype-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/info.html')
+        # self.assertTemplateUsed(response, 'creme_core/bricks/related-entities.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/related-entities.html')
         self.assertEqual(
             reverse('creme_core__reload_rtype_bricks', args=(rtype.id,)),
             response.context.get('bricks_reload_url'),

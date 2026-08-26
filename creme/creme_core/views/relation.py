@@ -644,7 +644,8 @@ def add_relations_with_same_type(request):
 class RelationTypeBarHatBrick(bricks.Brick):
     id = 'relation_hat_bar'
     dependencies = '*'
-    template_name = 'creme_core/bricks/rtype-hat-bar.html'
+    # template_name = 'creme_core/bricks/rtype-hat-bar.html'
+    template_name = 'creme_core/bricks/relation_type/hat-bar.html'
 
 
 # class RelationTypeInfoBrick(bricks.SimpleBrick):
@@ -652,11 +653,13 @@ class RelationTypeInfoBrick(bricks.Brick):
     id = 'relation_type_info'
     dependencies = '*'
     read_only = True
-    template_name = 'creme_core/bricks/rtype-info.html'
+    # template_name = 'creme_core/bricks/rtype-info.html'
+    template_name = 'creme_core/bricks/relation_type/info.html'
 
 
 class RelatedEntitiesBrick(bricks.QuerysetBrick):
-    template_name = 'creme_core/bricks/related-entities.html'
+    # template_name = 'creme_core/bricks/related-entities.html'
+    template_name = 'creme_core/bricks/relation_type/related-entities.html'
 
     id_prefix = 'related'
 
@@ -735,7 +738,8 @@ class RelatedEntitiesBrick(bricks.QuerysetBrick):
 class RelatedMiscEntitiesBrick(bricks.QuerysetBrick):
     id = 'misc_related_entities'
     dependencies = (CremeEntity,)
-    template_name = 'creme_core/bricks/related-entities.html'
+    # template_name = 'creme_core/bricks/related-entities.html'
+    template_name = 'creme_core/bricks/relation_type/related-entities.html'
 
     def __init__(self, excluded_ctypes):
         super().__init__()

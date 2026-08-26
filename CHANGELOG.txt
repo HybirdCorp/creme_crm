@@ -247,6 +247,10 @@
                 - "creme_core/bricks/ptype-hat-bar.html"   => "creme_core/bricks/property_type/hat-bar.html"
                 - "creme_core/bricks/ptype-info.html"      => "creme_core/bricks/property_type/info.html"
                 - "creme_core/bricks/tagged-entities.html" => "creme_core/bricks/property_type/tagged-entities.html"
+            - The templates of bricks for the detail-view of 'RelationType' have been moved/renamed:
+                - "creme_core/bricks/rtype-hat-bar.html"    => "creme_core/bricks/relation_type/hat-bar.html"
+                - "creme_core/bricks/rtype-info.html"       => "creme_core/bricks/relation_type/info.html"
+                - "creme_core/bricks/related-entities.html" => "creme_core/bricks/relation_type/related-entities.html"
         # Apps :
             * Creme_config :
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
