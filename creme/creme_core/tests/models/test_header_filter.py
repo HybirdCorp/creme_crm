@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import (
@@ -320,6 +321,20 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         with self.assertRaises(ValueError) as cm:
             proxy.get_or_create()
         self.assertIn('a private filter must be custom', str(cm.exception))
+
+    def test_proxy__get_or_create__gettext_lazy(self):
+        proxy = HeaderFilter.objects.proxy(
+            id='tests-hf_contact',
+            name=gettext_lazy('Test contact view'),
+            model=FakeContact,
+            cells=(),
+        )
+
+        hf = proxy.get_or_create()[0]
+
+        with self.assertNoException():
+            hf_as_str = str(hf)
+        self.assertEqual('Test contact view', hf_as_str)
 
     def test_proxy__cells__instances(self):
         model = FakeOrganisation
