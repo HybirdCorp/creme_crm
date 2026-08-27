@@ -59,8 +59,8 @@ class CustomFieldFirstCreationWizard(base.ConfigModelCreationWizard):
     model = CustomField
     title = _('New custom field configuration')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.custom_field = CustomField()
 
     def get_form_instance(self, step):
@@ -79,8 +79,8 @@ class CustomFieldCreationWizard(EntityCTypeRelatedMixin,
     ]
     model = CustomField
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.custom_field = CustomField()
 
     def get_form_instance(self, step):
