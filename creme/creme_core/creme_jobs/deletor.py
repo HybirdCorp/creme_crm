@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025 Hybird
+#    Copyright (C) 2019-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,21 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+from ..core.entity_filter import condition_handler
 from ..core.workflow import WorkflowEngine
-from ..models import DeletionCommand, FieldsConfig, JobResult
+from ..models import (
+    DeletionCommand,
+    EntityFilter,
+    EntityFilterCondition,
+    FieldsConfig,
+    JobResult,
+)
 from ..signals import pre_replace_and_delete
 from ..utils.translation import verbose_instances_groups
 from .base import JobProgress, JobType
 
 
-# TODO: possibility to resume the job if it failed ?
+# TODO: possibility to resume the job if it failed?
 class _DeletorType(JobType):
     """Job which updates ForeignKeys referencing an instance before deleting it."""
     id = JobType.generate_id('creme_core', 'deletor')
@@ -76,6 +83,50 @@ class _DeletorType(JobType):
                             related_instance.save()
 
                     dcom_mngr.filter(pk=dcom.pk).update(updated_count=F('updated_count') + 1)
+
+            # TODO: factorise with <ReplacingHandler._count_related_instances>?
+            if hasattr(instance_2_del, 'portable_key'):  # TODO: unit test <false> case
+                key_2_del = instance_2_del.portable_key()
+                new_key = None if new_value is None else new_value.portable_key()
+
+                # TODO: filter/conditions cache?
+                # NB: the filtering instructions exclude many unrelevant conditions
+                #     but may accept false positive. It's OK because the
+                #     straightforward test is later, in the for-loop.
+                filter_ids = EntityFilterCondition.objects.filter(
+                    type=condition_handler.RegularFieldConditionHandler.type_id,
+                    # NB: <__contains> to accept "deep" FK too.
+                    name__contains=model_field.name,
+                    # NB: value__values__contains does not work with all DB engine (like SQLite)
+                    value__values__regex=f'"{instance_2_del.portable_key()}"',
+                ).values_list('filter_id', flat=True)
+
+                for filter_id in filter_ids:
+                    with atomic():
+                        EntityFilter.objects.select_for_update().filter(id=filter_id).first()
+                        changed_count = 0
+
+                        for cond in EntityFilterCondition.objects.filter(filter_id=filter_id):
+                            if cond.handler.field_info[-1] == model_field:
+                                value = cond.value
+
+                                # NB: sets will remove duplicates too, which is cool
+                                values = {*value['values']} - {key_2_del}
+                                if new_key:
+                                    values.add(new_key)
+
+                                value['values'] = [*values]
+                                # TODO: delete the condition if 'values' is empty?
+                                cond.save(update_fields=['value'])
+                                changed_count += 1
+
+                        if changed_count:
+                            dcom_mngr.filter(pk=dcom.pk).update(
+                                updated_count=F('updated_count') + changed_count,
+                            )
+
+            # TODO: replace in Workflows' conditions too (currently the view avoid
+            #       the replacement if any workflow uses the instance).
 
         try:
             instance_2_del.delete()

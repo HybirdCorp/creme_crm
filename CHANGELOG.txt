@@ -30,6 +30,9 @@
                 - A disabled Minion cannot be used in new entities.
                 - An existing entity using a Minion which has been disabled later can continue to use it
                   (but the disabled choices are displayed differently).
+            - When you replace+delete a Minion, it's now replaced in filters' conditions too ;
+              notice that replace+delete is still forbidden if the Minion is used in a
+              credentials filter or a condition of WorkFlow (it could evolve in future versions).
             - The custom-fields can now be configured to be required only at creation.
             - Workflows have been improved :
                 - A new action is available: sending a notification.
