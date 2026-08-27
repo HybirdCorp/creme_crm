@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.creme_jobs import deletor_type, reminder_type
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
     DeletionCommand,
@@ -48,29 +48,10 @@ from creme.creme_core.utils.translation import smart_model_verbose_name
 from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 
 
-class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = cls.get_root_user()
-
+class GenericPortalsTestCase(BrickTestCaseMixin, CremeTestCase):
     def setUp(self):
         super().setUp()
         self.login_as_root()
-
-    def assertReplacersEqual(self, expected, dcom):
-        # NB: works well on for FixedValueReplacer ??
-        self.assertListEqual(
-            expected,
-            [
-                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
-                for r in dcom.replacers
-            ],
-        )
-
-    @staticmethod
-    def _build_finish_deletor_url(job):
-        return reverse('creme_config__finish_deletor', args=(job.id,))
 
     def test_portals(self):
         response = self.assertGET200(
@@ -102,7 +83,73 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 reverse('creme_config__model_portal', args=('persons', 'unexistingmodel'))
             )
 
-    def test_creation(self):
+    def test_reload_model_brick(self):
+        response = self.assertGET200(
+            reverse(
+                'creme_config__reload_model_brick',
+                args=('creme_core', 'fake_civility'),
+            )
+        )
+
+        results = response.json()
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+
+        brick_id = GenericModelBrick.id
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    def test_reload_app_bricks(self):
+        url = reverse('creme_config__reload_app_bricks', args=('creme_core',))
+        self.assertGET404(url)
+        self.assertGET404(url, data={'brick_id': PropertyTypesBrick.id})
+
+        response = self.assertGET200(url, data={'brick_id': SettingsBrick.id})
+
+        results = response.json()
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+
+        brick_id = SettingsBrick.id
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    def test_reload_app_bricks__custom_brick(self):
+        response = self.assertGET200(
+            reverse('creme_config__reload_app_bricks', args=('creme_core',)),
+            data={'brick_id': FakeAppPortalBrick.id},
+        )
+
+        results = response.json()
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+
+        brick_id = FakeAppPortalBrick.id
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+
+class GenericCreationTestCase(CremeTestCase):
+    def setUp(self):
+        super().setUp()
+        self.login_as_root()
+
+    def assertWidgetResponse(self, response, instance):
+        self.assertDictEqual(
+            {
+                'added': [[instance.id, str(instance)]],
+                'value': instance.id
+            },
+            response.json(),
+        )
+
+    def test_simple(self):
         count = FakeCivility.objects.count()
 
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_civility'))
@@ -128,7 +175,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDatetimesAlmostEqual(civility.modified, now_value)
         self.assertIsNone(civility.disabled)
 
-    def test_creation__order(self):
+    def test_order(self):
         count = FakeSector.objects.count()
 
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_sector'))
@@ -148,7 +195,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         sector = self.get_object_or_fail(FakeSector, title=title)
         self.assertEqual(count + 2, sector.order)  # order is set to max
 
-    def test_creation__disabled(self):
+    def test_disabled(self):
         """Disabled creation
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
@@ -159,7 +206,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_creation__custom_url(self):
+    def test_custom_url(self):
         """Not vanilla-URL
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
@@ -170,16 +217,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def assertWidgetResponse(self, response, instance):
-        self.assertDictEqual(
-            {
-                'added': [[instance.id, str(instance)]],
-                'value': instance.id
-            },
-            response.json(),
-        )
-
-    def test_creation_from_widget(self):
+    def test_from_widget(self):
         count = FakeCivility.objects.count()
 
         url = reverse(
@@ -204,7 +242,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(shortcut, civility.shortcut)
         self.assertWidgetResponse(response2, civility)
 
-    def test_creation_from_widget__order(self):
+    def test_from_widget__order(self):
         count = FakeSector.objects.count()
 
         url = reverse(
@@ -232,7 +270,11 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(count + 2, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
-    def test_edition(self):
+
+class GenericEditionTestCase(CremeTestCase):
+    def test_simple(self):
+        self.login_as_root()
+
         title = 'herr'
         shortcut = 'H.'
         civ = FakeCivility.objects.create(title=title, shortcut=shortcut)
@@ -262,7 +304,9 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(old_date, civ.created)
         self.assertDatetimesAlmostEqual(civ.modified, now())
 
-    def test_edition__order_no_changed(self):
+    def test_order_no_changed(self):
+        self.login_as_root()
+
         count = FakeSector.objects.count()
         sector = FakeSector.objects.create(title='music', order=count + 1)
 
@@ -279,10 +323,12 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(title,        new_sector.title)
         self.assertEqual(sector.order, new_sector.order)
 
-    def test_edition__disabled(self):
+    def test_disabled(self):
         """Edition disabled
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
+        self.login_as_root()
+
         lf = FakeLegalForm.objects.create(title='Foundation')
         self.assertGET409(
             reverse(
@@ -291,10 +337,11 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_edition__custom_url(self):
+    def test_custom_url(self):
         """Not vanilla-URL
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
+        self.login_as_root()
         position = FakePosition.objects.first()
 
         self.assertGET409(
@@ -304,8 +351,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_edition__deletion_in_progress(self):
-        user = self.user
+    def test_deletion_in_progress(self):
+        user = self.login_as_root_and_get()
         sector1 = FakeSector.objects.create(title='music')
 
         DeletionCommand.objects.create(
@@ -334,7 +381,11 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_disabling__on(self):
+
+class GenericDisablingTestCase(CremeTestCase):
+    def test_on(self):
+        self.login_as_root()
+
         pos = FakePosition.objects.create(title='Kunoichi')
         self.assertIsNone(pos.disabled)
 
@@ -365,7 +416,9 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data=data,
         )
 
-    def test_disabling__off(self):
+    def test_off(self):
+        self.login_as_root()
+
         pos = FakePosition.objects.create(title='Kunoichi', disabled=now())
         url = reverse(
             'creme_config__disable_instance',
@@ -378,8 +431,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # Bad action
         self.assertPOST404(url, data={'action': 'invalid'})
 
-    def test_disabling__off__deletion_in_progress(self):
-        user = self.user
+    def test_off__deletion_in_progress(self):
+        user = self.login_as_root_and_get()
         pos1 = FakePosition.objects.create(title='Kunoichi', disabled=now())
 
         DeletionCommand.objects.create(
@@ -424,7 +477,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'action': 'enable'},
         )
 
-    def test_disabling__custom_url(self):
+    def test_custom_url(self):
+        self.login_as_root()
         cat = FakeFolderCategory.objects.create(name='Pix')
         response = self.client.post(
             reverse(
@@ -439,7 +493,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_disabling__disabled(self):
+    def test_disabled(self):
+        self.login_as_root()
         cat = FakeImageCategory.objects.create(name='Selfie')
         response = self.client.post(
             reverse(
@@ -454,7 +509,8 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_disabling__invalid_model(self):
+    def test_invalid_model(self):
+        self.login_as_root()
         # instance = FakeDocumentCategory.objects.create(name='Book')
         instance = FakeTraining.objects.create(name='Book')
         self.assertHasNoAttr(instance, 'disabled')
@@ -466,7 +522,28 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertPOST409(url, data={'action': 'disable'})
 
-    def test_delete__set_null(self):
+
+class GenericDeletionTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = cls.get_root_user()
+
+    def setUp(self):
+        super().setUp()
+        self.login_as_root()
+
+    def assertReplacersEqual(self, expected, dcom):
+        # NB: works well on for FixedValueReplacer ??
+        self.assertListEqual(
+            expected,
+            [
+                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ],
+        )
+
+    def test_set_null(self):
         """on_delete=SET_NULL."""
         self.assertIsNone(DeletionCommand.objects.first())
 
@@ -580,7 +657,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(self.refresh(contact1).position)
         self.assertIsNone(self.refresh(contact2).position)
 
-    def test_delete__replace_null(self):
+    def test_replace_null(self):
         """on_delete=CREME_REPLACE_NULL."""
         self.assertIsNone(DeletionCommand.objects.first())
 
@@ -640,7 +717,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         job.delete()
         self.assertDoesNotExist(dcom)
 
-    def test_delete__not_custom(self):
+    def test_not_custom(self):
         """Not custom instance."""
         sector = FakeSector.objects.create(title='Music', is_custom=False)
         url = reverse(
@@ -651,7 +728,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST409(url)
         self.assertStillExists(sector)
 
-    def test_delete__replace(self):
+    def test_replace(self):
         """Several fields + replacement + limit_choices + on_delete=CREME_REPLACE."""
         create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Bo')
@@ -719,7 +796,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(sector1.id, self.refresh(orga1).sector_id)
         self.assertEqual(sector3.id, self.refresh(orga2).sector_id)
 
-    def test_delete__cascade(self):
+    def test_cascade(self):
         """on_delete=CASCADE."""
         create_prod_type = FakeProductType.objects.create
         prodtype1    = create_prod_type(name='Weapon')
@@ -798,7 +875,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(prod2)
         self.assertDoesNotExist(prod3)
 
-    def test_delete__protect__no_related(self):
+    def test_protect__no_related(self):
         """on_delete=PROTECT + no related entity."""
         self.assertIs(
             FakeActivity._meta.get_field('type').remote_field.on_delete,
@@ -837,7 +914,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         deletor_type.execute(dcom.job)
         self.assertDoesNotExist(atype2del)
 
-    def test_delete__protect__related(self):
+    def test_protect__related(self):
         """on_delete=PROTECT + related entity."""
         atype = FakeActivityType.objects.create(name='Show')
         url = reverse(
@@ -895,7 +972,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             field=fname, errors=_('Deletion is not possible.'),
         )
 
-    def test_delete__set_default(self):
+    def test_set_default(self):
         """on_delete=SET_DEFAULT."""
         default_status = FakeTicketStatus.objects.get(id=1)
         status2del = FakeTicketStatus.objects.create(name='Duplicated')
@@ -982,7 +1059,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             hline.modifications,
         )
 
-    def test_delete__set(self):
+    def test_set(self):
         """on_delete=SET."""
         prio2del = FakeTicketPriority.objects.create(name='Not so important')
         url = reverse(
@@ -1071,7 +1148,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             hline.modifications,
         )
 
-    def test_delete__model_with_m2m(self):
+    def test_model_with_m2m(self):
         """Deleted model gets a M2M field (bugfix).
         + no 'disabled' field.
         """
@@ -1104,7 +1181,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(training1)
         self.assertStillExists(skill1)
 
-    def test_delete__already_disabled(self):
+    def test_already_disabled(self):
         """'Disabled' is not overridden."""
         disabled = now() - timedelta(days=3)
         pos2del = FakePosition.objects.create(title='Kunoichi', disabled=disabled)
@@ -1117,7 +1194,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         pos2del = self.assertStillExists(pos2del)
         self.assertDatetimesAlmostEqual(disabled, pos2del.disabled)
 
-    def test_delete_m2m__no_replace(self):
+    def test_m2m__no_replace(self):
         folder = FakeFolder.objects.create(user=self.user, title='Pictures')
 
         create_cat = FakeDocumentCategory.objects.create
@@ -1172,7 +1249,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(cat2del)
         self.assertListEqual([cat3], [*doc.categories.all()])
 
-    def test_delete_m2m__replace(self):
+    def test_m2m__replace(self):
         folder = FakeFolder.objects.create(user=self.user, title='Pictures')
 
         create_cat = FakeDocumentCategory.objects.create
@@ -1215,7 +1292,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertCountEqual([cat1, cat2], [*doc1.categories.all()])
         self.assertListEqual([cat1], [*doc2.categories.all()])
 
-    def test_delete_m2m__not_blank(self):
+    def test_m2m__not_blank(self):
         create_ing = FakeIngredient.objects.create
         ing1    = create_ing(name='Courgette')
         ing2    = create_ing(name='Onion')
@@ -1239,7 +1316,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=ing2del.id, choices=choices)
         self.assertNotInChoices(value='',         choices=choices)
 
-    def test_delete_hidden_related(self):
+    def test_hidden_related(self):
         """ForeignKey(..., related_name='+', ...) => use the field anyway."""
         self.assertIsNone(DeletionCommand.objects.first())
 
@@ -1268,7 +1345,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInChoices(value=lform.id, label=str(lform),  choices=choices)
         self.assertNotInChoices(value=lform2del.id, choices=choices)
 
-    def test_delete_hidden_fields__set_null(self):
+    def test_hidden_fields__set_null(self):
         """on_delete=SET_NULL."""
         self.assertIs(
             FakeContact._meta.get_field('position').remote_field.on_delete,
@@ -1318,7 +1395,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             deletor_type.get_description(dcom.job),
         )
 
-    def test_delete_hidden_fields__set(self):
+    def test_hidden_fields__set(self):
         """on_delete=SET."""
         FieldsConfig.objects.create(
             content_type=FakeTicket,
@@ -1345,7 +1422,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         dcom = self.get_deletion_command_or_fail(FakeTicketPriority)
         self.assertFalse(dcom.replacers)
 
-    def test_delete_hidden_fields__set_default(self):
+    def test_hidden_fields__set_default(self):
         """on_delete=SET_DEFAULT."""
         FieldsConfig.objects.create(
             content_type=FakeTicket,
@@ -1375,7 +1452,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             dcom,
         )
 
-    def test_delete_hidden_fields__cascade(self):
+    def test_hidden_fields__cascade(self):
         """on_delete=CASCADE."""
         FieldsConfig.objects.create(
             content_type=FakeProduct,
@@ -1421,7 +1498,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         dcom = self.get_deletion_command_or_fail(FakeProductType)
         self.assertFalse(dcom.replacers)
 
-    def test_delete_hidden_fields__protect__no_related(self):
+    def test_hidden_fields__protect__no_related(self):
         """on_delete=PROTECT + no related entity."""
         FieldsConfig.objects.create(
             content_type=FakeActivity,
@@ -1448,7 +1525,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         dcom = self.get_deletion_command_or_fail(FakeActivityType)
         self.assertFalse(dcom.replacers)
 
-    def test_delete_hidden_fields__protect__related(self):
+    def test_hidden_fields__protect__related(self):
         """on_delete=PROTECT + related entity."""
         FieldsConfig.objects.create(
             content_type=FakeActivity,
@@ -1492,7 +1569,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             field=fname, errors=_('Deletion is not possible.'),
         )
 
-    def test_delete_hidden_fields__replace_null(self):
+    def test_hidden_fields__replace_null(self):
         """on_delete=CREME_REPLACE_NULL."""
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -1527,7 +1604,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             dcom,
         )
 
-    def test_delete_hidden_fields__replace__no_related(self):
+    def test_hidden_fields__replace__no_related(self):
         """on_delete=CREME_REPLACE + no related entity."""
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
@@ -1563,7 +1640,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             dcom,
         )
 
-    def test_delete_hidden_fields__replace__related(self):
+    def test_hidden_fields__replace__related(self):
         """on_delete=CREME_REPLACE + some related entity."""
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
@@ -1619,7 +1696,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             dcom,
         )
 
-    def test_delete_hidden_m2m(self):
+    def test_hidden_m2m(self):
         FieldsConfig.objects.create(
             content_type=FakeDocument,
             descriptions=[('categories', {FieldsConfig.HIDDEN: True})],
@@ -1657,7 +1734,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(cat2del)
         self.assertFalse(doc.categories.all())
 
-    def test_delete_uniqueness(self):
+    def test_uniqueness(self):
         self.assertFalse(DeletionCommand.objects.first())
 
         job = Job.objects.create(type_id=deletor_type.id, user=self.user)
@@ -1695,10 +1772,38 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(dcom)
 
-    def test_finish_deletor(self):
+    def test_customisation__disabled(self):
+        """Deletion disabled
+        (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
+        """
+        fc = FakeFolderCategory.objects.create(name='PDFs')
+        self.assertGET409(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_foldercat', fc.id,)
+        ))
+
+    def test_customisation__custom_url(self):
+        """Not vanilla-URL
+        (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
+        """
+        img_cat = FakeImageCategory.objects.first()
+        self.assertGET409(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_img_cat', img_cat.id),
+        ))
+
+
+class DeletorEndTestCase(CremeTestCase):
+    @staticmethod
+    def _build_finish_deletor_url(job):
+        return reverse('creme_config__finish_deletor', args=(job.id,))
+
+    def test_simple(self):
+        user = self.login_as_root_and_get()
+
         job = Job.objects.create(
             type_id=deletor_type.id,
-            user=self.user,
+            user=user,
             status=Job.STATUS_OK,
         )
 
@@ -1717,46 +1822,51 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(dcom)
 
-    def test_finish_deletor__other_user(self):
+    def test_other_user(self):
         """Other user's job."""
+        self.login_as_root()
+
         job = Job.objects.create(
             type_id=deletor_type.id,
             user=self.create_user(0),
             status=Job.STATUS_OK,
         )
-
         self.assertPOST403(self._build_finish_deletor_url(job))
 
-    def test_finish_deletor__not_finished(self):
+    def test_not_finished(self):
         """Job not finished."""
+        user = self.login_as_root_and_get()
+
         job = Job.objects.create(
             type_id=deletor_type.id,
-            user=self.user,
+            user=user,
             status=Job.STATUS_WAIT,
         )
-
         self.assertPOST409(self._build_finish_deletor_url(job))
 
-    def test_finish_deletor__with_errors__no_message(self):
+    def test_with_errors__no_message(self):
         """Job with errors (no message)."""
+        user = self.login_as_root_and_get()
+
         job = Job.objects.create(
             type_id=deletor_type.id,
-            user=self.user,
+            user=user,
             status=Job.STATUS_OK,
         )
         JobResult.objects.create(job=job)
-
         self.assertContains(
             self.client.post(self._build_finish_deletor_url(job)),
             _('Error. Please contact your administrator.'),
             status_code=409,
         )
 
-    def test_finish_deletor__with_errors__message(self):
+    def test_with_errors__message(self):
         """Job with errors (message)."""
+        user = self.login_as_root_and_get()
+
         job = Job.objects.create(
             type_id=deletor_type.id,
-            user=self.user,
+            user=user,
             status=Job.STATUS_OK,
         )
         messages = ['Dependencies error.', '3 Contacts']
@@ -1766,94 +1876,18 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(response, messages[0], status_code=409)
         self.assertContains(response, messages[1], status_code=409)
 
-    def test_finish_deletor__bad_job_type(self):
+    def test_bad_job_type(self):
         """Not deletor job."""
-        from creme.creme_core.creme_jobs.reminder import reminder_type
-
+        user = self.login_as_root_and_get()
         job = Job.objects.create(
             type_id=reminder_type.id,
-            user=self.user,
+            user=user,
             status=Job.STATUS_OK,
         )
-
         self.assertPOST404(self._build_finish_deletor_url(job))
 
-    def test_delete_customisation__disabled(self):
-        """Deletion disabled
-        (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
-        """
-        fc = FakeFolderCategory.objects.create(name='PDFs')
-        self.assertGET409(
-            reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_foldercat', fc.id,)
-            )
-        )
 
-    def test_delete_customisation__custom_url(self):
-        """Not vanilla-URL
-        (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
-        """
-        img_cat = FakeImageCategory.objects.first()
-
-        self.assertGET409(
-            reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_img_cat', img_cat.id),
-            )
-        )
-
-    def test_reload_model_brick(self):
-        response = self.assertGET200(
-            reverse(
-                'creme_config__reload_model_brick',
-                args=('creme_core', 'fake_civility'),
-            )
-        )
-
-        results = response.json()
-        self.assertIsList(results, length=1)
-
-        result = results[0]
-        self.assertIsList(result, length=2)
-
-        brick_id = GenericModelBrick.id
-        self.assertEqual(brick_id, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
-
-    def test_reload_app_bricks(self):
-        url = reverse('creme_config__reload_app_bricks', args=('creme_core',))
-        self.assertGET404(url)
-        self.assertGET404(url, data={'brick_id': PropertyTypesBrick.id})
-
-        response = self.assertGET200(url, data={'brick_id': SettingsBrick.id})
-
-        results = response.json()
-        self.assertIsList(results, length=1)
-
-        result = results[0]
-        self.assertIsList(result, length=2)
-
-        brick_id = SettingsBrick.id
-        self.assertEqual(brick_id, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
-
-    def test_reload_app_bricks__custom_brick(self):
-        response = self.assertGET200(
-            reverse('creme_config__reload_app_bricks', args=('creme_core',)),
-            data={'brick_id': FakeAppPortalBrick.id},
-        )
-
-        results = response.json()
-        self.assertIsList(results, length=1)
-
-        result = results[0]
-        self.assertIsList(result, length=2)
-
-        brick_id = FakeAppPortalBrick.id
-        self.assertEqual(brick_id, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
-
+class GenericReorderingTestCase(CremeTestCase):
     @parameterized.expand([
         (2, 2, [
             (1, 'Music'), (2, 'Movie'), (3, 'Book'), (4, 'Web'),
@@ -1869,6 +1903,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ]),
     ])
     def test_reorder(self, target_order, next_order, expected):
+        self.login_as_root()
         FakeSector.objects.all().delete()
 
         create_sector = FakeSector.objects.create
