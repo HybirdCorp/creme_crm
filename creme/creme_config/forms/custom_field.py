@@ -295,6 +295,7 @@ class CustomEnumEditionForm(CremeModelForm):
         fields = ('value', )
 
 
+# TODO: manage replacement in EntityFilterConditions & WorkFlows' conditions too
 class CustomEnumDeletionForm(CremeModelForm):
     class Meta:
         model = DeletionCommand

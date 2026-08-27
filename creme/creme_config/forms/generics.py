@@ -30,10 +30,16 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 
 from creme.creme_core.core import deletion
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms.base import CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import ReadonlyMessageField
-from creme.creme_core.models import DeletionCommand, FieldsConfig, Job
+from creme.creme_core.models import (
+    DeletionCommand,
+    EntityFilterCondition,
+    FieldsConfig,
+    Job,
+)
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
 logger = logging.getLogger(__name__)
@@ -93,19 +99,38 @@ class ReplacingHandler:
         field = self.field
         return f'{field.model._meta.verbose_name} - {field.verbose_name}'
 
-    def _count_related_instances(self):
+    def _count_related_instances(self) -> int:
         field = self.field
+        instance_to_del = self.instance_to_delete
+        referencing_model = field.model
 
-        return field.model._default_manager.filter(
-            **{field.name: self.instance_to_delete}
+        fk_count = referencing_model._default_manager.filter(
+            **{field.name: instance_to_del}
         ).count()
 
+        # TODO: factorise with deletor's code
+        condition_count = 0
+        if hasattr(instance_to_del, 'portable_key'):  # TODO: unit test <false> case
+            # TODO: filter/conditions cache?
+            for cond in EntityFilterCondition.objects.filter(
+                type=condition_handler.RegularFieldConditionHandler.type_id,
+                name__contains=field.name,
+                # NB: value__values__contains does not work with all DB engine (like SQLite)
+                value__values__regex=f'"{instance_to_del.portable_key()}"',
+            ):
+                # NB: it checks direct FK (e.g. 'status')
+                #     & deep FK (e.g. 'related_entity__status')
+                if cond.handler.field_info[-1] == field:
+                    condition_count += 1
+
+        return fk_count + condition_count
+
     def get_form_field(self):
-        "@return A <django.forms.Field> instance, or <None>."
+        """@return A <django.forms.Field> instance, or <None>."""
         raise NotImplementedError
 
     def replacer(self, new_value):
-        "@return A <creme_core.core.deletion.Replacer> instance, or <None>."
+        """@return A <creme_core.core.deletion.Replacer> instance, or <None>."""
         return deletion.FixedValueReplacer(
             model_field=self.field,
             value=new_value,

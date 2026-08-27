@@ -356,6 +356,8 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
                     )
                 )
 
+    # TODO: replace in credentials filters and workflows too (but refuse to
+    #       replace by NULL in these 2 use cases) (so, move code to the form)
     def _check_soft_references(self, instance, user):
         self._check_soft_references__efilters(instance=instance, user=user)
         self._check_soft_references__workflows(instance=instance, user=user)
@@ -376,9 +378,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
                 raise ConflictError(
                     gettext(
                         'A deletion process for an instance of «{model}» already exists.'
-                    ).format(
-                        model=type(instance)._meta.verbose_name,
-                    )
+                    ).format(model=type(instance)._meta.verbose_name)
                 )
 
         self._check_soft_references(instance=instance, user=user)
