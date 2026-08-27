@@ -20,8 +20,8 @@ from creme.creme_core.utils.profiling import CaptureQueriesContext
 from ..base import CremeTestCase
 
 
-class CremePropertyTypeTestCase(CremeTestCase):
-    def test_manager__compatible(self):
+class CremePropertyTypeManagerTestCase(CremeTestCase):
+    def test_compatible(self):
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
@@ -51,7 +51,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIn(ptype2.id, ptype_ids2)
         self.assertNotIn(ptype3.id, ptype_ids2)
 
-    def test_manager__proxy__get_or_create__minimal(self):
+    def test_proxy__get_or_create__minimal(self):
         count = CremePropertyType.objects.count()
 
         uuid = uuid4()
@@ -96,7 +96,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertEqual(text1, ptype3.text)
         self.assertEqual(count + 1, CremePropertyType.objects.count())
 
-    def test_manager__proxy__get_or_create__more_arguments(self):
+    def test_proxy__get_or_create__more_arguments(self):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
         orga_ct = get_ct(FakeOrganisation)
@@ -133,7 +133,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIs(ptype.enabled, False)
         self.assertCountEqual([contact_ct, orga_ct], [*ptype.subject_ctypes.all()])
 
-    def test_manager__proxy__get_or_create__gettext_lazy(self):
+    def test_proxy__get_or_create__gettext_lazy(self):
         ptype = CremePropertyType.objects.proxy(
             uuid=uuid4(),
             text=gettext_lazy('Is cool'),
@@ -145,7 +145,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
             ptype_as_str = str(ptype)
         self.assertEqual('Is cool', ptype_as_str)
 
-    def test_manager__proxy__update_or_create(self):
+    def test_proxy__update_or_create(self):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
         orga_ct = get_ct(FakeOrganisation)
@@ -190,7 +190,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
             [contact_ct, get_ct(FakeActivity)], [*ptype1.subject_ctypes.all()],
         )
 
-    def test_manager__proxy__gettext_lazy(self):
+    def test_proxy__gettext_lazy(self):
         """Lazy string object must be cast."""
         ptype = CremePropertyType.objects.proxy(
             uuid=uuid4(),
@@ -203,7 +203,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
             ptype_as_str = str(ptype)
         self.assertEqual('Is cool', ptype_as_str)
 
-    def test_manager__proxy__errors(self):
+    def test_proxy__errors(self):
         with self.assertRaises(ValueError):
             CremePropertyType.objects.proxy(id=1, uuid=uuid4(), text='Is smart')
 
@@ -214,7 +214,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         with self.assertRaises(AttributeError):
             proxy.save  # NOQA
 
-    def test_manager__proxy__set_attr(self):
+    def test_proxy__set_attr(self):
         proxy = CremePropertyType.objects.proxy(uuid=uuid4(), text='Is smart')
 
         proxy.text = text = 'Is smart'
@@ -233,7 +233,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         with self.assertRaises(AttributeError):
             proxy.pk = 12
 
-    def test_manager__proxy__update_models(self):
+    def test_proxy__update_models(self):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
         orga_ct = get_ct(FakeOrganisation)
@@ -254,6 +254,8 @@ class CremePropertyTypeTestCase(CremeTestCase):
         ptype = proxy.get_or_create()[0]
         self.assertCountEqual([activity_ct], [*ptype.subject_ctypes.all()])
 
+
+class CremePropertyTypeTestCase(CremeTestCase):
     def test_init(self):
         text = 'wonderful'
         description = 'is wonderful'
@@ -369,7 +371,7 @@ class CremePropertyTestCase(CremeTestCase):
         with self.assertRaises(IntegrityError):
             prop2.save()
 
-    def test_manager__safe_create(self):
+    def test_safe_create(self):
         text = 'is happy'
 
         ptype = CremePropertyType.objects.create(text=text)
@@ -381,7 +383,7 @@ class CremePropertyTestCase(CremeTestCase):
         with self.assertNoException():
             CremeProperty.objects.safe_create(type=ptype, creme_entity=entity)
 
-    def test_manager__safe_get_or_create(self):
+    def test_safe_get_or_create(self):
         text = 'is happy'
 
         ptype  = CremePropertyType.objects.create(text=text)
@@ -401,7 +403,7 @@ class CremePropertyTestCase(CremeTestCase):
 
         self.assertEqual(prop1, prop2)
 
-    def test_manager__safe_multi_save(self):
+    def test_safe_multi_save(self):
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
@@ -422,7 +424,7 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertHasProperty(entity=entity1, ptype=ptype2)
         self.assertHasProperty(entity=entity2, ptype=ptype2)
 
-    def test_manager__safe_multi_save__arg_duplicates(self):
+    def test_safe_multi_save__arg_duplicates(self):
         "De-duplicates arguments."
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
@@ -441,7 +443,7 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertHasProperty(entity=entity, ptype=ptype1)
         self.assertHasProperty(entity=entity, ptype=ptype2)
 
-    def test_manager__safe_multi_save__already_exist(self):
+    def test_safe_multi_save__already_exist(self):
         "Avoid creating existing properties."
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
@@ -465,14 +467,14 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertStillExists(prop1)
         self.assertHasProperty(entity=entity, ptype=ptype2)
 
-    def test_manager__safe_multi_save__empty(self):
+    def test_safe_multi_save__empty(self):
         "No query if no properties."
         with self.assertNumQueries(0):
             count = CremeProperty.objects.safe_multi_save([])
 
         self.assertEqual(0, count)
 
-    def test_manager__safe_multi_save__check_existing(self):
+    def test_safe_multi_save__check_existing(self):
         "Argument <check_existing>."
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
