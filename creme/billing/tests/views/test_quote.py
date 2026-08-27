@@ -67,8 +67,10 @@ class QuoteDetailViewTestCase(BrickTestCaseMixin, _BillingTestCase):
         hat_brick_node1 = self.get_brick_node(
             tree1, brick=billing_bricks.QuoteCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node1, entity=emitter)
-        self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        # self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, instance=emitter)
+        # self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        self.assertInstanceLink(hat_brick_node1, instance=receiver)
 
         indicator_path = (
             './/div[@class="business-card-indicator business-card-warning-indicator"]'
@@ -99,10 +101,11 @@ class QuoteDetailViewTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.QuoteCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=invoice)
+        # self.assertInstanceLink(hat_brick_node, entity=invoice)
+        self.assertInstanceLink(hat_brick_node, instance=invoice)
 
     def test_salesorder_creation_forbidden(self):
-        "Cannot create Sales Orders => convert button disabled."
+        """Cannot create Sales Orders => convert button disabled."""
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
@@ -166,7 +169,8 @@ class QuoteDetailViewTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.QuoteCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=opp)
+        # self.assertInstanceLink(hat_brick_node, entity=opp)
+        self.assertInstanceLink(hat_brick_node, instance=opp)
 
 
 @skipIfCustomOrganisation

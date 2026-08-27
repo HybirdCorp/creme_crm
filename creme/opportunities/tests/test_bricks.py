@@ -332,7 +332,8 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             self.get_html_tree(response.content),
             brick=bricks.LinkedContactsBrick,
         )
-        self.assertInstanceLink(brick_node=brick_node, entity=contact)
+        # self.assertInstanceLink(brick_node=brick_node, entity=contact)
+        self.assertInstanceLink(brick_node=brick_node, instance=contact)
 
         add_url = reverse('opportunities__create_unsuccessful_phone_call', args=(opp.id,))
         # TODO: better test (display on N lines...)
@@ -348,7 +349,8 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             self.get_html_tree(response.content),
             brick=bricks.LinkedContactsBrick,
         )
-        self.assertInstanceLink(brick_node=brick_node, entity=contact)
+        # self.assertInstanceLink(brick_node=brick_node, entity=contact)
+        self.assertInstanceLink(brick_node=brick_node, instance=contact)
         self.assertBrickHasNoAction(
             brick_node=brick_node,
             url=reverse('opportunities__create_unsuccessful_phone_call', args=(opp.id,)),

@@ -186,7 +186,8 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.linus)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.linus2)  # Deleted
         self.assertInstanceLinkNoLabel(brick_node, entity=self.andrew)  # In sector__title
-        self.assertNoInstanceLink(brick_node, entity=self.alan)
+        # self.assertNoInstanceLink(brick_node, entity=self.alan)
+        self.assertNoInstanceLink(brick_node, instance=self.alan)
 
     def test_regular_fields__2_ctypes(self):
         user = self.login_as_root_and_get()
@@ -202,12 +203,15 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         tree = self.get_html_tree(response.content)
         brick_node1 = self.get_search_brick_node(tree, brick_id_prefix=self.CONTACT_BRICKID)
         self.assertInstanceLinkNoLabel(brick_node1, entity=self.alan)
-        self.assertNoInstanceLink(brick_node1, entity=self.linus)
-        self.assertNoInstanceLink(brick_node1, entity=self.linus2)
+        # self.assertNoInstanceLink(brick_node1, entity=self.linus)
+        self.assertNoInstanceLink(brick_node1, instance=self.linus)
+        # self.assertNoInstanceLink(brick_node1, entity=self.linus2)
+        self.assertNoInstanceLink(brick_node1, instance=self.linus2)
 
         brick_node2 = self.get_search_brick_node(tree, brick_id_prefix=self.ORGA_BRICKID)
         self.assertInstanceLinkNoLabel(brick_node2, entity=self.coxco)
-        self.assertNoInstanceLink(brick_node2, entity=self.linusfo)
+        # self.assertNoInstanceLink(brick_node2, entity=self.linusfo)
+        self.assertNoInstanceLink(brick_node2, instance=self.linusfo)
 
         self.assertCountEqual({FakeContact, FakeOrganisation}, context['models'])
         self.assertCountEqual(
@@ -253,7 +257,8 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
         )
-        self.assertNoInstanceLink(brick_node, entity=linus)
+        # self.assertNoInstanceLink(brick_node, entity=linus)
+        self.assertNoInstanceLink(brick_node, instance=linus)
 
     def test_disabled(self):
         user = self.login_as_root_and_get()
@@ -288,8 +293,10 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         self.assertEqual(200, response.status_code)
 
         tree = self.get_html_tree(response.content)
-        self.assertNoInstanceLink(tree, entity=self.linus)
-        self.assertNoInstanceLink(tree, entity=self.linus2)
+        # self.assertNoInstanceLink(tree, entity=self.linus)
+        self.assertNoInstanceLink(tree, instance=self.linus)
+        # self.assertNoInstanceLink(tree, entity=self.linus2)
+        self.assertNoInstanceLink(tree, instance=self.linus2)
         self.assertInstanceLinkNoLabel(tree, entity=self.alan)
 
     def test_super_user(self):
@@ -308,8 +315,10 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
         )
-        self.assertNoInstanceLink(brick_node, entity=self.linus)
-        self.assertNoInstanceLink(brick_node, entity=self.linus2)
+        # self.assertNoInstanceLink(brick_node, entity=self.linus)
+        self.assertNoInstanceLink(brick_node, instance=self.linus)
+        # self.assertNoInstanceLink(brick_node, entity=self.linus2)
+        self.assertNoInstanceLink(brick_node, instance=self.linus2)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.alan)
 
     def test_fields_config(self):
@@ -355,8 +364,10 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             brick_id_prefix=self.CONTACT_BRICKID,
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=linus)
-        self.assertNoInstanceLink(brick_node, entity=alan)
-        self.assertNoInstanceLink(brick_node, entity=andrew)
+        # self.assertNoInstanceLink(brick_node, entity=alan)
+        self.assertNoInstanceLink(brick_node, instance=alan)
+        # self.assertNoInstanceLink(brick_node, entity=andrew)
+        self.assertNoInstanceLink(brick_node, instance=andrew)
 
         # TODO: assertSearchColumns(....)
         self.assertContains(response, _('First name'))
@@ -385,9 +396,12 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
         )
-        self.assertNoInstanceLink(brick_node, entity=self.linus)
-        self.assertNoInstanceLink(brick_node, entity=self.alan)
-        self.assertNoInstanceLink(brick_node, entity=self.andrew)
+        # self.assertNoInstanceLink(brick_node, entity=self.linus)
+        self.assertNoInstanceLink(brick_node, instance=self.linus)
+        # self.assertNoInstanceLink(brick_node, entity=self.alan)
+        self.assertNoInstanceLink(brick_node, instance=self.alan)
+        # self.assertNoInstanceLink(brick_node, entity=self.andrew)
+        self.assertNoInstanceLink(brick_node, instance=self.andrew)
 
         # TODO: assertBrickIsEmpty(...)
         self.assertContains(
@@ -425,9 +439,12 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             brick_id_prefix=self.CONTACT_BRICKID,
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=self.linus)
-        self.assertNoInstanceLink(brick_node, entity=self.linus2)
-        self.assertNoInstanceLink(brick_node, entity=self.alan)
-        self.assertNoInstanceLink(brick_node, entity=self.andrew)
+        # self.assertNoInstanceLink(brick_node, entity=self.linus2)
+        self.assertNoInstanceLink(brick_node, instance=self.linus2)
+        # self.assertNoInstanceLink(brick_node, entity=self.alan)
+        self.assertNoInstanceLink(brick_node, instance=self.alan)
+        # self.assertNoInstanceLink(brick_node, entity=self.andrew)
+        self.assertNoInstanceLink(brick_node, instance=self.andrew)
 
     def test_words__groups(self):
         """Grouped words."""
@@ -454,7 +471,8 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=orga1)
         self.assertInstanceLinkNoLabel(brick_node, entity=orga3)
-        self.assertNoInstanceLink(brick_node, entity=orga2)
+        # self.assertNoInstanceLink(brick_node, entity=orga2)
+        self.assertNoInstanceLink(brick_node, instance=orga2)
 
     def test_custom_field__str(self):
         """Type <CustomField.STR>."""
@@ -485,8 +503,10 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             brick_id_prefix=self.ORGA_BRICKID,
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=orga1)
-        self.assertNoInstanceLink(brick_node, entity=orga2)
-        self.assertNoInstanceLink(brick_node, entity=orga3)
+        # self.assertNoInstanceLink(brick_node, entity=orga2)
+        self.assertNoInstanceLink(brick_node, instance=orga2)
+        # self.assertNoInstanceLink(brick_node, entity=orga3)
+        self.assertNoInstanceLink(brick_node, instance=orga3)
 
     def test_custom_field__enum(self):
         """Type <CustomField.ENUM>."""
@@ -523,8 +543,10 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             brick_id_prefix=self.ORGA_BRICKID,
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=orga1)
-        self.assertNoInstanceLink(brick_node, entity=orga2)
-        self.assertNoInstanceLink(brick_node, entity=orga3)
+        # self.assertNoInstanceLink(brick_node, entity=orga2)
+        self.assertNoInstanceLink(brick_node, instance=orga2)
+        # self.assertNoInstanceLink(brick_node, entity=orga3)
+        self.assertNoInstanceLink(brick_node, instance=orga3)
 
     def test_custom_field__multi_enum(self):
         """Type <CustomField.MULTI_ENUM>."""
@@ -562,7 +584,8 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         )
         self.assertInstanceLinkNoLabel(brick_node, entity=orga1)
         self.assertInstanceLinkNoLabel(brick_node, entity=orga2)
-        self.assertNoInstanceLink(brick_node, entity=orga3)
+        # self.assertNoInstanceLink(brick_node, entity=orga3)
+        self.assertNoInstanceLink(brick_node, instance=orga3)
 
     def test_invalid_cell_type(self):
         """No error."""

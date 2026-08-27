@@ -69,9 +69,12 @@ class CreditNoteMiscViewsTestCase(BrickTestCaseMixin, _BaseCreditNoteViewsTestCa
         hat_brick_node1 = self.get_brick_node(
             tree1, brick=billing_bricks.CreditNoteCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node1, entity=emitter)
-        self.assertInstanceLink(hat_brick_node1, entity=receiver)
-        self.assertNoInstanceLink(hat_brick_node1, entity=invoice)
+        # self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, instance=emitter)
+        # self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        self.assertInstanceLink(hat_brick_node1, instance=receiver)
+        # self.assertNoInstanceLink(hat_brick_node1, entity=invoice)
+        self.assertNoInstanceLink(hat_brick_node1, instance=invoice)
 
         # Invoice is linked ---
         Relation.objects.create(
@@ -83,7 +86,8 @@ class CreditNoteMiscViewsTestCase(BrickTestCaseMixin, _BaseCreditNoteViewsTestCa
             self.get_html_tree(response2.content),
             brick=billing_bricks.CreditNoteCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node2, entity=invoice)
+        # self.assertInstanceLink(hat_brick_node2, entity=invoice)
+        self.assertInstanceLink(hat_brick_node2, instance=invoice)
 
     def test_list_view(self):
         user = self.login_as_root_and_get()
@@ -165,7 +169,8 @@ class CreditNoteCreationTestCase(BrickTestCaseMixin, _BaseCreditNoteViewsTestCas
             title='{count} Credit Note',
             plural_title='{count} Credit Notes',
         )
-        self.assertInstanceLink(brick_node, entity=credit_note)
+        # self.assertInstanceLink(brick_node, entity=credit_note)
+        self.assertInstanceLink(brick_node, instance=credit_note)
         self.assertBrickHasAction(
             brick_node,
             url=self._build_edit_comment_url(credit_note),

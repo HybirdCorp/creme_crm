@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 import openpyxl
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -62,17 +63,30 @@ class BrickTestCaseMixin:
                 f'The brick node id="brick-{brick_id}" has been unexpectedly found.'
             )  # pragma: no cover
 
-    def assertInstanceLink(self, brick_node, entity, check_text=True):
+    # def assertInstanceLink(self, brick_node, entity, check_text=True):
+    def assertInstanceLink(self, brick_node, instance: Model, check_text=True):
+        get_url = getattr(instance, 'get_absolute_url', None)
+        if get_url is None:
+            self.fail(f'{instance} has not get_absolute_url() method (no <a> is possible)')
+
         link_node = self.get_html_node_or_fail(
-            brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+            # brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+            brick_node, f".//a[@href='{get_url()}']"
         )
         if check_text:
-            self.assertEqual(str(entity), link_node.text.strip())
+            # self.assertEqual(str(entity), link_node.text.strip())
+            self.assertEqual(str(instance), link_node.text.strip())
 
         return link_node
 
-    def assertNoInstanceLink(self, brick_node, entity):
-        self.assertIsNone(brick_node.find(f".//a[@href='{entity.get_absolute_url()}']"))
+    # def assertNoInstanceLink(self, brick_node, entity):
+    def assertNoInstanceLink(self, brick_node, instance: Model):
+        # self.assertIsNone(brick_node.find(f".//a[@href='{entity.get_absolute_url()}']"))
+        get_url = getattr(instance, 'get_absolute_url', None)
+        if get_url is None:
+            self.fail(f'{instance} has not get_absolute_url() method (no <a> is possible)')
+
+        self.assertIsNone(brick_node.find(f".//a[@href='{get_url()}']"))
 
     def assertBrickHasClass(self, brick_node, css_class):
         self.assertIn(css_class, brick_node.attrib.get('class').split())

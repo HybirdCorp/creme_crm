@@ -59,4 +59,5 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
             title='{count} Filled form reply',
             plural_title='{count} Filled form replies',
         )
-        self.assertInstanceLink(brick_node, entity=preply)
+        # self.assertInstanceLink(brick_node, entity=preply)
+        self.assertInstanceLink(brick_node, instance=preply)

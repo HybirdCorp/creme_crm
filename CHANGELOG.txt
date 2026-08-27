@@ -238,6 +238,10 @@
                 - {% widget_hyperlink %}: "disabled".
                 - {% widget_entity_hyperlink %}: "ignore_deleted", "label", "target", "relative".
                 - {% widget_enumerator %}: "threshold", "empty", "summary".
+        # In 'creme.creme_core.tests.views.base.BrickTestCaseMixin', the argument "entity"
+          of these methods has been renamed "instance" :
+            - assertInstanceLink()
+            - assertNoInstanceLink()
         # In 'creme_core.templates' :
             - The templates of bricks for the detail-view of 'EntityFilter' have been moved/renamed:
                 - "creme_core/bricks/efilter-hat-bar.html"         => "creme_core/bricks/entity_filter/hat-bar.html"
