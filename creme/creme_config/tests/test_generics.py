@@ -10,10 +10,12 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.creme_jobs import deletor_type, reminder_type
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
     DeletionCommand,
+    EntityFilter,
     FakeActivity,
     FakeActivityType,
     FakeCivility,
@@ -1733,6 +1735,146 @@ class GenericDeletionTestCase(CremeTestCase):
         deletor_type.execute(dcom.job)
         self.assertDoesNotExist(cat2del)
         self.assertFalse(doc.categories.all())
+
+    def test_efilter_conditions__replace(self):
+        create_sector = FakeSector.objects.create
+        sector1 = create_sector(title='Bo')
+        sector2 = create_sector(title='Blade')
+        sector_to_del = create_sector(title='Gun')
+
+        efilter_to_update = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter_using_replaced', name='Armed',
+            model=FakeOrganisation, is_custom=True,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.EQUALS,
+                    field_name='sector',
+                    values=[str(sector_to_del.uuid), str(sector1.uuid)],
+                ),
+            ],
+        )
+        efilter_to_ignore = EntityFilter.objects.smart_update_or_create(
+            pk='test-ignored', name='Armed',
+            model=FakeOrganisation, is_custom=True,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.EQUALS,
+                    field_name='sector', values=[str(sector1.uuid)],
+                ),
+            ],
+        )
+
+        self.assertDictEqual(
+            {
+                'operator': 'equals',
+                'values': [str(sector_to_del.uuid), str(sector1.uuid)],
+            },
+            efilter_to_update.get_conditions()[0].value,
+        )
+
+        url = reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_sector', sector_to_del.pk),
+        )
+        response = self.assertGET200(url)
+
+        fname_contact = 'replace_creme_core__fakecontact_sector'
+        fname_orga    = 'replace_creme_core__fakeorganisation_sector'
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            replace_contact_f = fields[fname_contact]
+            contact_choices = [*replace_contact_f.choices]
+
+        self.assertInChoices(value=sector1.id, label=str(sector1), choices=contact_choices)
+        self.assertInChoices(value=sector2.id, label=str(sector2), choices=contact_choices)
+        self.assertNotInChoices(value=sector_to_del.id, choices=contact_choices)
+
+        self.assertIn(fname_orga, fields)
+
+        # POST ---
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                fname_contact: sector1.id,
+                fname_orga: sector2.id,
+            },
+        ))
+        self.assertStillExists(sector_to_del)
+
+        # RUN ---
+        job = self.get_object_or_fail(Job, type_id=deletor_type.id)
+
+        dcom = self.get_object_or_fail(DeletionCommand, job=job)
+        self.assertEqual(1, dcom.total_count)
+        self.assertEqual(0, dcom.updated_count)
+
+        deletor_type.execute(job)
+        self.assertDoesNotExist(sector_to_del)
+        self.assertEqual(1, self.refresh(dcom).updated_count)
+
+        condition_value = self.get_alone_element(
+            self.refresh(efilter_to_update).get_conditions()
+        ).value
+        self.assertIsDict(condition_value, length=2)
+        self.assertEqual('equals', condition_value.get('operator'))
+        self.assertCountEqual(  # NB: order of keys may have changed
+            [str(sector1.uuid), str(sector2.uuid)], condition_value.get('values'),
+        )
+
+        self.assertListEqual(
+            [{'operator': 'equals', 'values': [str(sector1.uuid)]}],
+            [c.value for c in self.refresh(efilter_to_ignore).get_conditions()],
+        )
+
+    def test_efilter_conditions__set_null(self):
+        """NULL => value is removed from conditions."""
+        self.assertIs(
+            FakeContact._meta.get_field('position').remote_field.on_delete,
+            SET_NULL,
+        )
+
+        pos = FakePosition.objects.create(title='Kunoichi')
+        pos_to_del = FakePosition.objects.create(title='Kuno-ichi')
+
+        efilter_to_update = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter_using_replaced', name='Kunoichis',
+            model=FakeContact, is_custom=True,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='position',
+                    values=[str(pos_to_del.uuid), str(pos.uuid)],
+                ),
+            ],
+        )
+
+        # POST ---
+        self.assertNoFormError(self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_position', pos_to_del.pk),
+        )))
+        pos_to_del = self.assertStillExists(pos_to_del)
+
+        # RUN ---
+        job = self.get_object_or_fail(Job, type_id=deletor_type.id)
+
+        dcom = self.get_deletion_command_or_fail(FakePosition)
+        self.assertEqual(1, dcom.total_count)
+        self.assertEqual(0, dcom.updated_count)
+
+        deletor_type.execute(job)
+        self.assertDoesNotExist(pos_to_del)
+        self.assertEqual(1, self.refresh(dcom).updated_count)
+        self.assertDictEqual(
+            {'operator': 'equals', 'values': [str(pos.uuid)]},
+            self.get_alone_element(
+                self.refresh(efilter_to_update).get_conditions()
+            ).value,
+        )
 
     def test_uniqueness(self):
         self.assertFalse(DeletionCommand.objects.first())

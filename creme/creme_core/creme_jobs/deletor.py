@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2025 Hybird
+#    Copyright (C) 2019-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,14 +16,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+from ..core.entity_filter import condition_handler
 from ..core.workflow import WorkflowEngine
-from ..models import DeletionCommand, FieldsConfig, JobResult
+from ..models import (
+    CremeEntity,
+    DeletionCommand,
+    EntityFilter,
+    EntityFilterCondition,
+    FieldsConfig,
+    JobResult,
+)
 from ..signals import pre_replace_and_delete
 from ..utils.translation import verbose_instances_groups
 from .base import JobProgress, JobType
@@ -77,6 +88,49 @@ class _DeletorType(JobType):
 
                     dcom_mngr.filter(pk=dcom.pk).update(updated_count=F('updated_count') + 1)
 
+            # TODO: see <ReplacingHandler._count_related_instances>
+            #  - factorise
+            #  - remark about deep fk
+            model = model_field.model
+            if issubclass(model, CremeEntity) and hasattr(instance_2_del, 'portable_key'):
+                key_2_del = instance_2_del.portable_key()
+                new_key = None if new_value is None else new_value.portable_key()
+
+                # NB: we want to select_for_update() the EntityFilter then update
+                #     all its conditions which have to be. Each filter has its own
+                #     transaction to the least annoying as possible for concurrent editions.
+                cond_ids_per_filter = defaultdict(list)
+                for cond_id, filter_id in EntityFilterCondition.objects.filter(
+                    filter__entity_type=ContentType.objects.get_for_model(model),
+                    type=condition_handler.RegularFieldConditionHandler.type_id,
+                    name=model_field.name,
+                    # NB: value__values__contains does not work with all DB engine (like SQLite)
+                    value__values__regex=f'"{key_2_del}"',
+                ).values_list('id', 'filter_id'):
+                    cond_ids_per_filter[filter_id].append(cond_id)
+
+                for filter_id, cond_ids in cond_ids_per_filter.items():
+                    # NB: <wf_engine.run()> is useless here, we only modify conditions
+                    with atomic():
+                        EntityFilter.objects.select_for_update().filter(id=filter_id).first()
+
+                        conditions = EntityFilterCondition.objects.filter(id__in=cond_ids)
+                        for cond in conditions:
+                            value = cond.value
+
+                            # NB: sets will remove duplicates too, which is cool
+                            values = {*value['values']} - {key_2_del}
+                            if new_key:
+                                values.add(new_key)
+
+                            value['values'] = [*values]
+                            # TODO: delete the condition if 'values' is empty?
+                            cond.save(update_fields=['value'])
+
+                        dcom_mngr.filter(pk=dcom.pk).update(
+                            # TODO: test length > 1
+                            updated_count=F('updated_count') + len(conditions),
+                        )
         try:
             instance_2_del.delete()
         except ProtectedError as e:
