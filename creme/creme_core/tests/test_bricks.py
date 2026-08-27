@@ -681,10 +681,14 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
             title='{count} Recent entity',
             plural_title='{count} Recent entities',
         )
-        self.assertInstanceLink(brick_node=brick_node, entity=contact1)
-        self.assertInstanceLink(brick_node=brick_node, entity=orga)
-        self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
-        self.assertNoInstanceLink(brick_node=brick_node, entity=contact3)
+        # self.assertInstanceLink(brick_node=brick_node, entity=contact1)
+        self.assertInstanceLink(brick_node=brick_node, instance=contact1)
+        # self.assertInstanceLink(brick_node=brick_node, entity=orga)
+        self.assertInstanceLink(brick_node=brick_node, instance=orga)
+        # self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
+        self.assertNoInstanceLink(brick_node=brick_node, instance=contact2)
+        # self.assertNoInstanceLink(brick_node=brick_node, entity=contact3)
+        self.assertNoInstanceLink(brick_node=brick_node, instance=contact3)
 
     @override_settings(PINNED_ENTITIES_SIZE=10)
     def test_pinned_entities_brick(self):
@@ -712,9 +716,12 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
             title='{count} Pinned entity',
             plural_title='{count} Pinned entities',
         )
-        self.assertInstanceLink(brick_node=brick_node, entity=contact1)
-        self.assertInstanceLink(brick_node=brick_node, entity=orga)
-        self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
+        # self.assertInstanceLink(brick_node=brick_node, entity=contact1)
+        self.assertInstanceLink(brick_node=brick_node, instance=contact1)
+        # self.assertInstanceLink(brick_node=brick_node, entity=orga)
+        self.assertInstanceLink(brick_node=brick_node, instance=orga)
+        # self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
+        self.assertNoInstanceLink(brick_node=brick_node, instance=contact2)
 
     def test_statistics_brick(self):
         user = self.login_as_standard()

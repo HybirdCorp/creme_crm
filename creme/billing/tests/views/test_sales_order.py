@@ -54,11 +54,13 @@ class SalesOrderViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
         hat_brick_node = self.get_brick_node(
             tree, brick=billing_bricks.SalesOrderCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=emitter)
-        self.assertInstanceLink(hat_brick_node, entity=receiver)
+        # self.assertInstanceLink(hat_brick_node, entity=emitter)
+        self.assertInstanceLink(hat_brick_node, instance=emitter)
+        # self.assertInstanceLink(hat_brick_node, entity=receiver)
+        self.assertInstanceLink(hat_brick_node, instance=receiver)
 
     def test_detail_view__no_convert_to_invoice(self):
-        "Cannot create invoice => convert button disabled."
+        """Cannot create invoice => convert button disabled."""
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder],  # Invoice
@@ -101,7 +103,8 @@ class SalesOrderViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.SalesOrderCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=opp)
+        # self.assertInstanceLink(hat_brick_node, entity=opp)
+        self.assertInstanceLink(hat_brick_node, instance=opp)
 
     def test_creation(self):
         user = self.login_as_root_and_get()

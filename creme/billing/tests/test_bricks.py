@@ -64,7 +64,8 @@ class ConfigurationBricksTestCase(BrickTestCaseMixin, _BillingTestCase):
             title='{count} Organisation configured for number generation',
             plural_title='{count} Organisations configured for number generation',
         )
-        self.assertInstanceLink(brick_node, entity=orga)
+        # self.assertInstanceLink(brick_node, entity=orga)
+        self.assertInstanceLink(brick_node, instance=orga)
         # TODO: complete
 
 
@@ -113,7 +114,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(5, len(table_cells))
-        self.assertInstanceLink(table_cells[0], entity=credit_note)
+        # self.assertInstanceLink(table_cells[0], entity=credit_note)
+        self.assertInstanceLink(table_cells[0], instance=credit_note)
 
     def test_ReceivedInvoicesBrick(self):
         user = self.login_as_root_and_get()
@@ -157,7 +159,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(6, len(table_cells))
-        self.assertInstanceLink(table_cells[0], entity=invoice)
+        # self.assertInstanceLink(table_cells[0], entity=invoice)
+        self.assertInstanceLink(table_cells[0], instance=invoice)
         self.assertEqual(invoice.number, table_cells[1].text)
         self.assertEqual(
             date_format(invoice.expiration_date, 'DATE_FORMAT'),
@@ -182,7 +185,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         brick_node3 = self.get_brick_node(
             self.get_html_tree(render), brick=billing_bricks.ReceivedInvoicesBrick,
         )
-        self.assertInstanceLink(brick_node3, entity=invoice)
+        # self.assertInstanceLink(brick_node3, entity=invoice)
+        self.assertInstanceLink(brick_node3, instance=invoice)
 
     def test_ReceivedInvoicesBrick__hidden_expiration(self):
         "Field 'expiration_date' is hidden."
@@ -282,7 +286,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(5, len(table_cells))
-        self.assertInstanceLink(table_cells[0], entity=quote)
+        # self.assertInstanceLink(table_cells[0], entity=quote)
+        self.assertInstanceLink(table_cells[0], instance=quote)
         self.assertEqual(
             date_format(quote.expiration_date, 'DATE_FORMAT'),
             table_cells[1].text,
@@ -398,7 +403,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
 
         table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(5, len(table_cells))
-        self.assertInstanceLink(table_cells[0], entity=order)
+        # self.assertInstanceLink(table_cells[0], entity=order)
+        self.assertInstanceLink(table_cells[0], instance=order)
 
 
 @skipIfCustomOrganisation

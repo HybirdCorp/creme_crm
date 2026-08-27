@@ -77,8 +77,10 @@ class InvoiceMiscViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
         hat_brick_node1 = self.get_brick_node(
             tree1, brick=billing_bricks.InvoiceCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node1, entity=emitter)
-        self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        # self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, instance=emitter)
+        # self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        self.assertInstanceLink(hat_brick_node1, instance=receiver)
 
         indicator_path = (
             './/div[@class="business-card-indicator business-card-warning-indicator"]'
@@ -124,7 +126,8 @@ class InvoiceMiscViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.InvoiceCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=opp)
+        # self.assertInstanceLink(hat_brick_node, entity=opp)
+        self.assertInstanceLink(hat_brick_node, instance=opp)
 
     def test_detail_view__generated_invoices(self):
         user = self.login_as_root_and_get()
@@ -139,7 +142,8 @@ class InvoiceMiscViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.InvoiceCardHatBrick,
         )
-        self.assertInstanceLink(hat_brick_node, entity=quote)
+        # self.assertInstanceLink(hat_brick_node, entity=quote)
+        self.assertInstanceLink(hat_brick_node, instance=quote)
 
     def test_list_view(self):
         user = self.login_as_root_and_get()
