@@ -376,7 +376,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(orga_ct,                  forbidden_creds.ctype)
 
     def test_roles__override(self):
-        "Role with same name already exists => override it."
+        """Role with same name already exists => override it."""
         self.login_as_super(is_staff=True)
 
         role = self.create_role(
@@ -437,7 +437,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFalse(credentials.ctype)
 
     def test_roles__credentials_filter(self):
-        "Credentials with filter."
+        """Credentials with filter."""
         self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
@@ -527,7 +527,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(efilter, credentials.efilter)
 
     def test_roles__error(self):
-        "Invalid filter."
+        """Invalid filter."""
         self.login_as_super(is_staff=True)
         efilter_id = 'creme_config-test_import_role_error'
         data = {
@@ -970,7 +970,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_search__new_role(self):
-        "Related role is imported."
+        """Related role is imported."""
         self.login_as_super(is_staff=True)
 
         role_uuid = str(uuid4())
@@ -1060,7 +1060,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_property_types__uniqueness(self):
-        "Uniqueness of text."
+        """Uniqueness of text."""
         self.login_as_super(is_staff=True)
 
         uid = str(uuid4())
@@ -1078,7 +1078,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.get_object_or_fail(CremePropertyType, **ptypes_data[1])
 
     def test_property_types__error(self):
-        "Do no override a not custom ptype."
+        """Do not override a not custom ptype."""
         self.login_as_super(is_staff=True)
 
         ptype = CremePropertyType.objects.create(text='Sugoi!')
@@ -1213,7 +1213,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_relations_types__cannot_override_system_types(self):
-        "Do no override a not custom relation-type."
+        """Do not override a not custom relation-type."""
         self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_custom=False, id__contains='-subject_').first()
@@ -1238,7 +1238,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_relations_types__invalid_ptypes(self):
-        "Invalid property types."
+        """Invalid property types."""
         self.login_as_super(is_staff=True)
 
         ptype_uuid = uuid4()
@@ -1266,7 +1266,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_relations_types__new_ptype(self):
-        "A related property types is imported."
+        """A related property types is imported."""
         self.login_as_super(is_staff=True)
 
         ptype1 = CremePropertyType.objects.create(text='Is very important')
@@ -1344,7 +1344,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertCountEqual([fname3], fconf.required_at_creation_field_names)
 
     def test_fields_config__already_exists(self):
-        "A configuration already exists for this ContentType."
+        """A configuration already exists for this ContentType."""
         self.login_as_super(is_staff=True)
 
         FieldsConfig.objects.create(
@@ -1509,7 +1509,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_customfields__uniqueness__name(self):
-        "Name + ContentType uniqueness."
+        """Name + ContentType uniqueness."""
         self.login_as_super(is_staff=True)
 
         name = 'Rating'
@@ -1666,7 +1666,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFalse(HeaderFilter.objects.filter(id=hfilters_data[3]['id']))
 
     def test_headerfilters__no_override(self):
-        "Do not override not custom header-filters."
+        """Do not override not custom header-filters."""
         self.login_as_super(is_staff=True)
 
         hf = self.get_object_or_fail(HeaderFilter, id=DEFAULT_HFILTER_FAKE_CONTACT)
@@ -1689,7 +1689,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters__new_rtype(self):
-        "A used RelationType is imported."
+        """A used RelationType is imported."""
         self.login_as_super(is_staff=True)
 
         rtype_id1 = 'creme_config-subject_test_import_headerfilter03_1'
@@ -1764,7 +1764,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(rtype_id2b, cell1_3.relation_type.id)
 
     def test_headerfilters__new_cfield(self):
-        "A used CustomField is imported."
+        """A used CustomField is imported."""
         self.login_as_super(is_staff=True)
 
         cf_uuid = '6a52b4db-f832-489f-b6de-d1558b3938e3'
@@ -1846,7 +1846,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters__invalid_cell__regular_field(self):
-        "Invalid cell: regular field."
+        """Invalid cell: regular field."""
         self.login_as_super(is_staff=True)
 
         fname = 'name'
@@ -1874,7 +1874,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters__invalid_cell__custom_field(self):
-        "Invalid cell: custom-field."
+        """Invalid cell: custom-field."""
         self.login_as_super(is_staff=True)
 
         cf_uuid = '6a52b4db-f832-489f-b6de-d1558b3938f4'
@@ -1902,7 +1902,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters__invalid_cell__function_field(self):
-        "Invalid cell: function field."
+        """Invalid cell: function field."""
         self.login_as_super(is_staff=True)
 
         ff_name = 'invalid'
@@ -1933,7 +1933,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters__invalid_cell__rtype(self):
-        "Invalid cell: relation."
+        """Invalid cell: relation."""
         self.login_as_super(is_staff=True)
 
         rtype_id = 'creme_config-subject_test_import_headerfilters_error05'  # <= does not exist
@@ -2283,7 +2283,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__no_override(self):
-        "Do not override not custom filters."
+        """Do not override not custom filters."""
         self.login_as_super(is_staff=True)
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -2326,7 +2326,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__ordering(self):
-        "Sub-filters ordering."
+        """Sub-filters ordering."""
         self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
@@ -2407,7 +2407,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(ef1.id, condition4_2.name)
 
     def test_entityfilters__ordering__rtype(self):
-        "(relation) Sub-filters ordering."
+        """(relation) Sub-filters ordering."""
         self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
@@ -2528,7 +2528,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__regular_field(self):
-        "Invalid condition: regular field."
+        """Invalid condition: regular field."""
         self.login_as_super(is_staff=True)
 
         efilters_data = [{
@@ -2550,7 +2550,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertTrue(errors)
 
     def test_entityfilters__invalid_condition__ptype(self):
-        "Invalid condition: property."
+        """Invalid condition: property."""
         self.login_as_super(is_staff=True)
 
         ptype_uuid = str(uuid4())  # does not exist/not imported
@@ -2580,7 +2580,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__rtype(self):
-        "Invalid condition: relation (invalid rtype)."
+        """Invalid condition: relation (invalid rtype)."""
         self.login_as_super(is_staff=True)
 
         # Does not exist/not imported
@@ -2612,7 +2612,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__rtype__entity_uuid(self):
-        "Invalid condition: relation (invalid entity's UUID)."
+        """Invalid condition: relation (invalid entity's UUID)."""
         self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_internal=False).first()
@@ -2646,7 +2646,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__custom_field(self):
-        "Invalid condition: custom-field."
+        """Invalid condition: custom-field."""
         self.login_as_super(is_staff=True)
 
         cf_uuid = str(uuid4())  # does not exist/not imported
@@ -2677,7 +2677,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__custom_field__date(self):
-        "Invalid condition: (date) custom-field."
+        """Invalid condition: (date) custom-field."""
         self.login_as_super(is_staff=True)
 
         cf_uuid = str(uuid4())  # does not exist/not imported
@@ -2710,7 +2710,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__subfilter(self):
-        "Invalid condition: sub-filter."
+        """Invalid condition: sub-filter."""
         self.login_as_super(is_staff=True)
 
         ef_id1 = 'creme_config-test_import_entityfilters_error07_1'
@@ -2741,7 +2741,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__relation_subfilter__filter(self):
-        "Invalid condition: relation sub-filters (unknown filter)."
+        """Invalid condition: relation sub-filters (unknown filter)."""
         self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_internal=False).first()
@@ -2779,7 +2779,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters__invalid_condition__relation_subfilter__rtype(self):
-        "Invalid condition: relation sub-filters (unknown relation-type)."
+        """Invalid condition: relation sub-filters (unknown relation-type)."""
         self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
@@ -3510,7 +3510,7 @@ class ImportingTestCase(TransferBaseTestCase):
         ))
 
     def test_detailview_bricks__new_role(self):
-        "Related role is imported."
+        """Related role is imported."""
         self.login_as_super(is_staff=True)
 
         TOP    = BrickDetailviewLocation.TOP
@@ -3615,7 +3615,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks__role(self):
-        "Config per role."
+        """Config per role."""
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
         role_uid = str(role.uuid)
@@ -3639,7 +3639,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks__role__new(self):
-        "Config per role (role is imported)."
+        """Config per role (role is imported)."""
         self.login_as_super(is_staff=True)
 
         role_uuid = str(uuid4())
@@ -3688,7 +3688,7 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks__superusers(self):
-        "Config for superuser."
+        """Config for superuser."""
         self.login_as_super(is_staff=True)
 
         bricks_data = [
