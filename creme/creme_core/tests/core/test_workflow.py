@@ -6,8 +6,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_SUB_HAS
-from creme.creme_core.core.entity_filter import condition_handler
-from creme.creme_core.core.entity_filter.operators import EndsWithOperator
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.core.workflow import (
     BrokenAction,
     BrokenSource,
@@ -372,6 +371,269 @@ class SignalHandlersTestCase(CremeTestCase):
         event2 = events[1]
         self.assertIsInstance(event2, RelationAdded)
         self.assertEqual(rel.symmetric_relation, event2.relation)
+
+
+class WorkflowConditionsTestCase(CremeTestCase):
+    def test_empty(self):
+        wc = WorkflowConditions()
+        user = self.get_root_user()
+        self.assertFalse([*wc.descriptions(user)])
+        self.assertListEqual([], wc.to_dicts())
+
+        self.assertTrue(wc.accept(
+            user=user, context={}, detect_change=False, use_or=False,
+        ))
+        self.assertTrue(wc.accept(
+            user=user, context={}, detect_change=False, use_or=True,
+        ))
+        self.assertListEqual(
+            [],
+            wc.conditions_for_source(CreatedEntitySource(model=FakeOrganisation)),
+        )
+
+    def test_no_condition(self):
+        wc = WorkflowConditions().add(
+            source=CreatedEntitySource(model=FakeOrganisation), conditions=[],
+        )
+        self.assertListEqual(
+            [_('No condition on «{source}»').format(
+                source=_('Created entity ({type})').format(type='Test Organisation'),
+            )],
+            [*wc.descriptions(self.get_root_user())],
+        )
+        self.assertListEqual(
+            [{
+                'conditions': [],
+                'entity': {'model': 'creme_core.fakeorganisation', 'type': 'created_entity'},
+            }],
+            wc.to_dicts(),
+        )
+
+    def test_one_source(self):
+        user = self.get_root_user()
+
+        cond1 = condition_handler.RegularFieldConditionHandler.build_condition(
+            model=FakeOrganisation,
+            field_name='name',
+            operator=operators.EndsWithOperator, values=[' Corp'],
+        )
+        cond2 = condition_handler.RegularFieldConditionHandler.build_condition(
+            model=FakeOrganisation,
+            field_name='description',
+            operator=operators.ContainsOperator, values=['Important'],
+        )
+        wc = WorkflowConditions().add(
+            source=CreatedEntitySource(model=FakeOrganisation),
+            conditions=[cond1, cond2],
+        )
+
+        description = self.get_alone_element([*wc.descriptions(user)])
+        self.assertHTMLEqual(
+            _('Conditions on «{source}»:').format(
+                source=_('Created entity ({type})').format(type='Test Organisation'),
+            ) + (
+                f'<ul>'
+                f' <li>{cond1.description(user)}</li>'
+                f' <li>{cond2.description(user)}</li>'
+                f'</ul>'
+            ),
+            description,
+        )
+
+        self.assertListEqual(
+            [{
+                'conditions': [
+                    {
+                        'name': 'name',
+                        'type': 'regular_field',
+                        'value': {'operator': 'endswith', 'values': [' Corp']},
+                    }, {
+                        'name': 'description',
+                        'type': 'regular_field',
+                        'value': {'operator': 'contains', 'values': ['Important']},
+                    },
+                ],
+                'entity': {'model': 'creme_core.fakeorganisation', 'type': 'created_entity'},
+            }],
+            wc.to_dicts(),
+        )
+
+        self.assertListEqual(
+            [cond1, cond2],
+            wc.conditions_for_source(CreatedEntitySource(model=FakeOrganisation)),
+        )
+
+        # Accept() ---
+        src_type = CreatedEntitySource.type_id
+        context_false = {src_type: FakeOrganisation(name='Whatever')}
+        self.assertFalse(wc.accept(
+            user=user, context=context_false, detect_change=False, use_or=True,
+        ))
+        self.assertFalse(wc.accept(
+            user=user, context=context_false, detect_change=False, use_or=False,
+        ))
+
+        context_or_ok = {src_type: FakeOrganisation(name='Acme Corp')}
+        self.assertTrue(wc.accept(
+            user=user, context=context_or_ok, detect_change=False, use_or=True,
+        ))
+        self.assertFalse(wc.accept(
+            user=user, context=context_or_ok, detect_change=False, use_or=False,
+        ))
+
+        context_and_ok = {
+            src_type: FakeOrganisation(name='Foo Corp', description='Important info'),
+        }
+        self.assertTrue(wc.accept(
+            user=user, context=context_and_ok, detect_change=False, use_or=True,
+        ))
+        self.assertTrue(wc.accept(
+            user=user, context=context_and_ok, detect_change=False, use_or=False,
+        ))
+
+    def test_two_sources(self):
+        user = self.get_root_user()
+
+        cond1 = condition_handler.RegularFieldConditionHandler.build_condition(
+            model=FakeOrganisation,
+            field_name='name',
+            operator=operators.EndsWithOperator, values=[' Corp'],
+        )
+        cond2 = condition_handler.RegularFieldConditionHandler.build_condition(
+            model=FakeOrganisation,
+            field_name='description',
+            operator=operators.ContainsOperator, values=['Important'],
+        )
+        wc = WorkflowConditions().add(
+            source=SubjectEntitySource(model=FakeOrganisation),
+            conditions=[cond1],
+        ).add(
+            source=ObjectEntitySource(model=FakeOrganisation),
+            conditions=[cond2],
+        )
+
+        descriptions = [*wc.descriptions(user)]
+        self.assertEqual(2, len(descriptions))
+        self.assertHTMLEqual(
+            _('Conditions on «{source}»:').format(
+                source=_(
+                    'Subject of the created relationship ({type})'
+                ).format(type='Test Organisation'),
+            ) + f'<ul> <li>{cond1.description(user)}</li></ul>',
+            descriptions[0],
+        )
+
+        self.assertListEqual(
+            [cond1],
+            wc.conditions_for_source(SubjectEntitySource(model=FakeOrganisation)),
+        )
+        self.assertListEqual(
+            [cond2],
+            wc.conditions_for_source(ObjectEntitySource(model=FakeOrganisation)),
+        )
+
+        # Accept() ---
+        context = {
+            SubjectEntitySource.type_id: FakeOrganisation(name='Acme Corp'),
+            ObjectEntitySource.type_id: FakeOrganisation(
+                name='Foo Corp', description='Important info',
+            ),
+        }
+        self.assertTrue(wc.accept(
+            user=user, context=context, detect_change=False, use_or=True,
+        ))
+        self.assertTrue(wc.accept(
+            user=user, context=context, detect_change=False, use_or=False,
+        ))
+
+    def test_snapshot(self):
+        user = self.get_root_user()
+        suffix = ' Corp'
+
+        wc = WorkflowConditions().add(
+            source=EditedEntitySource(model=FakeOrganisation),
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    field_name='name',
+                    operator=operators.EndsWithOperator, values=[suffix],
+                ),
+            ],
+        )
+
+        src_type = EditedEntitySource.type_id
+        kwargs = {
+            'user': user,
+            # 'context' ...,
+            'detect_change': True,  # <===
+            'use_or': True,
+        }
+        with self.assertRaises(ValueError) as exc_cm:
+            wc.accept(context={src_type: FakeOrganisation(name='Whatever')}, **kwargs)
+        self.assertEqual(
+            'The "detect_edition" mode work only with edited entities',
+            str(exc_cm.exception),
+        )
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+        with self.assertRaises(ValueError):
+            wc.accept(context={src_type: orga}, **kwargs)
+
+        orga = self.refresh(orga)
+        self.assertFalse(wc.accept(context={src_type: orga}, **kwargs))
+
+        orga.name += suffix
+        self.assertTrue(wc.accept(context={src_type: orga}, **kwargs))
+
+        orga.save()
+        self.assertFalse(wc.accept(context={src_type: self.refresh(orga)}, **kwargs))
+
+    def test_from_dicts__empty(self):
+        wc = WorkflowConditions.from_dicts([], registry=workflow_registry)
+        self.assertIsInstance(wc, WorkflowConditions)
+        self.assertListEqual([], wc.to_dicts())
+
+    def test_from_dicts__filled(self):
+        data = [
+            {
+                'entity': {
+                    'type': 'subject_entity', 'model': 'creme_core.fakeorganisation',
+                },
+                'conditions': [
+                    {
+                        'type': 'regular_field', 'name': 'name',
+                        'value': {'operator': 'endswith', 'values': [' Corp']},
+                    },
+                ],
+            }, {
+                'entity': {
+                    'type': 'object_entity', 'model': 'creme_core.fakeorganisation',
+                },
+                'conditions': [
+                    {
+                        'type': 'regular_field', 'name': 'description',
+                        'value': {'operator': 'contains', 'values': ['Important']},
+                    },
+                ]
+            },
+        ]
+        wc = WorkflowConditions.from_dicts(data, registry=workflow_registry)
+        self.assertIsInstance(wc, WorkflowConditions)
+        self.assertListEqual(data, wc.to_dicts())
+
+        descriptions = [*wc.descriptions(user=self.get_root_user())]
+        self.assertEqual(2, len(descriptions))
+        self.assertHTMLEqual(
+            _('Conditions on «{source}»:').format(
+                source=_(
+                    'Subject of the created relationship ({type})'
+                ).format(type='Test Organisation'),
+            ) + '<ul><li>' + _("«{field}» ends with {values}").format(
+                field=_('Name'),
+                values=_('«{enum_value}»').format(enum_value=' Corp'),
+            ) + '</li></ul>',
+            descriptions[0],
+        )
 
 
 class WorkflowRegistryTestCase(CremeTestCase):
@@ -908,7 +1170,7 @@ class WorkflowEngineTestCase(CremeTestCase):
                 source=source,
                 conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator=EndsWithOperator, field_name='name', values=[' Corp'],
+                    operator=operators.EndsWithOperator, field_name='name', values=[' Corp'],
                 )],
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
@@ -943,7 +1205,7 @@ class WorkflowEngineTestCase(CremeTestCase):
                 source=source,
                 conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
                     model=model,
-                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                    operator=operators.EndsWithOperator, field_name='name', values=[suffix],
                 )],
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
@@ -975,7 +1237,7 @@ class WorkflowEngineTestCase(CremeTestCase):
         source = EditedEntitySource(model=model)
         build_condition = partial(
             condition_handler.RegularFieldConditionHandler.build_condition,
-            model=model, operator=EndsWithOperator,
+            model=model, operator=operators.EndsWithOperator,
         )
         Workflow.objects.create(
             title='Edited Corporations are cool',
@@ -1015,7 +1277,7 @@ class WorkflowEngineTestCase(CremeTestCase):
                 source=source,
                 conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                    operator=operators.EndsWithOperator, field_name='name', values=[suffix],
                 )],
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
@@ -1056,7 +1318,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
                 source=source,
                 conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator=EndsWithOperator, field_name='name', values=[' Corp'],
+                    operator=operators.EndsWithOperator, field_name='name', values=[' Corp'],
                 )],
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
@@ -1101,7 +1363,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
                 source=source,
                 conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
                     model=model,
-                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                    operator=operators.EndsWithOperator, field_name='name', values=[suffix],
                 )],
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
