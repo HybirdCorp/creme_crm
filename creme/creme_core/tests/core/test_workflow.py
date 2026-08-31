@@ -1,4 +1,5 @@
 from functools import partial
+from uuid import uuid4
 
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
@@ -390,6 +391,7 @@ class WorkflowConditionsTestCase(CremeTestCase):
             [],
             wc.conditions_for_source(CreatedEntitySource(model=FakeOrganisation)),
         )
+        self.assertListEqual([], wc.errors())
 
     def test_no_condition(self):
         wc = WorkflowConditions().add(
@@ -408,6 +410,7 @@ class WorkflowConditionsTestCase(CremeTestCase):
             }],
             wc.to_dicts(),
         )
+        self.assertListEqual([], wc.errors())
 
     def test_one_source(self):
         user = self.get_root_user()
@@ -620,6 +623,7 @@ class WorkflowConditionsTestCase(CremeTestCase):
         wc = WorkflowConditions.from_dicts(data, registry=workflow_registry)
         self.assertIsInstance(wc, WorkflowConditions)
         self.assertListEqual(data, wc.to_dicts())
+        self.assertListEqual([], wc.errors())
 
         descriptions = [*wc.descriptions(user=self.get_root_user())]
         self.assertEqual(2, len(descriptions))
@@ -633,6 +637,46 @@ class WorkflowConditionsTestCase(CremeTestCase):
                 values=_('«{enum_value}»').format(enum_value=' Corp'),
             ) + '</li></ul>',
             descriptions[0],
+        )
+
+    def test_errors(self):
+        wc = WorkflowConditions.from_dicts(
+            [
+                {
+                    'entity': {
+                        'type': 'subject_entity', 'model': 'creme_core.fakeorganisation',
+                    },
+                    'conditions': [
+                        {
+                            'type': 'regular_field', 'name': 'sector',
+                            'value': {
+                                'operator': 'endswith',
+                                'values': [str(uuid4())],  # <===
+                            },
+                        },
+                    ],
+                }, {
+                    'entity': {
+                        'type': 'object_entity', 'model': 'creme_core.fakeorganisation',
+                    },
+                    'conditions': [
+                        {
+                            'type': 'regular_field',
+                            'name': 'invalid',  # <===
+                            'value': {'operator': 'contains', 'values': ['Important']},
+                        },
+                    ]
+                },
+            ],
+            registry=workflow_registry,
+        )
+
+        self.assertListEqual(
+            [
+                _('Some «{model}» does not exist anymore').format(model='Test sectors'),
+                _('There is no field named «{name}»').format(name='invalid'),
+            ],
+            wc.errors(),
         )
 
 

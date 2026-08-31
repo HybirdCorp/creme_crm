@@ -1276,6 +1276,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #666;
 }
 
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions .errors {
+    padding-left: 10px;
+    color: red;
+}
+
 .creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents ul {
     padding-left: 25px;
 }
