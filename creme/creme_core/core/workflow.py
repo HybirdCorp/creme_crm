@@ -646,6 +646,14 @@ class WorkflowConditions:
             else:
                 yield _('No condition on «{source}»').format(source=rendered_source)
 
+    def errors(self) -> list[str]:
+        return [
+            error
+            for source_conditions in self._conditions_per_source
+            for condition in source_conditions['conditions']
+            if (error := condition.error)
+        ]
+
     def to_dicts(self) -> list[dict]:
         """Serialize the instance as a JSON-friendly list of dictionaries."""
         return [
