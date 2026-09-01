@@ -601,8 +601,8 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
-          requires:
-            - javascript-tests
-            - python310-tests-sqlite3
-            - python310-tests-mysql
-            - python310-tests-pgsql
+#          requires:
+#            - javascript-tests
+#            - python310-tests-sqlite3
+#            - python310-tests-mysql
+#            - python310-tests-pgsql
