@@ -250,7 +250,7 @@ jobs:
   run-coverage:
     docker:
       - image: cimg/python:3.12
-      - image: cimg/postgres:14.17
+      - image: cimg/postgres:15.18
         environment:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme
