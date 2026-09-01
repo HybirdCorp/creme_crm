@@ -23,7 +23,8 @@ class OperandTestCase(CremeTestCase):
         "Resolve with None."
         operand = operands.CurrentUserOperand(user=None)
         self.assertIsNone(operand.user)
-        self.assertIsNone(operand.resolve())
+        # self.assertIsNone(operand.resolve())
+        self.assertListEqual([], operand.resolve())
 
     def test_current_user03(self):
         "Resolve with no team."

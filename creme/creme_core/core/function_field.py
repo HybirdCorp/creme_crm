@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -146,8 +146,8 @@ class FunctionField:
     # <None> means no sorting.
     sorter_class: type[AbstractCellSorter] | None = None
 
-    def __call__(self, entity, user):
-        """"@return An instance of FunctionField object
+    def __call__(self, entity, user) -> FunctionFieldResult:
+        """"@return An instance of FunctionFieldResult object
         (so you can call render() on the result).
         """
         return self.result_type(getattr(entity, self.name)())

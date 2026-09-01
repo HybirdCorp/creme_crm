@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,13 +123,22 @@ class CremePropertyTypeProxy:
             return saved_instance, False
 
         saved_instance = deepcopy(instance)
+        # Cast lazy gettext objects as string in order CremePropertyType.__str__ does not crash
+        saved_instance.text = str(instance.text)
+        # Only useful if CremePropertyType.__str__ is monkey patched to return 'description'
+        saved_instance.description = str(instance.description)
+
         saved_instance.save()
         saved_instance.subject_ctypes.set(self.subject_ctypes)
 
         return saved_instance, True
 
     def update_or_create(self) -> tuple[CremePropertyType, bool]:
+        # TODO: factorise
+        # NB: see comments in get_or_create()
         instance = deepcopy(self._instance)
+        instance.text = str(instance.text)
+        instance.description = str(instance.description)
 
         existing = type(instance).objects.filter(uuid=instance.uuid).first()
         if existing is not None:
