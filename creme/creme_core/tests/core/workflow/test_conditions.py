@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from functools import partial
+from uuid import uuid4
 
 from dateutil.utils import today
 from django.utils.formats import date_format
@@ -17,14 +18,13 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
 )
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.workflows import (
     CreatedEntitySource,
     EditedEntitySource,
     ObjectEntitySource,
     SubjectEntitySource,
 )
-
-from ..base import CremeTestCase
 
 
 class WorkflowConditionsTestCase(CremeTestCase):
@@ -42,6 +42,7 @@ class WorkflowConditionsTestCase(CremeTestCase):
             source=source, conditions=[condition],
         )
         self.assertIsInstance(conditions, WorkflowConditions)
+        self.assertListEqual([], conditions.errors())
 
         # conditions_for_source() ---
         self.assertTrue(EntityFilterCondition.conditions_equal(
@@ -431,3 +432,43 @@ class WorkflowConditionsTestCase(CremeTestCase):
         ctxt[source.type_id] = self.refresh(orga)
         self.assertTrue(accept(detect_change=False))
         self.assertFalse(accept(detect_change=True))
+
+    def test_errors(self):
+        wc = WorkflowConditions.from_dicts(
+            [
+                {
+                    'entity': {
+                        'type': 'subject_entity', 'model': 'creme_core.fakeorganisation',
+                    },
+                    'conditions': [
+                        {
+                            'type': 'regular_field', 'name': 'sector',
+                            'value': {
+                                'operator': 'endswith',
+                                'values': [str(uuid4())],  # <===
+                            },
+                        },
+                    ],
+                }, {
+                    'entity': {
+                        'type': 'object_entity', 'model': 'creme_core.fakeorganisation',
+                    },
+                    'conditions': [
+                        {
+                            'type': 'regular_field',
+                            'name': 'invalid',  # <===
+                            'value': {'operator': 'contains', 'values': ['Important']},
+                        },
+                    ]
+                },
+            ],
+            registry=workflow_registry,
+        )
+
+        self.assertListEqual(
+            [
+                _('Some «{model}» does not exist anymore').format(model='Test sectors'),
+                _('There is no field named «{name}»').format(name='invalid'),
+            ],
+            wc.errors(),
+        )
