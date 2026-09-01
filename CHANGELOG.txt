@@ -1,5 +1,14 @@
 == Version 2.8.6 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (creme_config)
+
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - The deletion of Minions (i.e. small models for statuses, sectors etc…),
+              which are used by credentials filters or Workflows, is forbidden.
+
 
 == Version 2.8.5 ==
 

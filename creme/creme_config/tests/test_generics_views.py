@@ -4,15 +4,24 @@ from django.apps import apps
 from django.db.models.deletion import PROTECT, SET_NULL
 from django.forms import CharField
 from django.urls import reverse
+from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
+from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.creme_jobs import deletor_type, reminder_type
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
     DeletionCommand,
+    EntityFilter,
     FakeActivity,
     FakeActivityType,
     FakeCivility,
@@ -37,6 +46,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     Job,
     JobResult,
+    Workflow,
 )
 from creme.creme_core.models.history import TYPE_EDITION, HistoryLine
 from creme.creme_core.tests.base import CremeTestCase
@@ -1501,6 +1511,232 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(dcom)
 
+    def test_blocking_soft_ref__credential_filter__no_filter(self):
+        sector_to_del = FakeSector.objects.create(title='Visual arts')
+        other_sector = FakeSector.objects.create(title='Music')
+
+        position = FakePosition.objects.get_or_create(
+            id=sector_to_del.id,
+            defaults={'title': 'Colliding'},
+        )[0]
+
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion_not_creds',
+            name='I am a regular filter',
+            entity_type=FakeContact,
+            # filter_type=EF_REGULAR,  # <===
+        ).set_conditions(
+            [condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator=operators.EqualsOperator,
+                field_name='sector',
+                values=[str(sector_to_del.id)],
+            )],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion_other',
+            name='Musicians',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator=operators.EqualsOperator,
+                field_name='sector',
+                values=[str(other_sector.id)],  # <===
+                filter_type=EF_CREDENTIALS,
+            )],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion_other_model',
+            name='Position sector',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator=operators.EqualsOperator,
+                field_name='position',
+                values=[str(position.id)],  # <=== same as sector_to_del
+                filter_type=EF_CREDENTIALS,
+            )],
+            check_cycles=False, check_privacy=False,
+        )
+
+        self.assertGET200(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_sector', sector_to_del.id),
+        ))
+
+    def test_blocking_soft_ref__credential_filter__one_filter(self):
+        sector = FakeSector.objects.create(title='Music')
+        efilter = EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion',
+            name='Musicians',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='sector', values=[str(sector.id)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        self.assertContains(
+            self.client.get(reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fake_sector', sector.id),
+            )),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'credentials filters: {filters}'
+            ).format(item=sector, filters=efilter.name),
+            status_code=409,
+            html=True,
+        )
+
+    def test_blocking_soft_ref__credential_filter__two_filters(self):
+        sector = FakeSector.objects.create(title='Comics')
+
+        def create_filter(name):
+            return EntityFilter.objects.create(
+                id=f'creme_config-tests_blocked_deletion-{slugify(name)}',
+                name=name,
+                entity_type=FakeContact,
+                filter_type=EF_CREDENTIALS,
+            ).set_conditions(
+                [
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='sector', values=[str(sector.id)],
+                        filter_type=EF_CREDENTIALS,
+                    ),
+                ],
+                check_cycles=False, check_privacy=False,
+            )
+
+        efilter1 = create_filter(name='Comics editor')
+        efilter2 = create_filter(name='Comics drawer')
+
+        self.assertContains(
+            self.client.get(reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fake_sector', sector.id),
+            )),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'credentials filters: {filters}'
+            ).format(item=sector, filters=f'{efilter2.name}, {efilter1.name}'),
+            status_code=409,
+            html=True,
+        )
+
+    def test_blocking_soft_ref__workflow__none(self):
+        create_sector = FakeSector.objects.create
+        sector_to_del = create_sector(title='Music')
+        other_sector = create_sector(title='Music')
+
+        position = FakePosition.objects.create(title='Colliding', uuid=sector_to_del.uuid)
+
+        Workflow.objects.create(
+            title='Not blocking (different instance)',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EQUALS,
+                        field_name='sector',
+                        values=[str(other_sector.id)],  # <===
+                    ),
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EQUALS,
+                        field_name='position',  # <===
+                        values=[str(position.id)],
+                    ),
+                ],
+            ),
+        )
+        self.assertGET200(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_sector', sector_to_del.id),
+        ))
+
+    def test_blocking_soft_ref__workflow__one_workflow(self):
+        sector = FakeSector.objects.create(title='Music')
+        wf = Workflow.objects.create(
+            title='My blocking WF',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EQUALS,
+                        field_name='sector', values=[str(sector.id)],
+                    ),
+                ],
+            ),
+        )
+        self.assertContains(
+            self.client.get(reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fake_sector', sector.id),
+            )),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'Workflows (in conditions): {workflows}'
+            ).format(item=sector, workflows=wf.title),
+            status_code=409,
+            html=True,
+        )
+
+    def test_blocking_soft_ref__workflow__two_workflows(self):
+        sector = FakeSector.objects.create(title='Music')
+
+        def create_workflow(title):
+            return Workflow.objects.create(
+                title=title,
+                content_type=FakeContact,
+                trigger=workflows.EntityCreationTrigger(model=FakeContact),
+                conditions=WorkflowConditions().add(
+                    source=workflows.CreatedEntitySource(model=FakeContact),
+                    conditions=[
+                        condition_handler.RegularFieldConditionHandler.build_condition(
+                            model=FakeContact,
+                            operator=operators.EQUALS,
+                            field_name='sector', values=[str(sector.id)],
+                        ),
+                    ],
+                ),
+            )
+
+        wf1 = create_workflow('Singers')
+        wf2 = create_workflow('Musicians')
+        self.assertContains(
+            self.client.get(reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fake_sector', sector.id),
+            )),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'Workflows (in conditions): {workflows}'
+            ).format(item=sector, workflows=f'{wf2.title}, {wf1.title}'),
+            status_code=409,
+            html=True,
+        )
+
     def test_finish_deletor(self):
         job = Job.objects.create(
             type_id=deletor_type.id,
@@ -1574,8 +1810,6 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_finish_deletor__bad_job_type(self):
         "Not deletor job."
-        from creme.creme_core.creme_jobs.reminder import reminder_type
-
         job = Job.objects.create(
             type_id=reminder_type.id,
             user=self.user,

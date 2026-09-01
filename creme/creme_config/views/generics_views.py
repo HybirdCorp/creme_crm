@@ -20,6 +20,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied  # FieldDoesNotExist
+from django.db.models import F
 # from django.db.models import IntegerField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -28,9 +29,19 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.views.bricks as bricks_views
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+)
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
-from creme.creme_core.models import DeletionCommand, Job, JobResult
+from creme.creme_core.models import (
+    DeletionCommand,
+    EntityFilterCondition,
+    Job,
+    JobResult,
+    Workflow,
+)
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.order import ReorderInstances
@@ -219,6 +230,75 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
 
         return context
 
+    def _check_soft_references__efilters(self, instance, user):
+        pk = str(instance.pk)
+        model = type(instance)
+        efilter_names = set()
+
+        for cond in EntityFilterCondition.objects.filter(
+            filter__filter_type=EF_CREDENTIALS,
+            type=condition_handler.RegularFieldConditionHandler.type_id,
+            value__values__regex=pk,
+        ).annotate(filter_name=F('filter__name')):
+            last_field = cond.handler.field_info[-1]
+            if (
+                last_field.is_relation
+                and issubclass(last_field.related_model, model)
+                and pk in cond.value['values']
+            ):
+                efilter_names.add(cond.filter_name)
+
+        if efilter_names:
+            raise ConflictError(
+                gettext(
+                    'You cannot delete «{item}» because it is used by some '
+                    'credentials filters: {filters}'
+                ).format(
+                    item=instance,
+                    filters=', '.join(sorted(efilter_names)),
+                )
+            )
+
+    def _check_soft_references__workflows(self, instance, user):
+        pk = instance.pk
+        model = type(instance)
+        workflow_names = set()
+        cond_type_id = condition_handler.RegularFieldConditionHandler.type_id
+
+        # NB: we filter with the PK; it's just an optimisation to remove
+        #     some Workflows which cannot be referencing <instance>, but
+        #     some false positive Workflows may be returned anyway.
+        for wf in Workflow.objects.filter(
+            json_conditions__regex=str(pk),
+        ):
+            # TODO: public API for '_conditions_per_source' ?
+            for source_conditions in wf.conditions._conditions_per_source:
+                for cond in source_conditions['conditions']:
+                    if cond.type == cond_type_id:
+                        last_field = cond.handler.field_info[-1]
+                        if (
+                            last_field.is_relation
+                            and issubclass(last_field.related_model, model)
+                            # and pk in cond.value['values']
+                            and str(pk) in cond.value['values']
+                        ):
+                            workflow_names.add(wf.title)
+
+        if workflow_names:
+            raise ConflictError(
+                gettext(
+                    'You cannot delete «{item}» because it is used by some '
+                    'Workflows (in conditions): {workflows}'
+                ).format(
+                    item=instance,
+                    workflows=', '.join(sorted(workflow_names)),
+                )
+            )
+
+    def _check_soft_references(self, instance, user):
+        self._check_soft_references__efilters(instance=instance, user=user)
+        self._check_soft_references__workflows(instance=instance, user=user)
+
     def check_instance_permissions(self, instance, user):
         if not getattr(instance, 'is_custom', True):
             raise ConflictError('Can not delete (is not custom)')
@@ -239,6 +319,8 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
                         model=type(instance)._meta.verbose_name,
                     )
                 )
+
+        self._check_soft_references(instance=instance, user=user)
 
     def get_form_class(self):
         deletor = self.get_model_conf().deletor

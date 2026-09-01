@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-29 16:56+0200\n"
+"POT-Creation-Date: 2026-09-02 14:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2926,6 +2926,22 @@ msgstr ""
 "La valeur supprimée peut être remplacée dans les fiches existantes par une "
 "autre valeur. Si un champ ne peut être vide, vous devez choisir une valeur "
 "de remplacement."
+
+#, python-brace-format
+msgid ""
+"You cannot delete «{item}» because it is used by some credentials filters: "
+"{filters}"
+msgstr ""
+"Vous ne pouvez pas supprimer «{item}» car ces filtres de droits s'en "
+"servent : {filters}"
+
+#, python-brace-format
+msgid ""
+"You cannot delete «{item}» because it is used by some Workflows (in "
+"conditions): {workflows}"
+msgstr ""
+"Vous ne pouvez pas supprimer «{item}» car ces Processus automatisés s'en "
+"servent : {workflows}"
 
 #, python-brace-format
 msgid "A deletion process for an instance of «{model}» already exists."
