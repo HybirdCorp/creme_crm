@@ -362,7 +362,7 @@ class RelationTypeBuilder:
             id=self.id,
             defaults={
                 **defaults,
-                'predicate': self.predicate,
+                'predicate': str(self.predicate),
                 'is_copiable': self.is_copiable,
                 'minimal_display': self.minimal_display,
             },
@@ -372,7 +372,7 @@ class RelationTypeBuilder:
                 id=sym.id,
                 defaults={
                     **defaults,
-                    'predicate': sym.predicate,
+                    'predicate': str(sym.predicate),
                     'is_copiable': sym.is_copiable,
                     'minimal_display': sym.minimal_display,
                     'symmetric_type': sub_rtype,
@@ -404,7 +404,7 @@ class RelationTypeBuilder:
             id=self.id,
             defaults={
                 **defaults,
-                'predicate': self.predicate,
+                'predicate': str(self.predicate),
                 'is_copiable': self.is_copiable,
                 'minimal_display': self.minimal_display,
             },
@@ -413,7 +413,7 @@ class RelationTypeBuilder:
             id=sym.id,
             defaults={
                 **defaults,
-                'predicate': sym.predicate,
+                'predicate': str(sym.predicate),
                 'is_copiable': sym.is_copiable,
                 'minimal_display': sym.minimal_display,
                 'symmetric_type': sub_rtype,

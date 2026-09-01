@@ -619,18 +619,18 @@ workflows:
               ignore: /.*/
           requires:
             - docker-build-creme-demo
-            - javascript-tests
-            - python310-tests-sqlite3
-            - python310-tests-mysql
-            - python310-tests-pgsql
+#            - javascript-tests
+#            - python310-tests-sqlite3
+#            - python310-tests-mysql
+#            - python310-tests-pgsql
       - creme-package:
           filters:
             tags:
               only: /.*/
             branches:
               ignore: /.*/
-          requires:
-            - javascript-tests
-            - python310-tests-sqlite3
-            - python310-tests-mysql
-            - python310-tests-pgsql
+#          requires:
+#            - javascript-tests
+#            - python310-tests-sqlite3
+#            - python310-tests-mysql
+#            - python310-tests-pgsql

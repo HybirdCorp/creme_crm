@@ -1,3 +1,13 @@
+== Version 2.8.5 ==
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Some issues with 'proxy()' & 'builder()' have been fixed.
+
+
 == Version 2.8.4 ==
 
   Users side :

@@ -41,9 +41,9 @@ logger = logging.getLogger(__name__)
 #  several lines are edited for the moment when have to re-save the model manually.
 class Line(CremeEntity):
     class Discount(models.IntegerChoices):
-        PERCENT     = 1, _('Percent'),
-        LINE_AMOUNT = 2, _('Amount per line'),
-        ITEM_AMOUNT = 3, _('Amount per unit'),
+        PERCENT     = 1, _('Percent')
+        LINE_AMOUNT = 2, _('Amount per line')
+        ITEM_AMOUNT = 3, _('Amount per unit')
 
     # NB: blank is True to avoid annoying messages from the Snapshot system;
     #     of course forms which build Lines with on-the-fly item should mark the
