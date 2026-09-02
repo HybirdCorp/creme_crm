@@ -33,10 +33,9 @@ from django.db.models import ManyToManyField, Model, prefetch_related_objects
 from django.db.transaction import atomic
 from django.forms import widgets
 from django.forms.models import modelform_factory
-from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.text import Truncator
+from django.utils.text import Truncator, slugify
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
