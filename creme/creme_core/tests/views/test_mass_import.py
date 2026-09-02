@@ -3,10 +3,10 @@ from functools import partial
 from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
-from django.template.defaultfilters import slugify
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import smart_str
+from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
