@@ -56,6 +56,7 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
+from ..registry import config_registry
 
 
 class GenericPortalsTestCase(BrickTestCaseMixin, CremeTestCase):
@@ -553,6 +554,17 @@ class GenericDeletionTestCase(CremeTestCase):
             ],
         )
 
+    @staticmethod
+    def _build_url(obj):
+        name = config_registry.get_app_registry(
+            'creme_core'
+        ).get_model_conf(type(obj)).model_name
+
+        return reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', name, obj.id),
+        )
+
     def test_set_null(self):
         """on_delete=SET_NULL."""
         self.assertIsNone(DeletionCommand.objects.first())
@@ -560,10 +572,7 @@ class GenericDeletionTestCase(CremeTestCase):
         pos2del = FakePosition.objects.create(title='Kunoichi')
         self.assertIsNone(pos2del.disabled)
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_position', pos2del.pk),
-        )
+        url = self._build_url(pos2del)
         fname = 'replace_creme_core__fakecontact_position'
 
         # No related entity ---
@@ -678,10 +687,7 @@ class GenericDeletionTestCase(CremeTestCase):
             last_name='Hattori', first_name='Hanzo',
         )
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_civility', civ2del.pk),
-        )
+        url = self._build_url(civ2del)
         response = self.assertGET200(url)
 
         context = response.context
@@ -730,10 +736,7 @@ class GenericDeletionTestCase(CremeTestCase):
     def test_not_custom(self):
         """Not custom instance."""
         sector = FakeSector.objects.create(title='Music', is_custom=False)
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector.pk),
-        )
+        url = self._build_url(sector)
         self.assertGET409(url)
         self.assertPOST409(url)
         self.assertStillExists(sector)
@@ -755,10 +758,7 @@ class GenericDeletionTestCase(CremeTestCase):
         orga1 = create_orga(name='Turtles',   sector=sector1)
         orga2 = create_orga(name='Foot clan', sector=sector2del)
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector2del.pk),
-        )
+        url = self._build_url(sector2del)
         response = self.assertGET200(url)
 
         fname1 = 'replace_creme_core__fakecontact_sector'
@@ -815,10 +815,7 @@ class GenericDeletionTestCase(CremeTestCase):
         create_product = partial(FakeProduct.objects.create, user=self.user)
         prod1 = create_product(name='Katana', type=prodtype1)
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_product_type', prodtype2del.id),
-        )
+        url = self._build_url(prodtype2del)
 
         # No entity will be deleted ---
         response = self.assertGET200(url)
@@ -897,10 +894,7 @@ class GenericDeletionTestCase(CremeTestCase):
 
         FakeActivity.objects.create(user=self.user, title='Comiket', type=atype)
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_activity_type', atype2del.id),
-        )
+        url = self._build_url(atype2del)
         response = self.assertGET200(url)
 
         fname = 'replace_creme_core__fakeactivity_type'
@@ -927,10 +921,7 @@ class GenericDeletionTestCase(CremeTestCase):
     def test_protect__related(self):
         """on_delete=PROTECT + related entity."""
         atype = FakeActivityType.objects.create(name='Show')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_activity_type', atype.id),
-        )
+        url = self._build_url(atype)
         fname = 'replace_creme_core__fakeactivity_type'
 
         # One related entity ---
@@ -986,10 +977,7 @@ class GenericDeletionTestCase(CremeTestCase):
         """on_delete=SET_DEFAULT."""
         default_status = FakeTicketStatus.objects.get(id=1)
         status2del = FakeTicketStatus.objects.create(name='Duplicated')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_ticket_status', status2del.id),
-        )
+        url = self._build_url(status2del)
         fname = 'replace_creme_core__faketicket_status'
 
         # No related entity ---
@@ -1072,10 +1060,7 @@ class GenericDeletionTestCase(CremeTestCase):
     def test_set(self):
         """on_delete=SET."""
         prio2del = FakeTicketPriority.objects.create(name='Not so important')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_ticket_priority', prio2del.id),
-        )
+        url = self._build_url(prio2del)
         fname = 'replace_creme_core__faketicket_priority'
 
         # No related entity ----
@@ -1169,10 +1154,7 @@ class GenericDeletionTestCase(CremeTestCase):
         training1 = FakeTraining.objects.create(name='Python for beginners')
         training1.skills.set([skill1, skill2])
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_training', training1.id),
-        )
+        url = self._build_url(training1)
 
         # GET ---
         response1 = self.assertGET200(url)
@@ -1196,10 +1178,7 @@ class GenericDeletionTestCase(CremeTestCase):
         disabled = now() - timedelta(days=3)
         pos2del = FakePosition.objects.create(title='Kunoichi', disabled=disabled)
 
-        self.assertNoFormError(self.client.post(reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_position', pos2del.pk),
-        )))
+        self.assertNoFormError(self.client.post(self._build_url(pos2del)))
 
         pos2del = self.assertStillExists(pos2del)
         self.assertDatetimesAlmostEqual(disabled, pos2del.disabled)
@@ -1218,10 +1197,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
         doc.categories.set([cat2del, cat3])
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_documentcat', cat2del.id),
-        )
+        url = self._build_url(cat2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1276,13 +1252,8 @@ class GenericDeletionTestCase(CremeTestCase):
         doc2.categories.set([cat2del, cat1])
 
         response = self.client.post(
-            reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_documentcat', cat2del.id),
-            ),
-            data={
-                'replace_creme_core__fakedocument_categories': cat1.id,
-            },
+            self._build_url(cat2del),
+            data={'replace_creme_core__fakedocument_categories': cat1.id},
         )
         self.assertNoFormError(response)
 
@@ -1308,12 +1279,7 @@ class GenericDeletionTestCase(CremeTestCase):
         ing2    = create_ing(name='Onion')
         ing2del = create_ing(name='Zucchini')
 
-        response = self.assertGET200(
-            reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_ingredient', ing2del.id),
-            )
-        )
+        response = self.assertGET200(self._build_url(ing2del))
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -1333,11 +1299,7 @@ class GenericDeletionTestCase(CremeTestCase):
         lform     = FakeLegalForm.objects.create(title='Ninja clan[OK]')
         lform2del = FakeLegalForm.objects.create(title='Ninja army[OK]')
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_legalform', lform2del.id),
-        )
-        response = self.assertGET200(url)
+        response = self.assertGET200(self._build_url(lform2del))
 
         with self.assertNoException():
             replace_field = response.context['form'].fields[
@@ -1368,10 +1330,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         pos2del = FakePosition.objects.create(title='Kunoichi')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_position', pos2del.pk),
-        )
+        url = self._build_url(pos2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1413,10 +1372,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         prio2del = FakeTicketPriority.objects.create(name='Not so important')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_ticket_priority', prio2del.id),
-        )
+        url = self._build_url(prio2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1440,10 +1396,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         status2del = FakeTicketStatus.objects.create(name='Duplicated')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_ticket_status', status2del.id),
-        )
+        url = self._build_url(status2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1472,10 +1425,7 @@ class GenericDeletionTestCase(CremeTestCase):
         create_prod_type = FakeProductType.objects.create
         prodtype2del = create_prod_type(name='Duplicated weapon')
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_product_type', prodtype2del.id),
-        )
+        url = self._build_url(prodtype2del)
         fname = 'replace_creme_core__fakeproduct_type'
 
         # No related entity ---
@@ -1516,10 +1466,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         atype2del = FakeActivityType.objects.create(name='Show')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_activity_type', atype2del.id),
-        )
+        url = self._build_url(atype2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1543,10 +1490,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         atype2del = FakeActivityType.objects.create(name='Show')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_activity_type', atype2del.id),
-        )
+        url = self._build_url(atype2del)
         fname = 'replace_creme_core__fakeactivity_type'
 
         FakeActivity.objects.create(user=self.user, title='Comiket', type=atype2del)
@@ -1592,10 +1536,7 @@ class GenericDeletionTestCase(CremeTestCase):
             last_name='Hattori', first_name='Hanzo',
         )
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_civility', civ2del.pk),
-        )
+        url = self._build_url(civ2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1625,10 +1566,7 @@ class GenericDeletionTestCase(CremeTestCase):
         sector1    = create_sector(title='Bo')
         sector2del = create_sector(title='Gun')
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector2del.pk),
-        )
+        url = self._build_url(sector2del)
 
         fname1 = 'replace_creme_core__fakecontact_sector'
         fname2 = 'replace_creme_core__fakeorganisation_sector'
@@ -1663,10 +1601,7 @@ class GenericDeletionTestCase(CremeTestCase):
 
         FakeOrganisation.objects.create(user=self.user, name='Turtles', sector=sector2del)
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector2del.pk),
-        )
+        url = self._build_url(sector2del)
 
         fname1 = 'replace_creme_core__fakecontact_sector'
         fname2 = 'replace_creme_core__fakeorganisation_sector'
@@ -1720,10 +1655,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
         doc.categories.set([cat2del])
 
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_documentcat', cat2del.id),
-        )
+        url = self._build_url(cat2del)
 
         # GET ---
         response = self.assertGET200(url)
@@ -1759,10 +1691,7 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         pos2del2 = FakePosition.objects.create(title='Ronin')
-        url = reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_position', pos2del2.pk),
-        )
+        url = self._build_url(pos2del2)
 
         msg = _(
             'A deletion process for an instance of «{model}» already exists.'
@@ -1832,11 +1761,7 @@ class GenericDeletionTestCase(CremeTestCase):
             )],
             check_cycles=False, check_privacy=False,
         )
-
-        self.assertGET200(reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector_to_del.id),
-        ))
+        self.assertGET200(self._build_url(sector_to_del))
 
     def test_blocking_soft_ref__credential_filter__one_filter(self):
         sector = FakeSector.objects.create(title='Music')
@@ -1857,10 +1782,7 @@ class GenericDeletionTestCase(CremeTestCase):
             check_cycles=False, check_privacy=False,
         )
         self.assertContains(
-            self.client.get(reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_sector', sector.id),
-            )),
+            self.client.get(self._build_url(sector)),
             text=_(
                 'You cannot delete «{item}» because it is used by some '
                 'credentials filters: {filters}'
@@ -1894,10 +1816,7 @@ class GenericDeletionTestCase(CremeTestCase):
         efilter2 = create_filter(name='Comics drawer')
 
         self.assertContains(
-            self.client.get(reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_sector', sector.id),
-            )),
+            self.client.get(self._build_url(sector)),
             text=_(
                 'You cannot delete «{item}» because it is used by some '
                 'credentials filters: {filters}'
@@ -1935,14 +1854,10 @@ class GenericDeletionTestCase(CremeTestCase):
                 ],
             ),
         )
-        self.assertGET200(reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_sector', sector_to_del.id),
-        ))
+        self.assertGET200(self._build_url(sector_to_del))
 
     def test_blocking_soft_ref__workflow__one_workflow(self):
         sector = FakeSector.objects.create(title='Music')
-
         wf = Workflow.objects.create(
             title='My blocking WF',
             content_type=FakeContact,
@@ -1958,12 +1873,8 @@ class GenericDeletionTestCase(CremeTestCase):
                 ],
             ),
         )
-
         self.assertContains(
-            self.client.get(reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_sector', sector.id),
-            )),
+            self.client.get(self._build_url(sector)),
             text=_(
                 'You cannot delete «{item}» because it is used by some '
                 'Workflows (in conditions): {workflows}'
@@ -1995,10 +1906,7 @@ class GenericDeletionTestCase(CremeTestCase):
         wf1 = create_workflow('Singers')
         wf2 = create_workflow('Musicians')
         self.assertContains(
-            self.client.get(reverse(
-                'creme_config__delete_instance',
-                args=('creme_core', 'fake_sector', sector.id),
-            )),
+            self.client.get(self._build_url(sector)),
             text=_(
                 'You cannot delete «{item}» because it is used by some '
                 'Workflows (in conditions): {workflows}'
@@ -2011,21 +1919,15 @@ class GenericDeletionTestCase(CremeTestCase):
         """Deletion disabled
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
-        fc = FakeFolderCategory.objects.create(name='PDFs')
-        self.assertGET409(reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_foldercat', fc.id,)
-        ))
+        folder_cat = FakeFolderCategory.objects.create(name='PDFs')
+        self.assertGET409(self._build_url(folder_cat))
 
     def test_customisation__custom_url(self):
         """Not vanilla-URL
         (see creme.creme_core.apps.CremeCoreConfig.register_creme_config()).
         """
         img_cat = FakeImageCategory.objects.first()
-        self.assertGET409(reverse(
-            'creme_config__delete_instance',
-            args=('creme_core', 'fake_img_cat', img_cat.id),
-        ))
+        self.assertGET409(self._build_url(img_cat))
 
 
 class DeletorEndTestCase(CremeTestCase):
