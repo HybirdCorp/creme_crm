@@ -428,6 +428,68 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     #         response.content.decode(),
     #     )
 
+    def test_deletion__used_by_workflow__action(self):
+        user = self.login_as_root_and_get()
+
+        create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
+        ptype1 = create_ptype(text='is a fighter')
+        ptype2 = create_ptype(text='knows kung-fu')
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+        rtype = RelationType.objects.builder(
+            id='test-subject_linked', predicate='is linked to',
+        ).symmetric(id='test-object_linked', predicate='is linked to').get_or_create()[0]
+
+        wf1 = Workflow.objects.create(
+            title='Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...
+            actions=[workflows.PropertyAddingAction(
+                entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                ptype=ptype1,
+            )],
+        )
+        Workflow.objects.create(
+            title='Flow which do not use ptype1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            # conditions=...,
+            actions=[workflows.PropertyAddingAction(
+                entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                ptype=ptype2,
+            )],
+        )
+        wf3 = Workflow.objects.create(
+            title='Flow #3',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityEditionTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.EditedEntitySource(model=FakeContact),
+                    ptype=ptype1,
+                ),
+                workflows.RelationAddingAction(
+                    subject_source=workflows.EditedEntitySource(model=FakeContact),
+                    rtype=rtype.id,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+
+        response = self.assertPOST409(
+            ptype1.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype1)
+        self.assertEqual(
+            _(
+                'The property type cannot be deleted because it is used by '
+                'actions of Workflow: {workflows}'
+            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+            response.text,
+        )
+
     def test_detailview(self):
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.create(text='is american')
