@@ -8,7 +8,8 @@
         * Creme_config :
             - The deletion of Minions (i.e. small models for statuses, sectors etc…),
               which are used by credentials filters or Workflows, is forbidden.
-            - The deletion of a propery type which used by a Workflow action is forbidden.
+            - The deletion of propery types & relationship types which are used
+              by a Workflow action is forbidden.
 
 
 == Version 2.8.5 ==
