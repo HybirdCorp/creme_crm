@@ -18,6 +18,7 @@ from creme.creme_core.models import (
     EntityFilter,
     EntityJobResult,
     FakeContact,
+    FakeFolder,
     FakeInvoice,
     FakeInvoiceLine,
     FakeOrganisation,
@@ -32,7 +33,6 @@ from creme.creme_core.models import (
     history,
 )
 from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-from creme.creme_core.tests.fake_models import FakeFolder
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.entity import EntityDeletionMixin

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 11:38+0200\n"
+"POT-Creation-Date: 2026-09-04 11:26+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -332,6 +332,12 @@ msgstr "La suppression a été désactivée par votre administrateur."
 
 msgid "This entity is used by some conditions of filter."
 msgstr "Cette fiche est utilisée par des conditions de filtre."
+
+msgid "This entity is used by some conditions of Workflow."
+msgstr "Cette fiche est utilisée par des conditions de Processus automatisé."
+
+msgid "This entity is used by some actions of Workflow."
+msgstr "Cette fiche est utilisée par des actions de Processus automatisé."
 
 msgid "Actions"
 msgstr "Actions"

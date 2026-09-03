@@ -102,6 +102,8 @@ def ready():
         model=fake_models.FakeInvoiceLine,
     ).register(  # see test_delete_entity__default_redirection__no_listview()
         model=fake_models.FakeProduct,
+    ).register(  # see test_delete_entity__soft_referenced__workflow__condition()
+        model=fake_models.FakeImage,
     )
     # Not FakeTicket!
 
