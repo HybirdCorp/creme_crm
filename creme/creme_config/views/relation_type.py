@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,10 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import render_limited_list
 from creme.creme_core.utils.translation import verbose_instances_groups
 from creme.creme_core.views import generic
-from creme.creme_core.workflows import RelationAddingTrigger
+from creme.creme_core.workflows import (
+    RelationAddingAction,
+    RelationAddingTrigger,
+)
 
 from .. import bricks
 from ..forms import relation_type as rtype_forms
@@ -130,6 +133,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
     id_arg = 'id'
     dependencies_limit = 3
 
+    # TODO: split in several methods
     def perform_deletion(self, request):
         relation_type = get_object_or_404(
             RelationType,
@@ -172,20 +176,40 @@ class RelationTypeDeletion(base.ConfigDeletion):
 
         # ---
         # TODO: check Workflows' conditions when they manage RelationTypes
-        workflows = [
+        workflows = Workflow.objects.all()
+        triggered_workflows = [
             workflow
-            for workflow in Workflow.objects.all()
+            for workflow in workflows
             if isinstance(workflow.trigger, RelationAddingTrigger)
             and workflow.trigger.relation_type in (relation_type, relation_type.symmetric_type)
         ]
-        if workflows:
+        if triggered_workflows:
             raise ConflictError(
                 gettext(
                     'The relationship type cannot be deleted because it is '
                     'used by triggers of Workflow: {workflows}'
                 ).format(
                     # TODO: add a detail view for workflows, then render a link?
-                    workflows=', '.join(f'«{wf}»' for wf in workflows),
+                    workflows=', '.join(f'«{wf}»' for wf in triggered_workflows),
+                )
+            )
+
+        actioned_workflows = [
+            workflow
+            for workflow in workflows
+            for action in workflow.actions
+            # TODO: public method for type's id?
+            if isinstance(action, RelationAddingAction)
+            and action._rtype_id in (relation_type.id, relation_type.symmetric_type_id)
+        ]
+        if actioned_workflows:
+            raise ConflictError(
+                gettext(
+                    'The relationship type cannot be deleted because it is '
+                    'used by actions of Workflow: {workflows}'
+                ).format(
+                    # TODO: see above
+                    workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
                 )
             )
 
