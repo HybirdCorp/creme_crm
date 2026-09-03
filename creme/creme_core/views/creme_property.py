@@ -47,7 +47,7 @@ from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from ..utils.html import render_limited_list
-from ..workflows import PropertyAddingTrigger
+from ..workflows import PropertyAddingAction, PropertyAddingTrigger
 from . import generic
 from .bricks import BricksReloading
 from .generic.base import EntityCTypeRelatedMixin
@@ -302,49 +302,65 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
             )
 
         # ---
-        workflows = [
+        workflows = Workflow.objects.all()
+        triggered_workflows = [
             workflow
-            for workflow in Workflow.objects.all()
+            for workflow in workflows
             if isinstance(workflow.trigger, PropertyAddingTrigger)
             and workflow.trigger.property_type == instance
         ]
-        if workflows:
+        if triggered_workflows:
             raise ConflictError(
                 gettext(
                     'The property type cannot be deleted because it is used by '
                     'triggers of Workflow: {workflows}'
                 ).format(
                     # TODO: add a detail view for workflows, then render a link?
-                    workflows=', '.join(f'«{wf}»' for wf in workflows),
+                    workflows=', '.join(f'«{wf}»' for wf in triggered_workflows),
                 )
             )
 
         # TODO: uncomment when conditions on properties are managed by Workflow
         # ptype_uuid = str(instance.uuid)
-        # workflows = [
+        # conditioned_workflows = [
         #     workflow
-        #     for workflow in Workflow.objects.all()
+        #     for workflow in workflows
         #     # todo: add an API for '_conditions_per_source'
         #     for source_conditions in workflow.conditions._conditions_per_source
         #     for condition in source_conditions['conditions']
         #     if condition.type == PropertyConditionHandler.type_id
         #     and condition.name == ptype_uuid
         # ]
-        # if workflows:
+        # if conditioned_workflows:
         #     raise ConflictError(
         #         gettext(
         #             'The property type cannot be deleted because it is used by '
         #             'conditions of Workflow in: {workflows}'
         #         ).format(
         #             # todo: add a detail view for workflows, then render a link?
-        #             workflows=', '.join(f'«{wf}»' for wf in workflows),
+        #             workflows=', '.join(f'«{wf}»' for wf in conditioned_workflows),
         #         )
         #     )
 
-        # NB: we currently do not check HeaderFilters/CustomBrickConfigItems/
-        #     RelationBrickItems; they are just for UI (& not business logic) so,
-        #     it's probably OK that they do not block the deletion.
-        #     It could change in the future of course depending on feedbacks.
+        ptype_uuid = instance.uuid
+        actioned_workflows = [
+            workflow
+            for workflow in workflows
+            for action in workflow.actions
+            # TODO: public method for uuid?
+            if isinstance(action, PropertyAddingAction)
+            and action._ptype_uuid == ptype_uuid
+        ]
+        if actioned_workflows:
+            raise ConflictError(
+                gettext(
+                    'The property type cannot be deleted because it is used by '
+                    'actions of Workflow: {workflows}'
+                ).format(
+                    # TODO: add a detail view for workflows, then render a link?
+                    workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
+                )
+            )
 
     def get_query_kwargs(self):
         return {
