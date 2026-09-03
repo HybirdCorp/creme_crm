@@ -235,7 +235,7 @@ class EntityDeletor:
             )
 
     def _check_efilters(self, entity: CremeEntity) -> None:
-        """Error in some EntityFilter reference the entity"""
+        """Error if some EntityFilters reference the entity."""
         from creme.creme_core.core.entity_filter import condition_handler
         from creme.creme_core.models import EntityFilterCondition
 
@@ -266,6 +266,41 @@ class EntityDeletor:
                 protected_objects={c.filter for c in conditions},
             )
 
+    def _check_workflows(self, entity: CremeEntity) -> None:
+        """Error if some Workflows reference the entity."""
+        from creme.creme_core.core.entity_filter import condition_handler
+        from creme.creme_core.models import CremeEntity, Workflow
+
+        key = entity.portable_key()
+
+        workflows = set()
+        # TODO: RelationConditionHandler too, when managed by Workflows
+        cond_type_id = condition_handler.RegularFieldConditionHandler.type_id
+
+        # NB: we filter with the key; it's just an optimisation to remove
+        #     some Workflows which cannot be referencing <entity>, but
+        #     some false positive Workflows may be returned anyway.
+        for wf in Workflow.objects.filter(
+            json_conditions__regex=f'"{key}"',
+        ):
+            # TODO: public API for '_conditions_per_source' ?
+            for source_conditions in wf.conditions._conditions_per_source:
+                for cond in source_conditions['conditions']:
+                    if cond.type == cond_type_id:
+                        last_field = cond.handler.field_info[-1]
+                        if (
+                            last_field.is_relation
+                            and issubclass(last_field.related_model, CremeEntity)
+                            and key in cond.value['values']
+                        ):
+                            workflows.add(wf)
+
+        if workflows:
+            raise ProtectedError(
+                msg=_('This entity is used by some conditions of Workflow.'),
+                protected_objects=workflows,
+            )
+
     # NB: separated method which can be overridden by child classes
     def _trash(self, user: CremeUser, entity: CremeEntity) -> None:
         entity.trash()
@@ -275,8 +310,9 @@ class EntityDeletor:
         # TODO: we need a SoftReference system which manages this kind of
         #       links/constraints that we cannot describe to the SQL server
         #  - convert this code, move it to CremeModel.delete()
-        #  - remove _check_efilters()
+        #  - remove _check_efilters() & _check_workflows()
         self._check_efilters(entity)
+        self._check_workflows(entity)
 
         entity.delete()
 

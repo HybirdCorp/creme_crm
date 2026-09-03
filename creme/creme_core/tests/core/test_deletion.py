@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+from creme.creme_core import workflows
 from creme.creme_core.core.deletion import (
     REPLACERS_MAP,
     EntityDeletor,
@@ -17,9 +18,11 @@ from creme.creme_core.core.deletion import (
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
+    CustomField,
     EntityFilter,
     FakeCivility,
     FakeContact,
@@ -35,6 +38,7 @@ from creme.creme_core.models import (
     FakeTicketPriority,
     Relation,
     RelationType,
+    Workflow,
 )
 
 from ..base import CremeTestCase
@@ -562,6 +566,124 @@ class EntityDeletionTestCase(CremeTestCase):
             EntityDeletor().perform(user=user, entity=orga_to_del)
 
         self.assertSetEqual({blocking_ef}, cm.exception.args[1])
+
+    def test_dependencies__error__workflow__condition(self):
+        user = self.get_root_user()
+
+        create_image = partial(FakeImage.objects.create, user=user)
+        img = create_image(name='Important pic', is_deleted=True)
+        other_img = create_image(name='Other pic')
+
+        wf = Workflow.objects.create(
+            title='Blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='image',
+                        values=[str(img.uuid)],  # <===
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+
+        cfield = CustomField.objects.create(
+            name='Size (cm)', field_type=CustomField.INT, content_type=FakeContact,
+        )
+        Workflow.objects.create(
+            title='Not blocking WF #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.ContainsOperator,
+                        field_name='description',  # <===
+                        values=[str(img.uuid)],
+                    ),
+                    condition_handler.CustomFieldConditionHandler.build_condition(  # <===
+                        custom_field=cfield, operator=operators.GTE, values=[150],
+                    ),
+
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        # NB: <img.uuid> is present in the 1rst condition => collision
+                        field_name='image',
+                        values=[str(other_img.uuid)],
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            EntityDeletor().perform(user=user, entity=img)
+
+        self.assertStillExists(img)
+
+        exc_args = cm.exception.args
+        self.assertIsTuple(exc_args, length=2)
+        self.assertEqual(
+            _('This entity is used by some conditions of Workflow.'), exc_args[0],
+        )
+        self.assertSetEqual({wf}, exc_args[1])
+
+    def test_dependencies__error__workflow__action(self):
+        user = self.get_root_user()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+        ptype = CremePropertyType.objects.create(text='is cool')
+
+        wf = Workflow.objects.create(
+            title='Blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.FixedEntitySource(entity=orga),
+                    ptype=ptype,
+                )
+            ],
+        )
+
+        # Workflow.objects.create(
+        #     title='Not blocking WF #1',
+        #     content_type=FakeContact,
+        #     trigger=workflows.EntityCreationTrigger(model=FakeContact),
+        #     conditions=WorkflowConditions().add(
+        #         source=workflows.CreatedEntitySource(model=FakeContact),
+        #         conditions=[
+        #             condition_handler.RegularFieldConditionHandler.build_condition(
+        #                 model=FakeContact,
+        #                 operator=operators.ContainsOperator,
+        #                 field_name='description',  # <===
+        #                 values=[str(img.uuid)],
+        #             ),
+        #         ],
+        #     ),
+        #     # actions=[],
+        # )
+
+        with self.assertRaises(ProtectedError) as cm:
+            EntityDeletor().perform(user=user, entity=orga)
+
+        self.assertStillExists(orga)
+
+        exc_args = cm.exception.args
+        self.assertIsTuple(exc_args, length=2)
+        self.assertEqual(
+            _('This entity is used by some actions of Workflow.'), exc_args[0],
+        )
+        self.assertSetEqual({wf}, exc_args[1])
 
     @parameterized.expand([True, False])
     def test_delete_entity_auxiliary(self, deletion_allowed):
