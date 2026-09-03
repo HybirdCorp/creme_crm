@@ -69,7 +69,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(prop_type.subject_ctypes.all())
 
     def test_creation__ctype_constraint(self):
-        "ContentTypes as constraints + not superuser."
+        """ContentTypes as constraints + not superuser."""
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         get_ct = ContentType.objects.get_for_model
@@ -95,7 +95,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET403(self.ADD_URL)
 
     def test_edition__custom_type(self):
-        "Edit a custom type."
+        """Edit a custom type."""
         self.login_as_root()
 
         pt = CremePropertyType.objects.create(
@@ -129,7 +129,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([FakeOrganisation], [*pt.subject_models])
 
     def test_edition__not_custom_type(self):
-        "Edit a not custom type => error."
+        """Edit a not custom type => error."""
         self.login_as_root()
 
         pt = CremePropertyType.objects.create(
@@ -138,7 +138,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(self._build_edit_url(pt))
 
     def test_edition__disabled_type(self):
-        "Edit a disabled type => error."
+        """Edit a disabled type => error."""
         self.login_as_root()
 
         pt = CremePropertyType.objects.create(

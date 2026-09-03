@@ -60,19 +60,8 @@ class _RelationTypeBaseTestCase(CremeTestCase):
         self.client.login(username=self.basic_user.username, password=self.USER_PASSWORD)
 
 
-class RelationTypeTestCase(_RelationTypeBaseTestCase):
-    ADD_URL = reverse('creme_config__create_rtype')
-    DEL_URL = reverse('creme_config__delete_rtype')
-
-    @staticmethod
-    def _build_edit_not_custom_url(rtype):
-        return reverse('creme_config__edit_not_custom_rtype', args=(rtype.id,))
-
-    @staticmethod
-    def _build_edit_url(rtype):
-        return reverse('creme_config__edit_rtype', args=(rtype.id,))
-
-    def test_portal(self):
+class RelationTypePortalTestCase(_RelationTypeBaseTestCase):
+    def test_main(self):
         self._login_as_admin()
 
         response = self.assertGET200(reverse('creme_config__rtypes'))
@@ -82,7 +71,11 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-    def test_creation(self):
+
+class RelationTypeCreationTestCase(_RelationTypeBaseTestCase):
+    ADD_URL = reverse('creme_config__create_rtype')
+
+    def test_simple(self):
         self._login_as_admin()
         url = self.ADD_URL
 
@@ -122,8 +115,8 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.subject_properties.all())
         self.assertFalse(sym_type.subject_forbidden_properties.all())
 
-    def test_creation__property_constraints(self):
-        "Property types (mandatory & forbidden)."
+    def test_property_constraints(self):
+        """Property types (mandatory & forbidden)."""
         self._login_as_admin()
 
         create_pt = CremePropertyType.objects.create
@@ -204,7 +197,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             [forbidden_pt_obj], sym_type.subject_forbidden_properties.all(),
         )
 
-    def test_creation__minimal_display__subject(self):
+    def test_minimal_display__subject(self):
         self._login_as_admin()
 
         subject_pred = 'loves'
@@ -228,7 +221,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
 
-    def test_creation__minimal_display__object(self):
+    def test_minimal_display__object(self):
         self._login_as_admin()
 
         subject_pred = 'loves'
@@ -252,7 +245,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertTrue(sym_type.minimal_display)
 
-    def test_creation__forbidden(self):
+    def test_forbidden(self):
         self._login_as_basic()
         url = self.ADD_URL
         self.assertGET403(url)
@@ -264,7 +257,17 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             },
         )
 
-    def test_edition__not_custom(self) -> None:
+
+class RelationTypeEditionTestCase(_RelationTypeBaseTestCase):
+    @staticmethod
+    def _build_edition_url(rtype):
+        return reverse('creme_config__edit_rtype', args=(rtype.id,))
+
+    @staticmethod
+    def _build_not_custom_edition_url(rtype):
+        return reverse('creme_config__edit_not_custom_rtype', args=(rtype.id,))
+
+    def test_not_custom(self) -> None:
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -275,9 +278,9 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).get_or_create()[0]
 
         # Normal edition should not work
-        self.assertGET404(self._build_edit_url(rt))
+        self.assertGET404(self._build_edition_url(rt))
 
-        url = self._build_edit_not_custom_url(rt)
+        url = self._build_not_custom_edition_url(rt)
         context1 = self.assertGET200(url).context
         self.assertEqual(
             pgettext(
@@ -314,7 +317,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         self.assertFalse(rt.symmetric_type.minimal_display)
 
-    def test_edition__not_custom__other_values(self) -> None:
+    def test_not_custom__other_values(self) -> None:
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -324,7 +327,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             id='test-objfoo', predicate='Object predicate', models=[FakeContact],
         ).get_or_create()[0]
 
-        url = self._build_edit_not_custom_url(rt)
+        url = self._build_not_custom_edition_url(rt)
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -355,7 +358,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_rt.is_internal)
         self.assertListEqual([FakeContact], [*sym_rt.subject_models])
 
-    def test_edition__not_custom__disabled(self):
+    def test_not_custom__disabled(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -364,9 +367,9 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(
             id='test-objfoo', predicate='Object predicate', models=[FakeContact],
         ).get_or_create()[0]
-        self.assertGET404(self._build_edit_not_custom_url(rt))
+        self.assertGET404(self._build_not_custom_edition_url(rt))
 
-    def test_edition__not_custom__forbidden(self):
+    def test_not_custom__forbidden(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(
@@ -374,18 +377,18 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(
             id='test-objfoo', predicate='Object predicate', models=[FakeContact],
         ).get_or_create()[0]
-        self.assertGET403(self._build_edit_not_custom_url(rt))
+        self.assertGET403(self._build_not_custom_edition_url(rt))
 
-    def test_edition__custom(self):
-        "Edit a custom type."
+    def test_custom(self):
+        """Edit a custom type."""
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='Subject predicate', is_custom=True,
         ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
-        self.assertGET404(self._build_edit_not_custom_url(rt))
+        self.assertGET404(self._build_not_custom_edition_url(rt))
 
-        url = self._build_edit_url(rt)
+        url = self._build_edition_url(rt)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
@@ -414,26 +417,28 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
-    def test_edition__custom__disabled(self):
-        "Edit a disabled type."
+    def test_custom__disabled(self):
+        """Edit a disabled type."""
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate',
             is_custom=True, enabled=False,
         ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
-        self.assertGET404(self._build_edit_url(rt))
+        self.assertGET404(self._build_edition_url(rt))
 
-    def test_edition__custom__forbidden(self):
+    def test_custom__forbidden(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate', is_custom=True,
         ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
 
-        self.assertGET403(self._build_edit_url(rt))
+        self.assertGET403(self._build_edition_url(rt))
 
-    def test_disable(self):
+
+class RelationTypeDisablingTestCase(_RelationTypeBaseTestCase):
+    def test_not_internal(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -451,8 +456,8 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         self.assertPOST404(reverse('creme_config__disable_rtype', args=('test-subject_bar',)))
 
-    def test_disable__internal(self):
-        "Disable internal type => error."
+    def test_internal(self):
+        """Disable internal type => error."""
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -461,7 +466,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
         self.assertPOST409(reverse('creme_config__disable_rtype', args=(rt.id,)))
 
-    def test_disable__perm(self):
+    def test_forbidden(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(
@@ -469,7 +474,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
         self.assertPOST403(reverse('creme_config__disable_rtype', args=(rt.id,)))
 
-    def test_enable(self):
+    def test_enabling(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -484,7 +489,11 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertTrue(rt.enabled)
         self.assertTrue(rt.symmetric_type.enabled)
 
-    def test_delete__standard(self):
+
+class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
+    DEL_URL = reverse('creme_config__delete_rtype')
+
+    def test_standard(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -492,7 +501,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
-    def test_delete__custom(self):
+    def test_custom(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -503,7 +512,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertDoesNotExist(rt)
         self.assertDoesNotExist(rt.symmetric_type)
 
-    def test_delete__perm(self):
+    def test_perm(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(
@@ -513,7 +522,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertStillExists(rt)
         self.assertStillExists(rt.symmetric_type)
 
-    def test_delete__used_by_relationships(self):
+    def test_used_by_relationships(self):
         user = self.login_as_root_and_get()
 
         rt = RelationType.objects.builder(
@@ -546,7 +555,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             response.text,
         )
 
-    def test_delete__used_by_efilter(self):
+    def test_used_by_efilter(self):
         self.login_as_root()
 
         rtype1 = RelationType.objects.builder(
@@ -607,7 +616,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             response.text,
         )
 
-    def test_delete__used_by_efilter__subfilter(self):
+    def test_used_by_efilter__subfilter(self):
         self.login_as_root()
 
         rtype = RelationType.objects.builder(
@@ -655,7 +664,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             response.text,
         )
 
-    def test_delete__used_by_workflow__trigger(self):
+    def test_used_by_workflow__trigger(self):
         self.login_as_root()
 
         rtype1 = RelationType.objects.builder(
@@ -748,7 +757,7 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(iori, smr.real_object)
 
     def test_create__predicate_uniqueness(self):
-        "Predicate is unique."
+        """Predicate is unique."""
         self._login_as_admin()
 
         predicate = 'Is loving Iori'
@@ -778,7 +787,7 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
         )
 
     def test_create__ref_uniqueness(self):
-        "('relation_type', 'object_entity') => unique together."
+        """('relation_type', 'object_entity') => unique together."""
         self._login_as_admin()
 
         predicate = 'Is loving Iori'
@@ -851,7 +860,7 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(predicate, self.refresh(sfrt).predicate)
 
     def test_edit__disabled(self):
-        "The relation type is disabled => error."
+        """The relation type is disabled => error."""
         self._login_as_admin()
 
         rtype = self.loves
