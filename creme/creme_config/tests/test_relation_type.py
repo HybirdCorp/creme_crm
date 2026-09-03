@@ -716,6 +716,75 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
             response.text,
         )
 
+    def test_used_by_workflow__action(self):
+        user = self.login_as_root_and_get()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+        ptype = CremePropertyType.objects.create(text='is cool')
+
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate #1', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate #1').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_bar', predicate='Subject predicate #2', is_custom=True,
+        ).symmetric(id='test-object_bar', predicate='Object predicate #2').get_or_create()[0]
+
+        wf1 = Workflow.objects.create(
+            title='Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.EditedEntitySource(model=FakeContact),
+                    ptype=ptype,
+                ),
+                workflows.RelationAddingAction(
+                    subject_source=workflows.EditedEntitySource(model=FakeContact),
+                    rtype=rtype1.id,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+        Workflow.objects.create(
+            title='Flow on other ptype',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.EditedEntitySource(model=FakeContact),
+                    rtype=rtype2.id,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+        wf3 = Workflow.objects.create(
+            title='Flow #3',
+            content_type=FakeOrganisation,
+            trigger=workflows.EditedEntitySource(model=FakeOrganisation),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.EditedEntitySource(model=FakeOrganisation),
+                    rtype=rtype1.symmetric_type_id,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+
+        response = self.assertPOST409(
+            self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype1.id},
+        )
+        self.assertStillExists(rtype1)
+        self.assertEqual(
+            _(
+                'The relationship type cannot be deleted because it is used by '
+                'actions of Workflow: {workflows}'
+            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+            response.text,
+        )
+
 
 class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
