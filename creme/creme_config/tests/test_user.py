@@ -10,21 +10,28 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core import get_world_settings_model
+from creme.creme_core import get_world_settings_model, workflows
 from creme.creme_core.constants import ROOT_PASSWORD, UUID_CHANNEL_ADMIN
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.core.notification import OUTPUT_WEB
 from creme.creme_core.core.setting_key import (
     SettingKey,
     SettingKeyRegistry,
     UserSettingKey,
     user_setting_key_registry,
 )
-from creme.creme_core.models import BrickState, CremeEntity
+from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.models import BrickState, CremeEntity, CremePropertyType
 from creme.creme_core.models import CremeUser as User
 from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
     Mutex,
     Notification,
     NotificationChannel,
     RelationType,
+    Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -1711,7 +1718,7 @@ class TeamTestCase(BaseUserTestCase):
 class UserDeletionTestCase(BaseUserTestCase):
     @skipIfNotCremeUser
     def test_superuser(self):
-        "Delete view can delete a superuser if at least one remains."
+        """Delete view can delete a superuser if at least one remains."""
         # user = self.login_as_super()
         user = self.login_with_user_perm()
         root = self.get_root_user()
@@ -1738,7 +1745,7 @@ class UserDeletionTestCase(BaseUserTestCase):
 
     @skipIfNotCremeUser
     def test_regular_user(self):
-        "Delete view can delete any normal user."
+        """Delete view can delete any normal user."""
         user = self.login_as_root_and_get()
 
         other_user = self.create_user(role=self.get_regular_role())
@@ -1757,7 +1764,7 @@ class UserDeletionTestCase(BaseUserTestCase):
 
     @skipIfNotCremeUser
     def test_last_superuser(self):
-        "Delete view can not delete the last superuser."
+        """Delete view can not delete the last superuser."""
         self.login_as_root()
 
         user = self.get_alone_element(User.objects.filter(is_superuser=True))
@@ -1770,7 +1777,7 @@ class UserDeletionTestCase(BaseUserTestCase):
 
     @skipIfNotCremeUser
     def test_staff(self):
-        "Delete view can not delete a staff user."
+        """Delete view can not delete a staff user."""
         user = self.login_as_root_and_get()
         hybird = User.objects.create(username='hybird', is_staff=True)
 
@@ -1780,7 +1787,7 @@ class UserDeletionTestCase(BaseUserTestCase):
 
     @skipIfNotCremeUser
     def test_during_transfer(self):
-        "Delete view is protected by a lock."
+        """Delete view is protected by a lock."""
         user = self.login_as_super()
         root = self.get_root_user()
 
@@ -1799,8 +1806,7 @@ class UserDeletionTestCase(BaseUserTestCase):
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
     @skipIfNotCremeUser
-    def test_errors(self):
-        "Validation errors."
+    def test_validation_errors(self):
         user = self.login_as_super()
         root = self.get_root_user()
 
@@ -1830,12 +1836,164 @@ class UserDeletionTestCase(BaseUserTestCase):
 
     @skipIfNotCremeUser
     def test_credentials(self):
-        "Only superusers are allowed."
+        """Only superusers are allowed."""
         user = self.login_without_user_perm()
 
         url = self._build_delete_url(self.get_root_user())
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
+
+    @skipIfNotCremeUser
+    def test_soft_referenced__workflow__conditions(self):
+        user = self.login_as_root_and_get()
+        user_to_del = self.create_user()
+
+        ptype = CremePropertyType.objects.create(text='is cool',)
+        sector = FakeSector.objects.create(title='Colliding', uuid=user_to_del.uuid)
+
+        wf1 = Workflow.objects.create(
+            title='Blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='user', values=[str(user_to_del.uuid)],
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+        Workflow.objects.create(
+            title='Not blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='sector', values=[str(sector.uuid)],
+                    ),
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='user', values=[str(user.uuid)],
+                    ),
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.ContainsOperator,
+                        field_name='description', values=[str(user_to_del.uuid)],
+                    ),
+                    condition_handler.PropertyConditionHandler.build_condition(
+                        model=FakeContact,
+                        ptype=ptype,
+                        has=True,
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+        wf3 = Workflow.objects.create(
+            title='Blocking Flow #2',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='is_user', values=[str(user_to_del.uuid)],
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+        self.assertContains(
+            self.client.get(self._build_delete_url(user_to_del)),
+            text=_('This user is used by some conditions of Workflow: {}').format(
+                f'{wf1.title}, {wf3.title}'
+            ),
+            status_code=403,
+        )
+
+    @skipIfNotCremeUser
+    def test_soft_referenced__workflow__actions(self):
+        user = self.login_as_root_and_get()
+        user_to_del = self.create_user()
+
+        channel = NotificationChannel.objects.create(
+            name='Workflow', default_outputs=[OUTPUT_WEB],
+            description='Notification for Workflow',
+        )
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme', is_deleted=True)
+        ptype = CremePropertyType.objects.create(
+            text='is cool',
+            uuid=user_to_del.uuid,  # <== collision
+        )
+
+        wf1 = Workflow.objects.create(
+            title='Blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.NotificationSendingAction(
+                    channel=channel,
+                    user_source=workflows.FixedUserSource(user=user_to_del),
+                    entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                    subject='subject 1',
+                    body='body 1',
+                ),
+            ],
+        )
+        Workflow.objects.create(
+            title='Not blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.NotificationSendingAction(
+                    channel=channel,
+                    user_source=workflows.FixedUserSource(user=user),
+                    entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                    subject='subject',
+                    body='body',
+                ),
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.FixedEntitySource(entity=orga),
+                    ptype=ptype,
+                ),
+            ],
+        )
+        wf3 = Workflow.objects.create(
+            title='Blocking Flow #2',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.NotificationSendingAction(
+                    channel=channel,
+                    user_source=workflows.FixedUserSource(user=user_to_del),
+                    entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                    subject='subject 2',
+                    body='body 2',
+                ),
+            ],
+        )
+        self.assertContains(
+            self.client.get(self._build_delete_url(user_to_del)),
+            text=_('This user is used by some actions of Workflow: {}').format(
+                f'{wf1.title}, {wf3.title}'
+            ),
+            status_code=403,
+        )
 
 
 class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
