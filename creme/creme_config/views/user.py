@@ -19,7 +19,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.forms.utils import ErrorList
@@ -31,10 +31,15 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import lock
+from creme.creme_core.models import Workflow, lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
+from creme.creme_core.workflows import (
+    FixedUserSource,
+    NotificationSendingAction,
+)
 
 from .. import bricks, constants
 from ..auth import user_config_perm
@@ -116,6 +121,68 @@ class UserDeletion(BaseUserEdition):
     submit_label = _('Delete the user')
 
     lock_name = 'creme_config-user_transfer'
+
+    def _check_soft_references__workflows(self, instance, user):
+        key = instance.portable_key()
+
+        # Conditions ---
+        User = get_user_model()
+        regular_type_id = condition_handler.RegularFieldConditionHandler.type_id
+
+        def is_referencing_by_condition(workflow):
+            for source_conditions in workflow.conditions._conditions_per_source:
+                for cond in source_conditions['conditions']:
+                    if cond.type == regular_type_id:
+                        last_field = cond.handler.field_info[-1]
+                        if (
+                            last_field.is_relation
+                            and issubclass(last_field.related_model, User)
+                            and key in cond.value['values']
+                        ):
+                            return True
+
+            return False
+
+        if conditioned_workflows := {
+            wf
+            # NB: pre-filter (optimisation)
+            for wf in Workflow.objects.filter(json_conditions__regex=f'"{key}"')
+            if is_referencing_by_condition(wf)
+        }:
+            raise PermissionDenied(
+                _('This user is used by some conditions of Workflow: {}').format(
+                    ', '.join(sorted(wf.title for wf in conditioned_workflows))
+                )
+            )
+
+        # Actions ---
+        def is_referencing_by_action(workflow):
+            for action in workflow.actions:
+                # TODO: improve Action API to iterate sources => manage other types of action
+                if isinstance(action, NotificationSendingAction):
+                    source = action.user_source
+
+                    if isinstance(source, FixedUserSource) and source.user == instance:
+                        return True
+
+            return False
+
+        if actioned_workflows := {
+            wf
+            # NB: pre-filter (optimisation)
+            for wf in Workflow.objects.filter(json_actions__regex=f'"{key}"')
+            if is_referencing_by_action(wf)
+        }:
+            raise PermissionDenied(
+                _('This user is used by some actions of Workflow: {}').format(
+                    ', '.join(sorted(wf.title for wf in actioned_workflows))
+                )
+            )
+
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        # TODO: replace in soft references instead of blocking
+        self._check_soft_references__workflows(instance=instance, user=user)
 
     def get_object(self, *args, **kwargs):
         if int(self.kwargs[self.pk_url_kwarg]) == self.request.user.id:
