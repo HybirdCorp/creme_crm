@@ -1083,16 +1083,16 @@ class WorkflowEngine:
         """
         cache = get_per_request_cache()
         cache_key = cls.cache_key
-        wf = cache.get(cache_key)
-        if wf is None:
+        engine = cache.get(cache_key)
+        if engine is None:
             from ..models import Workflow
 
-            wf = cache[cache_key] = cls()
-            wf._queue = WorkflowEventQueue()
-            # wf._workflows = Workflow.objects.filter(enabled=True)
-            wf._workflows = Workflow.objects.filter(disabled=None)
+            engine = cache[cache_key] = cls()
+            engine._queue = WorkflowEventQueue()
+            # engine._workflows = Workflow.objects.filter(enabled=True)
+            engine._workflows = Workflow.objects.filter(disabled=None)
 
-        return wf
+        return engine
 
     def append_event(self, event: WorkflowEvent) -> Self:
         """Append a new event to the queue.
