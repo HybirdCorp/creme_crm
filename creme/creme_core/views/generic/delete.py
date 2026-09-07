@@ -39,6 +39,7 @@ from creme.creme_core.models import (
     CremeUser,
     EntityFilter,
     Relation,
+    Workflow,
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.translation import smart_model_verbose_name
@@ -54,6 +55,7 @@ class CremeDeletionMixin:
     # their detail-view; the order of this list is kept for the result.
     important_dependencies: list[type[Model]] = [
         EntityFilter,
+        Workflow,  # TODO: detail-view for Workflow?
     ]
 
     def dependencies_to_html(self, *,
