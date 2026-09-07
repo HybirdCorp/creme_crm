@@ -595,6 +595,7 @@ class WorkflowsBrick(PaginatedBrick):
         user = btc['user']
 
         workflow_map = defaultdict(list)
+        # TODO: use cache Workflow.objects.all_workflows()?
         for workflow in core_models.Workflow.objects.filter(
             content_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ).order_by('id'):

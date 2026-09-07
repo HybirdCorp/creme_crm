@@ -176,7 +176,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
 
         # ---
         # TODO: check Workflows' conditions when they manage RelationTypes
-        workflows = Workflow.objects.all()
+        workflows = [*Workflow.objects.all_workflows()]
         triggered_workflows = [
             workflow
             for workflow in workflows

@@ -28,7 +28,7 @@ def form_help_message(model: type[CremeEntity]) -> str:
     enabled Workflows.
     """
     # workflows = Workflow.objects.filter(enabled=True)
-    workflows = Workflow.objects.filter(disabled=None)
+    workflows = [*Workflow.objects.enabled_workflows()]
     if not workflows:
         return ''
 

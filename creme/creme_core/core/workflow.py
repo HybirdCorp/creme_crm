@@ -29,7 +29,7 @@ from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, Self
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model, QuerySet, signals
+from django.db.models import Model, signals  # QuerySet
 from django.dispatch import receiver
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
@@ -54,7 +54,7 @@ if TYPE_CHECKING:
     from django.forms import Field as FormField
 
     from creme.creme_core.forms.workflows import BaseWorkflowActionForm
-    from creme.creme_core.models import CremeUser
+    from creme.creme_core.models import CremeUser, Workflow
 
 
 logger = logging.getLogger(__name__)
@@ -1073,7 +1073,8 @@ class WorkflowEngine:
     _is_executing_actions = False
 
     _queue: WorkflowEventQueue
-    _workflows: QuerySet  # QuerySet[Workflow]
+    # _workflows: QuerySet  # QuerySet[Workflow]
+    _workflows: list[Workflow]
 
     @classmethod
     def get_current(cls) -> WorkflowEngine:
@@ -1090,7 +1091,7 @@ class WorkflowEngine:
             engine = cache[cache_key] = cls()
             engine._queue = WorkflowEventQueue()
             # engine._workflows = Workflow.objects.filter(enabled=True)
-            engine._workflows = Workflow.objects.filter(disabled=None)
+            engine._workflows = [*Workflow.objects.enabled_workflows()]
 
         return engine
 

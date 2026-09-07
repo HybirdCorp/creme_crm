@@ -331,12 +331,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
             workflow_names = set()
             cond_type_id = condition_handler.RegularFieldConditionHandler.type_id
 
-            # NB: we filter with the key; it's just an optimisation to remove
-            #     some Workflows which cannot be referencing <instance>, but
-            #     some false positive Workflows may be returned anyway.
-            for wf in Workflow.objects.filter(
-                json_conditions__regex=f'"{key}"',
-            ):
+            for wf in Workflow.objects.all_workflows():
                 # TODO: public API for '_conditions_per_source' ?
                 for source_conditions in wf.conditions._conditions_per_source:
                     for cond in source_conditions['conditions']:

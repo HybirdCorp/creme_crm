@@ -625,6 +625,7 @@ class EntityDeletionTestCase(CremeTestCase):
             ),
             # actions=[],
         )
+        self.clear_global_info()  # Flush Workflows' cache
 
         with self.assertRaises(ProtectedError) as cm:
             EntityDeletor().perform(user=user, entity=img)
@@ -714,6 +715,7 @@ class EntityDeletionTestCase(CremeTestCase):
                 ),
             ],
         )
+        self.clear_global_info()  # Flush Workflows' cache
 
         with self.assertRaises(ProtectedError) as cm:
             EntityDeletor().perform(user=user, entity=orga)
