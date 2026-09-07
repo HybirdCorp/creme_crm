@@ -39,18 +39,13 @@ from creme.creme_core.views.entity import EntityDeletionMixin
 
 
 @override_settings(ENTITIES_DELETION_ALLOWED=True)
-class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
-    DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
-    EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
-
+class _EntityDeletionViewTestCase(CremeTestCase):
     @staticmethod
     def _build_delete_url(entity):
         return reverse('creme_core__delete_entity', args=(entity.id,))
 
-    @staticmethod
-    def _build_restore_url(entity):
-        return reverse('creme_core__restore_entity', args=(entity.id,))
 
+class EntityDeletionMixinTestCase(_EntityDeletionViewTestCase):
     def test_dependencies_to_html(self):
         self.assertEqual(3, EntityDeletionMixin.dependencies_limit)
 
@@ -278,7 +273,9 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         self.assertIn('empty absolute URL', log_mngr.output[0])
 
-    def test_delete_entity(self):
+
+class EntityDeletionTestCase(_EntityDeletionViewTestCase):
+    def test_moved_to_trash(self):
         """is_deleted=False -> trash."""
         user = self.login_as_root_and_get()
 
@@ -309,7 +306,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(response, str(entity))
         self.assertNotContains(response, edit_url)
 
-    def test_delete_entity__definitive_deletion(self):
+    def test_definitive_deletion(self):
         """is_deleted=True -> real deletion."""
         user = self.login_as_root_and_get()
 
@@ -321,7 +318,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
         self.assertDoesNotExist(entity)
 
-    def test_delete_entity__permissions(self):
+    def test_permissions(self):
         """No DELETE credentials."""
         user = self.login_as_standard()
         self.add_credentials(user.role, all='!DELETE')
@@ -331,7 +328,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity = self.assertStillExists(entity)
         self.assertFalse(entity.is_deleted)
 
-    def test_delete_entity__not_deletable(self):
+    def test_not_deletable(self):
         """<get_delete_absolute_url()> returns an empty URL."""
         user = self.login_as_root_and_get()
         ticket = FakeTicket.objects.create(user=user, title='Ticket#1')
@@ -342,7 +339,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409, html=True,
         )
 
-    def test_delete_entity__callback(self):
+    def test_callback(self):
         user = self.login_as_root_and_get()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         cb_url = reverse('creme_core__my_page')
@@ -351,7 +348,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             cb_url,
         )
 
-    def test_delete_entity__callback_ajax(self):
+    def test_callback_ajax(self):
         user = self.login_as_root_and_get()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         cb_url = reverse('creme_core__my_page')
@@ -362,7 +359,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(cb_url, response.text)
 
-    def test_delete_entity__default_redirection__no_listview(self):
+    def test_default_redirection__no_listview(self):
         user = self.login_as_root_and_get()
         self.assertHasNoAttr(FakeProduct, 'get_lv_absolute_url')
 
@@ -373,7 +370,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entity__disabled(self):
+    def test_disabled(self):
         """Deletion is disabled in settings."""
         self.login_as_root()
 
@@ -394,7 +391,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entity__disabled_but_staff(self):
+    def test_disabled_but_staff(self):
         """Logged as staff."""
         self.login_as_super(is_staff=True)
 
@@ -405,7 +402,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(self._build_delete_url(entity), follow=True)
         self.assertDoesNotExist(entity)
 
-    def test_delete_entity__deletor_check(self):
+    def test_deletor_check(self):
         user = self.login_as_root_and_get()
         other = self.create_user()
         user_contact = FakeContact.objects.create(
@@ -422,7 +419,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_delete_entity__dependencies(self):
+    def test_dependencies(self):
         """Relations (not internal ones) & properties are deleted correctly."""
         user = self.login_as_root_and_get()
 
@@ -476,7 +473,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
 
-    def test_delete_entity__dependencies_error(self):  # TODO: detect dependencies when trashing?
+    def test_dependencies_error(self):  # TODO: detect dependencies when trashing?
         """Dependencies problem (with internal Relations)."""
         user = self.login_as_root_and_get()
 
@@ -521,7 +518,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             msg,
         )
 
-    def test_delete_entity__ajax__trash(self):
+    def test_ajax__trash(self):
         """is_deleted=False -> trash (AJAX version)."""
         user = self.login_as_root_and_get()
 
@@ -542,7 +539,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.content,
         )
 
-    def test_delete_entity__ajax__definitive(self):
+    def test_ajax__definitive(self):
         """is_deleted=True -> real deletion (AJAX version)."""
         user = self.login_as_root_and_get()
 
@@ -562,7 +559,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @parameterized.expand([True, False])
-    def test_delete_entity_auxiliary(self, deletion_allowed):
+    def test_auxiliary_entity(self, deletion_allowed):
         with override_settings(ENTITIES_DELETION_ALLOWED=deletion_allowed):
             user = self.login_as_root_and_get()
             invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
@@ -571,7 +568,11 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertPOST200(self._build_delete_url(line), follow=True)
             self.assertDoesNotExist(line)
 
-    def test_delete_entities(self):
+
+class EntitiesDeletionTestCase(_EntityDeletionViewTestCase):
+    DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
+
+    def test_ok(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -600,7 +601,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(entity3)
         self.assertStillExists(entity4)
 
-    def test_delete_entities__missing(self):
+    def test_missing(self):
         """Some entities do not exist."""
         user = self.login_as_root_and_get()
 
@@ -630,7 +631,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.get_object_or_fail(FakeOrganisation, pk=entity2.id)
 
-    def test_delete_entities__dependencies_error(self):
+    def test_dependencies_error(self):
         """Dependencies problem (with internal Relations)."""
         user = self.login_as_root_and_get()
 
@@ -683,7 +684,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors[0],
         )
 
-    def test_delete_entities__forbidden(self):
+    def test_forbidden(self):
         """Some entities deletion is not allowed."""
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
@@ -714,7 +715,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_object_or_fail(FakeOrganisation, pk=forbidden.id)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entities__disabled(self):
+    def test_disabled(self):
         """Deletion is disabled in settings."""
         user = self.login_as_root_and_get()
 
@@ -747,7 +748,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entities__disabled__staff(self):
+    def test_disabled__staff(self):
         """Logged as staff."""
         user = self.login_as_super(is_staff=True)
 
@@ -761,7 +762,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(entity1)
         self.assertDoesNotExist(entity2)
 
-    def test_delete_entities__not_registered(self):
+    def test_not_registered(self):
         user = self.login_as_root_and_get()
         entity = FakeTicket.objects.create(user=user, title='Ticket #1')
         response = self.assertPOST409(
@@ -780,7 +781,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_delete_entities__deletor_check(self):
+    def test_deletor_check(self):
         user = self.login_as_root_and_get()
         other = self.create_user()
         user_contact = FakeContact.objects.create(
@@ -803,7 +804,9 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_trash_view(self):
+
+class TrashTestCase(BrickTestCaseMixin, _EntityDeletionViewTestCase):
+    def test_main(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -828,7 +831,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_trash_view__deletion_disabled(self):
+    def test_deletion_is_disabled(self):
         """Definitive deletion is disabled."""
         user = self.login_as_root_and_get()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
@@ -847,7 +850,13 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_restore_entity(self):
+
+class EntityRestorationTestCase(CremeTestCase):
+    @staticmethod
+    def _build_restore_url(entity):
+        return reverse('creme_core__restore_entity', args=(entity.id,))
+
+    def test_ok(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW', 'DELETE'])
 
@@ -862,7 +871,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
 
-    def test_restore_entity__ajax(self):
+    def test_ok__ajax(self):
         user = self.login_as_root_and_get()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
@@ -873,7 +882,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
 
-    def test_restore_entity__not_deleted(self):
+    def test_entity_not_deleted(self):
         user = self.login_as_root_and_get()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -881,7 +890,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET405(url)
         self.assertPOST404(url)
 
-    def test_restore_entity__permissions(self):
+    def test_permissions(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])  # 'DELETE'
 
@@ -890,7 +899,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST403(self._build_restore_url(entity), follow=True)
 
     # TODO?
-    # def test_restore_entity__auxiliary(self):
+    # def test_auxiliary(self):
     #     user = self.login_as_root_and_get()
     #     invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
     #     line = FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice, is_deleted=True)
@@ -900,7 +909,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     #     )
 
     # TODO?
-    # def test_restore_entity__not_deletable(self):
+    # def test_not_deletable(self):
     #     user = self.login_as_root_and_get()
     #     ticket = FakeTicket.objects.create(user=user, title='Ticket#1', is_deleted=True)
     #     response = self.client.post(self._build_restore_url(ticket))
@@ -910,7 +919,11 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     #         status_code=409, html=True,
     #     )
 
-    def test_empty_trash(self):
+
+class TrashCleaningTestCase(CremeTestCase):
+    EMPTY_TRASH_URL = reverse('creme_core__empty_trash')
+
+    def test_ok(self):
         user = self.login_as_standard(allowed_apps=('creme_core',))  # 'persons'
         self.add_credentials(user.role, own='*')
 
@@ -986,8 +999,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             progress2.label,
         )
 
-    def test_empty_trash__dependencies(self):
-        """Dependencies problem."""
+    def test_dependencies_issue(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(
@@ -1038,7 +1050,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         result_brick = self.get_alone_element(trash_cleaner_type.results_bricks)
         self.assertIsInstance(result_brick, TrashCleanerJobErrorsBrick)
 
-    def test_empty_trash__perms(self):
+    def test_permissions(self):
         """Credentials on specific ContentType."""
         # NB: can delete ESET_OWN
         user = self.login_as_standard(allowed_apps=('creme_core',))
@@ -1072,7 +1084,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(orga1)
         self.assertDoesNotExist(orga3)
 
-    def test_empty_trash__existing_job(self):
+    def test_existing_job(self):
         user = self.login_as_root_and_get()
         job1 = Job.objects.create(
             type_id=trash_cleaner_type.id,
@@ -1098,7 +1110,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(Job.STATUS_WAIT, job2.status)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_empty_trash__deletion_disabled(self):
+    def test_deletion_disabled(self):
         """Deletion is disabled."""
         self.login_as_root()
         self.assertContains(
@@ -1108,7 +1120,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_empty_trash__deletion_disabled_for_model(self):
+    def test_deletion_disabled_for_model(self):
         user = self.login_as_root_and_get()
 
         ticket = FakeTicket.objects.create(user=user, title='Golden', is_deleted=True)
@@ -1126,7 +1138,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             jresult.messages,
         )
 
-    def test_empty_trash__deletor_check(self):
+    def test_deletor_check(self):
         user = self.login_as_root_and_get()
 
         user_contact = FakeContact.objects.create(
@@ -1146,11 +1158,13 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             jresult.messages,
         )
 
+
+class TrashCleanerEndTestCase(CremeTestCase):
     @staticmethod
     def _build_finish_cleaner_url(job):
         return reverse('creme_core__finish_trash_cleaner', args=(job.id,))
 
-    def test_finish_cleaner(self):
+    def test_ok(self):
         user = self.login_as_root_and_get()
         job = Job.objects.create(
             type_id=trash_cleaner_type.id,
@@ -1166,7 +1180,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(com)
 
-    def test_finish_cleaner__perms(self):
+    def test_permissions(self):
         """Other user's job."""
         self.login_as_root()
         job = Job.objects.create(
@@ -1177,7 +1191,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST403(self._build_finish_cleaner_url(job))
 
-    def test_finish_cleaner__job_not_finished(self):
+    def test_job_not_finished(self):
         user = self.login_as_root_and_get()
         job = Job.objects.create(
             type_id=trash_cleaner_type.id,
@@ -1187,7 +1201,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST409(self._build_finish_cleaner_url(job))
 
-    def test_finish_cleaner__bad_job(self):
+    def test_bad_job(self):
         """Not cleaner job."""
         user = self.login_as_root_and_get()
         job = Job.objects.create(
@@ -1197,7 +1211,7 @@ class EntityDeletionViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertPOST404(self._build_finish_cleaner_url(job))
 
-    def test_finish_cleaner__errors(self):
+    def test_errors(self):
         user = self.login_as_root_and_get()
         job = Job.objects.create(
             type_id=trash_cleaner_type.id,
