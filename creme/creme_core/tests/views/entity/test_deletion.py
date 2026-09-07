@@ -30,6 +30,7 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     TrashCleaningCommand,
+    Workflow,
     history,
 )
 from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
@@ -227,6 +228,21 @@ class EntityDeletionMixinTestCase(_EntityDeletionViewTestCase):
             to_html(
                 instance=FakeSector.objects.first(),  # NB: whatever, not an entity
                 dependencies=[efilter], user=user,
+            ),
+        )
+
+    def test_dependencies_to_html__workflow(self):
+        user = self.get_root_user()
+        wf = Workflow.objects.create(
+            title='My important Workflow', content_type=FakeContact,  # trigger=...,
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf.title}</li>'
+            f'</ul>',
+            EntityDeletionMixin().dependencies_to_html(
+                instance=FakeOrganisation.objects.create(user=user, name='Seele'),
+                dependencies=[wf], user=user,
             ),
         )
 
