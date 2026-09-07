@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # The library 'xhtml2pdf' has been upgraded to the version '0.2.18' (better support of Python 3.14).
     # Apps :
         * Creme_config :
             - The deletion of Minions (i.e. small models for statuses, sectors etc…),
