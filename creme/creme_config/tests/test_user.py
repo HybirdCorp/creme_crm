@@ -1715,8 +1715,8 @@ class TeamTestCase(BaseUserTestCase):
         self.assertPOST403(url, data={'to_user': user.id})
 
 
+@skipIfNotCremeUser
 class UserDeletionTestCase(BaseUserTestCase):
-    @skipIfNotCremeUser
     def test_superuser(self):
         """Delete view can delete a superuser if at least one remains."""
         # user = self.login_as_super()
@@ -1743,7 +1743,6 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertFalse(User.objects.filter(is_superuser=True))
         self.assertDoesNotExist(root)
 
-    @skipIfNotCremeUser
     def test_regular_user(self):
         """Delete view can delete any normal user."""
         user = self.login_as_root_and_get()
@@ -1762,7 +1761,6 @@ class UserDeletionTestCase(BaseUserTestCase):
         ce = self.assertStillExists(ce)
         self.assertEqual(user, ce.user)
 
-    @skipIfNotCremeUser
     def test_last_superuser(self):
         """Delete view can not delete the last superuser."""
         self.login_as_root()
@@ -1775,7 +1773,6 @@ class UserDeletionTestCase(BaseUserTestCase):
 
         self.assertStillExists(user)
 
-    @skipIfNotCremeUser
     def test_staff(self):
         """Delete view can not delete a staff user."""
         user = self.login_as_root_and_get()
@@ -1785,7 +1782,6 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertGET404(url)
         self.assertPOST404(url, {'to_user': user.id})
 
-    @skipIfNotCremeUser
     def test_during_transfer(self):
         """Delete view is protected by a lock."""
         user = self.login_as_super()
@@ -1805,7 +1801,6 @@ class UserDeletionTestCase(BaseUserTestCase):
             # NB: PostgreSQL cancels all remaining queries after the error...
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
-    @skipIfNotCremeUser
     def test_validation_errors(self):
         user = self.login_as_super()
         root = self.get_root_user()
@@ -1834,7 +1829,6 @@ class UserDeletionTestCase(BaseUserTestCase):
         )
         self.assertStillExists(user)
 
-    @skipIfNotCremeUser
     def test_credentials(self):
         """Only superusers are allowed."""
         user = self.login_without_user_perm()
@@ -1843,7 +1837,6 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
 
-    @skipIfNotCremeUser
     def test_soft_referenced__workflow__conditions(self):
         user = self.login_as_root_and_get()
         user_to_del = self.create_user()
@@ -1922,7 +1915,6 @@ class UserDeletionTestCase(BaseUserTestCase):
             status_code=403,
         )
 
-    @skipIfNotCremeUser
     def test_soft_referenced__workflow__actions(self):
         user = self.login_as_root_and_get()
         user_to_del = self.create_user()
