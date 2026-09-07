@@ -292,6 +292,8 @@ class TeamEditionForm(_TeamForm):
         self.fields['teammates'].initial = self.instance.teammates
 
 
+# TODO: replace in soft references too ((filters, workflow condition/action...)
+# TODO: use a job?
 class UserAssignationForm(CremeForm):
     to_user = forms.ModelChoiceField(
         label=_('Choose a user to transfer to'),

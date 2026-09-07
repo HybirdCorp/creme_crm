@@ -12,7 +12,11 @@ from parameterized import parameterized
 
 from creme.creme_core import get_world_settings_model, workflows
 from creme.creme_core.constants import ROOT_PASSWORD, UUID_CHANNEL_ADMIN
-from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
 from creme.creme_core.core.notification import OUTPUT_WEB
 from creme.creme_core.core.setting_key import (
     SettingKey,
@@ -24,6 +28,7 @@ from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import BrickState, CremeEntity, CremePropertyType
 from creme.creme_core.models import CremeUser as User
 from creme.creme_core.models import (
+    EntityFilter,
     FakeContact,
     FakeOrganisation,
     FakeSector,
@@ -1837,6 +1842,97 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
 
+    def test_soft_referenced__efilter(self):
+        user = self.login_as_root_and_get()
+        user_to_del = self.create_user()
+
+        sector = FakeSector.objects.create(title='Colliding', uuid=user_to_del.uuid)
+
+        efilter1 = EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion1',
+            name=f"Contacts belonging to {user.username}",
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='user', values=[str(user_to_del.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion2',
+            name=f"Contacts belonging to {user.username} (regular)",
+            entity_type=FakeContact,
+            # filter_type=EF_CREDENTIALS,  # Nope
+        ).set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='user', values=[str(user.uuid)],
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        efilter3 = EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion3',
+            name=f"The Contact corresponding to {user.username}",
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='is_user', values=[str(user_to_del.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion4',
+            name='Other ignored contact filter',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='description', values=['Important'],
+                    filter_type=EF_CREDENTIALS,
+                ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='is_user', values=[str(user.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='sector', values=[str(sector.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+
+        self.assertContains(
+            self.client.get(self._build_delete_url(user_to_del)),
+            text=_('This user is used by some credentials filters: {}').format(
+                f'{efilter1.name}, {efilter3.name}'
+            ),
+            status_code=403,
+            html=True,
+        )
+
     def test_soft_referenced__workflow__conditions(self):
         user = self.login_as_root_and_get()
         user_to_del = self.create_user()
@@ -1913,6 +2009,7 @@ class UserDeletionTestCase(BaseUserTestCase):
                 f'{wf1.title}, {wf3.title}'
             ),
             status_code=403,
+            html=True,
         )
 
     def test_soft_referenced__workflow__actions(self):
@@ -1985,6 +2082,7 @@ class UserDeletionTestCase(BaseUserTestCase):
                 f'{wf1.title}, {wf3.title}'
             ),
             status_code=403,
+            html=True,
         )
 
 

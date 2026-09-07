@@ -21,6 +21,7 @@ import logging
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import DatabaseError
+from django.db.models import F
 from django.db.transaction import atomic
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
@@ -31,9 +32,12 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 
-from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+)
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import Workflow, lock
+from creme.creme_core.models import EntityFilterCondition, Workflow, lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
 from creme.creme_core.workflows import (
@@ -122,6 +126,26 @@ class UserDeletion(BaseUserEdition):
 
     lock_name = 'creme_config-user_transfer'
 
+    def _check_soft_references__efilters(self, instance, user):
+        User = get_user_model()
+        efilter_names = set()
+
+        for cond in EntityFilterCondition.objects.filter(
+            filter__filter_type=EF_CREDENTIALS,
+            type=condition_handler.RegularFieldConditionHandler.type_id,
+            value__values__regex=f'"{instance.uuid}"',
+        ).annotate(filter_name=F('filter__name')):
+            last_field = cond.handler.field_info[-1]
+            if last_field.is_relation and issubclass(last_field.related_model, User):
+                efilter_names.add(cond.filter_name)
+
+        if efilter_names:
+            raise PermissionDenied(
+                gettext('This user is used by some credentials filters: {}').format(
+                    ', '.join(sorted(efilter_names))
+                )
+            )
+
     def _check_soft_references__workflows(self, instance, user):
         key = instance.portable_key()
 
@@ -179,7 +203,8 @@ class UserDeletion(BaseUserEdition):
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
-        # TODO: replace in soft references instead of blocking
+        # TODO: replace in soft references instead of blocking?
+        self._check_soft_references__efilters(instance=instance, user=user)
         self._check_soft_references__workflows(instance=instance, user=user)
 
     def get_object(self, *args, **kwargs):
