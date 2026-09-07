@@ -299,10 +299,7 @@ class EntityDeletor:
 
         if conditioned_workflows := {
             wf
-            # NB: we filter with the key; it's just an optimisation to remove
-            #     some Workflows which cannot be referencing <entity>, but
-            #     some false positive Workflows may be returned anyway.
-            for wf in Workflow.objects.filter(json_conditions__regex=f'"{key}"')
+            for wf in Workflow.objects.all_workflows()
             if is_referencing_by_condition(wf)
         }:
             raise ProtectedError(
@@ -330,8 +327,7 @@ class EntityDeletor:
 
         if actioned_workflows := {
             wf
-            # NB: same remark as above
-            for wf in Workflow.objects.filter(json_actions__regex=f'"{key}"')
+            for wf in Workflow.objects.all_workflows()
             if is_referencing_by_action(wf)
         }:
             raise ProtectedError(

@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections.abc import Iterable
+from __future__ import annotations
+
+from collections.abc import Iterable, Iterator
 from uuid import uuid4
 
 from django.db import models
@@ -28,8 +30,28 @@ from ..core.workflow import (
     WorkflowTrigger,
     workflow_registry,
 )
+from ..global_info import get_per_request_cache
 from . import fields as core_fields
 from .base import CremeModel
+
+
+class WorkflowManager(models.Manager):
+    cache_key = 'creme_core-workflows'
+
+    def all_workflows(self) -> Iterator[Workflow]:
+        """Get all existing instance of workflows. """
+        cache = get_per_request_cache()
+        workflows = cache.get(self.cache_key)
+        if workflows is None:
+            workflows = cache[self.cache_key] = [*self.all()]
+
+        yield from workflows
+
+    def enabled_workflows(self) -> Iterator[Workflow]:
+        """Get all existing instance of enabled workflows."""
+        for wf in self.all_workflows():
+            if wf.disabled is None:
+                yield wf
 
 
 class Workflow(CremeModel):
@@ -70,6 +92,8 @@ class Workflow(CremeModel):
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict)
+
+    objects = WorkflowManager()
 
     creation_label = _('Create a Workflow')
     save_label = _('Save the Workflow')

@@ -173,7 +173,7 @@ class CustomFieldDeletion(base.ConfigDeletion):
             cfield_uuid = str(cfield.uuid)
             workflows = [
                 workflow
-                for workflow in Workflow.objects.all()
+                for workflow in Workflow.objects.all_workflows()
                 # TODO: add an API for '_conditions_per_source'
                 for source_conditions in workflow.conditions._conditions_per_source
                 for condition in source_conditions['conditions']

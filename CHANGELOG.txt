@@ -125,7 +125,12 @@
             - The method 'CremeEntity.clean()' is not empty anymore (it checks if
               referenced Minions are disabled). So you should call it in the 'clean()' of your own
               entity models (i.e. <super().clean()>) if you did not call it in previous version.
-            - The model 'Workflow' got a new field 'extra_data' (JSONField) to store custom data.
+            - The model 'Workflow' got :
+                - A new field 'extra_data' (JSONField) to store custom data.
+                - A new manager with methods 'all_workflows()' & 'enabled_workflows()' has been added.
+                  These methods are used when it's relevant; it could make some of your unit tests
+                  fail, if they create 'WorkFlow' instances then test their result
+                  (tip: use <self.clear_global_info()> after the creations).
         # The method 'creme_core.utils.db.get_stable_ordering()' now manages ordering items
           which are annotations names (only real field names were managed).
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;

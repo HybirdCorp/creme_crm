@@ -145,8 +145,7 @@ class UserDeletion(BaseUserEdition):
 
         if conditioned_workflows := {
             wf
-            # NB: pre-filter (optimisation)
-            for wf in Workflow.objects.filter(json_conditions__regex=f'"{key}"')
+            for wf in Workflow.objects.all_workflows()
             if is_referencing_by_condition(wf)
         }:
             raise PermissionDenied(
@@ -169,8 +168,7 @@ class UserDeletion(BaseUserEdition):
 
         if actioned_workflows := {
             wf
-            # NB: pre-filter (optimisation)
-            for wf in Workflow.objects.filter(json_actions__regex=f'"{key}"')
+            for wf in Workflow.objects.all_workflows()
             if is_referencing_by_action(wf)
         }:
             raise PermissionDenied(

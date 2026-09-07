@@ -25,6 +25,51 @@ from creme.creme_core.workflows import (
 from ..base import CremeTestCase
 
 
+class WorkflowManagerTestCase(CremeTestCase):
+    def test_all_workflows(self):
+        wf1 = Workflow.objects.create(
+            title='Workflow #1',
+            content_type=FakeContact,
+            trigger=EntityEditionTrigger(model=FakeContact),
+        )
+        wf2 = Workflow.objects.create(
+            title='Workflow #2',
+            content_type=FakeOrganisation,
+            trigger=EntityEditionTrigger(model=FakeOrganisation),
+        )
+
+        with self.assertNumQueries(1):
+            workflows1 = [*Workflow.objects.all_workflows()]
+        self.assertIn(wf1, workflows1)
+        self.assertIn(wf2, workflows1)
+
+        with self.assertNumQueries(0):
+            workflows2 = [*Workflow.objects.all_workflows()]
+        self.assertListEqual(workflows1, workflows2)
+
+    def test_enabled_workflows(self):
+        wf1 = Workflow.objects.create(
+            title='Workflow #1',
+            content_type=FakeContact,
+            trigger=EntityEditionTrigger(model=FakeContact),
+            disabled=now(),
+        )
+        wf2 = Workflow.objects.create(
+            title='Workflow #2',
+            content_type=FakeOrganisation,
+            trigger=EntityEditionTrigger(model=FakeOrganisation),
+        )
+
+        with self.assertNumQueries(1):
+            workflows1 = [*Workflow.objects.enabled_workflows()]
+        self.assertIn(wf2, workflows1)
+        self.assertNotIn(wf1, workflows1)
+
+        with self.assertNumQueries(0):
+            workflows2 = [*Workflow.objects.enabled_workflows()]
+        self.assertListEqual(workflows1, workflows2)
+
+
 class WorkflowTestCase(CremeTestCase):
     def test_create(self):
         title = 'My awesome workflow'
@@ -32,7 +77,7 @@ class WorkflowTestCase(CremeTestCase):
             Workflow.objects.create(
                 title=title,
                 content_type=FakeContact,
-                trigger=EntityEditionTrigger(model=FakeOrganisation),
+                trigger=EntityEditionTrigger(model=FakeContact),
             )
         )
         self.assertEqual(title, wf.title)
@@ -48,7 +93,7 @@ class WorkflowTestCase(CremeTestCase):
         self.assertEqual('', wf.disabling_reason)
 
         self.assertIs(wf.is_custom, True)
-        self.assertEqual(EntityEditionTrigger(model=FakeOrganisation), wf.trigger)
+        self.assertEqual(EntityEditionTrigger(model=FakeContact), wf.trigger)
         self.assertTupleEqual((), wf.actions)
         self.assertDictEqual({'portablekeymigr': True}, wf.extra_data)  # TODO: fix in creme 3.1
 

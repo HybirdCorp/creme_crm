@@ -302,7 +302,7 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
             )
 
         # ---
-        workflows = Workflow.objects.all()
+        workflows = [*Workflow.objects.all_workflows()]
         triggered_workflows = [
             workflow
             for workflow in workflows

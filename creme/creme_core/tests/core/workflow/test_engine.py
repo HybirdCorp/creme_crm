@@ -46,6 +46,7 @@ class WorkflowEngineTestCase(CremeTestCase):
                 )
             ],
         )
+        self.clear_global_info()
 
         wf_engine = WorkflowEngine.get_current()
         self.assertIsInstance(wf_engine, WorkflowEngine)
@@ -74,6 +75,7 @@ class WorkflowEngineTestCase(CremeTestCase):
                 ),
             ],
         )
+        self.clear_global_info()
 
         with WorkflowEngine.get_current().run(user=user):
             orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -97,6 +99,7 @@ class WorkflowEngineTestCase(CremeTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
 
@@ -132,6 +135,7 @@ class WorkflowEngineTestCase(CremeTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         def edit_orga(orga, name, description):
             orga = self.refresh(orga)
@@ -174,6 +178,7 @@ class WorkflowEngineTestCase(CremeTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         orga = self.refresh(model.objects.create(user=user, name='NERV'))
         self.clear_global_info()  # Empty the queue to allow edition events
@@ -204,6 +209,7 @@ class WorkflowEngineTestCase(CremeTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
 
@@ -245,6 +251,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         orga_count = FakeOrganisation.objects.count()
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -290,6 +297,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
             ),
             actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
         )
+        self.clear_global_info()
 
         def edit_orga(orga, name, description):
             orga = self.refresh(orga)
