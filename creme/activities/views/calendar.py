@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -229,6 +229,10 @@ class CalendarsMixin:
 
 
 class ActivitiesData(CalendarsMixin, generic.CheckedView):
+    """Returns data about Activities as JSON, to be used by the JavaScript code
+    for the calendar.
+    """
+    permissions = 'activities'
     response_class = CremeJsonResponse
     start_arg = 'start'
     end_arg = 'end'
@@ -248,7 +252,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
         return self.label.format(activity=activity)
 
     def _activity_2_dict(self, activity, user):
-        "Returns a 'jsonifiable' dictionary."
+        """Returns a 'jsonifiable' dictionary."""
         start = activity.start
         end = activity.end
 
@@ -359,6 +363,7 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
     (see ActivitiesData) ; the <add> command is here to get a more
     consistent/powerful API.
     """
+    permissions = 'activities'
     add_arg = 'add'
     remove_arg = 'remove'
     calendar_ids_session_key = CalendarView.calendar_ids_session_key
