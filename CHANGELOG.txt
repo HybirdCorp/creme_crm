@@ -1,5 +1,11 @@
 == Version 2.7.13 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - A crash in the wizard for Worflows has been fixed (when there is a validation error).
+
 
 == Version 2.7.12 ==
 

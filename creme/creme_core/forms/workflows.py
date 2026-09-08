@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -384,16 +384,18 @@ class SourceField(core_fields.UnionField):
     #             for kind_id, field in self.fields_choices
     #         }
     def prepare_value(self, value):
-        if value:
-            assert isinstance(value, WorkflowSource)
-            selected_kind_id = value.config_formfield_kind_id(sub_source=value.sub_source)
-            field = next(
-                field
-                for kind_id, field in self.fields_choices
-                if kind_id == selected_kind_id
-            )
+        if value is None or isinstance(value, tuple):
+            return value
 
-            return selected_kind_id, {selected_kind_id: field.prepare_value(value)}
+        assert isinstance(value, WorkflowSource)
+        selected_kind_id = value.config_formfield_kind_id(sub_source=value.sub_source)
+        field = next(
+            field
+            for kind_id, field in self.fields_choices
+            if kind_id == selected_kind_id
+        )
+
+        return selected_kind_id, {selected_kind_id: field.prepare_value(value)}
 
 
 # Forms ------------------------------------------------------------------------
