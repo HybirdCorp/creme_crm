@@ -7,6 +7,7 @@
     # The library 'xhtml2pdf' has been upgraded to the version '0.2.18' (better support of Python 3.14).
     # Apps :
         * Creme_config :
+            - A crash in the wizard for Worflows has been fixed (when there is a validation error).
             - The deletion of Minions (i.e. small models for statuses, sectors etc…),
               which are used by credentials filters or Workflows, is forbidden.
             - The deletion of propery types & relationship types which are used
