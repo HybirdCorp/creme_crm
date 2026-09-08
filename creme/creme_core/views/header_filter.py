@@ -110,6 +110,7 @@ class HeaderFilterEdition(entity_filter.FilterMixin,
 
 
 class HeaderFilterDeletion(generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = HeaderFilter
 
     def check_instance_permissions(self, instance, user):
@@ -124,6 +125,7 @@ class HeaderFilterDeletion(generic.CremeModelDeletion):
 
 
 class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
+    permissions = ''  # No specific related app
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'
 

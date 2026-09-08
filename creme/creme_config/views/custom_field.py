@@ -337,5 +337,6 @@ class CustomEnumBrickReloading(BricksReloading):
 
 
 class HideDeletedCustomFields(BrickStateExtraDataSetting):
+    permissions = CustomEnumsDetail.permissions
     brick_cls = bricks.CustomFieldsBrick
     data_key = BRICK_STATE_HIDE_DELETED_CFIELDS

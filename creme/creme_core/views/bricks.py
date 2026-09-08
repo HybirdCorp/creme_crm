@@ -43,6 +43,7 @@ class BricksReloading(generic.CheckedView):
     Recall: the default value <permissions = ''> means 'no permission required' ;
             use with caution :)
     """
+    permissions = ''  # No specific related app
     response_class: type[HttpResponseBase] = CremeJsonResponse
     brick_registry: BrickRegistry = global_brick_registry
     # brick_render_method: str = 'detailview_display'
@@ -222,6 +223,7 @@ class MyPageBricksReloading(BricksReloading):
 
 
 class BrickStateSetting(generic.CheckedView):
+    permissions = ''  # No specific related app
     brick_id_arg: str = 'brick_id'
     FIELDS: list[tuple[str, str]] = [
         # MODEL FIELD         POST ARGUMENT
@@ -269,12 +271,12 @@ class BrickStateSetting(generic.CheckedView):
 
 class BrickStateExtraDataSetting(generic.CheckedView):
     """Base view to set the extra data of a BrickState instance.
-     The default behaviour is to set boolean values, but you can customise your
-     view by overriding the method 'cast_value()' in your own view.
+    The default behaviour is to set boolean values, but you can customise your
+    view by overriding the method 'cast_value()' in your own view.
 
-     In your custom view you should at least set the classes attributes
-     "brick_cls" & "data_key".
-     """
+    In your custom view you should at least set the classes attributes
+    "brick_cls" & "data_key".
+    """
     value_arg: str = 'value'
     brick_cls: type[Brick] = Brick
     data_key: str = ''

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,8 @@ from . import generic
 
 
 class EntityPinning(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = ''  # We do not know the app the entity belongs to.
+
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
 
@@ -48,6 +50,7 @@ class EntityPinning(generic.base.EntityRelatedMixin, generic.CheckedView):
 
 
 class EntityUnPinning(generic.CheckedView):
+    permissions = ''  # We can only unpin our pinned entities
     entity_id_url_kwarg = 'entity_id'
 
     def post(self, request, *args, **kwargs):

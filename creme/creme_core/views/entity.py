@@ -128,6 +128,7 @@ def get_creme_entities_repr(request, entities_ids):
 class HTMLFieldSanitizing(generic.base.EntityRelatedMixin,
                           generic.CheckedView):
     """Used to show an HTML document in an <iframe>."""
+    permissions = ''  # We do not know the app the entity belongs to.
     field_name_url_kwarg = 'field_name'
 
     def check_related_entity_permissions(self, entity, user):
@@ -159,6 +160,7 @@ class HTMLFieldSanitizing(generic.base.EntityRelatedMixin,
 # TODO: bake the result in HTML instead of ajax view ??
 class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
                         generic.CheckedView):
+    permissions = ''  # We do not know the app the entity belongs to.
     response_class = CremeJsonResponse
 
     def get_info(self):
@@ -197,6 +199,7 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
 
 
 class Clone(base.EntityRelatedMixin, base.CheckedView):
+    permissions = ''  # We do not know the app the entity belongs to.
     entity_id_arg = 'id'
 
     cloner_registry = entity_cloner_registry
@@ -263,6 +266,8 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
        limit the risk to get a 403/404 during the visit (if entities are deleted
        or modified by another user for example).
     """
+    permissions = ''  # We do not know the app the entity belongs to.
+
     # ct_id_arg = 'ct_id' in mass-export
     headerfilter_id_arg = 'hfilter'
     entityfilter_id_arg = 'efilter'
@@ -1051,6 +1056,7 @@ class Trash(generic.BricksView):
 # TODO: disable the button "Empty the trash" while the job is active
 class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):
     title = _('Empty the trash')
+    permissions = ''  # The entities belong to different apps
     job_type = trash_cleaner_type
     command_model = TrashCleaningCommand
     conflict_msg = _('A job is already cleaning the trash.')
@@ -1111,6 +1117,7 @@ class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):
 
 
 class TrashCleanerEnd(generic.CheckedView):
+    permissions = ''  # Not related to a specific app
     job_type = trash_cleaner_type
     job_id_url_kwarg = 'job_id'
 
@@ -1139,6 +1146,7 @@ class TrashCleanerEnd(generic.CheckedView):
 
 
 class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
+    permissions = ''  # We do not know the app the entity belongs to.
     entity_select_for_update = True
 
     def build_related_entity_queryset(self, model):
@@ -1214,6 +1222,7 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
 
 class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
     """Delete several CremeEntities, with an Ajax call (POST method)."""
+    permissions = ''  # The entities belong to different apps.
 
     def get_entity_ids(self) -> list[int]:
         try:
@@ -1289,6 +1298,7 @@ class EntityDeletion(EntityDeletionMixin,
                      base.CallbackMixin,
                      base.EntityRelatedMixin,
                      generic.CremeDeletion):
+    permissions = ''  # We do not know the app the entity belongs to.
     entity_select_for_update = True
     dependencies_limit = 10
 
@@ -1344,6 +1354,8 @@ class EntityDeletion(EntityDeletionMixin,
 
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
                               generic.CremeModelDeletion):
+    permissions = ''  # We do not know the app the entity belongs to.
+
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_access_or_die(instance._meta.app_label)
 

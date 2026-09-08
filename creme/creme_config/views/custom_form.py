@@ -253,7 +253,8 @@ class CustomFormGroupEdition(CustomFormMixin, base.ConfigModelEdition):
 
 
 class CustomFormGroupLayoutSetting(CustomFormMixin, generic.CheckedView):
-    permissions = 'creme_core.can_admin'
+    # permissions = 'creme_core.can_admin'
+    permissions = base._PERM
     layout_arg = 'layout'
 
     def __init__(self, *arg, **kwargs):
@@ -346,7 +347,8 @@ class CustomFormCellDeletion(BaseCustomFormDeletion):
 
 
 class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
-    permissions = 'creme_core.can_admin'
+    # permissions = 'creme_core.can_admin'
+    permissions = base._PERM
     target_order_arg = 'target'
 
     def __init__(self, *arg, **kwargs):
@@ -379,6 +381,8 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
 class CustomFormShowDetails(EntityCTypeRelatedMixin,
                             CustomFormMixin,
                             BrickStateExtraDataSetting):
+    permissions = Portal.permissions
+
     ctype_id_arg = 'ct_id'
     item_id_arg = 'item_id'
     action_arg = 'action'

@@ -42,6 +42,8 @@ logger = logging.getLogger(__name__)
 # TODO: stream response ??
 # TODO: factorise with generic.listview.EntitiesList ?
 class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
+    permissions = ''  # No specific related app
+
     ct_id_arg = 'ct_id'
     doc_type_arg = 'type'
     header_only_arg = 'header'

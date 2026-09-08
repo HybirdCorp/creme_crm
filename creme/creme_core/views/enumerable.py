@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from .generic import base
 
 
 class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
+    permissions = ''  # No specific related app
     response_class = CremeJsonResponse
     limit_arg = 'limit'
     term_arg = 'term'
