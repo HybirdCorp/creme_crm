@@ -235,6 +235,7 @@ class JobEnabling(generic.CheckedView):
 
 
 class JobDeletion(generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = Job
     job_id_url_kwarg = 'job_id'
 
@@ -259,6 +260,7 @@ class JobDeletion(generic.CremeModelDeletion):
 
 
 class JobsInformation(generic.CheckedView):
+    permissions = ''  # No specific related app
     response_class = CremeJsonResponse
     job_ids_arg = 'id'
 

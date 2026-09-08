@@ -506,6 +506,7 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
 class EntityFilterDeletion(EntityFilterMixin,
                            base.CallbackMixin,
                            generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = EntityFilter
     pk_url_kwarg = 'efilter_id'
 
@@ -655,6 +656,7 @@ def get_content_types(request, rtype_id):
 
 
 class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
+    permissions = ''  # No specific related app
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'
     efilter_types_arg = 'type'
@@ -754,6 +756,7 @@ class EntityFilterUserEnumerator(UserEnumerator):
 
 
 class UserChoicesView(FieldChoicesView):
+    permissions = ''  # No specific related app
     filter_type_arg = 'filter_type'
 
     def get_enumerator(self):

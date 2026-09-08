@@ -226,6 +226,7 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
 
 
 class GenericDisabling(ModelConfMixin, generic.CheckedView):
+    permissions = ''  # The model can belong to different apps
     pk_url_kwarg = 'object_id'
     action_arg = 'action'
 
@@ -414,6 +415,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
 
 
 class DeletorEnd(generic.CheckedView):
+    permissions = ''  # The model can belong to different apps
     job_id_url_kwarg = 'job_id'
 
     def post(self, request, *args, **kwargs):

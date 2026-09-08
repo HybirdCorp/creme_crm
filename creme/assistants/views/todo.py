@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,5 +66,6 @@ def validate(request, todo_id):
 
 
 class HideValidatedToDos(BrickStateExtraDataSetting):
+    permissions = ''  # No specific related app
     brick_cls = TodosBrick
     data_key = BRICK_STATE_HIDE_VALIDATED_TODOS

@@ -114,6 +114,7 @@ class ChartEdition(generic.RelatedToEntityEditionPopup):
 
 
 class ChartDeletion(generic.CremeModelDeletion):
+    permissions = 'reports'
     model = ReportChart
     pk_url_kwarg = 'chart_id'
 
@@ -125,8 +126,9 @@ class ChartDeletion(generic.CremeModelDeletion):
 
 
 class ChartFetchSettingsUpdate(generic.base.CheckedView):
-    # permissions = 'reports' => No, we want to get the "plot" even if the ReportChart
-    #                            cannot be seen (the plot's data use credentials any way).
+    # NB: not <permissions = 'reports'> because we want to get the "plot" even
+    #     if the ReportChart cannot be seen (the plot's data use credentials anyway).
+    permissions = ''
     response_class = CremeJsonResponse
     chart_id_url_kwarg = 'chart_id'
     plot_registry = plot.plot_registry

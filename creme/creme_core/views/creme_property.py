@@ -123,6 +123,7 @@ class PropertyTypeEdition(generic.CremeModelEdition):
 
 class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
                                  generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = CremeProperty
 
     entity_id_arg = 'entity_id'
@@ -161,6 +162,7 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
 
 class PropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
                          generic.CremeDeletion):
+    permissions = ''  # No specific related app
     ptype_id_arg: str = 'ptype_id'
     ctype_id_arg: str = 'ct_id'
     exclude_ctypes_arg: str = 'exclude_ctypes'

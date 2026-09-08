@@ -51,6 +51,7 @@ from creme.creme_core.utils.content_type import get_ctype_or_404
 from ..utils import build_cancel_path
 
 logger = logging.getLogger(__name__)
+_NO_SET = object()
 
 
 class CancellableMixin:
@@ -105,7 +106,7 @@ class CallbackMixin:
 #     are only about logging-in, while we have check_view_permissions()...)
 class PermissionsMixin:
     """Mixin that helps checking the global permission of a view.
-    The needed permissions are stored in the attribute <permissions>, an could be:
+    The needed permissions are stored in the attribute <permissions>, and could be:
       - a string. E.g.
           permissions = 'my_app'
       - a sequence of strings. E.g.
@@ -396,11 +397,20 @@ class CheckedView(PermissionsMixin, django_generic.View):
     """Creme version of the django's View ; it checked that the
     user is logged & has some permission.
     """
+    permissions = _NO_SET   # Must be set explicitly
+
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
         if not user.is_authenticated:
             return self.handle_not_logged()
+
+        if self.permissions is _NO_SET:
+            raise ValueError(
+                f'The view {type(self)!r} does not define the attribute "permissions". '
+                f'Hint: generally a permission "my_app" is relevant, but you can '
+                f'explicitly set an empty string if no specific permission is needed.'
+            )
 
         self.check_view_permissions(user=user)
 

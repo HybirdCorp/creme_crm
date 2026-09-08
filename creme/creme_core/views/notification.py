@@ -35,6 +35,7 @@ class Notifications(generic.BricksView):
 
 
 class LastWebNotifications(generic.CheckedView):
+    permissions = ''  # No specific related app
     response_class = CremeJsonResponse
     limit = 10
 
@@ -60,6 +61,7 @@ class LastWebNotifications(generic.CheckedView):
 
 
 class NotificationDiscarding(generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = Notification
 
     def get_queryset(self):

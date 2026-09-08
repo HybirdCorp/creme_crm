@@ -257,6 +257,7 @@ class RelationsBulkAdding(generic.base.EntityCTypeRelatedMixin,
 
 
 class RelationDeletion(generic.CremeModelDeletion):
+    permissions = ''  # No specific related app
     model = Relation
 
     def check_instance_permissions(self, instance, user):
@@ -273,8 +274,9 @@ class RelationDeletion(generic.CremeModelDeletion):
 
 
 class RelationFromFieldsDeletion(generic.CremeModelDeletion):
-    "Delete a Relation which we retrieve from the subject/object/type."
+    """Delete a Relation which we retrieve from the subject/object/type."""
     model = Relation
+    permissions = ''  # No specific related app
 
     subject_id_arg = 'subject_id'
     object_id_arg = 'object_id'
@@ -336,6 +338,7 @@ class RelationsDeletion(generic.base.EntityCTypeRelatedMixin,
         - the list of types can be the types to exclude from the deletion.
         - if the list is empty, all types of subjects are accepted.
     """
+    permissions = ''  # No specific related app
     rtype_id_arg: str = 'rtype_id'
     subject_ctype_id_arg: str = 'subject_ct_id'
     exclude_subjects_arg: str = 'exclude_subjects'

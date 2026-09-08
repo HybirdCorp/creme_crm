@@ -254,6 +254,7 @@ class SearchBricksReloading(BricksReloading):
 
 
 class LightSearch(SearcherMixin, base.CheckedView):
+    permissions = ''  # Entities belong to different apps
     response_class = CremeJsonResponse
     search_terms_arg = 'value'
     error_msg_empty = _('Empty search…')
@@ -348,6 +349,7 @@ class LightSearch(SearcherMixin, base.CheckedView):
 
 
 class SearchAndView(base.CheckedView):
+    permissions = ''  # Entities belong to different apps
     allowed_classes = CremeEntity
     value_arg = 'value'
     field_names_arg = 'fields'

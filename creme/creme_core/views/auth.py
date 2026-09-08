@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2025  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ from . import generic
 
 # User -------------------------------------------------------------------------
 class RoleSwitch(generic.CheckedView):
+    permissions = ''  # No specific related app
     user_id_url_kwarg = 'user_id'
     role_id_url_kwarg = 'role_id'
 

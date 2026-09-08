@@ -225,6 +225,8 @@
             - The function 'chunktools.iter_as_slices()' takes now a positional-only & a keyword-only arguments.
               The second argument has been renamed too, so you'll have to update to code.
         # In 'creme_core.views' :
+            - The attribute 'permissions' of views inheriting 'generic.base.CheckedView' must be set explicitly now.
+              A 'ValueError' is raised if the attribute is not set.
             - In 'bricks.BricksReloading', the attribute 'brick_render_method'
               has been removed ; define 'brick_tag' instead.
             - The class-view 'SearchAndView' has moved from the module 'entity' to the module 'search'.
