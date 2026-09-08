@@ -291,5 +291,6 @@ class UserActivation(generic.CheckedView):
 
 
 class HideInactiveUsers(BrickStateExtraDataSetting):
+    permissions = user_config_perm.as_perm
     brick_cls = bricks.UsersBrick
     data_key = constants.BRICK_STATE_HIDE_INACTIVE_USERS
