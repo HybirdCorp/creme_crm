@@ -17,7 +17,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import ProtectedError
+from django.db.models import F, ProtectedError
 from django.shortcuts import get_object_or_404, render
 from django.utils.html import format_html
 from django.utils.translation import gettext
@@ -25,13 +25,17 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core import utils
-from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+)
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
     DeletionCommand,
     EntityFilter,
+    EntityFilterCondition,
     Job,
     Workflow,
 )
@@ -282,6 +286,60 @@ class CustomEnumDeletion(base.ConfigModelEdition):
     title = _('Replace & delete «{object}»')
     submit_label = _('Delete the choice')
 
+    def _check_soft_references__efilters(self, instance, user):
+        efilter_names = set()
+
+        for cond in EntityFilterCondition.objects.filter(
+            filter__filter_type=EF_CREDENTIALS,
+            type=condition_handler.CustomFieldConditionHandler.type_id,
+            name=str(instance.custom_field.uuid),
+            value__values__regex=f'"{instance.uuid}"',
+        ).annotate(filter_name=F('filter__name')):
+            efilter_names.add(cond.filter_name)
+
+        if efilter_names:
+            raise ConflictError(
+                gettext(
+                    'You cannot delete «{item}» because it is used by some '
+                    'credentials filters: {filters}'
+                ).format(
+                    item=instance,
+                    filters=', '.join(sorted(efilter_names)),
+                )
+            )
+
+    def _check_soft_references__workflows(self, instance, user):
+        key = str(instance.uuid)
+        workflow_names = set()
+        cond_type_id = condition_handler.CustomFieldConditionHandler.type_id
+        cf_uuid = instance.custom_field.uuid
+
+        for wf in Workflow.objects.all_workflows():
+            # TODO: public API for '_conditions_per_source' ?
+            for source_conditions in wf.conditions._conditions_per_source:
+                for cond in source_conditions['conditions']:
+                    if (
+                        cond.type == cond_type_id
+                        and cond.handler._custom_field_uuid == cf_uuid
+                        and key in cond.value['values']
+                    ):
+                        workflow_names.add(wf.title)
+
+        if workflow_names:
+            raise ConflictError(
+                gettext(
+                    'You cannot delete «{item}» because it is used by some '
+                    'Workflows (in conditions): {workflows}'
+                ).format(
+                    item=instance,
+                    workflows=', '.join(sorted(workflow_names)),
+                )
+            )
+
+    def _check_soft_references(self, instance, user):
+        self._check_soft_references__efilters(instance=instance, user=user)
+        self._check_soft_references__workflows(instance=instance, user=user)
+
     # TODO: factorise with .generics_views.GenericDeletion
     def check_instance_permissions(self, instance, user):
         if instance.custom_field.is_deleted:
@@ -299,6 +357,8 @@ class CustomEnumDeletion(base.ConfigModelEdition):
                 raise ConflictError(
                     gettext('A deletion process for a choice already exists.')
                 )
+
+        self._check_soft_references(instance=instance, user=user)
 
     def form_valid(self, form):
         self.object = form.save()
