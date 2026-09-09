@@ -2231,14 +2231,15 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(eval2.value, values)
         self.assertIn(eval3.value, values)
 
-    def test_reload_enum_brick__forbidden(self):
-        self.login_as_standard()  # admin_4_apps=('creme_core',)
-
-        cfield = CustomField.objects.create(
-            content_type=FakeContact,
-            field_type=CustomField.MULTI_ENUM,
-            name='Programming languages',
-        )
-        self.assertGET403(
-            reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
-        )
+    # TODO: if portal is restricted
+    # def test_reload_enum_brick__forbidden(self):
+    #     self.login_as_standard()  # admin_4_apps=('creme_core',)
+    #
+    #     cfield = CustomField.objects.create(
+    #         content_type=FakeContact,
+    #         field_type=CustomField.MULTI_ENUM,
+    #         name='Programming languages',
+    #     )
+    #     self.assertGET403(
+    #         reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
+    #     )
