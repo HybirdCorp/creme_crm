@@ -379,19 +379,23 @@ def check_clonable_not_unique(**kwargs):
     from creme.creme_core.core.field_tags import FieldTag
     from creme.creme_core.registry import creme_registry
 
-    warnings = []
+    # warnings = []
+    errors = []
 
     if 'migrate' in sys.argv:
-        return warnings
+        # return warnings
+        return errors
 
     for model in creme_registry.iter_entity_models():
         for field in model._meta.fields:
             if field.unique and field.get_tag(FieldTag.CLONABLE):
-                warnings.append(Warning(  # pragma: no cover
+                # warnings.append(Warning(
+                errors.append(Error(  # pragma: no cover
                     f'The entity model {model} has a field "{field.name}" which '
                     f'is both unique and clonable.',
                     obj='creme.creme_core',
-                    id='creme.core.W009',
+                    # id='creme.core.W009',
+                    id='creme.core.E0011',
                     hint=(
                         'Set the field as not clonable with <field.set_tags(clonable=False)>. '
                         'If the model can be cloned (<register_cloners()> in your apps.py) '
@@ -399,7 +403,8 @@ def check_clonable_not_unique(**kwargs):
                     ),
                 ))
 
-    return warnings
+    # return warnings
+    return errors
 
 
 @register(Tags.settings)
@@ -414,7 +419,7 @@ def check_last_entities(**kwargs):
             'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
             obj='settings.py',
             # id='creme.E014',
-            id='creme.core.E011',
+            id='creme.core.E012',
         ))
     else:
         if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
@@ -422,7 +427,7 @@ def check_last_entities(**kwargs):
                 'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
                 obj='settings.py',
                 # id='creme.E014',
-                id='creme.core.E012',
+                id='creme.core.E013',
             ))
         elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
             errors.append(Error(  # pragma: no cover
@@ -430,7 +435,7 @@ def check_last_entities(**kwargs):
                 'LAST_ENTITIES_SIZE.',
                 obj='settings.py',
                 # id='creme.E014',
-                id='creme.core.E013',
+                id='creme.core.E014',
             ))
 
     return errors
