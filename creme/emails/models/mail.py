@@ -103,7 +103,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
     identifier = models.CharField(
         _('Email ID'), unique=True, max_length=ID_LENGTH, editable=False,
         default=utils.generate_id,  # TODO: lambda for this
-    )
+    ).set_tags(clonable=False)
     body_html = UnsafeHTMLField(_('Body (HTML)'))
     signature = models.ForeignKey(
         EmailSignature, verbose_name=_('Signature'),
