@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+import sys
 
 from django.apps import apps
 from django.conf import settings
@@ -193,5 +195,33 @@ def check_site_domain(**kwargs):
                 obj='settings.py',
                 id='creme.E011',
             ))
+
+    return warnings
+
+
+@register(CoreTags.models)
+def check_clonable_not_unique(**kwargs):
+    from creme.creme_core.core.field_tags import FieldTag
+    from creme.creme_core.registry import creme_registry
+
+    warnings = []
+
+    if 'migrate' in sys.argv:
+        return warnings
+
+    for model in creme_registry.iter_entity_models():
+        for field in model._meta.fields:
+            if field.unique and field.get_tag(FieldTag.CLONABLE):
+                warnings.append(Warning(  # pragma: no cover
+                    f'The entity model {model} has a field "{field.name}" which '
+                    f'is both unique and clonable.',
+                    obj='creme.creme_core',
+                    id='creme.core.W009',
+                    hint=(
+                        'Set the field as not clonable with <field.set_tags(clonable=False)>. '
+                        'If the model can be cloned (<register_cloners()> in your apps.py) '
+                        'you can define how the field is copied in the cloned instance.'
+                    ),
+                ))
 
     return warnings
