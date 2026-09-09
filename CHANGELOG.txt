@@ -12,6 +12,7 @@
               which are used by credentials filters or Workflows, is forbidden.
             - The deletion of propery types & relationship types which are used
               by a Workflow action is forbidden.
+            - The permissions of the reloading view for custom-fields's choices were too strict.
 
 
 == Version 2.8.5 ==
