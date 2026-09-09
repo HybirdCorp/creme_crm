@@ -14,6 +14,13 @@
               by a Workflow action is forbidden.
             - The permissions of the reloading view for custom-fields's choices were too strict.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # There is now a Warning when a field of an entity model is both unique and clonable.
+
 
 == Version 2.8.5 ==
 
