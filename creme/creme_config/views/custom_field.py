@@ -318,7 +318,8 @@ class CustomEnumDeletion(base.ConfigModelEdition):
 
 
 class CustomEnumBrickReloading(BricksReloading):
-    permissions = base._PERM
+    # permissions = base._PERM
+    permissions = CustomEnumsDetail.permissions
     pk_url_kwarg = 'field_id'
 
     def get_bricks_context(self):
