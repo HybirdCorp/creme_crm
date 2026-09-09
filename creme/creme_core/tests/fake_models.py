@@ -531,7 +531,7 @@ else:
             ordering = ('name',)
 
     class FakeActivity(CremeEntity):
-        title = models.CharField(_('Title'), max_length=100, unique=True)
+        title = models.CharField(_('Title'), max_length=100, unique=True).set_tags(clonable=False)
         place = models.CharField(_('Place'), max_length=100, blank=True)
         minutes = models.TextField(_('Minutes'), blank=True)
 
