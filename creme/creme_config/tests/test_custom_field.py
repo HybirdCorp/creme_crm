@@ -36,6 +36,7 @@ from creme.creme_core.models import (
     EntityFilter,
     FakeContact,
     FakeOrganisation,
+    FakeSector,
     Job,
     Workflow,
 )
@@ -1595,7 +1596,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_values__duplicated_choice(self):
-        "MULTI_ENUM + duplicated choice."
+        """MULTI_ENUM + duplicated choice."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1634,7 +1635,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_values__bad_type(self):
-        "Not Enum type => error."
+        """Not Enum type => error."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1659,7 +1660,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_values__deleted(self):
-        "Field is deleted."
+        """Field is deleted."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1717,7 +1718,6 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_value__duplicated_choice(self):
-        "MULTI_ENUM + duplicated choice."
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1741,7 +1741,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_value__bad_type(self):
-        "Not Enum type => error."
+        """Not Enum type => error."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1766,7 +1766,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_value__deleted(self):
-        "The field is deleted."
+        """The field is deleted."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1828,7 +1828,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit_enum_value__deleted(self):
-        "Field is deleted."
+        """Field is deleted."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1847,7 +1847,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_enum_value__not_used(self):
-        "ENUM not used."
+        """ENUM not used."""
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         self.assertIsNone(DeletionCommand.objects.first())
@@ -1966,7 +1966,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(eval1_1, self.refresh(enum1).value)
 
     def test_delete_enum_value__replacing_with_null(self):
-        "ENUM used + replacing by NULL."
+        """ENUM used + replacing by NULL."""
         user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(
@@ -2066,7 +2066,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(dcom1)
 
     def test_delete_enum_value__deleted(self):
-        "Field is deleted."
+        """Field is deleted."""
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -2080,8 +2080,195 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__delete_custom_enum', args=(evalue.id,))
         )
 
+    def test_delete_enum_value__soft_referenced__efilters(self):
+        self.login_as_root()
+
+        create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
+        cfield1 = create_cfield(name='Programming languages', field_type=CustomField.ENUM)
+        cfield2 = create_cfield(name='Extra info',            field_type=CustomField.STR)
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
+        eval1 = create_evalue(value='C')
+        eval2 = create_evalue(value='bash')
+
+        sector = FakeSector.objects.create(title='Colliding', uuid=eval1.uuid)
+
+        efilter1 = EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion1',
+            name='C developers',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield1,
+                    operator=operators.EqualsOperator,
+                    values=[eval1.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion2',
+            name='C developers (regular)',
+            entity_type=FakeContact,
+            # filter_type=EF_CREDENTIALS,  NOPE
+        ).set_conditions(
+            [
+                condition_handler.CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield1,
+                    operator=operators.EqualsOperator,
+                    values=[eval1.id],
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        efilter3 = EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion3',
+            name='Not C developers',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield1,
+                    operator=operators.EqualsNotOperator,
+                    values=[eval1.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.create(
+            id='creme_config-tests_blocked_deletion4',
+            name='Other ignored filter',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                condition_handler.CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield1,
+                    operator=operators.EqualsOperator,
+                    values=[eval2.id],  # <===
+                    filter_type=EF_CREDENTIALS,
+                ),
+                condition_handler.RegularFieldConditionHandler.build_condition(   # <===
+                    model=FakeContact,
+                    operator=operators.EqualsOperator,
+                    field_name='sector',
+                    values=[str(sector.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+                condition_handler.CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield2,  # <===
+                    operator=operators.EqualsOperator,
+                    values=[str(eval1.uuid)],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+
+        self.assertContains(
+            self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'credentials filters: {filters}'
+            ).format(
+                item=eval1.value,
+                filters=f'{efilter1.name}, {efilter3.name}',
+            ),
+            status_code=409,
+            html=True,
+        )
+
+    def test_delete_enum_value__soft_referenced__workflows(self):
+        self.login_as_root()
+
+        create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
+        cfield1 = create_cfield(name='Programming languages', field_type=CustomField.ENUM)
+        cfield2 = create_cfield(name='Extra info',            field_type=CustomField.STR)
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
+        eval1 = create_evalue(value='C')
+        eval2 = create_evalue(value='bash')
+
+        sector = FakeSector.objects.create(title='Colliding', uuid=eval1.uuid)
+
+        wf1 = Workflow.objects.create(
+            title='My blocking WF #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.CustomFieldConditionHandler.build_condition(
+                        custom_field=cfield1,
+                        operator=operators.EqualsOperator,
+                        values=[eval1.id],
+                    ),
+                ],
+            ),
+        )
+        Workflow.objects.create(
+            title='Not blocking WF',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.CustomFieldConditionHandler.build_condition(
+                        custom_field=cfield1,
+                        operator=operators.EqualsOperator,
+                        values=[eval2.id],  # <===
+                    ),
+                    condition_handler.RegularFieldConditionHandler.build_condition(   # <===
+                        model=FakeContact,
+                        operator=operators.EqualsOperator,
+                        field_name='sector',
+                        values=[str(sector.uuid)],
+                    ),
+                    condition_handler.CustomFieldConditionHandler.build_condition(
+                        custom_field=cfield2,  # <===
+                        operator=operators.EqualsOperator,
+                        values=[str(eval1.uuid)],
+                        filter_type=EF_CREDENTIALS,
+                    ),
+                ],
+            ),
+        )
+        wf3 = Workflow.objects.create(
+            title='My blocking WF #2',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeContact),
+                conditions=[
+                    condition_handler.CustomFieldConditionHandler.build_condition(
+                        custom_field=cfield1,
+                        operator=operators.EqualsNotOperator,
+                        values=[eval1.id],
+                    ),
+                ],
+            ),
+        )
+
+        self.assertContains(
+            self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
+            text=_(
+                'You cannot delete «{item}» because it is used by some '
+                'Workflows (in conditions): {workflows}'
+            ).format(
+                item=eval1.value,
+                workflows=f'{wf1.title}, {wf3.title}',
+            ),
+            status_code=409,
+            html=True,
+        )
+
     def test_delete_multi_enum__not_used(self):
-        "MULTI_ENUM not used."
+        """MULTI_ENUM not used."""
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -2118,7 +2305,7 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(eval2)
 
     def test_delete_multi_enum__replacing(self):
-        "MULTI_ENUM used + replacing."
+        """MULTI_ENUM used + replacing."""
         user = self.login_as_root_and_get()
 
         create_cfield = partial(
