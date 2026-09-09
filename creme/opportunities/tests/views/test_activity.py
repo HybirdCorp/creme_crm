@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 from uuid import uuid4
 
+from django.apps import apps
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -10,7 +11,6 @@ from creme.activities import constants as act_constants
 from creme.activities import get_activity_model
 from creme.activities import setting_keys as act_skeys
 from creme.activities.models import ActivitySubType, Calendar, Status
-from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
@@ -24,13 +24,21 @@ from ..base import (
     skipIfCustomOpportunity,
 )
 
-Activity = get_activity_model()
+if apps.is_installed('creme.activities'):
+    from creme.activities.tests.base import skipIfCustomActivity
+
+    Activity = get_activity_model()
+else:
+    from unittest import skipIf
+
+    def skipIfCustomActivity(*args):
+        return skipIf(True, 'Activities not installed')(*args)
 
 
-@skipIfNotInstalled('creme.activities')
 @skipIfCustomOpportunity
 @skipIfCustomActivity
 @skipIfCustomContact
+@skipIfNotInstalled('creme.activities')
 class UnsuccessfulPhoneCallCreationTestCase(OpportunitiesBaseTestCase):
     @classmethod
     def setUpClass(cls):
