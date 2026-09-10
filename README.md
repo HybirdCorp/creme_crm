@@ -87,6 +87,9 @@ you should create a new virtual env, in order to keep the old one working).
        If you want PDF export, you can use :
        - xhtml2pdf (default)
        - weasyprint (easy to install on Linux; harder on Windows)
+         See https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+         E.g. on Ubuntu you'll need these packages:
+         > python3-pip libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libharfbuzz-subset0
        - you can also use the binary "latexmk" with "lualatex"; for example on
          Ubuntu you'll need these packages:
          - minimum: latexmk texlive-latex-base
@@ -100,7 +103,7 @@ Installation with 'pip':
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
      'pip install creme-crm[mysql]==2.X' (or 'pip install -e .[mysql]' with the source).
-   - For PostGreSQL,  you must add the 'pgsql' flag :
+   - For PostGreSQL, you must add the 'pgsql' flag :
      'pip install creme-crm[pgsql]==2.X' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
