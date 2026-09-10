@@ -31,6 +31,7 @@ commands:
     steps:
       - run: sudo apt update
       # Weasyprint => pango & libharfbuzz
+      # The offcial doc talk about <python3-pip libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libharfbuzz-subset0>
       - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 
   install-latex:

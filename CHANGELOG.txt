@@ -42,6 +42,9 @@
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
+        * Billing :
+            - The version of WeasyPrint has been upgraded to 70.0 ; you should install
+              the system packages for HarfBuzz 13+ HarfBuzz-Vector (see WeasyPrint's docnumentation).
         * Opportunities :
             - It's now possible to order the list-views by the column "Weighted sales" (function-field).
         * Emails :
