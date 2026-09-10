@@ -31,6 +31,7 @@ class Tags:
     settings = 'settings'
     api_breaking = 'api_breaking'
     deprecation = 'deprecation'
+    registries = 'registries'
 
 
 def check_uninstalled_apps(**kwargs):
@@ -439,3 +440,35 @@ def check_last_entities(**kwargs):
             ))
 
     return errors
+
+
+@register(Tags.registries)
+def check_entity_deletion(**kwargs):
+    from creme.creme_core.core.deletion import entity_deletor_registry
+    from creme.creme_core.registry import creme_registry
+
+    warnings = []
+
+    if 'migrate' not in sys.argv:
+        registered_models = {*entity_deletor_registry.models}
+        missing_model_names = [
+            f'{model.__module__}.{model.__name__}'
+            for model in creme_registry.iter_entity_models()
+            if model not in registered_models
+        ]
+
+        if missing_model_names:
+            warnings.append(Warning(  # pragma: no cover
+                f'These entity models are not registered for deletion: '
+                f'{', '.join(missing_model_names)}',
+                obj='creme.creme_core',
+                id='creme.core.W009',
+                hint=(
+                    'Define the method <register_deletors(entity_deletor_registry)> in '
+                    'the related AppConfig classes, then use '
+                    '<entity_deletor_registry.register(my_model)>, '
+                    'or <entity_deletor_registry.disable_for_models(my_model)>.'
+                ),
+            ))
+
+    return warnings

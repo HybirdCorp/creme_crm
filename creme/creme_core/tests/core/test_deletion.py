@@ -248,14 +248,17 @@ class EntityDeletionTestCase(CremeTestCase):
     def test_basic(self):
         registry = EntityDeletorRegistry()
         self.assertIsNone(registry.get(FakeOrganisation))
+        self.assertFalse([*registry.models])
 
         registry.register(FakeOrganisation)
         deletor = registry.get(FakeOrganisation)
         self.assertIsInstance(deletor, EntityDeletor)
+        self.assertListEqual([FakeOrganisation], [*registry.models])
 
         root = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=root, name='Olympus')
-        self.assertIsNone(deletor.check_permissions(user=root, entity=orga))
+        with self.assertNoException():
+            self.assertIsNone(deletor.check_permissions(user=root, entity=orga))
 
         # ---
         role1 = self.create_role(name='Can delete own', allowed_apps=['creme_core'])
@@ -303,6 +306,7 @@ class EntityDeletionTestCase(CremeTestCase):
         contact_deletor = registry.get(FakeContact)
         self.assertIsInstance(contact_deletor, EntityDeletor)
         self.assertNotIsInstance(contact_deletor, FakeDeletor)
+        self.assertCountEqual([FakeOrganisation, FakeContact], [*registry.models])
 
         # ---
         with self.assertRaises(registry.RegistrationError):
@@ -321,10 +325,32 @@ class EntityDeletionTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get(FakeOrganisation))
         self.assertIsNotNone(registry.get(FakeContact))
+        self.assertListEqual([FakeContact], [*registry.models])
 
         # ---
         with self.assertRaises(registry.UnRegistrationError):
             registry.unregister(FakeOrganisation)
+
+    def test_disabled_for_models(self):
+        registry = EntityDeletorRegistry().disable_for_models(
+            FakeOrganisation, FakeContact,
+        ).register(FakeTicket)
+
+        self.assertIsNone(registry.get(FakeOrganisation))
+        self.assertIsNone(registry.get(FakeContact))
+        self.assertCountEqual(
+            [FakeOrganisation, FakeContact, FakeTicket], [*registry.models]
+        )
+
+        with self.assertNoException():
+            registry.unregister(FakeOrganisation)
+        self.assertCountEqual([FakeContact, FakeTicket], [*registry.models])
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(FakeContact)
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.disable_for_models(FakeTicket)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
     def test_deletion_not_allowed(self):
