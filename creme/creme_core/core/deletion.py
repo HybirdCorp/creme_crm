@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
@@ -377,10 +377,20 @@ class EntityDeletorRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    _deletor_classes: dict[type[CremeEntity], type[EntityDeletor]]
+    _deletor_classes: dict[type[CremeEntity], type[EntityDeletor] | None]
 
     def __init__(self):
         self._deletor_classes = {}
+
+    def disable_for_models(self, *models: type[CremeEntity]) -> Self:
+        """Register some models as not deletable."""
+        setdefault = self._deletor_classes.setdefault
+
+        for model in models:
+            if setdefault(model, None) is not None:
+                raise self.RegistrationError(f'{model} has a registered deletor')
+
+        return self
 
     def get(self, model: type[CremeEntity]) -> EntityDeletor | None:
         """Hint: if None is returned, you should not delete the instances of
@@ -389,6 +399,11 @@ class EntityDeletorRegistry:
         cls = self._deletor_classes.get(model)
 
         return None if cls is None else cls()
+
+    @property
+    def models(self) -> Iterator[type[CremeEntity]]:
+        """Returns the registered models."""
+        yield from self._deletor_classes.keys()
 
     def register(self,
                  model: type[CremeEntity],

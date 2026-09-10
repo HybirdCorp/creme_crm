@@ -104,8 +104,18 @@ def ready():
         model=fake_models.FakeProduct,
     ).register(  # see test_delete_entity__soft_referenced__workflow__condition()
         model=fake_models.FakeImage,
+    ).disable_for_models(
+        fake_models.FakeTicket,  # Not deletable!
+
+        # NB: these models are disabled to avoid Warning
+        fake_models.FakeDocument,
+        fake_models.FakeActivity,
+        fake_models.FakeEmailCampaign,
+        fake_models.FakeMailingList,
+        fake_models.FakeInvoice,
+        fake_models.FakeRecipe,
+        FakeConfigEntity,
     )
-    # Not FakeTicket!
 
     icon_registry.register(
         fake_models.FakeContact, 'images/contact_%(size)s.png',
