@@ -2529,7 +2529,11 @@ class QuerysetBrickTestCase(CremeTestCase):
 
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(FakeContact, qs.model)
-        self.assertTupleEqual(('last_name', ), qs.query.order_by)
+        # self.assertTupleEqual(('last_name', ), qs.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr'),
+            qs.query.order_by,
+        )
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 

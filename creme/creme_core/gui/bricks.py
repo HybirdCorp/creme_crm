@@ -54,6 +54,7 @@ from ..models import (
     RelationBrickItem,
 )
 from ..utils.collections import OrderedSet
+from ..utils.db import get_stable_ordering
 from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
@@ -484,7 +485,12 @@ class QuerysetBrick(PaginatedBrick):
 
             if self._is_order_valid(model=queryset.model, order=raw_order_by):
                 order_by = raw_order_by
-                extra_kwargs['objects'] = queryset.order_by(order_by)
+                # extra_kwargs['objects'] = queryset.order_by(order_by)
+                extra_kwargs['objects'] = queryset.order_by(
+                    *get_stable_ordering(queryset.order_by(order_by))
+                )
+            # else TODO
+        # else TODO
 
         return super()._build_template_context(
             context=context, brick_id=brick_id, brick_context=brick_context,
