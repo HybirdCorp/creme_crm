@@ -102,9 +102,10 @@ class PollsConfig(CremeConfigConfigMixin, CremeAppConfig):
 
         entity_cloner_registry.register(
             model=self.PollForm, cloner_class=cloners.PollFormCloner,
+        ).disable_for_models(
+            self.PollReply,
+            self.PollCampaign,
         )
-        # TODO?
-        #  .register(model=self.PollReply).register( model=self.PollCampaign)
 
     @override
     def register_deletors(self, entity_deletor_registry):

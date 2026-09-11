@@ -116,9 +116,10 @@
                     - The class 'core.validators.TemplateVariablesValidator' is deprecated;
                       import it from 'creme_core.core.validators' instead'.
         # In 'creme_core.core' :
-            - You can now explicitly mark some entity models as not deletable with the new method
-              'deletion.EntityDeletorRegistry.disable_for_models().'
-              A new check warns you if some entity models are not registered (or disabled).
+            - You can now explicitly mark some entity models as not deletable/clonable with the new methods :
+                - 'deletion.EntityDeletorRegistry.disable_for_models()'
+                - 'cloning.EntityClonerRegistry.disable_for_models()'
+              Two new checks warn you if some entity models are not registered (or disabled).
             - When registering an enumerator class related to a model with
               'enumerable.EnumerableRegistry.register_related_model()', this
               class is used as fallback for child models.

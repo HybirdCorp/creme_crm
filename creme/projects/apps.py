@@ -100,7 +100,7 @@ class ProjectsConfig(CremeConfigConfigMixin, CremeAppConfig):
 
         entity_cloner_registry.register(
             model=self.Project, cloner_class=cloners.ProjectCloner,
-        )
+        ).disable_for_models(self.ProjectTask)
 
     @override
     def register_deletors(self, entity_deletor_registry):
