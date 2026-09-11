@@ -3,6 +3,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.db.models.query import QuerySet
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import MODELBRICK_ID
@@ -2502,7 +2503,8 @@ class QuerysetBrickTestCase(CremeTestCase):
             FakeContact.objects.filter(description=description),
         )
 
-        page = template_context['page']
+        with self.assertNoException():
+            page = template_context['page']
         self.assertEqual(2, page.number)
 
     def test_order__not_in_request(self):
@@ -2523,9 +2525,12 @@ class QuerysetBrickTestCase(CremeTestCase):
 
         with self.assertNoException():
             page = template_context['page']
-            model = page.object_list.model
+            qs = page.object_list
 
-        self.assertEqual(FakeContact, model)
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(FakeContact, qs.model)
+        self.assertTupleEqual(('last_name', ), qs.query.order_by)
+
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_order__invalid_attribute(self):
@@ -2544,12 +2549,12 @@ class QuerysetBrickTestCase(CremeTestCase):
         cranel = create_contact(first_name='Bell', last_name='Cranel')
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = ProblematicBrick()
-        template_context = brick.get_template_context(
+        page = ProblematicBrick().get_template_context(
             self.build_context(user=user),
             FakeContact.objects.all(),
-        )
-        self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
+        )['page']
+        self.assertTupleEqual((), page.object_list.query.order_by)
+        self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_order__in_request(self):
         """Order in request: valid field."""
@@ -2565,18 +2570,20 @@ class QuerysetBrickTestCase(CremeTestCase):
         brick = self.TestOrderedBrick()
 
         # ASC
-        template_context = brick.get_template_context(
+        asc_page = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_order=first_name'),
             FakeContact.objects.all(),
-        )
-        self._assertPageOrderedLike(template_context['page'], [aiz, bell, lili, welf])
+        )['page']
+        self.assertTupleEqual(('first_name', ), asc_page.object_list.query.order_by)
+        self._assertPageOrderedLike(asc_page, [aiz, bell, lili, welf])
 
         # DESC
-        template_context = brick.get_template_context(
+        desc_page = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_order=-first_name'),
             FakeContact.objects.all(),
-        )
-        self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
+        )['page']
+        self.assertTupleEqual(('-first_name',), desc_page.object_list.query.order_by)
+        self._assertPageOrderedLike(desc_page, [welf, lili, bell, aiz])
 
     def test_order__in_request__invalid_field(self):
         """Order in request: invalid field."""
@@ -2598,6 +2605,7 @@ class QuerysetBrickTestCase(CremeTestCase):
             page = template_context['page']
             [*page.object_list]  # NOQA
 
+        self.assertTupleEqual((), page.object_list.query.order_by)
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_order__in_request__no_sortable(self):
@@ -2611,15 +2619,20 @@ class QuerysetBrickTestCase(CremeTestCase):
 
         # brick = self.OrderedBrick()
         brick = self.TestOrderedBrick()
-        template_context = brick.get_template_context(
-            self.build_context(user=user, url=f'/?{brick.id}_order=languages'),
-            FakeContact.objects.all()
-        )
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user, url=f'/?{brick.id}_order=languages'),
+                FakeContact.objects.all(),
+            )
+        self.assertTrue(log_mngr.output)
+        self.assertIn('the field "languages" is not sortable', log_mngr.output[0])
 
         with self.assertNoException():
             page = template_context['page']
             [*page.object_list]  # NOQA
 
+        self.assertTupleEqual((), page.object_list.query.order_by)
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
 

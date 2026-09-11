@@ -474,7 +474,7 @@ class QuerysetBrick(PaginatedBrick):
 
         request = context['request']
         order_by = ''
-        objects = extra_kwargs['objects']
+        queryset = extra_kwargs['objects']
 
         if self.order_by:
             req_order_by = request.GET.get(f'{brick_id}_order')
@@ -482,13 +482,13 @@ class QuerysetBrick(PaginatedBrick):
                 self.order_by,
             ) if req_order_by is None else req_order_by
 
-            if self._is_order_valid(model=objects.model, order=raw_order_by):
+            if self._is_order_valid(model=queryset.model, order=raw_order_by):
                 order_by = raw_order_by
-                extra_kwargs['objects'] = objects.order_by(order_by)
+                extra_kwargs['objects'] = queryset.order_by(order_by)
 
         return super()._build_template_context(
             context=context, brick_id=brick_id, brick_context=brick_context,
-            objects_ctype=ContentType.objects.get_for_model(objects.model),
+            objects_ctype=ContentType.objects.get_for_model(queryset.model),
             order_by=order_by,
             **extra_kwargs
         )
