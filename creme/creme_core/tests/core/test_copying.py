@@ -37,7 +37,7 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-class CloningTestCase(CremeTestCase):
+class CopyingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
