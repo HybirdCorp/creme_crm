@@ -51,7 +51,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
     def test_json_entity_get__base_not_viewable(self):
-        "No credentials for the basic CremeEntity, but real entity is viewable."
+        """No credentials for the basic CremeEntity, but real entity is viewable."""
         user = self.login_as_standard(
             allowed_apps=['creme_config'],  # Not 'creme_core'
             creatable_models=[FakeConfigEntity],
@@ -85,7 +85,7 @@ class EntityViewsTestCase(CremeTestCase):
         )
 
     def test_get_creme_entities_repr__complex(self):
-        "Several entities, several ContentTypes, credentials."
+        """Several entities, several ContentTypes, credentials."""
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
 
@@ -250,7 +250,7 @@ class EntityViewsTestCase(CremeTestCase):
         )
 
     def test_clone__standard_user(self):
-        "Not superuser with right credentials."
+        """Not superuser with right credentials."""
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all='*')
 
@@ -258,7 +258,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone__creation_perm(self):
-        "Not superuser without creation credentials => error."
+        """Not superuser without creation credentials => error."""
         user = self.login_as_standard()
         self.add_credentials(user.role, all='*')
 
@@ -270,7 +270,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertEqual(count, FakeContact.objects.count())
 
     def test_clone__view_perm(self):
-        "Not superuser without VIEW credentials => error."
+        """Not superuser without VIEW credentials => error."""
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all='!VIEW')
 
@@ -334,7 +334,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertIsNone(self.refresh(contact).sandbox)
 
     def test_restrict_entity_2_superusers__already_sandboxed(self):
-        "Entity already in a sandbox."
+        """Entity already in a sandbox."""
         user = self.login_as_root_and_get()
         sandbox = Sandbox.objects.create(type_id='creme_core-dont_care', user=user)
         contact = FakeContact.objects.create(
@@ -349,7 +349,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertEqual(sandbox, self.refresh(contact).sandbox)
 
     def test_restrict_entity_2_superusers__unset_not_sandboxed(self):
-        "Unset entity with no sandbox."
+        """Unset entity with no sandbox."""
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',

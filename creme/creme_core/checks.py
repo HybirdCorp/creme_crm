@@ -472,3 +472,35 @@ def check_entity_deletion(**kwargs):
             ))
 
     return warnings
+
+
+@register(Tags.registries)
+def check_entity_cloning(**kwargs):
+    from creme.creme_core.core.cloning import entity_cloner_registry
+    from creme.creme_core.registry import creme_registry
+
+    warnings = []
+
+    if 'migrate' not in sys.argv:
+        registered_models = {*entity_cloner_registry.models}
+        missing_model_names = [
+            f'{model.__module__}.{model.__name__}'
+            for model in creme_registry.iter_entity_models()
+            if model not in registered_models
+        ]
+
+        if missing_model_names:
+            warnings.append(Warning(  # pragma: no cover
+                f'These entity models are not registered for cloning: '
+                f'{', '.join(missing_model_names)}',
+                obj='creme.creme_core',
+                id='creme.core.W010',
+                hint=(
+                    'Define the method <register_cloners(entity_cloner_registry)> in '
+                    'the related AppConfig classes, then use '
+                    '<entity_cloner_registry.register(my_model)>, '
+                    'or <entity_cloner_registry.disable_for_models(my_model)>.'
+                ),
+            ))
+
+    return warnings

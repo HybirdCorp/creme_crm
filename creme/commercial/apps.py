@@ -129,9 +129,8 @@ class CommercialConfig(CremeConfigConfigMixin, CremeAppConfig):
             model=self.Act, cloner_class=cloners.ActCloner,
         ).register(
             model=self.Pattern, cloner_class=cloners.PatternCloner,
-        )
+        ).disable_for_models(self.Strategy)
         # TODO? (what about charms/assets/... ?)
-        # .register(model=self.Strategy)
 
     @override
     def register_deletors(self, entity_deletor_registry):

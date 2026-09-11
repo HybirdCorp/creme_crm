@@ -144,8 +144,7 @@ class EmailsConfig(CremeConfigConfigMixin, CremeAppConfig):
             model=self.EmailTemplate,
         ).register(
             model=self.EmailCampaign,
-        )
-        # Not self.EntityEmail
+        ).disable_for_models(self.EntityEmail)
 
     @override
     def register_deletors(self, entity_deletor_registry):

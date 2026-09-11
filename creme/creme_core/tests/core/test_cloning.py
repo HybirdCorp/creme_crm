@@ -15,6 +15,7 @@ from creme.creme_core.models import (
     CustomFieldInteger,
     FakeContact,
     FakeOrganisation,
+    FakeTicket,
     Language,
     Relation,
     RelationType,
@@ -64,6 +65,26 @@ class CloningTestCase(CremeTestCase):
             '<FakeOrganisation> has no cloner (not registered or already unregistered)',
             str(cm.exception),
         )
+
+    def test_disable_for_models(self):
+        registry = EntityClonerRegistry().disable_for_models(
+            FakeOrganisation, FakeContact,
+        ).register(FakeTicket)
+        self.assertIsNone(registry.get(FakeOrganisation))
+        self.assertIsNone(registry.get(FakeContact))
+        self.assertCountEqual(
+            [FakeOrganisation, FakeContact, FakeTicket], [*registry.models]
+        )
+
+        with self.assertNoException():
+            registry.unregister(FakeOrganisation)
+        self.assertCountEqual([FakeContact, FakeTicket], [*registry.models])
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(FakeContact)
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.disable_for_models(FakeTicket)
 
     def test_regular_cloner(self):
         cloner = EntityCloner()

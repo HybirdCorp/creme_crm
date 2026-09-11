@@ -103,7 +103,7 @@ class EntityClonerRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    _cloner_classes: dict[type[CremeEntity], type[EntityCloner]]
+    _cloner_classes: dict[type[CremeEntity], type[EntityCloner] | None]
 
     def __init__(self):
         self._cloner_classes = {}
@@ -112,7 +112,18 @@ class EntityClonerRegistry:
 
     @property
     def models(self) -> Iterator[type[CremeEntity]]:
+        """Returns the registered models."""
         yield from self._cloner_classes.keys()
+
+    def disable_for_models(self, *models: type[CremeEntity]) -> Self:
+        """Register some models as not clonable."""
+        setdefault = self._cloner_classes.setdefault
+
+        for model in models:
+            if setdefault(model, None) is not None:
+                raise self.RegistrationError(f'{model} has a registered cloner')
+
+        return self
 
     def get(self, model: type[CremeEntity]) -> EntityCloner | None:
         """Hint: if None is returned, you should not clone the instances of

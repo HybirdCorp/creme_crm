@@ -85,6 +85,19 @@ def ready():
     ).register(
         model=fake_models.FakeInvoice,
         cloner_class=FakeInvoiceCloner,
+    ).disable_for_models(
+        fake_models.FakeImage,  # Not clonable
+
+        # NB: avoid Warning
+        fake_models.FakeOrganisation,
+        fake_models.FakeDocument,
+        fake_models.FakeActivity,
+        fake_models.FakeEmailCampaign,
+        fake_models.FakeMailingList,
+        fake_models.FakeInvoiceLine,
+        fake_models.FakeTicket,
+        fake_models.FakeRecipe,
+        FakeConfigEntity
     )
 
     class FakeContactDeletor(EntityDeletor):

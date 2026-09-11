@@ -114,9 +114,7 @@ class DocumentsConfig(CremeConfigConfigMixin, CremeAppConfig):
 
         entity_cloner_registry.register(
             model=self.Folder, cloner_class=cloners.FolderCloner,
-        )
-        # TODO?
-        #  register(model=self.Document)
+        ).disable_for_models(self.Document)
 
     @override
     def register_deletors(self, entity_deletor_registry):
