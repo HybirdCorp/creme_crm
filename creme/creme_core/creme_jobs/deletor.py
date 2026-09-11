@@ -93,20 +93,20 @@ class _DeletorType(JobType):
                 # NB: the filtering instructions exclude many unrelevant conditions
                 #     but may accept false positive. It's OK because the
                 #     straightforward test is later, in the for-loop.
-                filter_ids = EntityFilterCondition.objects.filter(
+                filter_ids = {*EntityFilterCondition.objects.filter(
                     type=condition_handler.RegularFieldConditionHandler.type_id,
                     # NB: <__contains> to accept "deep" FK too.
                     name__contains=model_field.name,
                     # NB: value__values__contains does not work with all DB engine (like SQLite)
-                    value__values__regex=f'"{instance_2_del.portable_key()}"',
-                ).values_list('filter_id', flat=True)
+                    value__values__regex=f'"{key_2_del}"',
+                ).values_list('filter_id', flat=True)}
 
                 for filter_id in filter_ids:
                     with atomic():
-                        EntityFilter.objects.select_for_update().filter(id=filter_id).first()
+                        ef = EntityFilter.objects.select_for_update().filter(id=filter_id).first()
                         changed_count = 0
 
-                        for cond in EntityFilterCondition.objects.filter(filter_id=filter_id):
+                        for cond in EntityFilterCondition.objects.filter(filter_id=ef.id):
                             if cond.handler.field_info[-1] == model_field:
                                 value = cond.value
 
