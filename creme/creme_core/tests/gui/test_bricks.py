@@ -3,7 +3,6 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import MODELBRICK_ID
@@ -19,6 +18,7 @@ from creme.creme_core.gui.bricks import (  # SimpleBrick
     EntityBrick,
     ForbiddenBrick,
     InstanceBrick,
+    PaginatedBrick,
     QuerysetBrick,
     SpecificRelationsBrick,
     VoidBrick,
@@ -2186,24 +2186,7 @@ class BricksManagerTestCase(CremeTestCase):
     # TODO: test def get_state(self, brick_id, user)
 
 
-class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.factory = RequestFactory()
-
-    class OrderedBrick(QuerysetBrick):
-        id = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order')
-        dependencies = (FakeContact,)
-        page_size = 10
-        order_by = 'last_name'
-
-    def _assertPageOrderedLike(self, page, ordered_instances):
-        ids = {c.id for c in ordered_instances}
-        self.assertListEqual(
-            ordered_instances,
-            [c for c in page.object_list if c.id in ids],
-        )
-
+class BrickTestCase(CremeTestCase):
     def test_html_id(self):
         # class MyBrick(SimpleBrick):
         class MyBrick(Brick):
@@ -2317,7 +2300,9 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             str(cm.exception),
         )
 
-    def test_void_brick(self):
+
+class VoidBrickTestCase(BrickTestCaseMixin, CremeTestCase):
+    def test_main(self):
         user = self.get_root_user()
         brick = VoidBrick(id=Brick.generate_id('creme_core', 'test_void'))
 
@@ -2325,7 +2310,9 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         render = brick.render(self.build_context(user=user))
         self.get_brick_node(self.get_html_tree(render), brick=brick)
 
-    def test_custom_brick(self):
+
+class CustomBrickTestCase(CremeTestCase):
+    def test_no_relation(self):
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
@@ -2335,8 +2322,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual([FakeOrganisation], cbrick.dependencies)
         self.assertFalse(cbrick.relation_type_deps)
 
-    def test_custom_brick__relation(self):
-        "Relation + dependencies."
+    def test_relation(self):
+        """Relation + dependencies."""
         rtype = RelationType.objects.builder(
             id='test-subject_employs', predicate='employs',
         ).symmetric(id='test-object_employs', predicate='is employed by').get_or_create()[0]
@@ -2353,8 +2340,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([FakeOrganisation, Relation], cbrick.dependencies)
         self.assertEqual([rtype.id], cbrick.relation_type_deps)
 
-    def test_custom_brick__fk(self):
-        "ForeignKeys/ManyToManyFields + dependencies."
+    def test_fk(self):
+        """ForeignKeys/ManyToManyFields + dependencies."""
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeContact,
             cells=[
@@ -2369,8 +2356,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             cbrick.dependencies,
         )
 
-    def test_custom_brick__fk__subfield(self):
-        "ForeignKey's sub-field + dependencies."
+    def test_fk__subfield(self):
+        """ForeignKey's sub-field + dependencies."""
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeContact,
             cells=[
@@ -2385,7 +2372,20 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             cbrick.dependencies,
         )
 
-    def test_paginated_brick(self):
+
+class PaginatedBrickTestCase(CremeTestCase):
+    # class OrderedBrick(QuerysetBrick):
+    #     id = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order')
+    #     dependencies = (FakeContact,)
+    #     page_size = 10
+    #     order_by = 'last_name'
+    class TestPaginatedBrick(PaginatedBrick):
+        id = PaginatedBrick.generate_id('creme_core', 'BrickTestCase-test_paginated_brick')
+        dependencies = (FakeContact,)
+        page_size = 10
+        # order_by = 'last_name'
+
+    def test_no_page_in_request(self):
         user = self.get_root_user()
 
         description = 'Dungeon explorer'
@@ -2394,7 +2394,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         create_contact(first_name='Bell', last_name='Cranel')
         create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestPaginatedBrick()
         brick.page_size = 2
         template_context = brick.get_template_context(
             self.build_context(user=user),
@@ -2408,7 +2409,7 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(2, page.paginator.num_pages)
         self.assertEqual(1, page.number)
 
-    def test_paginated_brick__page_in_request(self):
+    def test_page_in_request(self):
         user = self.get_root_user()
 
         description = 'Dungeon explorer'
@@ -2417,7 +2418,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         create_contact(first_name='Bell', last_name='Cranel')
         create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestPaginatedBrick()
         brick.page_size = 2
         template_context = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_page=2'),
@@ -2427,8 +2429,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         page = template_context['page']
         self.assertEqual(2, page.number)
 
-    def test_paginated_brick__page_in_request__invalid_int(self):
-        "Page in request: invalid number (not int)."
+    def test_page_in_request__invalid_int(self):
+        """Page in request: invalid number (not int)."""
         user = self.get_root_user()
 
         description = 'Dungeon explorer'
@@ -2437,7 +2439,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         create_contact(first_name='Bell', last_name='Cranel')
         create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestPaginatedBrick()
         brick.page_size = 2
         template_context = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_page=NaN'),
@@ -2447,8 +2450,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         page = template_context['page']
         self.assertEqual(1, page.number)
 
-    def test_paginated_brick__page_in_request__too_big(self):
-        "Page in request: number too great."
+    def test_page_in_request__too_big(self):
+        """Page in request: number too great."""
         user = self.get_root_user()
 
         description = 'Dungeon explorer'
@@ -2457,7 +2460,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         create_contact(first_name='Bell', last_name='Cranel')
         create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestPaginatedBrick()
         brick.page_size = 2
         template_context = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_page=3'),
@@ -2467,8 +2471,42 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         page = template_context['page']
         self.assertEqual(2, page.number)
 
-    def test_queryset_brick__order__not_in_request(self):
-        "No order in request."
+
+class QuerysetBrickTestCase(CremeTestCase):
+    class TestOrderedBrick(QuerysetBrick):
+        id = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order')
+        dependencies = (FakeContact,)
+        page_size = 10
+        order_by = 'last_name'
+
+    def _assertPageOrderedLike(self, page, ordered_instances):
+        ids = {c.id for c in ordered_instances}
+        self.assertListEqual(
+            ordered_instances,
+            [c for c in page.object_list if c.id in ids],
+        )
+
+    def test_page_in_request(self):
+        user = self.get_root_user()
+
+        description = 'Dungeon explorer'
+        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact(first_name='Aiz',  last_name='Wallenstein')
+        create_contact(first_name='Bell', last_name='Cranel')
+        create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.TestOrderedBrick()
+        brick.page_size = 2
+        template_context = brick.get_template_context(
+            self.build_context(user=user, url=f'/?{brick.id}_page=2'),
+            FakeContact.objects.filter(description=description),
+        )
+
+        page = template_context['page']
+        self.assertEqual(2, page.number)
+
+    def test_order__not_in_request(self):
+        """No order in request."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2476,7 +2514,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         cranel = create_contact(first_name='Bell', last_name='Cranel')
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestOrderedBrick()
         template_context = brick.get_template_context(
             self.build_context(user=user),
             FakeContact.objects.all(),
@@ -2489,8 +2528,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(FakeContact, model)
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
-    def test_queryset_brick__order__invalid_attribute(self):
-        "No order in request: invalid field in Brick class."
+    def test_order__invalid_attribute(self):
+        """No order in request: invalid field in Brick class."""
         user = self.get_root_user()
 
         class ProblematicBrick(QuerysetBrick):
@@ -2512,8 +2551,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
 
-    def test_queryset_brick__order__in_request(self):
-        "Order in request: valid field."
+    def test_order__in_request(self):
+        """Order in request: valid field."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2522,7 +2561,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         bell = create_contact(first_name='Bell',     last_name='Cranel')
         welf = create_contact(first_name='Welf',     last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestOrderedBrick()
 
         # ASC
         template_context = brick.get_template_context(
@@ -2538,8 +2578,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
 
-    def test_queryset_brick__order__in_request__invalid_field(self):
-        "Order in request: invalid field."
+    def test_order__in_request__invalid_field(self):
+        """Order in request: invalid field."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2547,10 +2587,11 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         cranel = create_contact(first_name='Bell', last_name='Cranel')
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestOrderedBrick()
         template_context = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_order=unknown'),
-            FakeContact.objects.all()
+            FakeContact.objects.all(),
         )
 
         with self.assertNoException():
@@ -2559,8 +2600,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
-    def test_queryset_brick__order__in_request__no_sortable(self):
-        "Order in request: not sortable field."
+    def test_order__in_request__no_sortable(self):
+        """Order in request: not sortable field."""
         user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2568,7 +2609,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         cranel = create_contact(first_name='Bell', last_name='Cranel')
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
-        brick = self.OrderedBrick()
+        # brick = self.OrderedBrick()
+        brick = self.TestOrderedBrick()
         template_context = brick.get_template_context(
             self.build_context(user=user, url=f'/?{brick.id}_order=languages'),
             FakeContact.objects.all()
@@ -2580,7 +2622,9 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
-    def test_specific_relations_brick(self):
+
+class SpecificRelationsBrickTestCase(BrickTestCaseMixin, CremeTestCase):
+    def test_render(self):
         rtype = RelationType.objects.builder(
             id='test-subject_designed', predicate='designed',
         ).symmetric(id='test-object_designed_by', predicate='is designed by').get_or_create()[0]
@@ -2662,8 +2706,7 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # TODO: test with configured cells for ContentTypes
 
-    def test_specific_relations_brick__ctype_constraints(self):
-        "ContentType constraints."
+    def test_content_type_constraints(self):
         rtype = RelationType.objects.builder(
             id='test-subject_loves', predicate='loves',
             models=[FakeOrganisation, FakeContact],
@@ -2684,7 +2727,7 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         with self.assertNumQueries(0):
             self.assertCountEqual(expected_models, [*brick.target_ctypes])
 
-    def test_specific_relations_brick__dependencies(self):
+    def test_dependencies(self):
         # class TestBrick(SimpleBrick):
         class TestBrick(Brick):
             verbose_name = 'Testing purpose'
