@@ -2476,9 +2476,15 @@ class PaginatedBrickTestCase(CremeTestCase):
 class QuerysetBrickTestCase(CremeTestCase):
     class TestOrderedBrick(QuerysetBrick):
         id = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order')
-        dependencies = (FakeContact,)
+        # dependencies = (FakeContact,)
         page_size = 10
         order_by = 'last_name'
+
+    class TestNotOrderedBrick(QuerysetBrick):
+        id = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_no_order')
+        # dependencies = (FakeContact,)
+        page_size = 10
+        # order_by = 'last_name'
 
     def _assertPageOrderedLike(self, page, ordered_instances):
         ids = {c.id for c in ordered_instances}
@@ -2518,9 +2524,16 @@ class QuerysetBrickTestCase(CremeTestCase):
 
         # brick = self.OrderedBrick()
         brick = self.TestOrderedBrick()
-        template_context = brick.get_template_context(
-            self.build_context(user=user),
-            FakeContact.objects.all(),
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user),
+                FakeContact.objects.all(),
+            )
+
+        self.assertNotIn(
+            'the attribute "order_by" is set so the explicit order will be overridden',
+            '\n'.join(log_mngr.output)
         )
 
         with self.assertNoException():
@@ -2530,7 +2543,11 @@ class QuerysetBrickTestCase(CremeTestCase):
 
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(FakeContact, qs.model)
-        self.assertTupleEqual(('last_name', ), qs.query.order_by)
+        # self.assertTupleEqual(('last_name', ), qs.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            qs.query.order_by,
+        )
         self.assertEqual('last_name', order_by)
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
@@ -2558,7 +2575,11 @@ class QuerysetBrickTestCase(CremeTestCase):
         self.assertEqual('', ctxt['order_by'])
 
         page = ctxt['page']
-        self.assertTupleEqual((), page.object_list.query.order_by)
+        # self.assertTupleEqual((), page.object_list.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            page.object_list.query.order_by,
+        )
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_order__in_request(self):
@@ -2582,7 +2603,11 @@ class QuerysetBrickTestCase(CremeTestCase):
         self.assertEqual('first_name', asc_ctxt['order_by'])
 
         asc_page = asc_ctxt['page']
-        self.assertTupleEqual(('first_name', ), asc_page.object_list.query.order_by)
+        self.assertTupleEqual(
+            # ('first_name', )
+            ('first_name', 'cremeentity_ptr_id'),
+            asc_page.object_list.query.order_by,
+        )
         self._assertPageOrderedLike(asc_page, [aiz, bell, lili, welf])
 
         # DESC ---
@@ -2593,7 +2618,11 @@ class QuerysetBrickTestCase(CremeTestCase):
         self.assertEqual('-first_name', desc_ctxt['order_by'])
 
         desc_page = desc_ctxt['page']
-        self.assertTupleEqual(('-first_name',), desc_page.object_list.query.order_by)
+        self.assertTupleEqual(
+            # ('-first_name',)
+            ('-first_name', '-cremeentity_ptr_id'),
+            desc_page.object_list.query.order_by,
+        )
         self._assertPageOrderedLike(desc_page, [welf, lili, bell, aiz])
 
     def test_order__in_request__invalid_field(self):
@@ -2620,7 +2649,11 @@ class QuerysetBrickTestCase(CremeTestCase):
             [*page.object_list]  # NOQA
 
         self.assertEqual('', order_by)
-        self.assertTupleEqual((), page.object_list.query.order_by)
+        # self.assertTupleEqual((), page.object_list.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            page.object_list.query.order_by,
+        )
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_order__in_request__no_sortable(self):
@@ -2640,8 +2673,10 @@ class QuerysetBrickTestCase(CremeTestCase):
                 self.build_context(user=user, url=f'/?{brick.id}_order=languages'),
                 FakeContact.objects.all(),
             )
-        self.assertTrue(log_mngr.output)
-        self.assertIn('the field "languages" is not sortable', log_mngr.output[0])
+        self.assertIn(
+            'the field "languages" is not sortable',
+            '\n'.join(log_mngr.output),
+        )
 
         with self.assertNoException():
             page = template_context['page']
@@ -2649,8 +2684,133 @@ class QuerysetBrickTestCase(CremeTestCase):
             [*page.object_list]  # NOQA
 
         self.assertEqual('', order_by)
-        self.assertTupleEqual((), page.object_list.query.order_by)
+        # self.assertTupleEqual((), page.object_list.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            page.object_list.query.order_by,
+        )
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
+
+    def test_order__order_by_attr__explicitly_ordered_qs(self):
+        """Order in request: not sortable field."""
+        user = self.get_root_user()
+        brick = self.TestOrderedBrick()
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user),
+                FakeContact.objects.order_by('phone'),
+            )
+        self.assertIn(
+            'the attribute "order_by" is set so the explicit order will be overridden',
+            '\n'.join(log_mngr.output)
+        )
+
+        with self.assertNoException():
+            page = template_context['page']
+            order_by = template_context['order_by']
+
+        self.assertEqual('last_name', order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            page.object_list.query.order_by,
+        )
+
+    def test_order__no_order_by_attr(self):
+        user = self.get_root_user()
+
+        brick = self.TestNotOrderedBrick()
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user),
+                FakeContact.objects.all(),
+            )
+
+        self.assertNotIn(
+            'the model & the queryset are not ordered',
+            '\n'.join(log_mngr.output),
+        )
+
+        with self.assertNoException():
+            page = template_context['page']
+            order_by = template_context['order_by']
+
+        self.assertEqual('', order_by)
+        # self.assertTupleEqual((), page.object_list.query.order_by)
+        self.assertTupleEqual(
+            ('last_name', 'first_name', 'cremeentity_ptr'),  # 'cremeentity_ptr_id' ??
+            page.object_list.query.order_by,
+        )
+
+    def test_order__no_order_by_attr__ordered_qs(self):
+        user = self.get_root_user()
+
+        brick = self.TestNotOrderedBrick()
+        template_context = brick.get_template_context(
+            self.build_context(user=user),
+            FakeContact.objects.order_by('phone', 'email'),
+        )
+
+        with self.assertNoException():
+            page = template_context['page']
+            order_by = template_context['order_by']
+
+        self.assertEqual('', order_by)
+        self.assertTupleEqual(
+            ('phone', 'email', 'cremeentity_ptr'),
+            page.object_list.query.order_by,
+        )
+
+    def test_order__no_order_by_attr__ordered_qs__unordered_model(self):
+        self.assertFalse(FakeAddress._meta.ordering)
+        user = self.get_root_user()
+        brick = self.TestNotOrderedBrick()
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user),
+                FakeAddress.objects.order_by('city', 'zipcode'),
+            )
+
+        self.assertNotIn(
+            'the model & the queryset are not ordered',
+            '\n'.join(log_mngr.output),
+        )
+
+        with self.assertNoException():
+            page = template_context['page']
+            order_by = template_context['order_by']
+
+        self.assertEqual('', order_by)
+        self.assertTupleEqual(
+            ('city', 'zipcode', 'id'),
+            page.object_list.query.order_by,
+        )
+
+    def test_order__no_order_at_all(self):
+        """No order_by attribute, model has no ordering, queryset is not ordered."""
+        self.assertFalse(FakeAddress._meta.ordering)
+        user = self.get_root_user()
+        brick = self.TestNotOrderedBrick()
+
+        with self.assertLogs(level='WARNING') as log_mngr:
+            template_context = brick.get_template_context(
+                self.build_context(user=user),
+                FakeAddress.objects.all(),
+            )
+
+        self.assertIn(
+            'the model & the queryset are not ordered',
+            '\n'.join(log_mngr.output),
+        )
+
+        with self.assertNoException():
+            page = template_context['page']
+            order_by = template_context['order_by']
+
+        self.assertEqual('', order_by)
+        self.assertTupleEqual(('id',), page.object_list.query.order_by)
 
 
 class SpecificRelationsBrickTestCase(BrickTestCaseMixin, CremeTestCase):

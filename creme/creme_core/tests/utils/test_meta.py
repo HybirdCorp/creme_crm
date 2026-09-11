@@ -68,10 +68,27 @@ class MetaTestCase(CremeTestCase):
         self.assertNotEqual(OrderedField('name'), 'name')  # TODO: should be equal?
         self.assertNotEqual(OrderedField('name'), 1)
 
+    def test_ordered_field__default(self):
+        with self.assertNoLogs():
+            self.assertEqual(
+                OrderedField('name'), OrderedField.default(FakeOrganisation),
+            )
+            self.assertEqual(
+                OrderedField('last_name'), OrderedField.default(FakeContact),
+            )
+
+        self.assertFalse(FakeAddress._meta.ordering)
+        with self.assertLogs(level='CRITICAL') as log_mngr:
+            self.assertEqual(OrderedField('id'), OrderedField.default(FakeAddress))
+        self.assertIn(
+            ".FakeAddress'> does not define any ordering",
+            log_mngr.output[0],
+        )
+
 
 class FieldInfoTestCase(CremeTestCase):
     def test_one_field(self):
-        "Simple field."
+        """Simple field."""
         fi1 = FieldInfo(FakeContact, 'first_name')
 
         self.assertEqual(FakeContact, fi1.model)
@@ -232,7 +249,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertIs(False, bool(empty_sub_fi))
 
     def test_slice__stop(self):
-        "Stop (no start)."
+        """Stop (no start)."""
         fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -245,7 +262,6 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeImage._meta.get_field('user'), sub_fi[1])
 
     def test_slice__negative_start(self):
-        "Negative start."
         fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -257,7 +273,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(User._meta.get_field('username'), sub_field)
 
     def test_slice__negative_start__big(self):
-        "'very' negative start."
+        """'very' negative start."""
         fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -330,7 +346,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(al.pk, FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al))
 
     def test_get_value__m2m(self):
-        "ManyToManyField."
+        """ManyToManyField."""
         user = self.get_root_user()
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
@@ -354,7 +370,7 @@ class FieldInfoTestCase(CremeTestCase):
         )
 
     def test_get_value__m2m__fk(self):
-        "ManyToManyField + FK."
+        """ManyToManyField + FK."""
         user1 = self.get_root_user()
         user2 = self.create_user()
         camp = FakeEmailCampaign.objects.create(user=user1, name='Camp#1')
@@ -392,7 +408,7 @@ class FieldInfoTestCase(CremeTestCase):
         )
 
     def test_get_value__slice(self):
-        "After a slice."
+        """After a slice."""
         user1 = self.get_root_user()
         user2 = self.create_user()
         img = FakeImage.objects.create(user=user1, name='Al Elric')
@@ -469,7 +485,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator__filter_n_exclude(self):
-        "Filter, exclude (simple)."
+        """Filter, exclude (simple)."""
         self._deactivate_translation()
 
         expected = [
@@ -556,7 +572,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator__filter_function(self):
-        "Filter with function, exclude."
+        """Filter with function, exclude."""
         self._deactivate_translation()
 
         self.assertListEqual(
@@ -575,7 +591,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator__other_ctype(self):
-        "Other ContentType."
         self._deactivate_translation()
 
         expected = [
@@ -599,7 +614,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator__several_conditions(self):
-        "Filter/exclude: several conditions + field real attributes."
+        """Filter/exclude: several conditions + field real attributes."""
         self._deactivate_translation()
 
         expected = [
@@ -636,7 +651,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices2, choices2)
 
     def test_field_enumerator__fo_ordering(self):
-        "Ordering of FKs."
+        """Ordering of FKs."""
         self._deactivate_translation()
 
         choices = ModelFieldEnumerator(
@@ -677,7 +692,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator__depth_arg(self):
-        "'depth' argument."
+        """'depth' argument."""
         self._deactivate_translation()
 
         choices = ModelFieldEnumerator(
@@ -707,7 +722,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator__translation(self):
-        "Translation activated."
+        """Translation activated."""
         choices = {
             *ModelFieldEnumerator(
                 FakeActivity, depth=1, only_leaves=False,

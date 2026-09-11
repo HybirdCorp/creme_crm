@@ -83,9 +83,10 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - In 'creme_core.bui.bricks' :
+            - In 'creme_core.gui.bricks' :
                 - The method 'BrickRegistry.__iter__()' is deprecated.
                 - The class 'SimpleBrick' is deprecated ; use 'Brick' instead.
+                - The method 'QuerysetBrick._is_order_valid()' is deprecated.
             - The method 'creme_core.core.sorter.QuerySorter._is_field_unique()' is deprecated.
             - In 'creme_core.models' :
                 - In the class 'EntityFilter', the methods 'can_*()' are deprecated;
@@ -206,6 +207,10 @@
               'sorter_class' for example.
         # In 'creme_core.gui.bricks' :
             - The method 'Brick._simple_detailview_display()' has been removed.
+            - The base class 'QuerysetBrick' now builds a stable order for the given QuerySet ;
+              some warning logs are made to prevent some bad uses.
+              As the method 'QuerySet.order_by()' is always called, it may cause issue if you
+              make weird things like passing a sliced QuerySet to the method 'get_template_context()'.
             - In the class 'BrickRegistry':
                 - These methods take a new "tag" argument :
                     - register()

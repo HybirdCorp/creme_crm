@@ -105,8 +105,9 @@ class FoundEntitiesBrick(QuerysetBrick):
         results = searcher.search(model, searched)
 
         if results is None:
-            # HACK: ensures that the brick is displayed (with a strange title anyway...)
-            qs = model.objects.all()[:1]
+            # # HACK: ensures that the brick is displayed (with a strange title anyway...)
+            # qs = model.objects.all()[:1]
+            qs = model.objects.none()
         else:
             qs = EntityCredentials.filter(self.user, results)
 

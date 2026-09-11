@@ -24,6 +24,7 @@
 from __future__ import annotations
 
 # import warnings
+import logging
 from collections.abc import Callable, Iterator
 from functools import partial
 from itertools import chain
@@ -35,6 +36,8 @@ from django.db.models import DateField, Field, Model
 
 from ..core.field_tags import FieldTag
 from .unicode_collation import collator
+
+logger = logging.getLogger(__name__)
 
 
 class FieldInfo:
@@ -423,7 +426,7 @@ class ModelFieldEnumerator:
 # OrderedField -----------------------------------------------------------------
 
 class Order:
-    "Represents DB order: ASC or DESC."
+    """Represents DB order: ASC or DESC."""
     # __slots__ = ('asc', )
     __slots__ = ('_asc', )
 
@@ -491,7 +494,7 @@ class Order:
     #     self.asc = not self.asc
 
     def reversed(self) -> Order:
-        "Get a reversed instance of Order."
+        """Get a reversed instance of Order."""
         # return self.__class__(not self.asc)
         return self.__class__(not self._asc)
 
@@ -527,6 +530,21 @@ class OrderedField:
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self._raw == other._raw
+
+    @classmethod
+    def default(cls, model: type[Model]) -> Self:
+        meta = model._meta
+        if meta.ordering:
+            # TODO: manage Combinable?
+            field_name = meta.ordering[0]
+        else:
+            logger.critical(
+                'OrderedField.default(): the model %s does not define any ordering',
+                model,
+            )
+            field_name = meta.pk.attname
+
+        return cls(field_name)
 
     @property
     def field_name(self) -> str:
