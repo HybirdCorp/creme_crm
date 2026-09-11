@@ -43,7 +43,7 @@ from ..core.entity_cell import (
 )
 from ..core.exceptions import ConflictError
 from ..core.field_tags import FieldTag
-from ..core.sorter import cell_sorter_registry
+from ..core.sorter import QuerySorter, cell_sorter_registry
 from ..models import (
     BrickState,
     CremeEntity,
@@ -54,6 +54,7 @@ from ..models import (
     RelationBrickItem,
 )
 from ..utils.collections import OrderedSet
+from ..utils.db import get_stable_ordering
 from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
@@ -456,6 +457,10 @@ class QuerysetBrick(PaginatedBrick):
     cell_sorter_registry = cell_sorter_registry
 
     def _is_order_valid(self, model: type[Model], order: str) -> bool:
+        warnings.warn(
+            'QuerysetBrick._is_order_valid() is deprecated', DeprecationWarning,
+        )
+
         fname = OrderedField(order).field_name
         cell = EntityCellRegularField.build(model=model, name=fname)
 
@@ -469,26 +474,103 @@ class QuerysetBrick(PaginatedBrick):
 
         return True
 
+    # def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
+    #     assert isinstance(brick_context, _QuerysetBrickContext)
+    #
+    #     request = context['request']
+    #     order_by = ''
+    #     objects = extra_kwargs['objects']
+    #
+    #     if self.order_by:
+    #         req_order_by = request.GET.get(f'{brick_id}_order')
+    #         raw_order_by = brick_context.get_order_by(
+    #             self.order_by,
+    #         ) if req_order_by is None else req_order_by
+    #
+    #         if self._is_order_valid(model=objects.model, order=raw_order_by):
+    #             order_by = raw_order_by
+    #             extra_kwargs['objects'] = objects.order_by(order_by)
+    #
+    #     return super()._build_template_context(
+    #         context=context, brick_id=brick_id, brick_context=brick_context,
+    #         objects_ctype=ContentType.objects.get_for_model(objects.model),
+    #         order_by=order_by,
+    #         **extra_kwargs
+    #     )
+    def _build_ordering_cell(self, *,
+                             ofield: OrderedField,
+                             model: type[Model],
+                             ) -> EntityCell | None:
+        field_name = ofield.field_name
+        cell = EntityCellRegularField.build(model=model, name=field_name)
+
+        if cell:
+            if self.cell_sorter_registry.get_sorting_item(cell):
+                return cell
+
+            logger.warning(
+                'QuerysetBrick: the field "%s" is not sortable.',
+                field_name,
+            )
+
+        return None
+
+    # TODO: split more?
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         assert isinstance(brick_context, _QuerysetBrickContext)
 
-        request = context['request']
-        order_by = ''
         queryset = extra_kwargs['objects']
+        model = queryset.model
 
-        if self.order_by:
-            req_order_by = request.GET.get(f'{brick_id}_order')
-            raw_order_by = brick_context.get_order_by(
-                self.order_by,
-            ) if req_order_by is None else req_order_by
+        order_by = ''  # No valid column of the Brick is selected yet
+        # ordering: Sequence[str] = ()
 
-            if self._is_order_valid(model=queryset.model, order=raw_order_by):
-                order_by = raw_order_by
-                extra_kwargs['objects'] = queryset.order_by(order_by)
+        if self.order_by:  # The user can choose a field to order the brick
+            if queryset.query.order_by:
+                logger.warning(
+                    '%s: the attribute "order_by" is set so the explicit order will be overridden',
+                    type(self),
+                )
+
+            req_ordered_field = context['request'].GET.get(f'{brick_id}_order')
+            ordered_field = OrderedField(
+                brick_context.get_order_by(self.order_by)
+                if req_ordered_field is None else
+                req_ordered_field
+            )
+            ordering_cell = self._build_ordering_cell(ofield=ordered_field, model=model)
+
+            if ordering_cell is None:
+                # We still need a default value to build a stable ordering
+                ordered_field = OrderedField.default(model)
+                ordering_cell = EntityCellRegularField.build(
+                    model=model, name=ordered_field.field_name,
+                )
+                assert ordering_cell is not None
+            else:
+                order_by = str(ordered_field)  # The column chosen by the user is OK
+
+            sort_info = QuerySorter(self.cell_sorter_registry).get(
+                model=model,
+                cells=[ordering_cell],
+                cell_key=ordering_cell.key,
+                order=ordered_field.order,
+                fast_mode=False,  # TODO: improve when FlowPaginator is managed
+            )
+            ordering = sort_info.field_names
+        else:  # The user cannot order of the queryset
+            if not model._meta.ordering and not queryset.query.order_by:
+                logger.warning(
+                    '%s: the model & the queryset are not ordered', type(self),
+                )
+
+            ordering = get_stable_ordering(queryset)
+
+        extra_kwargs['objects'] = queryset.order_by(*ordering)
 
         return super()._build_template_context(
             context=context, brick_id=brick_id, brick_context=brick_context,
-            objects_ctype=ContentType.objects.get_for_model(queryset.model),
+            objects_ctype=ContentType.objects.get_for_model(model),
             order_by=order_by,
             **extra_kwargs
         )
