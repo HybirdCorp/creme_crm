@@ -507,7 +507,7 @@ class EntityBrick(Brick):
     description = _(
         'Displays the values for the fields of the current entity.\n'
         'Hint #1: lots of fields can be hidden in configuration '
-        '(so their are hidden everywhere: forms, list-views…).\n'
+        '(so they are hidden everywhere: forms, list-views…).\n'
         'Hint #2: you can create Custom Blocks in configuration to chose '
         'the title of the block, which fields are displayed and their order.'
     )

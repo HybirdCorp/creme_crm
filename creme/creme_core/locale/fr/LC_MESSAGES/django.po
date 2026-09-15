@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2025 Hybird
+# Copyright (C) 2026 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 16:01+0100\n"
+"POT-Creation-Date: 2026-09-15 13:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1598,7 +1598,7 @@ msgstr "Information sur la fiche (générique)"
 
 msgid ""
 "Displays the values for the fields of the current entity.\n"
-"Hint #1: lots of fields can be hidden in configuration (so their are hidden "
+"Hint #1: lots of fields can be hidden in configuration (so they are hidden "
 "everywhere: forms, list-views…).\n"
 "Hint #2: you can create Custom Blocks in configuration to chose the title of "
 "the block, which fields are displayed and their order."
