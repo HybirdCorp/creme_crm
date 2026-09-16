@@ -6,6 +6,8 @@
         * Creme_config :
             - A crash in the wizard for Worflows has been fixed (when there is a validation error).
             - The permissions of the reloading view for custom-fields's choices were too strict.
+        * Activities :
+            - The display of the calendar is now better with big number of users/calendars.
 
   Developers side :
   -----------------
