@@ -596,6 +596,10 @@
     align-items: baseline;
 }
 
+.listview .row-actions-list.only-default-action {
+    max-width: 76px;
+}
+
 .listview .row-actions-trigger {
     display: inline-block;
     width: 22px;
@@ -667,7 +671,8 @@
     display: none;
 }
 
-.listview .default-row-action {
+/*.listview .default-row-action {*/
+.listview .row-actions-list:not(.only-default-action) .default-row-action {
     display: flex;
     flex: 1;
     height: 21px;
