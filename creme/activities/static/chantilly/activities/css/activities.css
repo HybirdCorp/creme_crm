@@ -60,19 +60,22 @@
 
 .calendar-side {
     min-width: 320px;
-    min-height: 100vh;
+    /*min-height: 100vh;*/
+    height: calc(100vh - 200px);
     margin: 44px 10px 10px 0;
 }
 
 .calendar-menu {
+/*
     position: sticky;
     top: 60px;
-
+*/
     font-family: 'Open Sans', sans-serif;
 }
 
 /* apply a natural box layout model to all elements */
-.calendar-menu, .calendar-menu * {
+.calendar-menu,
+.calendar-menu * {
     box-sizing: border-box;
 }
 
@@ -144,7 +147,7 @@
 }
 
 .calendar-menu .menu-group-title.toggle-collapsed {
-    border-bottom: 0px;
+    border-bottom: 0;
 }
 
 .calendar-menu .menu-group-label {
@@ -209,6 +212,17 @@
 
 .calendar-menu .menu-sublist {
     padding-bottom: 5px;
+}
+
+.calendar-menu .my-calendars {
+    max-height: calc(30vh - 100px);
+    overflow: auto;
+}
+
+.calendar-menu .other-calendars {
+    /* TODO: we need a better solution to make "my_calendars" + "other_calendars" fill the screen's height */
+    max-height: calc(70vh - 150px);
+    overflow: auto;
 }
 
 .calendar-menu .my-calendars .calendar-menu-item:first-child {

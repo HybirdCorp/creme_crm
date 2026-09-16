@@ -346,7 +346,7 @@
     top: -2px;
 }
 
-/* HACK : force popover width within a cell and an half to prevent hidding other cells */
+/* HACK : force popover width within a cell and an half to prevent hiding other cells */
 .fc-creme .fc-popover {
     max-width: calc((100vw - 325px) * 0.205);
 }
