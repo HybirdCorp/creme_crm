@@ -1,0 +1,21 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load creme_bricks %}{# creme_widgets #}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-ptype-workflows-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Workflow uses this property type') plural=_('{count} Workflows use this property type') icon='wall' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+  {% for workflow in page.object_list %}
+    <tr>
+{#        <td {% brick_table_data_status primary %}>{% widget_hyperlink workflow %}</td> #}
+        <td {% brick_table_data_status primary %}>{{workflow}}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
