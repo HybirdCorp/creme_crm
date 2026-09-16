@@ -29,6 +29,7 @@ from creme.creme_core.views.creme_property import (
     PropertyTypeBarHatBrick,
     PropertyTypeInfoBrick,
     RelatedEntityFiltersBrick,
+    RelatedWorkflowsBrick,
     TaggedMiscEntitiesBrick,
 )
 
@@ -607,7 +608,8 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(ptype.get_absolute_url())
         brick_node = self.get_brick_node(
-            tree=self.get_html_tree(response.content), brick='efilters',
+            tree=self.get_html_tree(response.content),
+            brick=RelatedEntityFiltersBrick.id,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -619,17 +621,81 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, not_related_filter1)
         self.assertNoInstanceLink(brick_node, not_related_filter2)
 
-    def test_detailview__no_app_perms(self):
-        """No app permissions."""
+    def test_detailview__workflows(self):
+        self.login_as_root()
+
+        ptype = CremePropertyType.objects.create(text='is cool')
+        other_ptype = CremePropertyType.objects.create(text='is mean')
+
+        related_wf1 = Workflow.objects.create(
+            title='Flow #1 (trigger) ',
+            content_type=FakeContact,
+            trigger=workflows.PropertyAddingTrigger(
+                entity_model=FakeContact, ptype=ptype,
+            ),
+            # conditions=...
+            # actions=[],
+        )
+        not_related_wf1 = Workflow.objects.create(
+            title='Flow on other ptype #1',
+            content_type=FakeContact,
+            trigger=workflows.PropertyAddingTrigger(
+                entity_model=FakeContact, ptype=other_ptype,
+            ),
+            # conditions=...,
+            # actions=[],
+        )
+        related_wf2 = Workflow.objects.create(
+            title='Flow #1 (action)',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...
+            actions=[workflows.PropertyAddingAction(
+                entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                ptype=ptype,
+            )],
+        )
+        not_related_wf2 = Workflow.objects.create(
+            title='Flow on other ptype #2',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...
+            actions=[workflows.PropertyAddingAction(
+                entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                ptype=other_ptype,
+            )],
+        )
+
+        response = self.assertGET200(ptype.get_absolute_url())
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content),
+            brick=RelatedWorkflowsBrick.id,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Workflow uses this property type',
+            plural_title='{count} Workflows use this property type',
+        )
+        # TODO:
+        #   self.assertInstanceLink(brick_node, related_wf1)
+        #   self.assertNoInstanceLink(brick_node, ...)
+        titles = {td.text for td in brick_node.findall('.//td')}
+        self.assertIn(related_wf1.title, titles)
+        self.assertIn(related_wf2.title, titles)
+        self.assertNotIn(not_related_wf1.title, titles)
+        self.assertNotIn(not_related_wf2.title, titles)
+
+    def test_detailview__no_app_permission(self):
         user = self.login_as_standard(allowed_apps=['persons'])
 
         ptype = CremePropertyType.objects.create(
-            text='is american',
+            text='is American',
         ).set_subject_ctypes(FakeContact)
 
         tagged = FakeContact.objects.create(
             user=self.get_root_user(),
-            last_name='Vrataski', first_name='Rita'
+            last_name='Vrataski', first_name='Rita',
         )
         self.assertFalse(user.has_perm_to_view(tagged))
         self.assertFalse(user.has_perm_to_access('creme_core'))
@@ -704,19 +770,21 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         hat_brick_id = PropertyTypeBarHatBrick.id
         info_brick_id = PropertyTypeInfoBrick.id
         efilter_brick_id = RelatedEntityFiltersBrick.id
+        workflow_brick_id = RelatedWorkflowsBrick.id
         misc_brick_id = TaggedMiscEntitiesBrick.id
 
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': [
-                misc_brick_id, info_brick_id, hat_brick_id, efilter_brick_id,
+                misc_brick_id, info_brick_id, hat_brick_id,
+                efilter_brick_id, workflow_brick_id,
             ]},
         )
 
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(4, len(result))
+        self.assertEqual(5, len(result))
 
         doc1 = self.get_html_tree(result[0][1])
         self.get_brick_node(doc1, misc_brick_id)
@@ -729,6 +797,9 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         doc3 = self.get_html_tree(result[3][1])
         self.get_brick_node(doc3, efilter_brick_id)
+
+        doc4 = self.get_html_tree(result[4][1])
+        self.get_brick_node(doc4, workflow_brick_id)
 
     def test_reload_detailview_bricks__empty(self):
         """Empty brick."""

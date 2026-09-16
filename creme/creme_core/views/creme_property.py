@@ -19,6 +19,7 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
@@ -413,6 +414,30 @@ class RelatedEntityFiltersBrick(QuerysetBrick):
         ))
 
 
+class RelatedWorkflowsBrick(QuerysetBrick):
+    id = 'workflows'
+    dependencies = [Workflow]
+    template_name = 'creme_core/bricks/property_type/workflows.html'
+
+    def render(self, context):
+        uid = str(context['object'].uuid)
+        return self._render(self.get_template_context(
+            context,
+            Workflow.objects.filter(
+                Q(
+                    json_trigger__type=PropertyAddingTrigger.type_id,
+                    json_trigger__ptype=uid,
+                ) | Q(
+                    # NB: technically at false positive is possible if a UUID is
+                    #     duplicated with another instance (other model).
+                    #     It's very unlikely, so we can keep this code for the 1st version
+                    Q(json_actions__regex=PropertyAddingAction.type_id)
+                    & Q(json_actions__regex=uid),
+                )
+            ).order_by('title'),
+        ))
+
+
 class TaggedEntitiesBrick(QuerysetBrick):
     # template_name = 'creme_core/bricks/tagged-entities.html'
     template_name = 'creme_core/bricks/property_type/tagged-entities.html'
@@ -509,7 +534,11 @@ class PropertyTypeDetail(generic.CremeModelDetail):
     def get_bricks(self):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
-        main_bricks = [PropertyTypeInfoBrick(), RelatedEntityFiltersBrick()]
+        main_bricks = [
+            PropertyTypeInfoBrick(),
+            RelatedEntityFiltersBrick(),
+            RelatedWorkflowsBrick(),
+        ]
         user = self.request.user
 
         if ctypes:
@@ -563,6 +592,8 @@ class PropertyTypeBricksReloading(BricksReloading):
                     brick = PropertyTypeInfoBrick()
                 case RelatedEntityFiltersBrick.id:
                     brick = RelatedEntityFiltersBrick()
+                case RelatedWorkflowsBrick.id:
+                    brick = RelatedWorkflowsBrick()
                 case TaggedMiscEntitiesBrick.id:
                     brick = TaggedMiscEntitiesBrick(excluded_ctypes=ctypes)
                 case _:
