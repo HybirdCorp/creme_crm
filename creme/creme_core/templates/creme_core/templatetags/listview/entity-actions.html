@@ -1,5 +1,5 @@
 {% load i18n creme_widgets %}{% load jsondata from creme_core_tags %}
-<ul class="row-actions-list">
+<ul class="row-actions-list{% if not actions.others %} only-default-action{% endif %} ">
     {% if actions.others %}
     <li class="row-actions-trigger" title="{% translate 'Display the other available actions' %}">
         <div class="listview-actions-container">

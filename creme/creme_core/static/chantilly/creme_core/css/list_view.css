@@ -546,7 +546,8 @@
     display: none;
 }
 
-.listview .default-row-action {
+/*.listview .default-row-action {*/
+.listview .row-actions-list:not(.only-default-action) .default-row-action {
     display: inline-block;
     height: 21px;
 
