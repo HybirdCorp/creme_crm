@@ -1,7 +1,7 @@
 {% load i18n creme_widgets %}{% load jsondata from creme_core_tags %}
 <ul class="row-actions-list">
     {% if actions.others %}
-    <li class="row-actions-trigger" title="{% blocktranslate %}Display the available actions for «&nbsp;{{entity}}&nbsp;»{% endblocktranslate %}">
+    <li class="row-actions-trigger" title="{% translate 'Display the other available actions' %}">
         <div class="listview-actions-container">
           {% for action in actions.others %}
             <div class="listview-action">
