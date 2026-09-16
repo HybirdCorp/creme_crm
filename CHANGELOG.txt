@@ -22,6 +22,7 @@
     Non breaking changes :
     ----------------------
         # There is now a Warning when a field of an entity model is both unique and clonable.
+        # The style of the row actions widget (in list-views) was ugly when there is only the default action.
 
 
 == Version 2.8.5 ==
