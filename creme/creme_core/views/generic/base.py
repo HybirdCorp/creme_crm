@@ -464,7 +464,7 @@ class BricksMixin:
     def get_bricks(self) -> dict[str, list[Brick]]:
         """Get a dictionary with groups of Bricks.
         Groups are identified by strings, & can be used in templates to have
-        several zones (like 'top', left'...).
+        several zones (like 'top', 'left'...).
         """
         # return {
         #     'main': [*self.brick_registry.get_bricks(

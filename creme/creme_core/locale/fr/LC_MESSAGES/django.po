@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-16 18:05+0200\n"
+"POT-Creation-Date: 2026-09-17 11:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3750,6 +3750,14 @@ msgid "%(count)s entity with this property"
 msgid_plural "%(count)s entities with this property"
 msgstr[0] "%(count)s fiche avec cette propriété"
 msgstr[1] "%(count)s fiches avec cette propriété"
+
+#, python-brace-format
+msgid "{count} Relationship type uses this property type"
+msgstr "{count} Type de relation utilise ce type de propriété"
+
+#, python-brace-format
+msgid "{count} Relationship types use this property type"
+msgstr "{count} Types de relation utilisent ce type de propriété"
 
 #, python-brace-format
 msgid "{count} Other entity"

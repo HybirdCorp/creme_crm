@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -36,21 +37,24 @@ from ..core.entity_filter.condition_handler import PropertyConditionHandler
 from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
-from ..gui.bricks import Brick, ForbiddenBrick, QuerysetBrick  # SimpleBrick
+# from ..gui.bricks import  SimpleBrick
+from ..gui.bricks import Brick, ForbiddenBrick, PaginatedBrick, QuerysetBrick
 from ..models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
     EntityFilter,
+    RelationType,
     Workflow,
 )
 from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from ..utils.html import render_limited_list
+from ..utils.unicode_collation import collator
 from ..workflows import PropertyAddingAction, PropertyAddingTrigger
 from . import generic
-from .bricks import BricksReloading
+from .bricks import StaticBricksReloading
 from .generic.base import EntityCTypeRelatedMixin
 
 # TODO: Factorise with views in creme_config
@@ -397,10 +401,29 @@ class PropertyTypeInfoBrick(Brick):
     template_name = 'creme_core/bricks/property_type/info.html'
 
 
+class RelatedRelationTypesBrick(PaginatedBrick):
+    id = 'rtypes'
+    dependencies = [RelationType]
+    template_name = 'creme_core/bricks/property_type/relation-types.html'
+
+    def render(self, context):
+        ptype = context['object']
+        # TODO: possible to do with a single query (+ QuerysetBrick)
+        rtypes = [
+            *ptype.relationtype_subjects_set.all(),
+            *ptype.relationtype_forbidden_set.all(),
+        ]
+
+        sort_key = collator.sort_key
+        rtypes.sort(key=lambda rtype: sort_key(str(rtype)))
+
+        return self._render(self.get_template_context(context, rtypes))
+
+
 class RelatedEntityFiltersBrick(QuerysetBrick):
     id = 'efilters'
     dependencies = [EntityFilter]
-    template_name = 'creme_core/bricks/property_type/efilters.html'
+    template_name = 'creme_core/bricks/property_type/entity-filters.html'
 
     def render(self, context):
         return self._render(self.get_template_context(
@@ -530,15 +553,21 @@ class PropertyTypeDetail(generic.CremeModelDetail):
     template_name = 'creme_core/detail/property-type.html'
     pk_url_kwarg = 'ptype_id'
     bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
+    brick_classes = {
+        'hat': [PropertyTypeBarHatBrick],
+        'main': [
+            PropertyTypeInfoBrick,
+            RelatedRelationTypesBrick,
+            RelatedEntityFiltersBrick,
+            RelatedWorkflowsBrick,
+        ],  # NB: 'main' is extended with dynamic classes for entity models
+    }
 
     def get_bricks(self):
+        bricks = super().get_bricks()
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
-        main_bricks = [
-            PropertyTypeInfoBrick(),
-            RelatedEntityFiltersBrick(),
-            RelatedWorkflowsBrick(),
-        ]
+        main_bricks = bricks['main']
         user = self.request.user
 
         if ctypes:
@@ -563,52 +592,46 @@ class PropertyTypeDetail(generic.CremeModelDetail):
                 )
             )
 
-        return {
-            'hat': [PropertyTypeBarHatBrick()],
-            'main': main_bricks,
-        }
+        return bricks
 
     def get_bricks_reload_url(self):
         return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
-class PropertyTypeBricksReloading(BricksReloading):
+class PropertyTypeBricksReloading(StaticBricksReloading):
     ptype_id_url_kwarg = 'ptype_id'
+    brick_classes = PropertyTypeDetail.brick_classes
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.ptype = None
 
-    def get_bricks(self):
-        ptype = self.get_property_type()
+    @override
+    def build_bricks_from_classes(self, **kwargs):
         bricks = []
-        ctypes = ptype.subject_ctypes.all()
+        allowed_static_classes = self.allowed_brick_classes()
 
         for brick_id in self.get_brick_ids():
-            match brick_id:
-                case PropertyTypeBarHatBrick.id:
-                    brick = PropertyTypeBarHatBrick()
-                case PropertyTypeInfoBrick.id:
-                    brick = PropertyTypeInfoBrick()
-                case RelatedEntityFiltersBrick.id:
-                    brick = RelatedEntityFiltersBrick()
-                case RelatedWorkflowsBrick.id:
-                    brick = RelatedWorkflowsBrick()
-                case TaggedMiscEntitiesBrick.id:
-                    brick = TaggedMiscEntitiesBrick(excluded_ctypes=ctypes)
-                case _:
-                    ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
-                    if ctype is None:
-                        raise Http404(f'Invalid brick id "{brick_id}"')
+            static_brick_cls = allowed_static_classes.get(brick_id)
+            if static_brick_cls is not None:
+                brick = static_brick_cls()
+            elif brick_id == TaggedMiscEntitiesBrick.id:
+                brick = TaggedMiscEntitiesBrick(
+                    excluded_ctypes=self.get_property_type().subject_ctypes.all(),
+                )
+            else:
+                ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
+                if ctype is None:
+                    raise Http404(f'Invalid brick id "{brick_id}"')
 
-                    brick = TaggedEntitiesBrick(ctype=ctype)
+                brick = TaggedEntitiesBrick(ctype=ctype)
 
-                    # TODO: factorise
-                    if not self.request.user.has_perm_to_access(ctype.app_label):
-                        brick = ForbiddenBrick(
-                            id=brick.id,
-                            verbose_name=model_verbose_name_plural(ctype.model_class()),
-                        )
+                # TODO: factorise
+                if not self.request.user.has_perm_to_access(ctype.app_label):
+                    brick = ForbiddenBrick(
+                        id=brick.id,
+                        verbose_name=model_verbose_name_plural(ctype.model_class()),
+                    )
 
             bricks.append(brick)
 

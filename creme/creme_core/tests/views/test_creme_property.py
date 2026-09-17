@@ -29,6 +29,7 @@ from creme.creme_core.views.creme_property import (
     PropertyTypeBarHatBrick,
     PropertyTypeInfoBrick,
     RelatedEntityFiltersBrick,
+    RelatedRelationTypesBrick,
     RelatedWorkflowsBrick,
     TaggedMiscEntitiesBrick,
 )
@@ -511,7 +512,9 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/bricks/property_type/hat-bar.html')
         # self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/property_type/info.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/efilters.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/relation-types.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/entity-filters.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/property_type/workflows.html')
         # self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/property_type/tagged-entities.html')
         self.assertEqual(
@@ -577,6 +580,48 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(misc_brick_node, rita)
 
         self.assertNoBrick(doc, 'tagged-creme_core-fakeorganisation')
+
+    def test_detailview__rtypes(self):
+        self.login_as_root()
+
+        ptype = CremePropertyType.objects.create(text='artist')
+        other_ptype = CremePropertyType.objects.create(text='got a pen')
+
+        related_rtype1 = RelationType.objects.builder(
+            id='test-subject_foo', predicate='has painted',
+            properties=[str(ptype.uuid)],
+        ).symmetric(
+            id='test-object_foo', predicate='has been painted by',
+        ).get_or_create()[0]
+
+        related_rtype2 = RelationType.objects.builder(
+            id='test-subject_bar', predicate='has draw',
+            properties=[str(other_ptype.uuid), str(ptype.uuid)],
+        ).symmetric(
+            id='test-object_bar', predicate='has been drawn by',
+        ).get_or_create()[0]
+
+        related_rtype3 = RelationType.objects.builder(
+            id='test-subject_baz', predicate='has described with ia',
+            forbidden_properties=[str(other_ptype.uuid), str(ptype.uuid)],
+        ).symmetric(
+            id='test-object_baz', predicate='has described with ia by',
+        ).get_or_create()[0]
+
+        response = self.assertGET200(ptype.get_absolute_url())
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content),
+            brick=RelatedRelationTypesBrick.id,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=3,
+            title='{count} Relationship type uses this property type',
+            plural_title='{count} Relationship types use this property type',
+        )
+        self.assertInstanceLink(brick_node, related_rtype1)
+        self.assertInstanceLink(brick_node, related_rtype2)
+        self.assertInstanceLink(brick_node, related_rtype3)
 
     def test_detailview__efilters(self):
         self.login_as_root()
@@ -769,6 +814,7 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         hat_brick_id = PropertyTypeBarHatBrick.id
         info_brick_id = PropertyTypeInfoBrick.id
+        rtype_brick_id = RelatedRelationTypesBrick.id
         efilter_brick_id = RelatedEntityFiltersBrick.id
         workflow_brick_id = RelatedWorkflowsBrick.id
         misc_brick_id = TaggedMiscEntitiesBrick.id
@@ -777,29 +823,32 @@ class PropertyTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': [
                 misc_brick_id, info_brick_id, hat_brick_id,
-                efilter_brick_id, workflow_brick_id,
+                rtype_brick_id, efilter_brick_id, workflow_brick_id,
             ]},
         )
 
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(5, len(result))
+        self.assertEqual(6, len(result))
 
-        doc1 = self.get_html_tree(result[0][1])
-        self.get_brick_node(doc1, misc_brick_id)
+        misc_doc = self.get_html_tree(result[0][1])
+        self.get_brick_node(misc_doc, misc_brick_id)
 
-        doc2 = self.get_html_tree(result[1][1])
-        self.get_brick_node(doc2, info_brick_id)
+        indo_doc = self.get_html_tree(result[1][1])
+        self.get_brick_node(indo_doc, info_brick_id)
 
-        doc3 = self.get_html_tree(result[2][1])
-        self.get_brick_node(doc3, hat_brick_id)
+        hat_doc = self.get_html_tree(result[2][1])
+        self.get_brick_node(hat_doc, hat_brick_id)
 
-        doc3 = self.get_html_tree(result[3][1])
-        self.get_brick_node(doc3, efilter_brick_id)
+        rtype_doc = self.get_html_tree(result[3][1])
+        self.get_brick_node(rtype_doc, rtype_brick_id)
 
-        doc4 = self.get_html_tree(result[4][1])
-        self.get_brick_node(doc4, workflow_brick_id)
+        efilter_doc = self.get_html_tree(result[4][1])
+        self.get_brick_node(efilter_doc, efilter_brick_id)
+
+        wf_doc = self.get_html_tree(result[5][1])
+        self.get_brick_node(wf_doc, workflow_brick_id)
 
     def test_reload_detailview_bricks__empty(self):
         """Empty brick."""
