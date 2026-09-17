@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-17 11:01+0200\n"
+"POT-Creation-Date: 2026-09-17 15:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3855,6 +3855,14 @@ msgstr "Vous ne pouvez pas supprimer cette relation (type interne)"
 
 msgid "Delete this relationship"
 msgstr "Supprimer cette relation"
+
+#, python-brace-format
+msgid "{count} Workflow uses this relationship type"
+msgstr "{count} Processus automatisé utilise ce type de relation"
+
+#, python-brace-format
+msgid "{count} Workflows use this relationship type"
+msgstr "{count} Processus automatisés utilisent ce type de relation"
 
 #, python-brace-format
 msgid "{count} Relationship"
