@@ -1,0 +1,20 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-ptype-rtypes-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Relationship type uses this property type') plural=_('{count} Relationship types use this property type') icon='relations' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+  {% for rtype in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_hyperlink rtype %}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
