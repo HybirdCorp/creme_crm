@@ -30,6 +30,7 @@ from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.relation import (
     RelatedEntityFiltersBrick,
     RelatedMiscEntitiesBrick,
+    RelatedWorkflowsBrick,
     RelationTypeBarHatBrick,
     RelationTypeInfoBrick,
 )
@@ -167,7 +168,8 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/hat-bar.html')
         # self.assertTemplateUsed(response, 'creme_core/bricks/rtype-info.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/info.html')
-        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/efilters.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/entity-filters.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/workflows.html')
         # self.assertTemplateUsed(response, 'creme_core/bricks/related-entities.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/relation_type/related-entities.html')
         self.assertEqual(
@@ -342,7 +344,7 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         other_rtype = RelationType.objects.builder(
             id='test-subject_likes', predicate='likes',
         ).symmetric(
-            id='test-object_likes', predicate='is liekd by',
+            id='test-object_likes', predicate='is liked by',
         ).get_or_create()[0]
 
         create_efilter = partial(
@@ -405,7 +407,8 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(rtype.get_absolute_url())
 
         brick_node = self.get_brick_node(
-            tree=self.get_html_tree(response.content), brick='efilters',
+            tree=self.get_html_tree(response.content),
+            brick=RelatedEntityFiltersBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -418,6 +421,145 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node, related_filter3)
         self.assertInstanceLink(brick_node, related_filter4)
         self.assertNoInstanceLink(brick_node, not_related_filter1)
+
+    def test_detailview__workflows(self):
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+        other_rtype = RelationType.objects.builder(
+            id='test-subject_likes', predicate='likes',
+        ).symmetric(
+            id='test-object_likes', predicate='is liked by',
+        ).get_or_create()[0]
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        related_wf1 = Workflow.objects.create(
+            title='Trigger is related',
+            content_type=FakeOrganisation,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeOrganisation,
+                rtype=rtype,
+                object_model=FakeOrganisation,
+            ),
+            # conditions=...,
+            # actions=[...],
+        )
+        related_wf2 = Workflow.objects.create(
+            title='Trigger is related (symmetric)',
+            content_type=FakeOrganisation,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeOrganisation,
+                rtype=rtype.symmetric_type,
+                object_model=FakeOrganisation,
+            ),
+            # conditions=...,
+            # actions=[...],
+        )
+        related_wf3 = Workflow.objects.create(
+            title='Action is related',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                    rtype=rtype,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+        related_wf4 = Workflow.objects.create(
+            title='Action is related (symmetric)',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                    rtype=rtype.symmetric_type,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+        related_wf5 = Workflow.objects.create(
+            title='Trigger & action are related (beware of duplicate)',
+            content_type=FakeOrganisation,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeOrganisation,
+                rtype=rtype,
+                object_model=FakeOrganisation,
+            ),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                    rtype=rtype.symmetric_type,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+
+        not_related_wf1 = Workflow.objects.create(
+            title='Ignored wf (no rtype at all)',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            # conditions=...,
+            # actions=[...],
+        )
+        not_related_wf2 = Workflow.objects.create(
+            title='Ignored wf (other rtype in trigger)',
+            content_type=FakeOrganisation,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeOrganisation,
+                rtype=other_rtype,
+                object_model=FakeOrganisation,
+            ),
+            # conditions=...,
+            # actions=[...],
+        )
+        not_related_wf3 = Workflow.objects.create(
+            title='Ignored wf (other rtype in action)',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                    rtype=other_rtype,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+
+        response = self.assertGET200(rtype.get_absolute_url())
+
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content),
+            brick=RelatedWorkflowsBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=5,
+            title='{count} Workflow uses this relationship type',
+            plural_title='{count} Workflows use this relationship type',
+        )
+        # TODO:
+        #  self.assertInstanceLink(brick_node, ...)
+        #  self.assertNoInstanceLink(brick_node, ...)
+        titles = {td.text for td in brick_node.findall('.//td')}
+        self.assertIn(related_wf1.title, titles)
+        self.assertIn(related_wf2.title, titles)
+        self.assertIn(related_wf3.title, titles)
+        self.assertIn(related_wf4.title, titles)
+        self.assertIn(related_wf5.title, titles)
+        self.assertNotIn(not_related_wf1.title, titles)
+        self.assertNotIn(not_related_wf2.title, titles)
+        self.assertNotIn(not_related_wf3.title, titles)
 
     def test_reload_detailview_bricks__related_entities(self):
         user = self.login_as_root_and_get()
@@ -504,31 +646,38 @@ class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         hat_brick_id = RelationTypeBarHatBrick.id
         info_brick_id = RelationTypeInfoBrick.id
         efilter_brick_id = RelatedEntityFiltersBrick.id
+        workflow_brick_id = RelatedWorkflowsBrick.id
         misc_brick_id = RelatedMiscEntitiesBrick.id
 
         response = self.assertGET200(
             reverse('creme_core__reload_rtype_bricks', args=(rtype.id,)),
-            data={'brick_id': [misc_brick_id, info_brick_id, hat_brick_id, efilter_brick_id]},
+            data={'brick_id': [
+                misc_brick_id, info_brick_id, hat_brick_id,
+                efilter_brick_id, workflow_brick_id,
+            ]},
         )
 
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(4, len(result))
+        self.assertEqual(5, len(result))
 
-        doc1 = self.get_html_tree(result[0][1])
-        misc_brick_node = self.get_brick_node(doc1, misc_brick_id)
+        misc_doc = self.get_html_tree(result[0][1])
+        misc_brick_node = self.get_brick_node(misc_doc, misc_brick_id)
         self.assertBrickHasNotClass(misc_brick_node, 'is-empty')
         self.assertInstanceLink(misc_brick_node, linked_contact)
 
-        doc2 = self.get_html_tree(result[1][1])
-        self.get_brick_node(doc2, info_brick_id)
+        info_doc = self.get_html_tree(result[1][1])
+        self.get_brick_node(info_doc, info_brick_id)
 
-        doc3 = self.get_html_tree(result[2][1])
-        self.get_brick_node(doc3, hat_brick_id)
+        hat_doc = self.get_html_tree(result[2][1])
+        self.get_brick_node(hat_doc, hat_brick_id)
 
-        doc4 = self.get_html_tree(result[3][1])
-        self.get_brick_node(doc4, efilter_brick_id)
+        efilter_doc = self.get_html_tree(result[3][1])
+        self.get_brick_node(efilter_doc, efilter_brick_id)
+
+        wf_doc = self.get_html_tree(result[4][1])
+        self.get_brick_node(wf_doc, workflow_brick_id)
 
     def test_reload_detailview_bricks__permissions(self):
         """No app permissions."""

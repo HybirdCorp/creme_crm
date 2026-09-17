@@ -26,7 +26,9 @@
         - the relationship types which use this type.
         - the filters which use this type.
         - the worklows which use this type (in trigger or actions).
-      # The detail-view of relationship type now displays the filters which use this type.
+      # The detail-view of relationship type now displays :
+        - the filters which use this type.
+        - the worklows which use this type (in trigger or actions).
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status") can now be disabled;
