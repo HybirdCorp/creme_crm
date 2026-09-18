@@ -30,6 +30,20 @@
         </script>
     </div>
 
+    <div class="user-settings-theme-NEW">
+        <script type="text/javascript">
+            function set_theme() {
+                window.CSS.registerProperty({
+                  name: "--theme-color",
+                  syntax: "<color>",
+                  inherits: false,
+                  initialValue: "#9035ff",
+                });
+            }
+        </script>
+        <button type="button" onclick="set_theme()" >Set theme</button>
+    </div>
+
 {#    {% brick_declare bricks %} #}
     {% brick_declare bricks.main %}
 {#    {% brick_display bricks %} #}
