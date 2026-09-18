@@ -1,0 +1,311 @@
+/* Columns brick */
+
+.brick.reports-fields-brick .hidden-report-field {
+    color: #777;
+}
+
+.brick.reports-fields-brick .hidden-report-field td[data-table-primary-column] {
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+/* Columns brick - end */
+
+/* brick types - graph type */
+
+.brick svg.brick-header-icon {
+    width: 14px;
+    height: 14px;
+
+    position: relative;
+    top: 1px;
+
+    fill: currentColor;
+}
+
+/* .brick.reports-graph-brick .brick-content:not(.is-empty) { */
+.brick.reports-chart-brick .brick-content:not(.is-empty) {
+    padding: 0;
+}
+
+/* .reports-graph-brick .brick-graph-header { */
+.reports-chart-brick .brick-chart-header {
+    background: #fcfcfc;
+    border-bottom: 1px solid #dedede;
+    display: flex;
+    width: 100%;
+}
+
+/* .reports-graph-brick .brick-graph-container { */
+.reports-chart-brick .brick-graph-container {
+    padding: 0 10px;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-controls { */
+.reports-chart-brick .brick-chart-header .chart-controls {
+    flex: 1;
+    cursor: default;
+    padding: 3px 5px;
+    display: flex;
+    align-items: center;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-control { */
+.reports-chart-brick .brick-chart-header .chart-control {
+    padding-left: 5px;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-control+.graph-control { */
+.reports-chart-brick .brick-chart-header .chart-control+.chart-control {
+    padding-left: 15px;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-control-name { */
+.reports-chart-brick .brick-chart-header .chart-control-name {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* ? */
+/* .reports-graph-brick .brick-graph-header .graph-control-value { */
+.reports-chart-brick .brick-chart-header .chart-control-value {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-control:hover .graph-control-value { */
+.reports-chart-brick .brick-chart-header .chart-control:hover .chart-control-value {
+    text-decoration: underline;
+}
+
+/* ? - end */
+
+/* .reports-graph-brick .brick-graph-header .graph-actions { */
+.reports-chart-brick .brick-chart-header .chart-actions {
+    margin-left: auto;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-action:before { */
+.reports-chart-brick .brick-chart-header .chart-action:before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    top: -1px;
+    width: 1px;
+
+    background: linear-gradient(transparent, #aaa);
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-action { */
+.reports-chart-brick .brick-chart-header .chart-action {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    overflow: hidden;
+    padding: 5px 15px;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-action .empty { */
+.reports-chart-brick .brick-chart-header .chart-action .empty {
+    display: inline-flex;
+    padding: 6px 6px 3px 3px;
+    color: gray;
+}
+
+/* .reports-graph-brick .graph-action .brick-table-action { */
+.reports-chart-brick .chart-action .brick-table-action {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0px;
+}
+
+/* .reports-graph-brick .graph-action .brick-table-action.action-type-add { */
+.reports-chart-brick .chart-action .brick-table-action.action-type-add {
+    font-weight: 600;
+    color: #3bab07;
+    display: inline-block;
+    white-space: nowrap;
+    max-height: 16px;
+    padding: 0px;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-volatile { */
+.reports-chart-brick .brick-chart-header .chart-volatile {
+    padding: 3px 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-volatile-label { */
+.reports-chart-brick .brick-chart-header .chart-volatile-label {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* .reports-graph-brick .brick-graph-header .graph-volatile-value { */
+.reports-chart-brick .brick-chart-header .chart-volatile-value {
+    font-weight: 600;
+}
+
+/* .reports-graph-brick .brick-empty { */
+.reports-chart-brick .brick-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    padding: 5px 10px;
+}
+
+/* brick types - graph type - end */
+
+/* graphs inside tables */
+
+/* .reports-graphs-brick .graph-row-header.graph-row-collapsed .toggle-icon-collapse { */
+.reports-charts-brick .chart-row-header.chart-row-collapsed .toggle-icon-collapse {
+    display: none;
+}
+
+/* .reports-graphs-brick .graph-row-header:not(.graph-row-collapsed) .toggle-icon-expand { */
+.reports-charts-brick .chart-row-header:not(.chart-row-collapsed) .toggle-icon-expand {
+    display: none;
+}
+
+/* .reports-graphs-brick .graph-row.graph-row-collapsed { */
+.reports-charts-brick .chart-row.chart-row-collapsed {
+    display: none;
+}
+
+/* .reports-graphs-brick .graph-accordion-title a { */
+.reports-charts-brick .chart-accordion-title a {
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+/* .reports-graphs-brick .graph-accordion-title:hover { */
+.reports-charts-brick .chart-accordion-title:hover {
+    cursor: pointer;
+}
+
+/* .reports-graphs-brick .graph-accordion-title { */
+.reports-charts-brick .chart-accordion-title {
+    display: flex;
+}
+
+/* .reports-graphs-brick .graph-accordion-title .graph-accordion-toggle { */
+.reports-charts-brick .chart-accordion-title .chart-accordion-toggle {
+    height: 16px;
+    padding: 4px 3px;
+}
+
+/* .reports-graphs-brick .graph-accordion-title.graph-accordion-expanded .graph-accordion-icon { */
+.reports-charts-brick .chart-accordion-title.chart-accordion-expanded .chart-accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* .reports-graphs-brick .graph-accordion-title .graph-accordion-text { */
+.reports-charts-brick .chart-accordion-title .chart-accordion-text {
+    text-align: center;
+    flex: 1;
+}
+
+/* .reports-graphs-brick .brick-d3-empty { */
+.reports-charts-brick .brick-d3-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    padding: 5px 10px;
+}
+
+/* .brick-table tr.graph-row > td.reports-graph-brick { */
+.brick-table tr.chart-row > td.reports-chart-brick {
+    padding: 0;
+    margin: 0;
+}
+
+/* graphs inside tables - end */
+
+button.reports-chart-selectors-refresh {
+    padding: 1px 1px;
+    vertical-align: middle;
+}
+
+.reports-chart-selectors-refresh img {
+    border: 0;
+    vertical-align: middle;
+}
+
+/* Report preview */
+
+.report-preview-header {
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.reports-form_block-preview {
+    margin-right: 10%;
+
+    border-left: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-right: 1px solid #d9d9d9;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-block .form-block-fields .report-preview-errors-label {
+    color: #b92222;
+    font-weight: 700;
+}
+
+.report-preview-buttons {
+    margin-top: 3px;
+}
+
+/* Report preview - end */
+
+/* .reports-graph-brick .brick-d3-content { */
+.reports-chart-brick .brick-d3-content {
+    min-height: 300px;
+}
+
+.tube-chart .legend {
+    pointer-events: bounding-box;
+}
+
+.tube-chart .legend.legend-scroll:hover {
+    cursor: ew-resize;
+}
+
+.tube-chart .bar rect {
+    shape-rendering: crispedges;
+}
+
+.tube-chart .bar text {
+    text-anchor: middle;
+}
+
+.tube-chart .bar text.dark-bg {
+    font-weight: 600;
+}
+
+.tube-chart .bar:hover {
+    cursor: pointer;
+}
+
+.tube-chart .bar rect:hover {
+    opacity: 0.8;
+}
+
+.tube-chart .bar:not(:hover) .hidden-label {
+    visibility: hidden;
+}

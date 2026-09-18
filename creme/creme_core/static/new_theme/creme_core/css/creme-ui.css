@@ -1,0 +1,898 @@
+.ui-widget {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+}
+
+/* TODO: modify jquery-css/creme-theme/jquery-ui-1.11.4.custom.css instead ?? */
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+}
+
+.ui-state-default,
+.ui-widget-content .ui-state-default {
+    font-size: 1.1em;
+}
+
+.ui-dialog {
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ui-dialog.ui-widget {
+    font-size: inherit;
+}
+
+.ui-dialog.ui-widget-content {
+    border-radius: 0;
+}
+
+.ui-widget-content,
+.ui-widget-content.ui-widget-content,
+.ui-dialog,
+.ui-dialog.ui-widget-content,
+.ui-dialog .ui-widget-content {
+    background: #fff;
+}
+
+.ui-datepicker {
+    z-index: 1100; /* use z-index to display over inner popups (1000) */
+}
+
+.ui-datepicker-trigger {
+    cursor: pointer;
+}
+
+.ui-dialog-content .ui-creme-overlay {
+    background-color: #fff;
+}
+
+.ui-dialog .ui-dialog-buttonset button {
+    padding: 10px 30px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ui-dialog .ui-dialog-buttonset button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.ui-dialog .ui-dialog-buttonset button:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+
+    color: #1a1a1a;
+}
+
+.ui-dialog .ui-dialog-buttonset button + button {
+    margin-left: 10px;
+}
+
+.ui-dialog .ui-dialog-buttonset button .ui-button-text {
+    padding: 0;
+}
+
+/*----------------------------------*/
+.ui-creme-timepicker { margin:0; padding:0; list-style:none; }
+.ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block; }
+.ui-creme-timepicker li input {
+    width: 3em !important;
+    margin: 0px 2px;
+    text-align: right;
+}
+.ui-creme-timepicker li button[type="button"] { padding:0px 6px; }
+
+/*----------------------------------*/
+.ui-creme-datetimepicker { margin:0; padding:0; list-style:none; }
+.ui-creme-datetimepicker li { position:relative; display:inline-block; }
+.ui-creme-datetimepicker li input {
+    width: 3em;
+    text-align: right;
+    margin: 0px 2px;
+}
+.ui-creme-datetimepicker li.date input { width: 8em; }
+.ui-creme-datetimepicker li button[type="button"] { padding: 0px 6px; }
+.ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
+
+.ui-creme-daterange-selector .hidden {
+    display: none;
+}
+
+.ui-creme-daterange .not-visible {
+    visibility: hidden;
+}
+
+/*----------------------------------*/
+ul.ui-layout { margin:0; padding:0; list-style:none; }
+ul.ui-layout li { margin:0; padding:0; list-style:none; }
+
+ul.ui-layout.hbox li {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 4px;
+}
+ul.ui-layout.hbox li input,
+ul.ui-layout.hbox li button {
+    margin: 0px 2px;
+}
+
+ul.ui-layout.vbox li {
+    position: relative;
+    display: block;
+}
+
+.ui-layout.resize-sensor,
+.ui-layout.resize-sensor > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/*----------------------------------*/
+ul.ui-creme-widget:read-only li,
+ul.ui-creme-widget.is-readonly li {
+    color: #888;
+}
+
+.ui-creme-selectorlist .selectors > .selector {
+    margin-bottom: 2px;
+}
+
+.ui-creme-selectorlist img.delete { border: 0; vertical-align: middle; margin-left: 2px;}
+.ui-creme-selectorlist img.delete:hover { cursor: pointer; }
+
+.ui-creme-selectorlist[disabled] img.delete { display: none; }
+
+.ui-creme-selectorlist.is-disabled button[type="button"].ui-creme-actionbutton,
+.ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+.ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton:hover {
+    cursor: default;
+    cursor: not-allowed;
+}
+
+/*----------------------------------*/
+.ui-creme-chainedselect img.reset { border:0; vertical-align:middle; }
+.ui-creme-chainedselect img.reset:hover { cursor:pointer; }
+
+/*----------------------------------*/
+
+.ui-creme-chainedselect li .ui-creme-dselect { width:20em; }
+.ui-creme-chainedselect li .ui-creme-dselectlabel { min-width:10em; display:inline-block; }
+
+.ui-creme-chainedselect li[chained-name="rtype"] .ui-creme-dselect { width:22em; }
+.ui-creme-chainedselect li[chained-name="ctype"] .ui-creme-dselect { width:18em; }
+.ui-creme-chainedselect li[chained-name="column"] .ui-creme-dselect { width:auto; }
+.ui-creme-chainedselect li[chained-name="searchfield"] .ui-creme-dselect { width:14em; }
+
+/*----------------------------------*/
+.ui-creme-entityselector > input {
+    display: none;
+/*
+    -webkit-appearance: none;
+       -moz-appearance: none;
+*/
+    appearance: none;
+    width: 0;
+    height: 0;
+    border: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow: none !important;
+}
+
+/*----------------------------------*/
+.ui-creme-overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    display: inline-block;
+    z-index: 1;
+}
+
+.ui-creme-overlay .overlay-content {
+    z-index: 1;
+    height: 100%;
+    background: transparent;
+}
+
+.ui-creme-overlay.frame-loading {
+    background-color: white;
+    opacity: .80;
+    filter: Alpha(Opacity=80);
+}
+
+.ui-creme-overlay.page-loading {
+    position: fixed;
+    min-width: 100vw;
+    min-height: 100vh;
+
+    z-index: 103;
+
+    background-color: white;
+    opacity: .80;
+    filter: Alpha(Opacity=80);
+}
+
+.ui-creme-overlay.page-loading .overlay-content {
+    position: relative;
+}
+
+.ui-creme-overlay.page-loading .overlay-content img {
+    margin: 0 5px 0 0;
+}
+
+.ui-creme-overlay.page-loading .overlay-content h2 {
+    width: 100%;
+    position: fixed;
+    vertical-align: middle;
+    bottom: 50%;
+
+    opacity: 1.0;
+    color: #376e86;
+    text-align: center;
+}
+
+.ui-creme-overlay .overlay-content .subtitle {
+    font-size: 13px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.ui-creme-overlay .overlay-content .message {
+    margin-left: 10px;
+}
+
+.ui-creme-overlay .overlay-content .redirect {
+    position: absolute;
+    bottom: 5px;
+    margin-left: 5px;
+}
+
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
+
+/*----------------------------------*/
+.ui-dialog-scrollbackground {
+    position: fixed;
+}
+
+/*----------------------------------*/
+ul.ui-creme-actionbuttonlist {
+    display: inline;
+    padding: 0px 4px 0px 0px;
+}
+
+button[type="button"].ui-creme-actionbutton,
+.ui-creme-entityselector > button[type="button"] {
+    padding: 3px 10px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+button[type="button"].ui-creme-actionbutton:hover,
+.ui-creme-entityselector > button[type="button"]:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+button[type="button"].ui-creme-actionbutton[disabled],
+.ui-creme-entityselector > button[type="button"][disabled] {
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+
+    box-shadow: none;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+button[type="button"].ui-creme-actionbutton[disabled]:hover,
+.ui-creme-entityselector > button[type="button"][disabled]:hover {
+    background-color: #ebebeb; /* desaturate and lighten */
+}
+
+
+button[type="button"].ui-creme-actionbutton.with-icon {
+    padding-left: 30px;
+}
+
+button[type="button"].ui-creme-actionbutton img {
+    position: absolute;
+    left: 11px;
+}
+
+/*-------------------------*/
+input.ui-creme-datepicker {
+    width: 110px;
+}
+
+span.ui-creme-datepicker-trigger {
+    vertical-align: middle;
+}
+
+/* TODO: factorise ? */
+.creme-datepicker button[name="today"],
+.creme-yearpicker button[name="current-year"],
+.ui-creme-timepicker button,
+.ui-creme-datetimepicker button {
+    height: 23px;
+    padding: 2px 10px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+.creme-datepicker button[name="today"]:hover,
+.creme-yearpicker button[name="current-year"]:hover,
+.ui-creme-timepicker button:hover,
+.ui-creme-datetimepicker button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.creme-datepicker button[name="today"]:disabled,
+.creme-yearpicker button[name="current-year"]:disabled,
+.ui-creme-timepicker button:disabled,
+.ui-creme-datetimepicker button:disabled,
+input:disabled + .ui-datepicker-trigger {
+    display: none;
+}
+
+/*----------------------------------*/
+.toggle-collapsable.toggle-collapsed {
+    display: none;
+}
+
+.ui-creme-toggle [data-toggle] {
+    cursor: pointer;
+}
+
+.toggle-icon-container {
+    height: 12px;
+    width: 12px;
+
+    cursor: pointer;
+}
+
+.toggle-icon-container .toggle-icon {
+    width: 0;
+    height: 0;
+}
+
+.toggle-icon-container.toggle-icon-expand .toggle-icon {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid #00000063;
+}
+
+.toggle-icon-container.toggle-icon-collapse .toggle-icon {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #00000063;
+}
+
+/*---------------------------------*/
+.ui-creme-checklistselect .checklist-header {
+    float: right;
+    color: #777;
+    margin-bottom: 2px;
+    margin-right: 5px;
+    display: flex;
+}
+
+.ui-creme-checklistselect.is-disabled .checklist-header {
+    display: none;
+}
+
+.ui-creme-checklistselect .checklist-header a {
+    color: #777;
+    background-color: none;
+    text-shadow: none;
+    transition: none;
+}
+
+.ui-creme-checklistselect .checklist-header a+a {
+    border-left: 1px solid #777;
+    padding-left: 4px;
+    margin-left: 4px;
+}
+
+.ui-creme-checklistselect .checklist-header a:hover {
+    cursor: pointer;
+}
+
+.ui-creme-checklistselect .checklist-header a[disabled] {
+    opacity: 0.5;
+    text-decoration: none;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+.ui-creme-checklistselect .checklist-header a.hidden {
+    display: none;
+}
+
+.ui-creme-checklistselect .checklist-header a.is-disabled {
+    opacity: 0.5;
+}
+
+.ui-creme-checklistselect .checklist-header a.is-disabled:hover {
+    text-decoration: none;
+    cursor: default;
+}
+
+.ui-creme-checklistselect .checklist-header .checklist-filter {
+    margin-left: 8px;
+    margin-bottom: 2px;
+
+    font-size: 10px;
+    vertical-align: middle;
+}
+
+.ui-creme-checklistselect .checklist-counter {
+    display: inline-block;
+    visibility: hidden;
+
+    float: left;
+    margin-left: 2px;
+    margin-bottom: 2px;
+    color: #777;
+}
+
+.ui-creme-checklistselect .checklist-counter.visible {
+    visibility: visible;
+}
+
+.ui-creme-checklistselect .checklist-content {
+    clear: both;
+    list-style: none;
+
+    padding: 0 0 5px 0;
+    margin: 0;
+
+    box-sizing: border-box;
+
+    column-width: 200px;
+}
+
+.ui-creme-checklistselect .checklist-content.wide {
+    column-width: 370px;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-field {
+    display: flex;
+
+    margin-right: 10px;
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    -webkit-transform: translate3d(0,0,0); /* HACK : fix performance issues with some chrome versions */
+
+    break-inside: avoid;
+    /* FireFox v101 breaks the columns even with "break-inside: avoid" (Chrome v102 is OK)
+       in some cases (try with 1 choice with long label & help text).
+    */
+    overflow: hidden;
+
+    transition: opacity 0.2s ease-in-out;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-field.hidden {
+    display: none;
+}
+
+.ui-creme-checklistselect:not([less]) .checklist-body {
+    max-height: 250px;
+    overflow-y: auto;
+    clear: both;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-field input[type=checkbox] {
+    margin-left: 4px;
+    margin-bottom: 0px;
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-label {
+    margin-right: 4px;
+    max-width: 180px;
+    cursor: default;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-label-help {
+    padding-bottom: 5px;
+    opacity: 0.6;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.ui-creme-checklistselect .checklist-content.wide .checkbox-label {
+    max-width: 370px;
+}
+
+.ui-creme-checklistselect .checklist-content.wide .checkbox-helptext {
+    max-width: 370px;
+}
+
+.ui-creme-checklistselect .checkbox-field[disabled] .checkbox-label {
+    opacity: 0.5;
+}
+
+.ui-creme-checklistselect .checklist-content.less .checkbox-field.more {
+    position: absolute;
+    top: 0;
+    left: -1000;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.ui-creme-checklistselect .checklist-footer {
+    text-align: center;
+}
+
+.ui-creme-checklistselect .checklist-footer a {
+    color: #777;
+    background-color: none;
+    vertical-align: middle;
+    text-shadow: none;
+
+    transition: none;
+}
+
+.ui-creme-checklistselect .checklist-footer a:hover {
+    cursor: pointer;
+}
+
+.ui-creme-checklistselect .checklist-footer .checklist-toggle-less:not(.is-active) {
+    display: none;
+}
+
+.ui-creme-checklistselect.is-field-invalid {
+    padding: 0;
+}
+
+.ui-creme-checklistselect select.ui-creme-input,
+.ui-creme-checklistselect select.is-field-invalid {
+    display: none;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-group {
+    list-style: none;
+    padding: 0 0 0 0;
+    margin: 0;
+}
+
+.ui-creme-checklistselect .checklist-content .checkbox-group-header {
+    break-inside: avoid;
+
+    border-radius: 4px;
+
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    margin-bottom: 2px;
+
+    background: #d9d9d9;
+}
+
+.ui-creme-checklistselect .checklist-content.ie-layout-fallback .checkbox-field,
+.ui-creme-checklistselect .checklist-content.ie-layout-fallback .checkbox-group-header {
+    display: inline-block;
+    width: 180px;
+    max-width: 180px;
+}
+
+.ui-creme-checklistselect .checklist-content.ie-layout-fallback.wide .checkbox-field,
+.ui-creme-checklistselect .checklist-content.ie-layout-fallback.wide .checkbox-group-header {
+    width: 360px;
+    max-width: 360px;
+}
+
+.ui-creme-checklistselect .checklist-content.ie-checkbox-fallback .checkbox-field input[type=checkbox] {
+    margin-top: 0px;
+    vertical-align: middle;
+}
+
+/*----------------------------------*/
+.ui-creme-optional.is-disabled .optional-widget-hiddable {
+    color: #b7b7b7;
+}
+
+/*----------------------------------*/
+.ui-creme-dialog-warn {
+    clear: both;
+}
+
+.ui-creme-dialog-warn .ui-icon {
+    float: left;
+    margin-right: 5px;
+    margin-left: 10px;
+}
+
+.ui-creme-dialog-warn .header {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.ui-creme-dialog-warn .message {
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.ui-dialog-content .ui-creme-dialog-frame {
+    margin: 0;
+    padding: 0;
+    display: block;
+    height: 100%;
+}
+
+.ui-dialog-content .ui-creme-dialog-frame .global-error {
+    background-color: #f08080;
+}
+
+/* Dialog overrides - could be moved in a CSS file dedicated to the Dialogs widgets */
+/* HACK: the dialog title uses the same structure as the page title, creating side effects modifying both; Override those values here, until both templates are cleaned up */
+.ui-dialog-content .table_header,
+.ui-dialog-content .hat-bar-container {
+    margin-top: 0;
+    padding-top: 5px;
+    border: 0;
+}
+
+.glasspane {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.glasspane[data-debug] {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+.ui-dialog-within-container {
+    position: fixed;
+    top: 35px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 35px);
+    pointer-events: none;
+}
+
+.ui-dialog-content .ui-creme-dialog-action {
+    display: none;
+}
+
+.ui-dialog-content .ui-creme-dialog-header {
+    display: none;
+}
+
+.ui-dialog-titlebar .ui-dialog-title {
+    display: inline-flex;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.ui-dialog-titlebar .ui-creme-dialog-header-icon {
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* Dialog Hat-Bars */
+
+.ui-dialog-content .hat-bar-container .hat-bar .bar-title h1 {
+    font-size: 15px;
+}
+
+.ui-dialog-content .hat-bar-container .hat-bar .bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 2px;
+}
+
+.ui-dialog-content div.hat-bar {
+    height: 30px;
+}
+
+.ui-dialog-content .hat-bar .bar-title h1 {
+    margin-top: 3px;
+}
+
+.ui-dialog-title .hat-bar-container {
+    padding: 0;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    font-size: 15px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon {
+    padding-right: 11px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 4px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar {
+    height: 24px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    margin-top: 3px;
+}
+
+/*----------------------------------*/
+.ui-creme-dselect.is-readonly {
+    color: gray;
+}
+
+/* Dropdown */
+
+.ui-dropdown-hidden {
+    display: none;
+}
+
+.ui-dropdown-selection {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Dropdown - end */
+
+/* Jobs */
+
+img.progress {
+    display: block;
+}
+
+span.ack-errors {
+    display: block;
+    background-color: #f08080;
+}
+
+/* Jobs - end */
+
+img.entity-summary {
+    height: 64px;
+    width: 64px;
+}
+
+.ui-creme-colored_status .ui-creme-color_indicator {
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+}
+
+.ui-creme-optional {
+    display: flex;
+    flex-direction: row;
+}
+
+.ui-creme-optional .optional-label {
+    color: #666;
+    font-size: 12.5px;
+    margin-right: 1em;
+}
+
+.ui-creme-optional .optional-input {
+    visibility: hidden;
+}
+
+.ui-creme-optional .optional-toggle:checked ~ .optional-input {
+    visibility: visible;
+}
+
+.ui-creme-union {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.ui-creme-union .union-case + .union-case {
+    margin-top: 15px;
+}
+
+.ui-creme-union .union-case .union-case-toggle {
+    width: 1rem;
+    margin: 3px;
+    padding: 0;
+}
+
+.ui-creme-union .union-case .union-case-widget {
+    pointer-events: none;
+    opacity: 0.3;
+    margin-left: calc(1rem + 6px);
+}
+
+.ui-creme-union .union-case label {
+    position: relative;
+    top: -3px;
+    left: -3px;
+    color: #888;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.ui-creme-union .union-case label:hover {
+    cursor: pointer;
+}
+
+.ui-creme-union .union-case .union-case-toggle:checked ~ .union-case-widget {
+    pointer-events: all;
+    opacity: 1.0;
+}
+
+.ui-import-field .import-field-details.hidden {
+    display: none;
+}

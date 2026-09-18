@@ -1,0 +1,144 @@
+.brick-geoaddress-item {
+    display: flex;
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.brick-geoaddress-item input[type="checkbox"] {
+    margin-left: 4px;
+    margin-bottom: 0px;
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
+.brick-geoaddress-item:not(.is-mark-visible) {
+    opacity: 0.6;
+}
+
+.brick-geoaddress-item .brick-geoaddress-label {
+    margin-right: 4px;
+    cursor: default;
+
+    display: flex;
+    align-self: top;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.brick-geoaddress-item .brick-geoaddress-title {
+    margin-bottom: 4px;
+}
+
+.brick-geoaddress-item .brick-geoaddress-content {
+    color: #777;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.brick-geoaddress-item .brick-geoaddress-action {
+    display: flex;
+    flex-direction: column;
+
+    margin-right: 4px;
+    text-align: right;
+}
+
+.brick-geoaddress-item .brick-geoaddress-reset {
+    color: #777;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.brick-geoaddress-item:not(.is-mark-visible) .brick-geoaddress-reset {
+    cursor: default;
+    text-decoration: none;
+}
+
+.brick-geoaddress-item .brick-geoaddress-iscomplete .brick-geoaddress-reset {
+    display: none;
+}
+
+.brick-geoaddress-item .brick-geoaddress-position {
+    color: #777;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.brick-geoaddress-item .brick-geoaddress-status {
+    color: #777;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.brick-geoaddress-canvas {
+    padding: 0px;
+    margin: 1px;
+    height: 300px;
+}
+
+.geolocation-brick .brick-content {
+    padding: 0;
+}
+
+.geolocation-brick .brick-geoaddress-canvas {
+    margin: 0;
+}
+
+.geolocation-brick .geolocation-brick-items {
+    padding: 3px;
+}
+
+.geolocation-brick .geolocation-brick-header {
+    padding: 3px 10px;
+}
+
+.geolocation-brick .geolocation-empty-brick {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+    padding: 5px 10px;
+}
+
+.geolocation-brick .brick-geoaddress-error {
+    padding: 3px 10px;
+    display: none;
+}
+
+.geolocation-brick .brick-geoaddress-error a {
+    color: #ff6a6a;
+}
+
+.geolocation-brick.is-geolocation-disabled .brick-geoaddress-error {
+    display: block;
+}
+
+.leaflet-container .leaflet-hidden {
+    display: none;
+}
+
+/*
+ * Change leaflet 1.6.0 default z-index
+ * (see https://github.com/HybirdCorp/creme_crm/issues/179)
+*/
+
+.brick-geoaddress-canvas .leaflet-zoom-box     { z-index: 80; }
+.brick-geoaddress-canvas .leaflet-pane         { z-index: 40; }
+
+.brick-geoaddress-canvas .leaflet-tile-pane    { z-index: 20; }
+.brick-geoaddress-canvas .leaflet-overlay-pane { z-index: 40; }
+.brick-geoaddress-canvas .leaflet-shadow-pane  { z-index: 50; }
+.brick-geoaddress-canvas .leaflet-marker-pane  { z-index: 60; }
+.brick-geoaddress-canvas .leaflet-tooltip-pane { z-index: 65; }
+.brick-geoaddress-canvas .leaflet-popup-pane   { z-index: 70; }
+
+.brick-geoaddress-canvas .leaflet-map-pane canvas { z-index: 10; }
+.brick-geoaddress-canvas .leaflet-map-pane svg    { z-index: 20; }
+
+.brick-geoaddress-canvas .leaflet-control { z-index: 80; }
+
+.brick-geoaddress-canvas .leaflet-bottom { z-index: 99; }
+.brick-geoaddress-canvas .leaflet-top    { z-index: 99; }

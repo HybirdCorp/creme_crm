@@ -1,0 +1,7 @@
+.cti-callers-brick .brick-content .brick-table-content td[data-table-action-column] {
+    white-space: nowrap;
+}
+
+a.cti-phonecall {
+    cursor: pointer;
+}
