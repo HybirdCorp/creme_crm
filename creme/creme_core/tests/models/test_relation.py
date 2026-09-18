@@ -842,7 +842,6 @@ class RelationTypeManagerTestCase(CremeTestCase):
             id='test-subject_editconstr',
             predicate='Likes',
             properties=[str(ptype1.uuid)],
-            # forbidden_properties=[str(ptype4.uuid), str(ptype5.uuid)],
         ).symmetric(
             id='test-object_editconstr', predicate='Is liked by',
         )

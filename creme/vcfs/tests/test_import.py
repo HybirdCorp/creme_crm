@@ -531,8 +531,8 @@ END:VCARD"""
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create
-        ptype01 = create_ptype(text='Is a fighter')
-        ptype02 = create_ptype(text='Is big corp')
+        ptype1 = create_ptype(text='Is a fighter')
+        ptype2 = create_ptype(text='Is big corp')
 
         rtype = RelationType.objects.builder(
             id='test-subject_showcases', predicate='showcases', models=[Contact],
@@ -552,7 +552,7 @@ END:VCARD"""
         ).get_or_create()[0]
         rtype_with_subject_prop = RelationType.objects.builder(
             id='test-subject_fights', predicate='fights',
-            models=[Contact], properties=[ptype01],
+            models=[Contact], properties=[ptype1],
         ).symmetric(
             id='test-object_fights', predicate='is fought by', models=[Organisation],
         ).get_or_create()[0]
@@ -560,13 +560,13 @@ END:VCARD"""
             id='test-subject_pawn', predicate='is an insignificant pawn of', models=[Contact],
         ).symmetric(
             id='test-object_pawn', predicate='has pawn',
-            models=[Organisation], properties=[ptype02],
+            models=[Organisation], properties=[ptype2],
         ).get_or_create()[0]
         rtype_with_object_forb_prop = RelationType.objects.builder(
             id='test-subject_fan', predicate='is a fan of', models=[Contact],
         ).symmetric(
             id='test-object_fan', predicate='has fan',
-            models=[Organisation], properties=[ptype02],
+            models=[Organisation], properties=[ptype2],
         ).get_or_create()[0]
         disabled_rtype = RelationType.objects.builder(
             id='test-subject_commands', predicate='is commanding', models=[Contact],

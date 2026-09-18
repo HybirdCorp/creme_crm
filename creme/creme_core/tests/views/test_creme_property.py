@@ -233,7 +233,7 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         ptype = CremePropertyType.objects.create(text='is a fighter', is_custom=True)
         rtype = RelationType.objects.builder(
             id='test-subject_foobar', predicate='has killed',
-            models=[FakeContact], properties=[str(ptype.uuid)],
+            models=[FakeContact], properties=[ptype],
         ).symmetric(
             id='test-object_foobar', predicate='has been killed by',
         ).get_or_create()[0]
@@ -260,7 +260,7 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         ptype = CremePropertyType.objects.create(text='is pacifist', is_custom=True)
         rtype = RelationType.objects.builder(
             id='test-subject_foobar', predicate='has killed',
-            models=[FakeContact], forbidden_properties=[str(ptype.uuid)],
+            models=[FakeContact], forbidden_properties=[ptype],
         ).symmetric(
             id='test-object_foobar', predicate='has been killed by',
         ).get_or_create()[0]
@@ -606,21 +606,21 @@ class PropertyTypeDetailTestCase(BrickTestCaseMixin, CremeTestCase):
 
         related_rtype1 = RelationType.objects.builder(
             id='test-subject_foo', predicate='has painted',
-            properties=[str(ptype.uuid)],
+            properties=[ptype],
         ).symmetric(
             id='test-object_foo', predicate='has been painted by',
         ).get_or_create()[0]
 
         related_rtype2 = RelationType.objects.builder(
             id='test-subject_bar', predicate='has draw',
-            properties=[str(other_ptype.uuid), str(ptype.uuid)],
+            properties=[other_ptype, ptype],
         ).symmetric(
             id='test-object_bar', predicate='has been drawn by',
         ).get_or_create()[0]
 
         related_rtype3 = RelationType.objects.builder(
             id='test-subject_baz', predicate='has described with ia',
-            forbidden_properties=[str(other_ptype.uuid), str(ptype.uuid)],
+            forbidden_properties=[other_ptype, ptype],
         ).symmetric(
             id='test-object_baz', predicate='has described with ia by',
         ).get_or_create()[0]
