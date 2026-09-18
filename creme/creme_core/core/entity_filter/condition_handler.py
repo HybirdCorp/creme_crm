@@ -19,10 +19,10 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from functools import partial
-from typing import Literal
+from typing import Literal, override
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
@@ -250,13 +250,16 @@ class SubFilterConditionHandler(FilterConditionHandler):
             super().__init__(efilter_type=efilter_type, model=model)
             self._subfilter_id = subfilter
 
+    @override
     def accept(self, *, entity, user):
         return self.subfilter.accept(entity=entity, user=user)
 
+    @override
     @property
     def applicable_on_entity_base(self):
         return self.subfilter.applicable_on_entity_base
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         return cls(efilter_type=efilter_type, model=model, subfilter=name)
@@ -266,7 +269,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
                         subfilter: EntityFilter,
                         filter_type: str = EF_REGULAR,  # TODO: rename "efilter_type"...
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param subfilter: <creme_core.models.EntityFilter> instance.
@@ -285,14 +288,17 @@ class SubFilterConditionHandler(FilterConditionHandler):
             handler=cls(efilter_type=filter_type, subfilter=subfilter),
         )
 
+    @override
     def description(self, user):
         subfilter = self.subfilter
 
         return self.DESCRIPTION_FORMAT.format(subfilter) if subfilter else '???'
 
+    @override
     def entities_are_distinct(self):
         return self.subfilter.entities_are_distinct
 
+    @override
     @property
     def error(self):
         subfilter = self.subfilter
@@ -314,15 +320,18 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.SubfiltersConditionsField, **kwargs):
         defaults = {'label': _('Sub-filters'), **kwargs}
 
         return form_class(**defaults)
 
+    @override
     def get_q(self, user):
         return self.subfilter.get_q(user)
 
+    @override
     @classmethod
     def query_for_parent_conditions(cls, ctype):
         return Q(
@@ -330,6 +339,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
             filter__entity_type=ctype,
         )
 
+    @override
     @property
     def subfilter_id(self):
         return self._subfilter_id
@@ -338,9 +348,11 @@ class SubFilterConditionHandler(FilterConditionHandler):
 class OperatorConditionHandlerMixin:
     efilter_registry: EntityFilterRegistry
 
-    def _check_operator(self, operator_id):
+    def _check_operator(self, operator_id) -> str | None:
         if self.get_operator(operator_id) is None:
             return f"Operator '{operator_id}' is invalid"
+
+        return None
 
     def get_operand(self, value, user) -> operands.ConditionDynamicOperand | None:
         return self.efilter_registry.get_operand(type_id=value, user=user)
@@ -374,6 +386,7 @@ class BaseRegularFieldConditionHandler(FilterConditionHandler):
         super().__init__(model=model, efilter_type=efilter_type)
         self._field_name: str = field_name
 
+    @override
     @property
     def applicable_on_entity_base(self):
         return self.field_info[0] in CremeEntity._meta.fields
@@ -403,6 +416,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     def operator_id(self):
         return self._operator_id
 
+    @override
     def accept(self, *, entity, user):
         operator = self.get_operator(self._operator_id)
         values = self.resolve_operands(values=self._values, user=user)
@@ -473,6 +487,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         )
 
     # TODO: multi-value is stupid for some operator (LT, GT etc...) => improve checking ???
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         try:
@@ -548,6 +563,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             value={'operator': operator_obj.type_id, 'values': values},
         )
 
+    @override
     def description(self, user):
         finfo = self.field_info
         values = self._verbose_values
@@ -620,9 +636,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             field_vname=finfo.verbose_name, values=values,
         )
 
+    @override
     def entities_are_distinct(self):
         return not isinstance(self.field_info[0], ManyToManyField)
 
+    @override
     @property
     def error(self):
         try:
@@ -664,6 +682,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.RegularFieldsConditionsField, **kwargs):
         defaults = {
@@ -674,6 +693,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
         return form_class(**defaults)
 
+    @override
     def get_q(self, user):
         operator = self.get_operator(self._operator_id)
         values = self.resolve_operands(values=self._values, user=user)
@@ -826,11 +846,13 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
         )
         DateFieldHandlerMixin.__init__(self, **kwargs)
 
+    @override
     def accept(self, *, entity, user):
         return self._get_date_range().accept(
             value=self.field_info.value_from(entity), now=now(),
         )
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         return cls(
@@ -841,11 +863,15 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
         )
 
     @classmethod
-    def build_condition(cls, model, field_name,
-                        date_range=None, start=None, end=None,
+    def build_condition(cls,
+                        model: type[CremeEntity],
+                        field_name: str,
+                        date_range: str | None = None,
+                        start: date | None = None,
+                        end: date | None = None,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -895,19 +921,23 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
 
         return None
 
+    @override
     def description(self, user):
         return self._datefield_description(verbose_field=self.field_info.verbose_name)
 
+    @override
     @property
     def error(self):
         return self._check_field(model=self._model, field_name=self._field_name)
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.DateFieldsConditionsField, **kwargs):
         defaults = {'label': _('On date fields'), **kwargs}
 
         return form_class(**defaults)
 
+    @override
     def get_q(self, user):
         return Q(**self._get_date_range().get_q_dict(field=self._field_name, now=now()))
 
@@ -956,6 +986,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
             self._custom_field = None
             self._related_name = related_name
 
+    @override
     @property
     def applicable_on_entity_base(self):
         return True
@@ -975,6 +1006,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 
         return cfield
 
+    @override
     @property
     def error(self):
         rname = self._related_name
@@ -993,6 +1025,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 
         return None
 
+    @override
     @classmethod
     def query_for_related_conditions(cls, instance):
         return Q(
@@ -1031,6 +1064,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         self._values = values
         self._verbose_values = None  # Cache for values in description()
 
+    @override
     def accept(self, *, entity, user):
         operator = self.get_operator(self._operator_id)
         values = self._values
@@ -1085,6 +1119,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             accept(field_value=field_value)
         )
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         try:
@@ -1104,11 +1139,14 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         return cls(efilter_type=efilter_type, model=model, custom_field=cf_uuid, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, custom_field, operator, values,
+    def build_condition(cls, *,
+                        custom_field: CustomField,
+                        operator: operators.ConditionOperator | str,
+                        values: list,
                         user=None,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>.
@@ -1205,6 +1243,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             },
         )
 
+    @override
     def description(self, user):
         cfield = self.custom_field
         if cfield is False:
@@ -1238,6 +1277,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
         return operator.description(field_vname=cfield.name, values=values)
 
+    @override
     @property
     def error(self):
         # return self._check_operator(self._operator_id) or super().error
@@ -1263,12 +1303,14 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.CustomFieldsConditionsField, **kwargs):
         defaults = {'label': _('On custom fields'), **kwargs}
 
         return form_class(**defaults)
 
+    @override
     def get_q(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
         #     instead of use a 'JOIN', in order to avoid the interaction between
@@ -1334,6 +1376,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         )
         DateFieldHandlerMixin.__init__(self, **kwargs)
 
+    @override
     def accept(self, *, entity, user):
         cfvalue = entity.get_custom_value(self.custom_field)
 
@@ -1342,6 +1385,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             now=now(),
         )
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         kwargs = cls._load_daterange_kwargs(data)  # It tests if it's a dict too
@@ -1359,11 +1403,14 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         )
 
     @classmethod
-    def build_condition(cls, *, custom_field,
-                        date_range=None, start=None, end=None,
+    def build_condition(cls, *,
+                        custom_field: CustomField,
+                        date_range: str | None = None,
+                        start: date | None = None,
+                        end: date | None = None,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>
@@ -1395,6 +1442,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             value=value,
         )
 
+    @override
     def description(self, user):
         cfield = self.custom_field
         if cfield is False:
@@ -1403,12 +1451,14 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
         return self._datefield_description(verbose_field=cfield.name)
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.DateCustomFieldsConditionsField, **kwargs):
         defaults = {'label': _('On date custom fields'), **kwargs}
 
         return form_class(**defaults)
 
+    @override
     def get_q(self, user):
         # NB: see CustomFieldConditionHandler.get_q() remark
         related_name = self._related_name
@@ -1437,10 +1487,12 @@ class BaseRelationConditionHandler(FilterConditionHandler):
             self._rtype_id = rtype
             self._rtype = None
 
+    @override
     @property
     def applicable_on_entity_base(self):
         return True
 
+    @override
     @property
     def error(self):
         if self.relation_type is False:
@@ -1453,6 +1505,7 @@ class BaseRelationConditionHandler(FilterConditionHandler):
 
         return None
 
+    @override
     @classmethod
     def query_for_related_conditions(cls, instance):
         return Q(
@@ -1513,6 +1566,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             self._entity = None
             self._ct_key = ctype.natural_key() if isinstance(ctype, ContentType) else ctype
 
+    @override
     def accept(self, *, entity, user):
         # NB: we use get_relations() in order to get a cached result, & so avoid
         #     additional queries when calling several times this method.
@@ -1536,6 +1590,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return not found if self._exclude else found
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         if not isinstance(data, dict):
@@ -1581,10 +1636,15 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         )
 
     @classmethod
-    def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
+    def build_condition(cls, *,
+                        model: type[CremeEntity],
+                        rtype: RelationType,
+                        has: bool = True,
+                        ct: ContentType | None = None,
+                        entity: CremeEntity | None = None,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1624,6 +1684,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         except ContentType.DoesNotExist:
             return False
 
+    @override
     def description(self, user):
         rtype = self.relation_type
         if rtype is False:
@@ -1662,6 +1723,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return entity
 
+    @override
     @property
     def error(self):
         if err := super().error:
@@ -1684,6 +1746,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.RelationsConditionsField, **kwargs):
         defaults = {
@@ -1698,6 +1761,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     # TODO: use a filter "relations__*" when there is only one condition on Relations?
     #       + update code of 'entities_are_distinct()'
+    @override
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
 
@@ -1756,6 +1820,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
     # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         try:
@@ -1773,10 +1838,14 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         )
 
     @classmethod
-    def build_condition(cls, *, model, rtype, subfilter, has=True,
+    def build_condition(cls, *,
+                        model: type[CremeEntity],
+                        rtype: RelationType,
+                        subfilter: EntityFilter,
+                        has: bool = True,
                         filter_type=EF_REGULAR,  # TODO: rename "efilter_type" for consistency?
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1804,6 +1873,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             ),
         )
 
+    @override
     def description(self, user):
         rtype = self.relation_type
 
@@ -1812,6 +1882,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             filter=self.subfilter or '???',
         ) if rtype else '???'
 
+    @override
     @property
     def error(self):
         # if self.subfilter is False:
@@ -1838,6 +1909,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.RelationSubfiltersConditionsField, **kwargs):
         defaults = {
@@ -1848,6 +1920,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         return form_class(**defaults)
 
     # TODO: use a filter "relations__*" when there is only one condition on Relations ??
+    @override
     def get_q(self, user):
         subfilter = self.subfilter
         filtered = subfilter.filter(
@@ -1865,12 +1938,14 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         return query
 
+    @override
     @classmethod
     def query_for_parent_conditions(cls, ctype):
         # NB: we do not use "ctype" because an EntityFilter on a model can have
         #     a RelationSubFilterConditionHandler on another model.
         return Q(type=cls.type_id)
 
+    @override
     @property
     def subfilter_id(self):
         return self._subfilter_id
@@ -1888,6 +1963,8 @@ class PropertyConditionHandler(FilterConditionHandler):
     }
 
     _ptype: CremePropertyType | None | Literal[False]
+    _ptype_uuid: UUID
+    _exclude: bool
 
     def __init__(self, *,
                  efilter_type: str,
@@ -1913,6 +1990,7 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         self._exclude = exclude
 
+    @override
     def accept(self, *, entity, user):
         ptype_uuid = self._ptype_uuid
         # NB: we use get_properties() in order to get a cached result, & so avoid
@@ -1922,10 +2000,12 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         return not accepted if self._exclude else accepted
 
+    @override
     @property
     def applicable_on_entity_base(self):
         return True
 
+    @override
     @classmethod
     def build(cls, *, efilter_type, model, name, data):
         try:
@@ -1941,10 +2021,13 @@ class PropertyConditionHandler(FilterConditionHandler):
         )
 
     @classmethod
-    def build_condition(cls, *, model, ptype, has=True,
+    def build_condition(cls, *,
+                        model: type[CremeEntity],
+                        ptype: CremePropertyType,
+                        has: bool = True,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
-                        ):
+                        ) -> EntityFilterCondition:
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1959,18 +2042,21 @@ class PropertyConditionHandler(FilterConditionHandler):
             model=model,
             type=cls.type_id,
             name=str(ptype.uuid),
+            # name=ptype.portable_key(),  ??
             value={'has': bool(has)},
         )
 
+    @override
     def description(self, user):
         ptype = self.property_type
         return self.DESCRIPTION_FORMATS[self._exclude].format(ptype) if ptype else '???'
 
+    @override
     @property
     def error(self):
         if self.property_type is False:
             logger.warning(
-                '%s: CremepPropertyType with uuid="%s" cannot be found.',
+                '%s: CremePropertyType with uuid="%s" cannot be found.',
                 type(self).__name__, self._ptype_uuid,
             )
 
@@ -1979,6 +2065,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         # TODO: error if disabled?
         return None
 
+    @override
     @classmethod
     def formfield(cls, form_class=ef_fields.PropertiesConditionsField, **kwargs):
         defaults = {'label': _('On properties'), **kwargs}
@@ -1986,6 +2073,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         return form_class(**defaults)
 
     # TODO: see remark on RelationConditionHandler._get_q()
+    @override
     def get_q(self, user):
         query = Q(
             pk__in=CremeProperty.objects
@@ -2009,6 +2097,7 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         return ptype
 
+    @override
     @classmethod
     def query_for_related_conditions(cls, instance):
         return Q(
