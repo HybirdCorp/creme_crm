@@ -1,0 +1,26 @@
+/* RootNodes brick */
+
+.graphs-root-brick .root_node-rtypes-disabled {
+    margin-top: 5px;
+
+    color: gray;
+}
+
+.graphs-root-brick .root_node-rtypes-disabled .root_node-rtypes-title {
+    padding-right: 10px;
+
+    color: grey;
+    font-style: italic;
+}
+
+/* OrbitalRelationTypes brick */
+
+.graphs-orbital-brick .orbital-rtype-disabled {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.east .sketch-chart-brick.graphs-sketch-brick .d3-sketch,
+.west .sketch-chart-brick.graphs-sketch-brick .d3-sketch {
+    min-height: 500px;
+}

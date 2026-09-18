@@ -1,0 +1,12 @@
+.opportunities-card-brick .card-targets {
+    font-size: 14px;
+    margin-top: 3px;
+}
+
+.opportunities-card-brick .card-targets a {
+    text-decoration: underline;
+}
+
+.opportunities-current-quote {
+    vertical-align: middle;
+}

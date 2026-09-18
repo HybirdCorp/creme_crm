@@ -10,6 +10,13 @@
     <script type='text/javascript'>
         window.THEME_NAME = "{{THEME_NAME}}";
     </script>
+    <style>
+        @property --theme-color {
+          syntax: "<color>";
+          inherits: false;
+          initial-value: #00ffdb;
+        }
+    </style>
     {% include_creme_media 'main.css' %}
     {% include 'creme_core/frags/js_header.html' %}
     <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />

@@ -91,6 +91,31 @@ _SVG_ICONS = {
             'path': "m6.062 13.375-1.437-1.458L10 6.542l5.375 5.375-1.437 1.458L10 9.438Z",
         },
     },
+    'new_theme': {  # TODO: complete?
+        'goto': {
+            'view_box': '0 0 18 18',
+            'path': 'M9 3L7.94 4.06l4.19 4.19H3v1.5h9.13l-4.19 4.19L9 15l6-6z',
+        },
+        'reorder': {
+            'view_box': '0 0 24 24',
+            'path': 'M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 '
+                    '4h14v-2H7v2zM7 7v2h14V7H7z',
+        },
+        'reload': {
+            'view_box': '0 0 18 18',
+            'path': 'M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 '
+                    '8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 '
+                    '15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z',
+        },
+        'expand': {
+            'view_box': "0 0 20 20",
+            'path': "M10 13.438 4.625 8.042l1.437-1.438L10 10.542l3.938-3.938 1.437 1.438Z",
+        },
+        'collapse': {
+            'view_box': "0 0 20 20",
+            'path': "m6.062 13.375-1.437-1.458L10 6.542l5.375 5.375-1.437 1.458L10 9.438Z",
+        },
+    },
 }
 
 # TODO: in the future asset system, these info should be retrieved from theme data
@@ -194,6 +219,56 @@ _ICON_SIZES_MAP = {
         'listview-filter':        16,
         'listview-filter-action': 22,
         'listview-td-action':     16,
+    },
+    'new_theme': {  # TODO: rework?
+        # Fall-backs (should be avoided)
+        'big': 48,
+        'high': 32,
+        'medium': 22,
+        'small': 16,
+        'tiny': 12,
+
+        # Semantic sizes (use these)
+        'header-menu-home': 30,
+        'header-menu': 16,
+
+        'help-sign': 16,
+
+        # Brick sizes
+        'brick-header': 16,
+        'brick-header-action': 12,  # TODO: 10 ?
+
+        'brick-loading': 16,
+
+        'brick-action': 16,
+        'brick-table-action': 16,
+        'brick-tile-action': 16,
+        'brick-menu-action': 16,
+
+        'brick-table': 16,
+        'brick-list': 16,
+
+        'brick-hat-bar': 48,  # TODO: 50 ?
+        'brick-hat-bar-button': 48,  # TODO: 50 ?
+
+        'brick-hat-card': 22,
+        'brick-hat-card-intro': 16,
+        'brick-hat-card-summary': 16,
+        'brick-hat-card-button': 16,
+
+        # Forms
+        'form-widget': 16,
+
+        # Detail-view buttons
+        'global-button': 16,
+        'instance-button': 16,
+
+        # Listview
+        'listview-menu': 16,
+        'listview-button': 16,
+        'listview-filter': 16,
+        'listview-filter-action': 22,
+        'listview-td-action': 16,
     },
 }
 
