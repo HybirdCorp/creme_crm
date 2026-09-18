@@ -114,6 +114,25 @@ class SnapshotTestCase(CremeTestCase):
         self.assertEqual(None,           diff.old_value)
         self.assertEqual(str(sector_id), diff.new_value)  # TODO: cast anyway?
 
+    def test_compare__invalid_value__ignored___blank(self):
+        """Blank error are ignored (it's form logic)."""
+        old_name = 'Doe'
+        contact = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='John', last_name=old_name,
+        )
+        self.assertIsNone(Snapshot.get_for_instance(contact))
+
+        contact = self.refresh(contact)
+        snapshot = Snapshot.get_for_instance(contact)
+        contact.last_name = ''  # <==
+
+        with self.assertNoLogs():
+            diffs = [*snapshot.compare(contact)]
+
+        diff = self.get_alone_element(diffs)
+        self.assertEqual(old_name, diff.old_value)
+        self.assertEqual('',       diff.new_value)
+
     def test_m2m(self):
         user = self.get_root_user()
         contact1 = FakeContact.objects.create(

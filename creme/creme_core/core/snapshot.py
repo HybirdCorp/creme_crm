@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -128,12 +128,13 @@ class Snapshot:
                     #      Set field “My field” from “X” to “X”
                     new_value = field.clean(new_value, instance)
                 except ValidationError as e:
-                    logger.critical(
-                        'Snapshot.compare(): the field "%s.%s" has been assigned '
-                        'with an invalid value <%s> (original error: %s)',
-                        type(instance).__name__, fname, new_value, e,
-                    )
-                    continue
+                    if getattr(e, 'code', '') != 'blank':  # TODO: set of ignored code?
+                        logger.critical(
+                            'Snapshot.compare(): the field "%s.%s" has been assigned '
+                            'with an invalid value <%s> (original error: %s)',
+                            type(instance).__name__, fname, new_value, e,
+                        )
+                        continue
 
             if old_value != new_value:
                 yield self.Difference(

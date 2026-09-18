@@ -1342,8 +1342,7 @@ a.ui-button:active,
     */
 }
 
-/* Creme */
-----------------------------------*/
+/* Creme ---------------------------------- */
 
 /* HACK: Rounded corners overrides -> the templates need to be cleaned up to remove the forced 'ui-corner-all' html class */
 .ui-dialog, .ui-dialog .ui-dialog-titlebar, .ui-dialog .ui-dialog-titlebar-close {
