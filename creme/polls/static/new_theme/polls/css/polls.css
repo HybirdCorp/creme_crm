@@ -1,0 +1,233 @@
+.polls-list-brick .brick-content {
+    padding: 0;
+}
+
+.polls-list-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.polls-list-brick .poll-item {
+    font-size: 13px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.polls-list-brick .poll-item + .poll-item {
+    border-top: 1px solid #dedede;
+}
+
+.polls-list-brick .poll-group {
+    display: flex;
+    padding-right: 3px;
+    padding-left: 3px;
+}
+
+.polls-list-brick .poll-group + .poll-group {
+    margin-top: 3px;
+}
+
+.polls-list-brick .poll-section {
+    background: #f5f5f5;
+}
+
+.polls-list-brick .poll-title {
+    display: flex;
+    font-weight: 600;
+    flex-grow: 1;
+}
+
+.polls-list-brick .poll-title-label {
+    display: flex;
+    flex-direction: column;
+    padding-left: 3px;
+}
+
+.polls-list-brick .poll-title-number {
+    min-height: 20px;
+    min-width: 20px;
+}
+
+.polls-list-brick .poll-title-number div {
+    min-height: 20px;
+    min-width: 20px;
+    background: #ccc;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.polls-list-brick .poll-section .poll-title-sub {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 12px;
+}
+
+.polls-list-brick .poll-question .poll-title-sub {
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.polls-list-brick .poll-title-sub p {
+    text-align: right;
+    padding: 0px;
+    margin: 0px;
+}
+
+.polls-list-brick .poll-action {
+    margin-left: 5px;
+    padding-left: 5px;
+    white-space: nowrap;
+}
+
+.polls-list-brick .poll-action:last-child {
+    padding-right: 5px;
+}
+
+.polls-list-brick .poll-action img {
+    position: relative;
+    top: 3px;
+}
+
+.polls-list-brick .poll-forbidden .poll-title {
+    opacity: 0.6;
+}
+
+.polls-list-brick .poll-group .poll-title-count {
+    color: #646464;
+    font-size: 0.9em;
+    text-align: right;
+    padding-right: 3px;
+    flex-grow: 1;
+    align-self: center;
+    white-space: nowrap;
+    flex-basis: 10em;
+}
+
+.polls-stats-brick .poll-title {
+    flex-basis: 20%;
+}
+
+.polls-stats-brick .poll-stack {
+    display: flex;
+    align-items: stretch;
+    flex-basis: 80%;
+    flex-wrap: wrap;
+    height: fit-content;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-bar {
+    display: flex;
+    justify-content: center;
+    padding-right: 3px;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-bar:hover {
+    opacity: 0.8;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-title {
+    flex-direction: column;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-label {
+    color: white;
+    padding-left: 5px;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-description {
+    color: white;
+    padding-left: 5px;
+    padding-bottom: 3px;
+    font-size: 0.9em;
+}
+
+.polls-list-brick .poll-stack .poll-stack-count {
+    font-size: 0.9em;
+    text-align: right;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-empty {
+    color: #646464;
+    font-size: 1em;
+    text-transform: uppercase;
+    align-self: center;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-zero {
+    display: flex;
+    flex-basis: 100%;
+    justify-content: left;
+    padding-top: 3px;
+}
+
+.polls-stats-brick .poll-stack .poll-zero-title {
+    text-transform: uppercase;
+    font-size: 0.9em;
+    color: #646464;
+    align-self: center;
+    padding: 3px 10px 3px 3px;
+}
+
+.polls-stats-brick .poll-stack .poll-zero-items {
+    color: #646464;
+    flex-wrap: wrap;
+    display: flex;
+    flex: 2;
+}
+
+.polls-stats-brick .poll-stack .poll-zero-label {
+    background: #646464;
+    color: white;
+    flex-basis: 5em;
+    padding: 3px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.polls-stats-brick .poll-stack .poll-zero-label + .poll-zero-label {
+    margin-left: 3px;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-text {
+    white-space: nowrap;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-a,
+.polls-stats-brick .poll-stack .poll-stack-color-a .poll-stack-text {
+    background-color: rgb(253, 187, 110);
+    color: black;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-b,
+.polls-stats-brick .poll-stack .poll-stack-color-b .poll-stack-text {
+    background-color: rgb(254, 236, 160);
+    color: black;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-c,
+.polls-stats-brick .poll-stack .poll-stack-color-c .poll-stack-text {
+    background-color: rgb(239, 248, 169);
+    color: black;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-d,
+.polls-stats-brick .poll-stack .poll-stack-color-d .poll-stack-text {
+    background-color: rgb(187, 228, 160);
+    color: black;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-e,
+.polls-stats-brick .poll-stack .poll-stack-color-e .poll-stack-text {
+    background-color: rgb(114, 195, 167);
+    color: white;
+}
+
+.polls-stats-brick .poll-stack .poll-stack-color-f,
+.polls-stats-brick .poll-stack .poll-stack-color-f .poll-stack-text {
+    background-color: rgb(66, 136, 181);
+    color: white;
+}

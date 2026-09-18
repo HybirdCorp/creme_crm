@@ -1,0 +1,1361 @@
+li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
+    fill: currentColor;
+    width: 11px;
+    height: 11px;
+    margin-top: 1px;
+}
+
+/*
+.ui-creme-navigation ul li.ui-creme-navigation-item-id_creme_config-staff_separator {
+  margin-top: 5px;
+  padding: 5px 10px;
+
+  color: #ffd571;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+*/
+
+/* Portal */
+
+.creme_config-portal-general .help-text,
+.creme_config-portal-listviews .help-text {
+    display: table-cell;
+    padding-left: 20px;
+}
+
+/* Portal - end */
+
+/* My configuration */
+
+.user-settings-inline-forms {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    margin-bottom: 15px;
+    margin-top: 5px;
+}
+
+.theme_picker label,
+.tz_picker label,
+.language_picker label,
+.displayed_name_form label {
+    font-weight: bolder;
+}
+
+.displayed_name_form .helptext {
+    margin-bottom: 1px;
+
+    color: #666;
+
+    font-style: italic;
+    font-size: 11.5px;
+}
+
+.displayed_name_form > div {
+    height: 28px;
+}
+
+/* TODO: rework layout to avoid <position: relative> & fixed width ... */
+.displayed_name_form input[name="displayed_name"] {
+    width: 148px;
+}
+.displayed_name_form input[type="submit"] {
+    position: relative;
+    top: 5px;
+    left: 160px;
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    font-size: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.displayed_name_form input[type="submit"]:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.displayed_name_form input[type="submit"]:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+
+    color: #1a1a1a;
+}
+
+/* My configuration - end */
+
+/* WorldSettings brick */
+
+.creme_config-world_settings-brick .world_settings-default {
+    font-style: italic;
+    color: #777;
+}
+
+/* Registered model config */
+
+.creme_config-configurable-model-brick .brick-content {
+    overflow-x: auto;
+}
+
+.creme_config-configurable-model-brick th.configmodel-column-order {
+    width: 50px;
+    text-align: center;
+}
+
+.creme_config-configurable-model-brick .configurable-instance-disabled {
+    background: #ebebeb !important;
+    color: grey;
+}
+
+/* PropertyTypes & RelationTypes brick */
+
+.creme_config-property-types-brick .property-label,
+.creme_config-property-types-brick .property-count {
+    white-space: nowrap;
+}
+
+.creme_config-property-types-brick .property-type-disabled,
+.creme_config-property-types-brick .property-type-disabled span.enumerator-empty,
+.creme_config-relation-types-brick .relation-type-disabled,
+.creme_config-relation-types-brick .relation-type-disabled span.enumerator-empty {
+    background: #ebebeb !important;
+    color: grey;
+}
+
+/* CustomEntitiesBrick brick */
+
+.creme_config-customentities-brick .custom-entity-type-deleted {
+    background: #ebebeb !important;
+    color: grey;
+}
+
+.creme_config-customentities-brick .custom-entity-type-deleted .custom-entity-type-name {
+    text-decoration: line-through;
+}
+
+/* Users & UserRoles bricks */
+
+.creme_config-users-brick .user-role ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.creme_config-users-brick .user-role li:not(.active-role) {
+    color: grey;
+}
+.creme_config-users-brick .user-role .disabled-role {
+    text-decoration: line-through;
+}
+
+.creme_config-users-brick td.user-password {
+    white-space: nowrap;
+}
+
+.creme_config-roles-brick .brick-table-content>tbody>tr.role-disabled,
+.creme_config-users-brick .brick-table-content>tbody>tr.user-disabled {
+    background: #ebebeb;
+    color: grey;
+}
+
+.creme_config-users-brick-search {
+    margin-bottom: 2px;
+}
+
+.creme_config-roles-brick .role-disabled span.enumerator-empty {
+    color: #aaa;
+}
+
+.creme_config-roles-brick .role-creds > ul {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.creme_config-roles-brick .role-creds > ul span,
+.creme_config-roles-brick .brick-role-creds > ul img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.creme_config-roles-brick .role-creds li.role-creds-allowed {
+    background: #bef9b8;
+}
+
+.creme_config-roles-brick .role-creds li.role-creds-forbidden {
+    background: #ffbdbb;
+}
+
+/* Search brick */
+
+.creme_config-search-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-search-brick td.search-config-ctype-label {
+    width: 30%;
+}
+
+.creme_config-search-brick td.search-config-fields {
+    width: 100%;
+}
+
+.creme_config-search-brick td.search-config-ctype-label.search-config-superuser {
+    font-weight: 400;
+}
+
+.creme_config-search-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-search-brick .search-config-item {
+    font-size: 11px;
+}
+
+.creme_config-search-brick .search-config-item + .search-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-search-brick .search-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-search-brick .search-config-group + .search-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-search-brick .search-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-search-brick .search-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-search-brick .search-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-search-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-search-brick .search-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+}
+
+.creme_config-search-brick .search-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-search-brick .search-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-search-brick .search-config-group .search-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* Custom-forms brick */
+
+.creme_config-customforms-brick .customform-config-ctype + .customform-config-ctype {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-customforms-brick .customform-config-ctype-title {
+    min-width: 160px;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+
+    align-self: center;
+
+    background: #fcfcfc;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.creme_config-customforms-brick .customform-config-ctype .customform-config-ctype-title span {
+    padding-left: 3px;
+}
+
+.creme_config-customforms-brick .customform-config-ctype:not(.customform-config-collapsed) .customform-config-ctype-title span {
+    font-size: 20px;
+}
+
+.creme_config-customforms-brick .customform-config-ctype-content {
+    margin-left: 50px;
+    margin-right: 30px;
+}
+
+.creme_config-customforms-brick .customform-config-descriptor {
+    padding-top: 5px;
+    padding-bottom: 10px;
+
+    border-top: 1px solid #e1e1e1;
+}
+
+.creme_config-customforms-brick .customform-config-descriptor + .customform-config-descriptor {
+    margin-top: 40px;
+}
+
+.creme_config-customforms-brick .customform-config-descriptor-title span:first-child {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.creme_config-customforms-brick .customform-config-descriptor-title a {
+    padding-left: 15px;
+}
+
+.creme_config-customforms-brick .customform-config-item {
+    margin-left: 20px;
+    padding-left: 5px;
+    padding-top: 5px;
+
+    border-left: 1px solid #ccc;
+}
+
+.creme_config-customforms-brick .customform-config-item + .customform-config-item {
+    margin-top: 25px;
+}
+
+.creme_config-customforms-brick .customform-config-item-title {
+    display: inline-flex;
+}
+
+.creme_config-customforms-brick .customform-config-item-title-label {
+    font-size: 17px;
+    font-weight: 600;
+    font-style: italic;
+    color: #545454;
+}
+
+.creme_config-customforms-brick .customform-config-item .toggle-icon-container {
+    padding-top: 5px;
+}
+
+.creme_config-customforms-brick .customform-config-item.customform-config-collapsed .toggle-icon-collapse,
+.creme_config-customforms-brick .customform-config-item:not(.customform-config-collapsed) .toggle-icon-expand {
+    display: none;
+}
+
+.creme_config-customforms-brick .customform-config-item-title .brick-action {
+    padding-left: 35px;
+    padding-top: 3px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content {
+    display: flex;
+    padding-left: 15px;
+}
+
+.creme_config-customforms-brick .customform-config-item.customform-config-collapsed .customform-config-item-content {
+    display: none;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-errors {
+    padding-left: 10px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-regular {
+    width: 960px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-dual-first {
+    width: 480px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-dual-second {
+    width: 480px;
+    margin-left: 480px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block {
+    border: 1px solid #ccc;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block-header {
+    border-bottom: 1px solid #dedede;
+
+    background-color: #f7f7f7;
+
+    cursor: grab;
+
+    text-align: center;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block-content table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-bottom: 0;
+
+    margin-left: 6px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block-content table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block + .customform-config-block {
+    margin-top: 15px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-block td[data-table-primary-column] {
+    width: 100%;
+    font-weight: 600;
+}
+
+.creme_config-customforms-brick .customform-config-ctype.customform-config-collapsed .customform-config-ctype-content,
+.creme_config-customforms-brick .customform-config-ctype:not(.customform-config-collapsed) .customform-config-show-details,
+.creme_config-customforms-brick .customform-config-ctype.customform-config-collapsed .customform-config-hide-details {
+    display: none;
+}
+
+.creme_config-customforms-brick .customform-config-ctype .customform-config-show-details,
+.creme_config-customforms-brick .customform-config-ctype .customform-config-hide-details {
+    padding-left: 20px;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-fields-actions {
+    margin-top: 10px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-fields-actions .brick-action + .brick-action {
+    margin-left: 10px;
+}
+
+.creme_config-customforms-brick .help-instructions {
+    margin-top: 3px;
+    margin-bottom: 8px;
+
+    font-size: 13px;
+    color: #777;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-customforms-brick .customform-config-block-container:hover .customform-config-block-header .brick-action,
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-content tr:hover .brick-action {
+    visibility: visible;
+}
+
+/* Menu brick */
+
+.creme_config-menu-brick .brick-content {
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+/* TODO: factorise ?? */
+.creme_config-menu-brick .brick-content .help-instructions {
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: rgb(119, 119, 119);
+}
+
+.creme_config-menu-brick .brick-content .menu-config-item + .menu-config-item {
+    border-top: 1px solid #ccc;
+    margin-top: 15px;
+}
+
+.creme_config-menu-brick .menu-config-item-title {
+    padding-top: 7px;
+
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.creme_config-menu-brick .menu-config-container {
+    display: flex;
+    margin-left: 10px;
+}
+
+.creme_config-menu-brick .menu-config-entry0 {
+    width: 200px;
+    margin-right: 2px;
+}
+
+.creme_config-menu-brick .menu-config-item .menu-config-entry0-header {
+    display: flex;
+    align-items: center;
+
+    height: 30px;
+
+    cursor: grab;
+}
+
+.creme_config-menu-brick .menu-config-entry0-header-title {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #646464;
+}
+
+.creme_config-menu-brick .menu-config-item .menu-config-entry0-content {
+    padding: 3px;
+
+    background: #414141;
+
+    cursor: grab;
+
+    color: #ebebeb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.creme_config-menu-brick .menu-config-item.is-disabled .menu-config-entry0-header,
+.creme_config-menu-brick .menu-config-item.is-disabled .menu-config-entry0-content {
+    cursor: not-allowed;
+}
+
+.creme_config-menu-brick .menu-config-entry0-content ul {
+    margin: 0px;
+    padding: 0px;
+
+    list-style: none;
+}
+
+.creme_config-menu-brick .menu-config-entry0-content li {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.creme_config-menu-brick li.menu-config-entry0-type_creme_core-separator1 {
+    text-transform: uppercase;
+    color: #fafafa;
+    font-weight: 400;
+}
+
+.creme_config-menu-brick li + li.menu-config-entry0-type_creme_core-separator1 {
+    border-top: 1px solid #a29d9d;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+/* Channels brick */
+
+.creme_config-notif_channels-brick .brick-table-content>tbody>tr.channel-deleted {
+    background: #ebebeb;
+    color: grey;
+}
+
+/* Buttons brick */
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup + .buttonmenu-config-supergroup {
+    padding-top: 20px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary {
+    padding: 5px;
+    background: #f7f7f7;
+
+    border-bottom: 1px solid #e9e9e9;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-superuser .buttonmenu-config-supergroup-summary,
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-role .buttonmenu-config-supergroup-summary {
+    padding-top: 15px;
+    border-top: 2px solid #dfdfdf;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary .buttonmenu-config-supergroup-title {
+    text-transform: uppercase;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary .buttonmenu-config-supergroup-help {
+    color: grey;
+    font-style: italic;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-action .brick-action {
+    padding-left: 15px;
+}
+
+/*
+.creme_config-buttonmenu-brick .brick-content {
+    padding: 0;
+}
+*/
+
+.creme_config-buttonmenu-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-item {
+    margin-left: 15px;
+
+    font-size: 11px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-item + .buttonmenu-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group + .buttonmenu-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group .buttonmenu-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+.creme_config-buttonmenu-brick .buttons-list.instance-buttons.buttons-config {
+    width: 97.8%;
+    margin-top: -7px;
+    margin-bottom: 7px;
+}
+
+.creme_config-buttonmenu-brick .buttons-list.instance-buttons.buttons-config .menu_button {
+    padding: 4px 12px;
+}
+
+.creme_config-buttonmenu-brick .buttons-list .empty-message {
+    padding: 5px;
+
+    font-style: italic;
+    color: grey;
+}
+
+/* FieldsConfig brick */
+
+.creme_config-fields-brick td.fieldconf-label {
+    width: 15%;
+    white-space: nowrap;
+}
+
+.creme_config-fields-brick td.fieldconf-fields {
+    width: 100%;
+}
+
+.creme_config-fields-brick .fieldconf-fields-flags {
+    padding: 0px;
+    margin: 0px;
+
+    list-style: none;
+}
+
+/* BricksDetailViewConfig brick */
+
+.creme_config-brickloc-detail-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-brickloc-detail-brick div.brickloc-config-item-default {
+    padding-bottom: 10px;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-role {
+    width: 30%;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-count {
+    width: 100%;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-role.brickloc-config-role-superuser {
+    font-weight: 400;
+}
+
+.creme_config-brickloc-detail-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-item {
+    font-size: 11px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-item + .brickloc-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group + .brickloc-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-brickloc-detail-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group .brickloc-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* HomeBricksConfig brick */
+
+.creme_config-brickloc-home-brick .home-bricks-default,
+.creme_config-brickloc-home-brick .home-bricks-superuser {
+    font-style: italic;
+}
+
+/* RelationsBricksConfig brick */
+
+.creme_config-rtypebricks-brick td .rtypebrick-cell-item {
+    font-weight: 600;
+/*    color: #22439f; */
+}
+
+.creme_config-rtypebricks-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-rtypebricks-brick td.rtypebrick-config-relation-label {
+    width: 30%;
+    white-space: nowrap;
+}
+
+.creme_config-rtypebricks-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 0px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-item {
+    font-size: 11px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-item + .rtypebrick-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group + .rtypebrick-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    /* flex-grow: 1; */
+    align-self: center;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-title-disabled {
+    text-decoration: line-through;
+}
+
+.creme_config-semifixed-rtypes-brick .semifixed_rtype-predicate-disabled,
+.creme_config-semifixed-rtypes-brick .semifixed_rtype-rtype-disabled {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-constraints {
+    flex-grow: 1;
+    padding-left: 50px;
+    color: #666;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-rtypebricks-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group .rtypebrick-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* InstanceBricksConfig brick */
+
+.creme_config-instances-bricks-brick .instancebrick-config-name {
+    width: 20%;
+    white-space: nowrap;
+}
+
+.creme_config-instances-bricks-brick td.instancebrick-config-errors span {
+    font-weight: 600;
+    color: rgb(215, 61, 0);
+    text-transform: uppercase;
+}
+
+/* CustomBricksConfig brick */
+
+.creme_config-custombricks-brick td.custombrick-config-label {
+    width: 15%;
+    white-space: nowrap;
+}
+
+.creme_config-custombricks-brick td.custombrick-config-fields {
+    width: 100%;
+}
+
+/* CustomFields brick */
+
+/*
+.creme_config-customfields-brick td.cfields-config-name {
+    width: 30%;
+}
+.creme_config-customfields-brick td.cfields-config-type {
+    width: 100%;
+}
+*/
+.creme_config-customfields-brick td.cfields-config-name,
+.creme_config-customfields-brick td.cfields-config-type {
+    width: 25%;
+}
+
+.creme_config-customfields-brick td.cfields-config-name,
+.creme_config-customfields-brick td.cfields-config-type,
+.creme_config-customfields-brick td.cfields-config-description {
+    cursor: help;
+}
+
+.creme_config-customfields-brick .brick-content {
+    padding: 0;
+}
+
+.creme_config-customfields-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-item {
+    font-size: 11px;
+}
+
+.creme_config-customfields-brick .cfields-config-item + .cfields-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-customfields-brick .cfields-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-customfields-brick .cfields-config-group + .cfields-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-customfields-brick .cfields-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-customfields-brick .cfields-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-customfields-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-customfields-brick .cfields-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+}
+
+.creme_config-customfields-brick .cfields-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-customfields-brick .cfields-config-group .cfields-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+.creme_config-customfields-brick .cfields-config-required {
+    font-size: 12px;
+    font-weight: 500;
+    color: hsla(216, 2%, 45%, 1);
+}
+
+.creme_config-customfields-brick .cfields-config-deleted {
+    color: #777;
+}
+
+.creme_config-customfields-brick .cfields-config-deleted .cfields-config-name,
+.creme_config-custom-enum.creme_config-custom-enum-deleted {
+    text-decoration: line-through;
+}
+
+.creme_config-customfields-brick .cfields-config-default-empty {
+    font-style: italic;
+    color: #AAA;
+}
+
+/* EntityFilters, HeaderFilters, Workflows bricks */
+
+.creme_config-workflows-brick .workflow-config-item,
+.creme_config-entityfilters-brick .entityfilter-config-item,
+.creme_config-headerfilters-brick .headerfilter-config-item {
+    padding: 5px;
+    padding-left: 10px;
+
+    font-size: 11px;
+}
+
+.creme_config-workflows-brick .workflow-config-item + .workflow-config-item,
+.creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item,
+.creme_config-headerfilters-brick .headerfilter-config-item + .headerfilter-config-item {
+    margin-top: 0;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-workflows-brick .workflow-config-summary-group,
+.creme_config-entityfilters-brick .entityfilter-config-summary-group,
+.creme_config-headerfilters-brick .headerfilter-config-summary-group {
+    display: flex;
+}
+
+.creme_config-workflows-brick .workflow-config-group-title,
+.creme_config-entityfilters-brick .entityfilter-config-group-title,
+.creme_config-headerfilters-brick .headerfilter-config-group-title {
+    flex-grow: 1;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    align-self: center;
+}
+
+.creme_config-workflows-brick .workflow-config-content-group,
+.creme_config-entityfilters-brick .entityfilter-config-content-group,
+.creme_config-headerfilters-brick .headerfilter-config-content-group {
+    display: flex;
+    padding-left: 15px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-all,
+.creme_config-headerfilters-brick .headerfilter-config-all,
+.creme_config-entityfilters-brick .entityfilter-config-owned,
+.creme_config-headerfilters-brick .headerfilter-config-owned {
+    width: fit-content;
+
+    margin: 3px;
+    padding: 5px;
+
+    border-radius: 6px;
+    background: #f7f6f6;
+}
+
+.creme_config-entityfilters-brick ul.errors {
+    color: red;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-user-title,
+.creme_config-headerfilters-brick .headerfilter-config-user-title {
+    text-transform: uppercase;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group ul,
+.creme_config-headerfilters-brick .headerfilter-config-content-group ul {
+    padding-left: 20px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-private,
+.creme_config-headerfilters-brick .headerfilter-config-private {
+    opacity: 0.55;
+}
+
+.creme_config-workflows-brick .workflow-config .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li a.entityfilter-config-details,
+.creme_config-headerfilters-brick .headerfilter-config-group li .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-workflows-brick .workflow-config:hover .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action,
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover a.entityfilter-config-details,
+.creme_config-headerfilters-brick .headerfilter-config-group li:hover .brick-action {
+    visibility: visible;
+}
+
+.creme_config-entityfilters-brick a.entityfilter-config-details img {
+    /* NB: copied form brick-action-icon */
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+}
+
+.creme_config-workflows-brick .empty-message,
+.creme_config-entityfilters-brick .empty-message,
+.creme_config-headerfilters-brick .empty-message {
+    padding-top: 3px;
+    padding-left: 20px;
+
+    font-size: 12px;
+    font-style: italic;
+    color: #666666;
+}
+
+/* EntityFilters brick */
+.creme_config-entityfilters-brick .entityfilter-config-group li .disabled-reason {
+    display: block;
+    color: gray;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li .disabled-reason a[data-action] img {
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+}
+
+/* Workflow brick */
+
+.creme_config-workflows-brick .workflow-config {
+    width: 400px;
+
+    margin: 3px;
+    padding: 5px;
+
+    border-radius: 6px;
+    background: #f7f6f6;
+}
+
+.creme_config-workflows-brick .workflow-config.workflow-disabled {
+    color: grey;
+}
+
+.creme_config-workflows-brick .workflow-config-global_buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.creme_config-workflows-brick .workflow-config .workflow-config-global_buttons .brick-action {
+    visibility: visible;
+}
+
+.creme_config-workflows-brick .workflow-config-title {
+    margin-top: 5px;
+}
+
+.creme_config-workflows-brick .workflow-config-title .brick-action {
+    padding-left: 10px;
+}
+
+.creme_config-workflows-brick .workflow-config-content {
+    padding-left: 5px;
+}
+
+.creme_config-workflows-brick .workflow-config-content h4 {
+    margin-bottom: 5px;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions-contents,
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents {
+    margin: 0px;
+    padding: 0px;
+
+    list-style: none;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions-content-empty {
+    font-style: italic;
+    color: #666;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions .errors {
+    padding-left: 10px;
+    color: red;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents ul {
+    padding-left: 25px;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-content {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* HistoryConfig brick */
+
+.creme_config-history-brick .history_item-predicate-disabled {
+    text-decoration: line-through;
+    color: gray;
+}
+
+/* UserSettingValues brick */
+
+.creme_config-user-settings-brick .brick-content {
+    padding: 0;
+}
+
+.creme_config-user-settings-brick .setting-values-config-item {
+    font-size: 11px;
+}
+
+.creme_config-user-settings-brick .setting-values-config-app-name {
+    padding-top: 10px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.creme_config-user-settings-brick .setting-values-config-item + .setting-values-config-item {
+    margin-top: 0px;
+    border-top: 2px solid #ccc;
+}
+
+/* Deletion popup */
+
+.config-deletion-job-info-tiles {
+    margin-top: 10px;
+    margin-left: 8px;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile {
+    margin-top: 5px;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile .config-deletion-job-tile-name {
+    display: flex;
+    flex-wrap: nowrap;
+
+    margin-top: 12px;
+
+    font-size: 14px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile .config-deletion-job-tile-value {
+    display: block;
+
+    margin-top: 1px;
+    margin-left: 3px;
+
+    word-wrap: break-word;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+}

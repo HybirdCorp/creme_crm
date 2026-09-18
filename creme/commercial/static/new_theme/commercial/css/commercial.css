@@ -1,0 +1,176 @@
+.brick.brick-commercial-eval-orgas .orga-evaluation,
+.brick.brick-commercial-eval-orgas .orga-synthesis {
+    padding-right: 10px;
+}
+
+.brick .acts-opportunities-total {
+    font-weight: 600;
+}
+
+.commercial-components-brick tbody [data-table-primary-column] {
+    white-space: nowrap;
+}
+
+.commercial-components-brick .component-description {
+    width: 100%;
+}
+
+.commercial-components-brick tbody [data-table-textaction-column] {
+    min-width: 25px;
+    white-space: nowrap;
+}
+
+.commercial-components-brick tbody [data-table-textaction-column] .brick-table-action {
+    padding: 0 10px;
+}
+
+.commercial-matrix {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.commercial-matrix .matrix-legend {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+    align-self: flex-end;
+    flex-shrink: 1;
+}
+
+.commercial-matrix .matrix-legend div {
+    flex-shrink: 1;
+    text-align: center;
+    padding: 3px 6px;
+    margin: 0 20px;
+    font-weight: 600;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.commercial-matrix ul {
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+
+    column-width: 200px;
+}
+
+.commercial-matrix h3 {
+    margin: 0;
+    padding: 0;
+    font: 600;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.commercial-matrix li:hover {
+    cursor: pointer;
+}
+
+.commercial-matrix table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.commercial-matrix td {
+    height: 50px;
+}
+
+.commercial-matrix .matrix-assets-title {
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.commercial-matrix .matrix-assets {
+    text-align: right;
+    padding-right: 10px;
+    text-transform: uppercase;
+    width: 8em;
+    font-weight: normal;
+}
+
+.commercial-matrix .matrix-charms-title {
+    font-weight: 600;
+    text-align: center;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.commercial-matrix .matrix-charms {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: normal;
+    padding-bottom: 10px;
+}
+
+.commercial-matrix .strategy-cat {
+    font-weight: 600;
+    width: 50%;
+}
+
+.strategy-cat[data-score="3"] {
+    background: #ff2514;
+    color: white;
+}
+
+.strategy-cat[data-score="2"] {
+    background: #ff9900;
+}
+
+.strategy-cat[data-score="1"] {
+    background: #ffff00;
+}
+
+.charm-matrix .charm-score-total .charm-title,
+.asset-matrix .asset-score-total .asset-title {
+    text-transform: uppercase;
+}
+
+.charm-matrix th,
+.asset-matrix th {
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+.charm-matrix .charm-title,
+.asset-matrix .asset-title {
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.charm-matrix .charm-score-total,
+.asset-matrix .asset-score-total {
+    font-weight: 600;
+}
+
+.charm-matrix tbody > tr.charm-score-total > td.strategy-cat,
+.asset-matrix tbody > tr.asset-score-total > td.strategy-cat {
+    text-align: center;
+    padding-left: 0px;
+}
+
+.commercial-approaches-brick .approaches-title {
+    min-width: 160px;
+}
+
+.commercial-approaches-brick .approaches-details {
+    width: 100%;
+}
+
+.commercial-objectives-brick div.objective-counter {
+    height: 22px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.commercial-objectives-brick .brick-table-content .objective-counter .brick-table-action {
+    width: initial;
+}

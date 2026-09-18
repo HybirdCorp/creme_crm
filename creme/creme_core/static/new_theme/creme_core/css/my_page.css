@@ -1,0 +1,11 @@
+.content-my_page .hat-bar-container {
+    border: 0;
+}
+
+.content-my_page .hat-bar .bar-title {
+    width: 100%;
+}
+
+.content-my_page .hat-bar .bar-title h1 {
+    text-align: center;
+}

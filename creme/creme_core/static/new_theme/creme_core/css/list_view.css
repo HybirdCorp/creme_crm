@@ -1,0 +1,1279 @@
+.listview {
+    width: 100%;
+    padding: 0px 4px 4px 0px;
+    margin: 15px 5px 15px 0px;
+
+    border: none;
+}
+
+.ui-dialog-content .listview { /* Tweaks for popups */
+    min-width: 800px;
+
+    border-top: 0;
+    margin-top: 0;
+}
+
+/* List-view page - page header and controls */
+
+.list-header-container {
+    min-height: 50px;
+    margin-top: 10px;
+}
+
+.list-title-container {
+    margin-bottom: 10px;
+}
+
+.list-title {
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 600;
+
+    flex: 1;
+}
+
+.list-title .list-sub-title-separator {
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.list-title .list-title-stats {
+    font-size: 12px;
+    color: #777;
+    margin-left: 5px;
+}
+
+.list-title .typography-parenthesis {
+    position: relative;
+    top: -1px;
+}
+
+.list-control-group {
+    display: inline-block;
+    min-width: 200px;
+}
+
+.list-control-group + .list-control-group {
+    margin-left: 20px;
+}
+
+.list-control-group + .list-control-group::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 21px;
+    margin-right: 20px;
+    background: #bbb;
+    position: relative;
+    top: 5px;
+}
+
+.list-control-group fieldset {
+    display: inline-block;
+    border: 0;
+    padding: 0;
+    font-size: 0px;
+}
+
+.list-control-group fieldset.invalid-selected {
+    background-color: red;
+}
+
+.list-control-group .legend {
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.list-control-group .legend img {
+    position: relative;
+    top: 3px;
+    left: -4px;
+    margin-right: 5px;
+}
+
+.list-control-group a {
+    position: relative;
+    top: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.list-control-group a.is-disabled {
+    opacity: 0.6;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+.list-control-group a img {
+    width:  20px;
+    height: 20px;
+
+    /* NB: copied form brick-action-icon */
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+}
+
+.ui-creme-listview-standalone .list-header-container {
+    margin-bottom: 25px;
+}
+
+.ui-creme-listview-standalone .button-right {
+    float: right;
+}
+
+.ui-creme-listview-standalone .list-title-container {
+    display: flex;
+}
+
+.ui-creme-listview-standalone .list-controls {
+    margin-top: -10px;
+    margin-right: 8px;
+}
+
+.ui-creme-listview-standalone.is-loading {
+    overflow: visible !important;
+}
+
+.ui-creme-listview-standalone .floatThead-container ~ .ui-creme-overlay {
+    z-index: 99;
+}
+
+.ui-creme-listview .lv-loading {
+    background-color: white;
+    opacity: .70;
+    filter: Alpha(Opacity=70);
+}
+
+.ui-creme-listview .lv-loading .overlay-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-creme-listview .lv-loading .overlay-content span {
+    padding-left: 10px;
+}
+
+.ui-creme-listview-popup .list-controls {
+    margin-top: 5px;
+}
+
+/* Listview page - page header and controls - end */
+
+/* Listview page header buttons */
+
+.list-header-buttons {
+    font-size: 0;
+}
+
+/* TMP: mostly once again duplicated from menu_button */
+
+.list-header-buttons a,
+.list-header-buttons button {
+    display: inline-block;
+
+    margin-right:  10px;
+    margin-bottom: 10px;
+    padding: 7px 20px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    text-transform: uppercase;
+    font-size: 11px !important;
+    font-weight: 600;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+}
+
+.list-header-buttons a.with-icon,
+.list-header-buttons button.with-icon {
+    padding-left: 35px;
+    position: relative;
+}
+
+.list-header-buttons a.with-icon img,
+.list-header-buttons button.with-icon img {
+    position: absolute;
+    top: calc(50% - 7px);
+    left: 13px;
+}
+
+.list-header-buttons a:hover,
+.list-header-buttons button:enabled:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+    cursor: pointer;
+}
+
+.list-header-buttons a:active,
+.list-header-buttons button:enabled:active {
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+
+    background: linear-gradient(#f9f9f9, #ededed);
+    color: #1a1a1a;
+
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.list-header-buttons a img,
+.list-header-buttons button img {
+    height: 15px;
+}
+
+.list-header-buttons a.is-disabled,
+.list-header-buttons a:disabled,
+.list-header-buttons button:disabled {
+    opacity: 0.5;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+/* Listview page header buttons - [end] */
+
+/* Listview - header columns */
+
+.listview thead {
+    padding: 0px;
+
+    color: #2C596C;
+}
+
+.listview thead th {
+    vertical-align: top;
+
+    border-left: 0 !important;
+/*    border-right: 0 !important; */
+    border-right: 0;
+
+    color: #222;
+}
+
+.listview thead th:first-child {
+    border-left: 1px solid rgba(84, 130, 149, 0.3) !important;
+}
+
+.listview thead th:last-child {
+    border-right: 1px solid rgba(84, 130, 149, 0.3) !important;
+}
+
+.listview thead tr.lv-columns-header th {
+    border-bottom: 1px solid #ccc;
+
+    padding-top:    5px !important;
+    padding-bottom: 5px !important;
+}
+
+.listview thead tr.lv-search-header,
+.listview thead tr.lv-search-header th {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+
+    background: white !important;
+}
+
+.listview thead th.lv-column.hd_cl_lv {
+    padding-left:  5px !important;
+    padding-right: 30px !important;
+
+    text-align: left;
+}
+
+.listview thead th.lv-column.hd_cl_lv.right_align {
+    padding-left: 5px !important;
+    padding-right: 20px !important;
+    text-align: right;
+}
+
+.listview thead tr.lv-search-header .actions {
+    padding-top:   9px !important;
+    padding-right: 9px !important;
+
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #444 !important;
+    white-space: nowrap;
+}
+
+.listview thead th.lv-column.hd_cl_lv input,
+.listview thead th.lv-column.hd_cl_lv select {
+    min-width: 150px;
+    max-width: 300px;
+}
+
+.listview thead th.lv-column.hd_cl_lv .select2 {
+    font-weight: normal;
+}
+
+.listview thead th.lv-column.hd_cl_lv.right_align input {
+    padding-right: 5px;
+    text-align: right;
+}
+
+.listview thead th.lv-column.hd_date_cl_lv {
+    min-width: 150px;
+}
+
+/* ListView results header - column titles and filters rows */
+.listview thead .lv-columns-header,
+.listview thead .lv-search-header {
+    background-color: #f2f2f2;
+}
+
+/* ListView results body - content rows */
+.listview > tbody {
+    background: white;
+}
+
+.listview .lv-state-form {
+    display: none;
+}
+
+.listview .lv-columns-header .lv-column button {
+    width: 100%;
+    word-wrap: initial;
+    padding: 1px 2px;
+}
+
+.listview .lv-columns-header .lv-column button:focus {
+    outline: none !important;
+}
+
+.listview .lv-columns-header .lv-column button::-moz-focus-inner {
+    border: 0;
+}
+
+.listview .lv-columns-header .lv-column button[disabled] {
+    border: 0px;
+    color: #22439f;
+    opacity: 1;
+    background: none;
+}
+
+.listview .lv-columns-header .lv-column button > div {
+    display: flex;
+}
+
+.listview .lv-columns-header .lv-column .lv-sort-toggle-title {
+    align-self: center;
+    flex-grow: 1;
+}
+
+.listview .lv-columns-header .lv-column .lv-sort-toggle-flag {
+    min-width: 16px;
+    visibility: hidden;
+
+    align-self: center;
+}
+
+.listview .lv-columns-header .lv-column.sorted .lv-sort-toggle-flag {
+    visibility: visible;
+}
+
+.listview .lv-columns-header th {
+    padding: 0px 2px;
+
+    border-top:  1px solid rgba(84, 130, 149, 0.3);
+    border-left: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview .lv-search-header th.search input  {
+    background-color: #e6e6e6;
+}
+
+.listview > thead tr.lv-columns-header,
+.listview > thead tr.lv-search-header,
+.listview .lv-columns-header th.sorted,
+.listview .lv-search-header th.sorted,
+.listview > tbody tr:not(.odd) {
+    background: #fcfcfc;
+}
+
+.listview .lv-search-header th {
+    padding: 0px 2px 2px 2px;
+
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3);
+    border-left:   1px solid rgba(84, 130, 149, 0.3);
+
+    text-align: center;
+}
+
+.listview .lv-search-header .text input {
+    min-width: 50px;
+}
+
+.listview .lv-search-header .lv-state-field.invalid {
+    background-color: #ff778b;
+}
+
+.listview .lv-search-header .lv-search-daterange {
+	display: flex;
+    flex-direction: column;
+
+    margin-right: -15px;
+}
+
+.listview .lv-search-header .lv-search-daterange .date-start,
+.listview .lv-search-header .lv-search-daterange .date-end {
+    display: flex;
+    flex-direction: row;
+    align-self: stretch;
+}
+
+.listview .lv-search-header .lv-search-daterange label {
+    flex-grow: 1;
+
+    margin: 2px;
+    padding: 0;
+
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+
+    align-self: center;
+}
+
+.listview .lv-search-header .lv-search-daterange input {
+    width: 70px;
+    padding-right: 20px;
+
+    align-self: center;
+}
+
+.listview .lv-search-header .lv-search-daterange .date-start + .date-end input {
+    border-top: 0;
+}
+
+.listview .lv-search-header .lv-search-daterange .ui-datepicker-trigger {
+    position: relative;
+    right: 20px;
+    height: 16px;
+    bottom: 1px;
+
+    z-index: 1;
+
+    margin: 1px;
+    padding: 1px;
+    padding-top: 2px;
+
+    align-self: center;
+
+    opacity: 1;
+}
+
+.listview thead button,
+.listview thead button:hover {
+    border: 0 !important;
+    background: none;
+    color: currentColor;
+    cursor: pointer;
+}
+
+.listview thead th .lv-sort-toggle-title {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #222;
+    padding-left: 1px;
+}
+
+.listview thead th.left_align .lv-sort-toggle-title {
+    text-align: left;
+}
+
+.listview thead th.right_align .lv-sort-toggle-flag:first-child {
+    display: inline;
+    width: 0;
+    flex-grow: 1;
+}
+
+.listview thead th.right_align .lv-sort-toggle-title {
+    text-align: right;
+    margin-right: 21px;
+}
+
+.listview thead th button:disabled .lv-sort-toggle-title {
+    color: #777;
+}
+
+.listview thead button:enabled .lv-sort-toggle-title {
+    position: relative;
+    flex-grow: 0 !important;
+}
+
+.listview thead .sorted .lv-sort-toggle-title {
+    color: #666;
+    font-weight: 700;
+}
+
+.listview .lv-sort-toggle-flag {
+    display: none;  /* Hide the left-aligned sorted flags (TODO: remove from creme ??) */
+}
+
+.listview .lv-columns-header .lv-column.sorted.right_align .lv-sort-toggle-flag {
+    visibility: hidden; /* Hide the right-aligned left sorted flag (TODO: remove from creme ??) */
+}
+
+.listview thead button:enabled .lv-sort-toggle-title:hover::after,
+.listview thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-n + .lv-sort-toggle-title::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    color: #999;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    bottom: 3px;
+
+    left: 100%;
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-top: 0;
+    border-bottom: 4px solid currentColor;
+}
+
+.listview thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-s + .lv-sort-toggle-title::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    color: #999;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    bottom: 3px;
+
+    left: 100%;
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+/* Listview - header columns - [end] */
+
+/* Listview - row and header actions */
+
+.listview .header-actions-list,
+.listview .row-actions-list {
+    height: 20px;
+    max-width: 100px;
+
+    background: #F7F7F7;
+    border: 1px solid #ccc;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.listview .row-actions-list {
+    font-size: 0;
+    display: flex;
+    align-items: baseline;
+}
+
+.listview .row-actions-list.only-default-action {
+    max-width: 76px;
+}
+
+.listview .row-actions-trigger {
+    display: inline-block;
+    width: 22px;
+    height: 21px;
+
+    position: relative;
+    cursor: pointer;
+
+    color: #777;
+    padding-right: 2px;
+}
+
+.listview .row-actions-trigger::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+
+    top: 9px;
+    left: 4px;
+
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+.listview .header-actions-trigger {
+    height: 100%;
+
+    cursor: pointer;
+
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #333 !important;
+}
+
+.listview .header-actions-trigger > span {
+    position: relative;
+    top: 2px;
+    left: -4px;
+}
+
+.listview .header-actions-trigger > span::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+
+    top: 6px;
+    left: 100%;
+    margin-left: 4px;
+
+    color: #777;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+.listview .listview-actions-container {
+    display: none;
+}
+
+/*.listview .default-row-action {*/
+.listview .row-actions-list:not(.only-default-action) .default-row-action {
+    display: flex;
+    flex: 1;
+    height: 21px;
+
+    position: relative;
+    top: -6px;
+
+    border-left: 1px solid #ccc;
+}
+
+.listview-action a {
+    display: block;
+
+    padding-left: 5px;
+    padding-right: 10px;
+
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #333 !important;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.listview-action .listview-action-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-right: 5px;
+    position: relative;
+}
+
+.listview-action a.is-disabled {
+    opacity: 0.6;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+.listview .default-row-action a {
+    display: inline-block;
+    flex: 1;
+    height: 21px;
+    padding-right: 15px;
+}
+
+.listview .default-row-action .listview-action-icon {
+    top: 3px;
+    margin-left: 5px;
+}
+
+.listview-actions-popover .popover-content {
+    padding: 0;
+}
+
+.listview-actions-popover .listview-action + .listview-action {
+    border-top: 1px solid #ccc;
+}
+
+.listview-actions-popover .listview-action a {
+    padding: 4px 14px 7px 9px;
+}
+
+.listview-actions-popover .listview-action-icon {
+    top: 3px;
+    margin-right: 8px;
+}
+
+.header-actions-popover .listview-action-icon[src*='/edit_'] {
+    top: 4px;
+}
+
+.listview .header-actions-trigger:hover,
+.listview .header-actions-trigger:hover > span::after,
+.listview .row-actions-trigger:hover,
+.listview-action:hover,
+.listview-action a:hover {
+    background: #479ef5;
+    color: white !important;
+}
+
+/* Listview - row and header actions - [end] */
+
+/* Listview - general cell styling */
+
+.listview td.actions,
+.listview th.actions {
+    width: 125px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.listview td.actions {
+    padding-top: 3px !important;
+    border-left-color: rgba(84, 130, 149, 0.1) !important;
+}
+
+.listview td.choices {
+    padding-top: 7px !important;
+}
+
+.listview td.choices,
+.listview th.choices {
+    width: 19px !important;
+}
+
+.listview td.lv-cell,
+.listview td.actions,
+.listview td.choices {
+    vertical-align: top;
+}
+
+.listview td.lv-cell {
+    padding-top: 7px !important;
+}
+
+.listview-selection-multiple td.lv-cell:not(:first-child),
+.listview td.lv-cell + td.lv-cell {
+    border-left-color: rgba(84, 130, 149, 0.1) !important;
+}
+
+/* Listview - general cell styling - end */
+
+
+/*.listview tbody tr:nth-of-type(odd) { CSS3*/
+.listview tbody tr.lv-row.odd {
+    background: #fff;
+}
+
+.listview tbody tr {
+    border-bottom: 1px solid #333;
+}
+
+.listview tbody td {
+    padding: 2px 4px;
+
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3);
+    border-left:   1px solid rgba(84, 130, 149, 0.3);
+
+    color: #376e86;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.listview tbody tr.lv-row-aggregation td.lv-actions {
+    border-left: none;
+}
+.listview tbody tr.lv-row-aggregation .actions .lv-aggregation-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #444;
+}
+
+/* TODO : enable this CSS if sorted column highlight is needed */
+/*
+.listview tbody td.sorted {
+    background-color: hsl(198, 0%, 94%);
+}
+
+.listview tbody .selectable:hover td.sorted { 
+    background-color: #fff7d0;
+}
+
+.listview tbody .selected:not(:hover) td.sorted {
+    background-color: #a5c6d3;
+}
+
+.listview tbody tr.odd td.sorted {
+    background-color: hsl(198, 0%, 90%);
+}
+*/
+
+/* Commented 12 december 2025 because it seemed too generic & was annoying with aggregation <ul>
+.listview tbody td ul {
+    text-align: left;
+    margin: 3px;
+}
+*/
+
+.listview tfoot tr td table tr td {
+    border: 0;
+    color: #2C596C;
+    font-weight: bold;
+}
+
+.listview tfoot tr td {
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3);
+    border-left:   1px solid rgba(84, 130, 149, 0.3);
+    border-right:  1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview button[disabled="true"],
+.listview button[disabled="true"]:hover,
+.listview button[disabled="true"]:active {
+    background-color: #ddd;
+    color: black;
+    cursor: auto;
+    opacity: 0.8;
+}
+
+.listview button:active {
+    border: #548295 1px inset;
+}
+
+/* TODO: remove the border on all fields excepted in the footer ? */
+.listview input {
+    border: #548295 1px solid;
+}
+
+.listview input:hover,
+.listview input:focus {
+    border: #548295 1px solid;
+    background-color: #D7E2E7;
+}
+
+.listview th.actions {
+    padding-left: 9px;
+}
+
+.listview .lv-actions {
+    max-width: 1%;
+    width: 1%;
+}
+
+.listview option.search-nullfk {
+    font-style: italic;
+}
+
+/* right border fix for header rows, and body rows */
+/*.listview thead .lv-columns-header th:last-child, */
+.listview thead .lv-columns-header th:nth-last-child(1 of :not(.lv-column-hidden)),
+/* .listview thead .lv-search-header th:last-child, */
+.listview thead .lv-search-header th:nth-last-child(1 of :not(.lv-column-hidden)),
+/*.listview > tbody > tr > td:last-child { */
+.listview > tbody > tr > td:nth-last-child(1 of :not(.lv-cell-hidden)) {
+    border-right: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+/* add a bit of space to the input search fields, as navIt now has zero margin */
+.listview thead .lv-search-header th:not(.actions) {
+    padding: 0px 2px;
+}
+
+.listview .cl_lv {
+    word-wrap: break-word;
+    max-width: 200px;
+    min-width: 100px;
+    white-space:normal;
+}
+
+.listview .hd_cl_lv {
+    word-wrap: break-word;
+    white-space: nowrap;
+}
+
+.listview .hd_date_cl_lv {
+    word-wrap: break-word;
+}
+
+.listview tbody .lv-cell-content {
+    padding-right: 3px;
+    text-align: center;
+    margin-left: 16px;
+}
+
+.listview tbody .lv-cell-content ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.listview tbody .lv-cell-content a img {
+    max-width: 64px;
+    max-height: 64px;
+}
+
+.listview tbody .lv-cell-content a img.text_icon {
+    width: 18px;
+    height: 18px;
+}
+
+.listview tbody .lv-cell-action {
+    height: 16px;
+    width: 22px;
+    max-width: 22px;
+    min-width: 22px;
+
+    padding: 0px;
+
+    border-left: 0px;
+}
+
+/* TODO: remove these "lv-cell-action" classes (see inner edition section instead) */
+.listview tbody .lv-cell-action a {
+    visibility: hidden;
+    vertical-align: middle;
+    margin: 0;
+}
+
+.listview tbody tr:hover .lv-cell-action a {
+    visibility: visible;
+}
+
+.listview tbody .lv-cell-action a img {
+    margin: 0;
+    padding: 0;
+}
+
+.listview tbody .lv-cell-action .forbidden {
+    visibility: hidden;
+}
+
+.listview .left_align.lv-cell-content {
+    text-align: left;
+    margin-left: 0px;
+}
+
+.listview .text_area.lv-cell-content {
+    text-align: left;
+    white-space: normal;
+    margin-left: 0px;
+}
+
+.listview .right_align.lv-cell-content {
+    text-align: right;
+    margin-left: 0px;
+}
+
+/* Special content */
+.listview tbody .lv-cell-content .entity_filter-summary ul {
+    font-size: 0.92em;
+    color: hsla(198, 30%, 60%, 1);
+}
+
+/* Listview - row selection */
+
+.listview.first-row-hovered .lv-search-header th,
+.listview.first-row-selected .lv-search-header th {
+    border-bottom: 1px solid #5cadff;
+}
+
+.listview tr.selected {
+    background: none !important;
+}
+
+.listview tr.lv-row td {
+    border-bottom: none;
+    border-top: 1px solid rgba(84, 130, 149, 0.3);
+    transition: background-color 0.1s ease-in-out;
+}
+
+.listview tr.lv-row:first-child td {
+    border-top: none;
+}
+
+.listview tr.lv-row:not(.selected):last-child:not(:first-child) td {
+    border-top: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview tr.lv-row:last-child td {
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview tr.selectable:hover td,
+.listview tr.selectable.selected td {
+    border-top-color: #5cadff !important;
+    border-bottom: 1px solid #5cadff;
+    background-color: rgba(71, 158, 245, 0.07);
+}
+
+.listview tr.selectable:hover:first-child td,
+.listview tr.selectable.selected:first-child td {
+    border-top: none;
+}
+
+.listview tr.selectable:hover td:first-child,
+.listview tr.selectable.selected td:first-child,
+.listview-selection-single tr.selectable:hover td:first-child + td,
+.listview-selection-single tr.selectable.selected td:first-child + td {
+    border-left: 1px solid #5cadff;
+}
+
+.listview tr.selectable:hover td:last-child,
+.listview tr.selectable.selected td:last-child {
+    border-right: 1px solid #5cadff;
+}
+
+.listview tr.selectable:hover + tr.selected td,
+.listview tr.selected + tr.selected td {
+    border-top: none;
+}
+
+.listview tr.selectable:hover + tr:not(.selected) td,
+.listview tr.selected + tr:not(.selected) td {
+    border-top: none !important;
+}
+
+.listview tr.selectable:hover {
+    background-color: rgba(71, 158, 245, 0.11) !important;
+    transition: background-color 0.1s ease-in-out;
+}
+
+/* Listview - row selection - [end] */
+
+/* The stickytude attitude */
+
+.sticky-container {
+    position: relative;
+}
+
+.sticky-container .sticks-horizontally {
+    position: absolute;
+    width: 100%;
+}
+
+.listview-popup .sticks-horizontally { /* disable stickytude in popups */
+    position: static;
+}
+
+/* The stickytude attitude - [end] */
+
+/* Listview - floating header */
+
+.floated-header-anchor {
+    display: none;
+
+/*    position: fixed; */
+    height: 10px;
+
+    pointer-events: none;
+    z-index: 1;
+
+    box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+}
+
+.floatThead-container.floated + .floated-header-anchor {
+    display: block;
+}
+
+.floatThead-container.floated .lv-search-header th {
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3) !important;
+}
+
+/* Listview - floating header - [end] */
+
+/* Listview - inner edition */
+
+.listview tbody .lv-cell-action .listview-td-action {
+    visibility: hidden;
+}
+
+.listview tbody tr.lv-row:hover .lv-cell-action .listview-td-action {
+    visibility: visible;
+}
+
+.listview tbody .lv-cell-action a:hover:not(.is-disabled) {
+    cursor: pointer;
+}
+
+.listview tbody .lv-cell-action .listview-td-action.is-disabled {
+    opacity: 0.6;
+}
+
+/* Listview - inner edition - [end] */
+
+/* Listview - footer & pager */
+
+.listview tfoot {
+    background: white;
+}
+
+.listview .list-footer-container {
+    display: flex;
+    align-items: center;
+
+    padding: 5px 10px;
+}
+
+@media (min-width: 1600px) {
+    .listview-standalone .list-footer-container {
+        max-width: 96.5vw;
+    }
+}
+
+@media (max-width: 1600px) {
+    .listview-standalone .list-footer-container {
+        max-width: 96vw;
+    }
+}
+
+.listview .list-footer-stats,
+.listview .list-footer-page-selector label {
+    color: #444;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.listview .list-footer-page-selector .select-wrapper select {
+    width: 55px;
+}
+
+.listview .list-footer-page-selector .select-wrapper .select-arrow {
+    left: 35px;
+}
+
+/* mostly copied from bricks pagination */
+.listview .list-footer-container .listview-pagination {
+    display: inline-flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+
+    padding-bottom: 2px;
+    padding-top: 2px;
+
+    border-top: 1px solid #dedede;
+    border: 0;
+}
+
+.listview .list-footer-container .listview-pagination > a,
+.listview .list-footer-container .listview-pagination > span {
+    margin-left: -1px;
+    padding: 3px 10px;
+    border: 1px solid #dedede;
+
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+
+    cursor: pointer;
+}
+
+.listview .list-footer-container .listview-pagination > :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.listview .list-footer-container .listview-pagination > :last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-current {
+    font-weight: 700;
+    background: #ededed;
+    cursor: default;
+    z-index: 1;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-first.is-disabled,
+.listview .list-footer-container .listview-pagination .pager-link-previous.is-disabled,
+.listview .list-footer-container .listview-pagination .pager-link-next.is-disabled {
+    color: #ccc;
+    background: #fcfcfc;
+    cursor: default;
+    border: 1px solid #dedede;
+}
+
+.listview .list-footer-container .listview-pagination a:hover {
+    color: #fff;
+    background: #414141;
+    border-color: #414141;
+    z-index: 1;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-choose span {
+    padding: 3px 10px;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-choose input {
+    display: none;
+
+    width: 40px;
+    margin: -1px 0 0 0;
+    padding: 0px 0px;
+
+    font-weight: 700;
+    color: black;
+    text-align: center;
+    background-color: transparent;
+
+    border: 0px;
+    border-radius: 0;
+
+    outline: 0px;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-choose.active span {
+    display: none;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-choose.active input {
+    display: inline-block;
+}
+
+.listview .list-footer-container .listview-pagination .pager-link-choose.active .invalid-page {
+    color: #ff851b;
+}
+
+/* Listview - footer & pager - [end] */

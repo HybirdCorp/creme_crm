@@ -1,0 +1,261 @@
+/* Brick card contact */
+
+.persons-contact-card-brick .card-position {
+    margin-left: 10px;
+    margin-bottom: 3px;
+
+    color: #888;
+}
+
+.persons-contact-card-brick .card-job {
+    font-size: 14px;
+}
+
+.persons-contact-card-brick .card-job a {
+    text-decoration: underline;
+}
+
+.brick-hat-card .contact-is-user {
+    display: inline-block;
+    color: #888;
+    font-size: 11px;
+    vertical-align: top;
+}
+
+/* Brick card contact [end] */
+
+/* Hat bar organisation */
+
+.content-detail-view-persons-organisation .brick-hat-bar .persons-organisation-logo {
+    max-width: 48px;
+    max-height: 60px;
+}
+
+/* Hat bar organisation [end] */
+
+/* Brick card organisation */
+
+.persons-organisation-card-brick .card-job,
+.persons-organisation-card-brick .card-employees {
+    font-size: 14px;
+}
+
+.persons-organisation-card-brick .card-employees {
+    margin-top: 3px;
+}
+
+.persons-organisation-card-brick .card-employees a {
+    text-decoration: underline;
+}
+
+.persons-organisation-card-brick .card-main.has-indicators + .card-employees-wide {
+    margin-top: 10px;
+}
+
+/* Brick card organisation [end] */
+
+/* Brick - Address */
+
+/* NOTE: maps from the prototype have not been imported yet, and probably not until the
+         geolocation brick or some of it is folded into the addresses brick */
+.persons-addresses-brick .brick-content {
+    padding-top: 15px;
+    padding-bottom: 17px;
+}
+
+/* address "group" (row/column depending on the flex direction) */
+.persons-addresses-brick .address-group {
+    display: flex;
+}
+
+.persons-addresses-brick .address-group + .address-group {
+    margin-top: 15px;
+    border-top: 1px solid #dedede;
+    padding-top: 15px;
+}
+
+.persons-addresses-brick .address-map {
+    display: inline-flex;
+    flex: 1;
+    margin-right: 20px;
+}
+
+.persons-addresses-brick .address-map + .address-map {
+    margin: 0;
+    border-top: 0;
+    padding-top: 0;
+
+    border-left: 1px solid #dedede;
+    padding-left: 20px;
+}
+
+.persons-addresses-brick .address-container {
+    flex: 1;
+    margin-right: 5px;
+}
+
+.persons-addresses-brick .address-title {
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+
+    vertical-align: top;
+
+    position: relative;
+    top: -1px;
+
+    color: #444;
+}
+
+.persons-addresses-brick .address-map a.brick-action {
+    visibility: hidden;
+}
+
+.persons-addresses-brick .address-map:hover a.brick-action {
+    visibility: visible;
+}
+
+.persons-addresses-brick .address {
+    font-size: 13px;
+}
+
+/* variant - optional fields */
+.persons-addresses-brick .address-options {
+    margin-top: 10px;
+}
+
+.persons-addresses-brick .address-option + .address-option {
+    margin-top: 5px;
+}
+
+.persons-addresses-brick .address-option-key {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+}
+
+.persons-addresses-brick .address-option-value {
+    display: block;
+    font-size: 13px;
+}
+
+.persons-addresses-brick .brick-action {
+    display: inline-block;
+    margin-left: 25px;
+    max-height: 16px;
+    padding: 0px 7px 0px 5px;
+
+    background: #fafafa;
+    outline: 1px solid #ccc;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition: all 0.1s ease-in;
+}
+
+.persons-addresses-brick .brick-action + .brick-action {
+    margin-left: 15px;
+}
+
+.persons-addresses-brick.brick .brick-action .brick-action-icon {
+    margin-bottom: -1px;
+    height: 10px;
+    min-width: 10px;
+    max-width: 10px;
+
+    /* TODO: better core class? */
+    border: none;
+    box-shadow: none;
+    background: none;
+}
+
+/* states - empty state */
+.persons-addresses-brick .is-empty {
+    padding: 5px 10px;
+
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+
+    cursor: default;
+}
+
+.persons-addresses-brick .brick-scrollable-container {
+    max-height: 300px;
+}
+
+.persons-addresses-brick .address-option-value p {
+    margin: 0;
+}
+
+/* Brick - Address [end] */
+
+/* Address in forms */
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-headers,
+.persons-form_block-addresses .persons-form_block-addresses-buttons-container,
+.persons-form_block-addresses .persons-form_block-addresses-fields-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header {
+    flex: 1;
+    margin: 5px;
+
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #4d4d4d;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-buttons {
+    flex-grow: 1;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-buttons .addresses-copy_to_left {
+    float: left;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-buttons .addresses-copy_to_right {
+    float: right;
+}
+
+/* TODO: factorise ? */
+.persons-form_block-addresses .persons-form_block-addresses-buttons button {
+    height: 23px;
+    padding: 2px 10px;
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-buttons button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.persons-form_block-addresses .form-block-fields {
+    flex-grow: 1;
+}
+
+/* Address in forms - [end] */

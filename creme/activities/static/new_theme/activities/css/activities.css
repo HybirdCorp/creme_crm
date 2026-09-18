@@ -1,0 +1,601 @@
+/* Forms */
+
+.activities-field-datetime .activities-field-date-time {
+    margin-top: 10px;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes {
+    margin-top: 5px;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes > li {
+    margin-top: 10px;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes .activities-mass_import-participants-mode > ul {
+    list-style: none;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes .activities-mass_import-participants-mode li {
+    margin-top: 3px;
+}
+
+.activities-mass_import-participants input[name=participants_separator],
+.activities-mass_import-subjects input[name=subjects_separator] {
+    width: 25px;
+}
+
+.activities-activity_range {
+    display: flex;
+    justify-content: space-between;
+}
+
+.activities-activity_range label {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    color: #777;
+}
+
+.activities-activity_range .activities-activity_range-start,
+.activities-activity_range .activities-activity_range-end {
+    display: inline-flex;
+}
+
+.activities-activity_range .activities-field-datetime {
+    padding-left: 10px;
+}
+
+.activities-activity_range .activities-activity_range-extra {
+    display: flex;
+    flex-direction: column;
+}
+
+.activities-activity_range .activities-activity_range-extra label+label {
+    margin-top: 5px;
+}
+
+/* Forms - end */
+
+/* Calendar sidebar */
+
+.calendar-side {
+    min-width: 320px;
+    /*min-height: 100vh;*/
+    height: calc(100vh - 200px);
+    margin: 41px 10px 10px 0;
+}
+
+.calendar-menu {
+/*
+    position: sticky;
+    top: 60px;
+ */
+
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* apply a natural box layout model to all elements */
+.calendar-menu,
+.calendar-menu * {
+    box-sizing: border-box;
+}
+
+.calendar-menu .menu-group {
+    border: 1px solid #d9d9d9;
+    background: white;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-menu .menu-group:not(.is-empty-group) + .menu-group {
+    margin-top: 5px;
+}
+
+.calendar-menu .menu-group.is-empty-group {
+    display: none;
+}
+
+.calendar-menu h4 {
+    margin: 0;
+}
+
+.calendar-menu h5 {
+    margin: 5px 0 5px 5px;
+}
+
+.calendar-menu span.toggle-icon {
+    width: 22px;
+    display: inline-block;
+}
+
+.calendar-menu .floating-event {
+    padding: 4px 5px;
+    cursor: grab;
+}
+
+.calendar-menu .floating-event:hover {
+    border: dashed 1px #666;
+    padding: 3px 4px;
+}
+
+.calendar-menu .floating-event .colored-square {
+    vertical-align: middle;
+}
+
+.calendar-menu .floating-event .floating-event-label {
+    vertical-align: middle;
+    margin-top: -1px;
+    padding-left: 2px;
+    display: inline-block;
+}
+
+.floating-event.ui-draggable-dragging {
+    background: white;
+    border: dashed 1px #666;
+    padding: 2px 20px !important;
+    cursor: grabbing;
+}
+
+.calendar-menu .menu-group-title {
+    display: flex;
+    background: #f5f5f5;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    border-bottom: 1px solid #d9d9d9;
+    height: 26px;
+}
+
+.calendar-menu .menu-group-title.toggle-collapsed {
+    border-bottom: 0;
+}
+
+.calendar-menu .menu-group-label {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    padding-left: 5px;
+    vertical-align: middle;
+    height: 25px;
+}
+
+.calendar-menu .menu-group-label:before {
+    content: "➖";
+    padding-right: 5px;
+}
+
+.calendar-menu .toggle-collapsed .menu-group-label:before {
+    content: "➕";
+}
+
+.calendar-menu .calendar-menu-item {
+    padding-left: 5px;
+    display: flex;
+}
+
+.calendar-menu .calendar-menu-item label {
+    align-self: center;
+    padding-left: 3px;
+}
+
+.calendar-menu .calendar-menu-item:hover,
+.calendar-menu .calendar-menu-item label:hover,
+.calendar-menu .calendar-menu-item input:hover {
+    cursor: pointer;
+}
+
+.calendar-menu .calendar-menu-item input {
+    appearance: none;
+    border-radius: 4px;
+    height: 15px;
+    width: 15px;
+    background: #fff;
+    border: 3px solid currentcolor;
+}
+
+.calendar-menu .calendar-menu-item input:checked {
+    background: currentcolor;
+}
+
+.calendar-menu .calendar-menu-filter,
+.calendar-menu .floating-event-filter {
+    margin: 5px 5px 8px 5px;
+}
+
+.calendar-menu .calendar-menu-filter input,
+.calendar-menu .floating-event-filter input {
+    width: 100%;
+
+    font-size: 10px;
+    outline-style: none;
+}
+
+.calendar-menu .menu-sublist {
+    padding-bottom: 5px;
+}
+
+.calendar-menu .my-calendars {
+    max-height: calc(30vh - 100px);
+    overflow: auto;
+}
+
+.calendar-menu .other-calendars {
+    /* TODO: we need a better solution to make "my_calendars" + "other_calendars" fill the screen's height */
+    max-height: calc(70vh - 150px);
+    overflow: auto;
+}
+
+.calendar-menu .my-calendars .calendar-menu-item:first-child {
+    margin-top: 5px;
+}
+
+.calendar-menu .other-calendars .calendar-menu-usergroup + .calendar-menu-usergroup {
+    margin-top: 5px;
+}
+
+.calendar-menu .hidden {
+    display: none;
+}
+
+.calendar-menu .calendar-menu-empty {
+    display: block;
+    padding: 5px 10px 0 10px;
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}
+
+/* calendar sidebar - end */
+
+/* calendar */
+
+.calendar-main {
+    display: flex;
+    margin-top: 10px;
+}
+
+.calendar-main .calendar {
+    flex-grow: 1;
+}
+
+.calendar-main .fc-toolbar .fc-left {
+    min-width: 365px;
+}
+
+.calendar-main .fc-creme.with-menu .fc-toolbar.fc-header-toolbar {
+    margin-left: -325px;
+    margin-bottom: 11px;
+}
+
+/* calendar - end */
+
+/* Bricks */
+
+/* Hat card */
+.brick-hat-card.activities-activity-card-brick .hat-card {
+    padding-bottom: 5px;
+}
+
+.activities-activity-card-brick .card-status-value {
+    color: #666;
+}
+
+.activities-activity-card-brick .card-info-fields .card-info-value {
+    display: inline;
+    font-weight: 500;
+    color: #666;
+}
+
+.activities-activity-card-brick .card-info-fields .card-info-value .activities-card-date,
+.activities-activity-card-brick .card-info-fields .card-info-value .activities-card-time {
+    font-weight: 600;
+    color: black;
+}
+
+.activities-activity-card-brick .activity-info-minutes {
+    font-weight: 400;
+    font-size: 13px;
+    color: #444;
+}
+
+.activities-activity-card-brick .activities-card-indicators {
+    margin-top: 5px;
+}
+
+.activities-activity-card-brick .activities-card-indicators .business-card-indicator {
+    background: #bbb;
+}
+
+.activities-activity-card-brick .activity-info-minutes p {
+    margin: 0;
+    padding-bottom: 3px;
+}
+
+/* Past/future activities */
+.activities-list-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.activities-list-brick .activity-item {
+    font-size: 13px;
+}
+
+.activities-list-brick .activity-item + .activity-item {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+}
+
+.activities-list-brick .activity-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.activities-list-brick .activity-group + .activity-group {
+    margin-top: 5px;
+}
+
+.activities-list-brick .activity-group-key {
+    min-width: 160px;
+}
+
+.activities-list-brick .activity-group-value {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.activities-list-brick .activity-info-group .activity-group-key {
+    align-self: flex-start;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    border-bottom: 1px solid #dedede;
+}
+
+.activities-list-brick .activity-schedule-beginning {
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-type {
+    margin-right: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-title {
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-status {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    _color: #FF4136; /* red */
+    _color: #FF851B; /* orange */
+}
+
+.activities-list-brick .activity-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.activities-list-brick .activity-action img {
+    width: 14px;
+    height: 14px;
+    position: relative;
+    top: 3px;
+}
+
+.activities-list-brick .activity-warning {
+    color: #ff4136; /* red */
+    color: #ff851b; /* orange */
+    cursor: default;
+}
+
+.activities-list-brick .activity-warning .activity-warning-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 4px;
+
+    fill: currentColor;
+}
+
+.activities-list-brick .activity-warning-label {
+    display: inline-block;
+
+    margin-left: 3px;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.activities-list-brick .activity-relation {
+    font-weight: 600;
+    color: #333;
+}
+
+.activities-list-brick .activity-group .activity-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+.activities-list-brick .activity-group-value p {
+    margin: 0;
+}
+
+.activities-list-brick .typography-mdash {
+    position: relative;
+    top: -1px;
+}
+
+.brick .activity-calendar-color-square {
+    width: 13px;
+    height: 13px;
+
+    margin-top: -3px;
+    margin-right: 3px;
+
+    display: inline-block;
+    vertical-align: middle;
+
+    background: white;
+}
+
+.brick .activity-calendar-default,
+.brick .activity-calendar-public {
+    text-align: center;
+}
+
+/* Calendars config */
+
+.brick.activities-calendars-brick .calendar-config + .calendar-config {
+    margin-top: 0;
+    border-top: 1px solid #ccc;
+}
+
+.brick.activities-calendars-brick .calendar-config.user-disabled,
+.brick.activities-calendars-brick .calendar-config.user-disabled .brick-table .brick-table-content>tbody>tr {
+    background: #ebebeb;
+    color: grey;
+}
+
+.brick.activities-calendars-brick .calendar-config-group {
+    padding-left: 10px;
+}
+
+.brick.activities-calendars-brick .calendar-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.brick.activities-calendars-brick .calendar-config:not(.user-disabled) .calendar-config-summary-group {
+    background: #fcfcfc;
+}
+
+.brick.activities-calendars-brick .calendar-config-group-title {
+    min-width: 160px;
+
+    align-self: center;
+
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.brick.activities-calendars-brick .calendar-config-group-title .user-disabled-mark {
+    padding-left: 7px;
+
+    text-transform: none;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.brick.activities-calendars-brick td.calendar-config-name {
+    width: 80%;
+}
+
+.brick.activities-calendars-brick td.calendar-config-is_public,
+.brick.activities-calendars-brick td.calendar-config-color {
+    width: 10%;
+}
+
+.brick.activities-calendars-brick .calendar-config-default {
+    margin-left: 10px;
+    padding: 2px 6px;
+
+    background: #dbdbdb;
+    border-radius: 4px;
+
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+}
+
+.brick-calendar .fc-toolbar-title {
+    font-size: 1.5em;
+}
+
+.calendar-config-default,
+.calendar-config-superuser {
+    color: hsla(197, 42%, 20%, 1);
+    font-style: italic;
+}
+
+.brick-table.activities-subtypes-brick .brick-table-content [data-table-action-column] {
+  text-align: right;
+}
+.brick-table.activities-subtypes-brick .brick-table-content > tbody [data-table-action-column] {
+     width: fit-content;
+
+     text-align: right;
+     vertical-align: middle;
+}
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-key {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+
+    cursor: default;
+}
+.activities-unsuccessful-config-brick .item-unsuccessful-help {
+    color: grey;
+    font-style: italic;
+}
+.activities-unsuccessful-config-brick .item-unsuccessful-help a {
+    padding-left: 2px;
+}
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}
+
+/* Bricks - end */
+
+/* Activity popup */
+
+.activities-activity-popup-content a.complete-detailview {
+    display: block;
+}
+
+.activities-activity-popup-content .column {
+    float: left;
+    margin-left: 0;
+
+    /* Only modern browsers will see calc() */
+    width: 49.9%;
+    width: calc(49.9% - 3px);
+}
+
+.activities-activity-popup-content .column-second {
+    float: right;
+    margin-right: 0;
+}
+
+/* Activity popup - end */

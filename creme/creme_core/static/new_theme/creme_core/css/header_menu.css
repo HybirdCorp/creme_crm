@@ -1,0 +1,798 @@
+/* Header --------------------------------------------------------------------*/
+
+.header-menu * {
+    box-sizing: border-box;
+}
+
+.header-menu {
+    font: 12px 'Open Sans', sans-serif;
+
+    height: 35px;
+    background: white;
+    top: 0;
+
+    box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+
+    border-bottom: 1px #ddd;
+    position: fixed;
+    width: 100%;
+
+    z-index: 2000; /* tmp: the floatThead header is defined in js at 10001 ... */
+}
+
+#logo {
+    position: absolute;
+    left: 10px;
+    top: 4px;
+    z-index: 101;
+}
+
+#logo img:hover {
+    opacity: 1;
+}
+
+.header-menu img,
+.header-menu a {
+    transition: none;
+}
+
+.accessories-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    height: 100%;
+
+    padding-right: 5px;
+}
+
+.visitor-box {
+    display: inline-block;
+/*    margin-top: 8px; */
+    margin-right: 12px;
+}
+.visitor-box a {
+    padding-top: 4px;
+    padding-right: 10px;
+    padding-bottom: 4px;
+    padding-left: 30px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
+
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9149d1;
+}
+.visitor-box a:hover {
+    background: linear-gradient(#fff, #f3f3f3);
+}
+.visitor-box a:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+}
+.visitor-box a img {
+    position: absolute;
+    top: calc(50% - 7px);
+    left: 10px;
+}
+
+/* Header [END] --------------------------------------------------------------*/
+
+/* Menu - based on http://handy-html.com/wp-content/themes/handyhtmlv2/uploads/tutorial-files/cross-browser-compatible-dropdown-menu.html */
+/* menu root */
+.ui-creme-navigation {
+    list-style: none;
+
+    margin: 0;
+
+    position: relative;
+    float: left;
+
+    font-size: 11px;
+    color: #646464;
+    font-weight: 600;
+
+    height: 100%;
+    left: 40px;
+    padding: 7px 0 0 0;
+}
+
+/* Menus and their entries */
+.ui-creme-navigation li {
+    float: left;
+    position: relative;
+
+    line-height: 1.3em;
+    vertical-align: middle;
+
+    zoom: 1;
+    height: 100%;
+}
+.ui-creme-navigation > li {
+    text-transform: uppercase;
+    padding: 5px 10px;
+}  /* menus */
+
+/* Menu entries root */
+.ui-creme-navigation ul {
+    list-style: none;
+
+    margin: 0;
+
+    visibility: hidden;
+    opacity: 0;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    min-width: 230px; /* figure out a good default width, possibly overridable in html classes, or computed in js */
+
+    max-height: 90vh; /* for weird old browsers */
+    max-height: calc(95vh - 35px); /* where 35px = .header-menu height */
+    overflow-y: auto;
+
+    font-size: 13px;
+
+    background: #414141;
+    padding: 0 0 3px 0;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+
+    /* todo: investigate shadow techniques - this one shows up over the dark menu item. Using one for each of the 3 sides make the corners unshadowed instead, etc. */
+    z-index: 1; /* so it shows up over the search results */
+}
+
+/* Menu entries */
+.ui-creme-navigation ul li {
+    float: none;
+    text-transform: none;
+}
+.ui-creme-navigation a,
+.ui-creme-navigation .ui-creme-navigation-text-entry,
+.ui-creme-navigation-title {
+    display: block;
+    max-width: 520px;
+    padding: 5px 10px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    text-shadow: none;
+    color: #ebebeb;
+}
+span.ui-creme-navigation-text-entry {  /* Non-active entries */
+    font-weight: 400;
+    cursor: not-allowed;
+}
+.ui-creme-navigation-title {
+    color: #fafafa;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.ui-creme-navigation .ui-creme-navigation-action-entry {
+    display: inline-flex;
+}
+
+.ui-creme-navigation-action-entry img {
+    margin-right: 5px;
+    align-self: center;
+    filter: brightness(10);
+}
+
+.ui-creme-navigation-action-entry img:hover {
+    opacity: unset !important; 
+}
+
+.ui-creme-navigation li.ui-creme-navigation-activated,
+.ui-creme-navigation li:hover {
+    cursor: default;
+    background: #414141;
+} /* hover on menus and their entries */
+.ui-creme-navigation li.ui-creme-navigation-activated > ul {
+    visibility: visible;
+    opacity: 1;
+    font-weight: 600;
+} /* menu entries root when hovering over menus */
+
+.ui-creme-navigation li.ui-creme-navigation-activated {color: white;} /* hover on menus */
+.ui-creme-navigation li.ui-creme-navigation-icon-menu.ui-creme-navigation-activated {color: #bfbfbf;} /* hover on icon menus */
+
+.ui-creme-navigation li.ui-creme-navigation-activated li:not(.ui-creme-navigation-item-type_creme_core-separator1):hover {
+    background: #595959;
+} /* hover on menu entries */
+.ui-creme-navigation li.ui-creme-navigation-activated ul a:hover {color: white;} /* hover on menu entries */
+
+.ui-creme-navigation > li:hover,
+.ui-creme-navigation li:hover > ul,
+.ui-creme-navigation li:hover li:hover {
+    transition: none;
+} /* animated transitions into the hover state */
+.ui-creme-navigation li,
+.ui-creme-navigation ul {
+    transition: all 150ms ease-in;
+} /* animated transitions out of the hover state */
+
+.ui-creme-navigation a.is_deleted {
+    text-decoration: line-through;
+}
+
+/* Menu separators */
+
+.ui-creme-navigation li.ui-creme-navigation-item-id_creme_core-separator0 {
+    height: 22px;
+
+    margin-right: 2px;
+    margin-left: 2px;
+    padding: 0px;
+
+    border-left: 1px solid #bbb;
+
+    pointer-events: none;
+}
+
+/* Menu separators [END] */
+
+/* Menu entries separators */
+
+.ui-creme-navigation .ui-creme-navigation-title-separator {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 400;
+    color: #fafafa;
+/*  letter-spacing: 0.3px; */ /* support of fractional metrics to test everywhere */
+/*  word-spacing: 1px; */ /* possible tweak to test everywhere (with 1px or 2px) */
+}
+
+.ui-creme-navigation li + .ui-creme-navigation-item-type_creme_core-separator1 {
+    border-top: 1px solid #a29d9d;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+/* Menu entries separators [END] */
+
+.ui-creme-navigation-item-id_creme_core-role_switch button,
+.ui-creme-navigation-item-id_creme_core-logout button {
+    /* copy of <a> */
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
+    text-shadow: none;
+    color: #ebebeb;
+
+    /* from ui-creme-navigation */
+    font-weight: 600;
+
+    text-align: inherit;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.ui-creme-navigation-punctuation {
+    font-weight: 400;
+}
+
+.ui-creme-navigation-ctype {
+    margin-right: 3px ;
+
+    font-weight: 100;
+    color: #999;
+}
+
+/* Role switch entry */
+
+/* Ugly hack to disable the hover state because we don't have customizable CSS classes at item level */
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch:hover {
+    background: #414141;
+}
+
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch a:hover {
+    background: #595959;
+}
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
+    cursor: not-allowed;
+}
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-empty {
+    display: none;
+}
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch .ui-creme-navigation-title {
+    border-top: 1px solid #a29d9d;
+    margin-top: 5px;
+    padding-top: 10px;
+}
+.ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
+    text-decoration: line-through;
+    color: 1px solid #a29d9d;
+}
+.ui-creme-navigation div.marker-selected,
+.ui-creme-navigation div.marker-not-selected {
+    display: inline-block;
+    margin-right: 5px;
+
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+.ui-creme-navigation div.marker-selected {
+    background: #ebebeb;
+}
+.ui-creme-navigation div.marker-not-selected {
+    border: 1px solid #ebebeb;
+}
+
+/* display or hide elements depending on screen width
+@media (max-width: 1100px) {
+    .screens-over-1100 {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1101px) {
+    .screens-under-1100 {
+        display: none !important;
+    }
+}
+*/
+
+/* Menu [END] ----------------------------------------------------------------*/
+
+/* Creation popup ------------------------------------------------------------*/
+
+.create-all-form {
+    padding: 15px 10px;
+    margin: 0 auto;
+}
+
+.create-group-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+}
+
+.create-group-container + .create-group-container {
+    margin-top: 20px;
+    border-top: 1px solid #dedede;
+    padding-top: 20px;
+}
+
+.create-group {
+    flex-grow: 1;
+    max-width: 190px;
+}
+
+.create-group-container-2-columned .create-group:last-child {
+    margin-left: 50px;
+}
+
+.create-group-container-3-columned .create-group:nth-child(2),
+.create-group-container-3-columned .create-group:last-child {
+    margin-left: 50px;
+}
+
+.create-group-container-4-columned .create-group:nth-child(2),
+.create-group-container-4-columned .create-group:nth-child(3),
+.create-group-container-4-columned .create-group:last-child {
+    margin-left: 40px;
+}
+
+.create-group-title {
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 12px;
+    color: #777;
+}
+
+a.create-group-entry {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+span.create-group-entry {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+}
+
+.create-group-entry + .create-group-entry {
+    margin-top: 5px;
+}
+
+/* Creation popup [END] ------------------------------------------------------*/
+
+/* Notification box --------------------------------------------------------- */
+
+.notification-box {
+    position: relative; /* In order notification-box-count's absolute uses it as parent */
+    display: inline-block;
+    padding: 8px 5px;  /* We use 'padding' & not 'margin' to get a bigger "hover" zone */
+}
+
+.notification-box .notification-box-count {
+    position: absolute;
+    top: 1px;
+    left: -12px;
+
+    width: 20px;
+    height: 20px;
+    border-radius: 9px;
+
+    box-shadow: 4px 2px 5px 0px rgba(0, 0, 0, 0.2), inset 1px 1px 2px 1px white;
+
+    background: #06fbb1;
+    border: 2px solid #0ab984;
+
+    text-align: center;
+    color: #194e31;
+    font-weight: 700;
+}
+
+.notification-box .notification-box-count.is-empty {
+    display: none;
+}
+
+/* Based on menu's style */
+
+.notification-box .notification-panel {
+    position: absolute;
+    overflow: auto;
+    max-height: 80vh;
+    width: 512px;
+    top: 35px;
+    left: -380px;
+
+    margin: 0;
+    padding: 0;
+
+    visibility: hidden;
+    opacity: 0;  /* Avoids some visual glitches when panel disappears */
+
+    background: #414141;
+
+    font-size: 12px;
+    color: #ebebeb;
+    font-weight: 500;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.notification-box:hover .notification-panel {
+    visibility: visible;
+    opacity: 1;
+}
+
+.notification-box .notification-error {
+    background: #f08080;
+    color: #520000;
+    text-align: center;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+.notification-box .notification-error.is-empty {
+    display: none;
+}
+
+/* Notification loading overlay */
+.notification-box .notification-loading {
+    background: #6b5469b8;
+}
+
+.notification-box .notification-loading .overlay-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-box .notification-loading .overlay-content span {
+    padding-left: 10px;
+}
+
+/* Notification entries */
+.notification-box ul {
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+}
+
+.notification-box li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    padding: 5px 10px;
+
+    transition: all 150ms ease-in;
+}
+
+.notification-box li:hover {
+    cursor: default;
+    background: #595959;
+}
+
+.notification-box li.notification-item .notification-channel {
+    order: 1;
+
+    padding: 2px 4px;
+    border-radius: 8px;
+
+    color: #bbb;
+    background: #555;
+}
+
+.notification-box li.notification-item .notification-subject {
+    order: 4;
+
+    width: 100%;
+    padding-left: 2px;
+    padding-top: 3px;
+
+    text-transform: uppercase;
+    color: #fafafa;
+    font-size: 13px;
+    font-weight: 600;
+}
+.notification-box li.notification-item.notification-item-level3 .notification-subject {
+    color: #fb7f3f;
+}
+.notification-box li.notification-item.notification-item-level1 .notification-subject {
+    color: #b7b7b7;
+    font-size: 11px;
+}
+
+.notification-box li.notification-item .notification-created {
+    order: 2;
+
+    font-size: 10px;
+    color: #8f8e8e;
+
+    cursor: help;
+}
+
+.notification-box li.notification-item .notification-body {
+    order: 5;
+    width: 100%;
+
+    padding-left: 15px;
+    padding-top: 5px;
+}
+.notification-box li.notification-item.notification-item-level1 .notification-body {
+    font-size: 11px;
+}
+/* Used by content HTML of reminders for assistants.Alert for example */
+.notification-box li.notification-item .notification-body h1 {
+    margin: 0;
+    padding: 0;
+
+    font-size: 16px;
+}
+.notification-box li.notification-item .notification-body p {
+    margin: 0;
+    padding: 0;
+}
+.notification-box li.notification-item .notification-body a {
+    color: #479ef5;
+}
+
+.notification-box .notification-item .discard-notification {
+    order: 3;
+
+    border: 0;
+    background: 0;
+    color: #8e8e8e;
+    font-style: italic;
+    text-decoration: underline;
+
+    cursor: pointer;
+}
+
+/* Notifications separators */
+.notification-box li + li {
+    border-top: 1px solid #a29d9d;
+}
+
+/* "All Notifications" link */
+.notification-box .notification-all-link {
+    padding: 10px;
+    padding-top: 12px;
+
+    border-top: 1px solid #cecece;
+
+    text-align: center;
+}
+.notification-box .notification-all-link:hover {
+    background: #595959;
+}
+.notification-box .notification-all-link a {
+    display: block;
+    width: 100%;
+
+    color: #fafafa;
+    font-size: 13px;
+    font-weight: 600;
+}
+.notification-box .notification-all-link a:hover {
+    text-decoration: none;
+}
+
+/* Notification box [END] --------------------------------------------------- */
+
+/* Search box --------------------------------------------------------------- */
+
+.search-box {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+    vertical-align: top;
+
+    margin-top: 8px;
+    margin-right: 15px;
+}
+div.search-box input[type="text"] {
+    height: auto;
+    padding-left: 5px;
+    width: 150px;
+    height: 100%;
+
+    font-size: 12.5px;
+
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+}
+.search-box input:focus {
+    outline: none;
+}
+
+.search-box-icon.loading .search-icon-default {
+    display: none;
+}
+
+.search-box-icon.default .search-icon-loading {
+    display: none;
+}
+
+.inline-search-results {
+    position: absolute;
+    top: 35px;
+    right: 5px;
+
+    width: 330px;
+
+    max-height: calc(100vh - 50px); /* 50px = 35px for the menu height + 15px to have some padding at the bottom */
+    overflow-y: auto;
+
+    border: 1px solid rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(0,0,0,0.1);
+
+    background: white;
+    box-shadow:  0   5px 4px -4px rgba(0, 0, 0, 0.2),
+                -5px 0   4px -4px rgba(0, 0, 0, 0.2),
+                 5px 0   4px -4px rgba(0, 0, 0, 0.2);
+
+    /* fade out animation */
+    opacity: 0;
+    visibility: hidden;
+
+/*    -webkit-transition: all 300ms ease-in; */
+    transition: all 300ms ease-in;
+}
+
+.inline-search-results.showing {
+    /* fade in animation */
+    opacity: 1;
+    visibility: visible;
+
+    transition: all 180ms ease-out;
+}
+
+.search-results-group /* prefixed with Autoprefixer */ {
+    display: flex;
+    align-items: stretch;
+}
+
+.search-results-group-title {
+    width: 42%;
+    padding: 7px 16px 0 10px;
+
+    text-align: right;
+    cursor: default;
+}
+
+.search-results-group-title,
+.search-results-group-title a {
+    color: #888888;
+}
+
+.search-results {
+    list-style: none;
+
+    margin: 0;
+
+    width: 58%;
+    /* real padding dimensions: 7px 7px 7px 12px */
+    padding: 5px; /* split the padding between the list and the items to allow for a padded :hover bg */
+
+    background: #fafafa;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+
+    font-weight: 600;
+}
+
+.search-results a {
+    display: inline-block;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 2px 2px 2px 7px; /* difference between the list's real padding dimensions and its current padding of 5px */
+
+    color: #666;
+    text-decoration: none;
+    word-break: break-all;
+}
+.search-results a.is_deleted {
+    text-decoration: line-through;
+}
+
+.search-result-reason {opacity: 0.8; font-weight: 400;}
+
+.search-result {margin-bottom: 7px;}
+.search-result:last-child {margin-bottom: 0;}
+
+.search-results-group:first-child .search-results {padding-top: 10px;}
+
+.search-results-group:last-child .search-results,
+.search-results-group:last-child .search-results-group-title {padding-bottom: 10px;} /* empty space at the bottom of the window, the tallest of the 2 variable-height elements will end up growing the window's height */
+
+.search-results-group-title:hover a {text-decoration: underline;}
+
+.search-result:hover,
+.search-result-selected {
+    background: #7878f7;
+} /* TODO: find the selection color */
+
+.search-result:hover a,
+.search-result:hover .search-result-reason,
+.search-result-selected a,
+.search-result-selected .search-result-reason {
+    color: white;
+} /* TODO: find the selection color */
+
+img.search-icon-default {
+    position: relative;
+    top: 4px;
+    left: 5px;
+}
+
+img.search-icon-loading {
+    position: relative;
+    top: 4px;
+    left: 7px;
+}
+
+/* Search box [END] --------------------------------------------------------- */

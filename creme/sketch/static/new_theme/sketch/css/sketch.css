@@ -1,0 +1,220 @@
+.south .sketch-chart-brick .d3-sketch,
+.north .sketch-chart-brick .d3-sketch {
+    min-height: 300px;
+}
+
+.east .sketch-chart-brick .d3-sketch,
+.west .sketch-chart-brick .d3-sketch {
+    min-height: 200px;
+}
+
+.d3-sketch {
+    font: 10px sans-serif;
+}
+
+.d3-sketch svg {
+    /*
+    IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
+    will be constantly evaluated and the node will grow indefinitely if ResizeObserver
+    is enabled.
+    */
+    display: block !important;
+    height: 100% !important;
+    width: 100%;
+}
+
+.d3-sketch .axis path, .d3-chart .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.d3-sketch .not-visible {
+    display: none;
+}
+
+.d3-sketch-tooltip {
+    position: absolute;
+    opacity: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    background: black;
+    color: white;
+    border-radius: 0.2em;
+    font-weight: 600;
+    padding: 5px;
+    text-align: center;
+}
+
+.d3-sketch-tooltip .dot-tip-header {
+    font-size: 1.1em;
+}
+
+.x-scroll .x-scroll-body {
+    pointer-events: bounding-box;
+}
+
+.x-scroll .x-scroll-body:hover {
+    cursor: ew-resize;
+}
+
+.bar-chart .bar rect {
+    shape-rendering: crispEdges;
+}
+
+.bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.bar-chart .bar rect:hover {
+    opacity: 0.8;
+}
+
+.bar-chart .bar.selected rect {
+    opacity: 0.8;
+}
+
+.bar-chart .bar.selected rect:hover {
+    opacity: 0.8;
+}
+
+.bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.bar-chart .bar text.inner.dark-bg {
+    font-weight: 600;
+}
+
+.bar-chart .bar text.outer {
+    fill: black;
+}
+
+.bar-chart .limit {
+    stroke: #f6c2d4;
+    z-index: 1;
+}
+
+.donut-chart .arc path {
+    stroke: #fff;
+}
+
+.donut-chart .slice:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.donut-chart .legend.legend-scroll {
+    pointer-events: bounding-box;
+}
+
+.donut-chart .legend.legend-scroll:hover {
+    cursor: ns-resize;
+}
+
+.donut-chart .slice:not(:hover) .hidden-label {
+    visibility: hidden;
+}
+
+.donut-chart .slice text.dark-bg {
+    font-weight: 600;
+}
+
+.area-chart .area {
+    fill: #4682b4;
+}
+
+.group-bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.group-bar-chart .bar text.inner {
+    fill: #fff;
+}
+
+.group-bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.stack-bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.stack-bar-chart .bar text.inner {
+    fill: #fff;
+}
+
+.stack-bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.stack-bar-chart .bar text.outer {
+    display: none;
+}
+
+.line-chart .dot {
+    fill: currentColor;
+}
+
+.line-chart .dot:hover {
+    cursor: pointer;
+}
+
+.line-chart .dot.dot-hover {
+    opacity: 0;
+}
+
+.line-chart .dot.dot-hover:hover {
+    opacity: 1;
+}
+
+.line-chart .dot.dot-unit {
+    opacity: 0;
+    stroke-width: 2;
+}
+
+.line-chart .dot.dot-unit-hilight {
+    opacity: 1;
+    fill: white;
+}
+
+.line-chart .dot.dot-unit-hilight:hover {
+    fill: currentColor;
+    stroke: none;
+    stroke-width: 0;
+}
+
+.line-chart .line path:hover {
+    opacity: 0.8;
+}
+
+.line-chart .line.selected path {
+    opacity: 0.8;
+}
+
+.line-chart .line.selected path:hover {
+    opacity: 0.8;
+}
+
+.line-chart .limit {
+    stroke: #f6c2d4;
+    z-index: 1;
+}
+
+.sketch-chart-brick .brick-d3-content {
+    min-height: 300px;
+    border: 0px;
+}
+
+.sketch-chart-brick .brick-content.is-empty {
+    padding: 5px 10px;
+}
+
+.sketch-chart-brick .brick-d3-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}

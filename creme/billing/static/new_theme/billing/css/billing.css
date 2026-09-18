@@ -1,0 +1,529 @@
+ul.bline-error-list {
+    margin-top: 5px;
+}
+
+ul.bline-error-list > li {
+    margin-top: 10px;
+}
+
+/* Bricks */
+
+.billing-card-brick .card-related_persons {
+    font-size: 14px;
+}
+.billing-card-brick .card-related_persons a {
+    text-decoration: underline;
+}
+
+.billing-list-brick .brick-content {
+    padding: 0;
+}
+
+.billing-list-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.billing-list-brick .billing-item {
+    font-size: 13px;
+}
+
+.billing-list-brick .billing-item + .billing-item {
+    margin-top: 20px;
+    border-top: 1px solid #dedede;
+    border-top: 1px solid #ccc;
+}
+
+.billing-list-brick .billing-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.billing-list-brick .billing-group + .billing-group {
+    margin-top: 5px;
+}
+
+.billing-list-brick .billing-group-key {
+    min-width: 160px;
+}
+
+.billing-list-brick .billing-group-value {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.billing-list-brick .billing-info-group .billing-group-key {
+    align-self: flex-start;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-summary-group {
+    padding-top: 4px;
+    padding-bottom: 2px;
+
+    background: #fcfcfc;
+    border-bottom: 1px solid #dedede;
+}
+
+.billing-list-brick .billing-is-default {
+    color: #22439f;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-type {
+    margin-right: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-title {
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-status {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+}
+
+.billing-list-brick .billing-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.billing-list-brick .billing-action:last-child {
+    padding-right: 5px;
+}
+
+.billing-list-brick .billing-action img {
+    position: relative;
+    top: 3px;
+}
+
+.billing-list-brick .billing-brick-list-empty-error {
+    color: #f08080;
+}
+
+.billing-item .billing-select-account {
+    opacity: 0;
+    visibility: hidden;
+    padding: 0px 7px 0px 5px;
+    background: #fafafa;
+    margin-left: 5px;
+    outline: 1px solid #ccc;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.1s ease-in;
+    white-space: nowrap;
+
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+}
+
+.billing-item .billing-payment-archived {
+  padding-left: 3px;
+
+  color: gray;
+  font-size: 11px;
+}
+
+.billing-item:hover .billing-select-account {
+    visibility: visible;
+}
+
+.billing-item:hover .billing-select-account:not(.is-disabled) {
+    opacity: 1;
+}
+
+.billing-item .brick-action .brick-action-icon {
+    margin-bottom: 2px;
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+}
+
+/* Brick billing lines */
+
+.billing-lines-brick .brick-content {
+    padding: 0;
+}
+
+.billing-lines-brick .bline-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.billing-lines-brick .bline-container .bline-buttons {
+    padding: 4px;
+
+    border-right: 1px solid #ccc;
+
+    font-weight: bold;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.billing-lines-brick .bline-container.bline-container-modified .bline-buttons,
+.billing-lines-brick .bline-container.bline-container-not_saved .bline-buttons {
+    background: #ffb939;
+}
+
+.billing-lines-brick .linetable {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-spacing: 0;
+}
+
+.billing-lines-brick .linetable th {
+    padding-top: 5px;
+    padding-bottom: 2px;
+
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    color: #222;
+
+    cursor: default;
+}
+
+.billing-lines-brick .linetable tr.content + tr th {
+    padding-top: 10px;
+}
+
+.billing-lines-brick .linetable.readonly {
+    color: #666;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.billing-lines-brick .linetable .readonly {
+    background-color: #f7f7f7;
+    color: #666;
+}
+
+.billing-lines-brick .bline-container .bline-fields {
+    background: #fcfcfc;
+    width: 100%;
+}
+
+.billing-lines-brick .bline-container.bline-container-modified .bline-fields,
+.billing-lines-brick .bline-container.bline-container-not_saved .bline-fields {
+    background: #fbefdb;
+}
+
+.billing-lines-brick .bline-container-separator {
+    height: 13px;
+
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.billing-lines-brick .bline-container-separator.hidden-form,
+.billing-lines-brick .bline-container.hidden-form {
+    display: none;
+}
+
+.billing-lines-brick input {
+    padding-right: 4px;
+}
+
+.billing-lines-brick .bline-item div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.billing-lines-brick .linetable .bline-comment {
+    text-align: left;
+}
+
+.billing-lines-brick .linetable tr.content .bline-item {
+    vertical-align: top;
+}
+
+.billing-lines-brick .linetable tr.content .bline-item a {
+    display: inline-block;
+    padding-top: 3px;
+    cursor: pointer;
+}
+
+.billing-lines-brick .linetable td {
+    text-align: center;
+}
+
+/* empty message - override */
+.billing-lines-brick .bline-empty {
+    padding: 5px 10px;
+
+    background: #fff;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+}
+
+.billing-lines-brick .bline-quantity {
+    width: 5%;
+}
+
+.billing-lines-brick .bline-unit-price {
+    width: 9%;
+}
+
+.billing-lines-brick .bline-unit {
+    width: 12%;
+}
+
+.billing-lines-brick .bline-discount {
+    width: 15%;
+}
+
+.billing-lines-brick .bline-discount .select-wrapper select,
+.billing-lines-brick .bline-vat .select-wrapper select {
+    width: 120px;
+}
+
+.billing-lines-brick .bline-discount .select-wrapper .select-arrow,
+.billing-lines-brick .bline-vat .select-wrapper .select-arrow {
+    left: 100px;
+}
+
+.billing-lines-brick .bline-vat {
+    width: 7%;
+}
+
+.billing-lines-brick .bline-total-no-tax,
+.billing-lines-brick .bline-total-discounted,
+.billing-lines-brick .bline-total {
+    width: 10%;
+}
+
+.billing-lines-brick input.line-on_the_fly {
+    text-align: center;
+    width: 250px;
+}
+
+.billing-lines-brick input.line-unit {
+    text-align: right;
+    width: 120px;
+}
+
+.billing-lines-brick input.line-unit_price {
+    text-align: right;
+    width: 80px;
+}
+
+.billing-lines-brick input.line-quantity_discount {
+    text-align: right;
+    width: 60px;
+}
+
+.billing-lines-brick input.line-quantity {
+    text-align: right;
+    min-width: 40px;
+    width: 90%;
+}
+
+.billing-lines-brick select.line-vat {
+    text-align: center;
+}
+
+.billing-lines-brick textarea.line-comment {
+    width: 99.5%;
+}
+
+.billing-lines-brick .bline-deletion-mark {
+    background-color: #f08080;
+}
+
+.billing-lines-brick .bline-input-error,
+.billing-lines-brick .bline-form input.bline-input-error {
+    background-color: #f08080;
+}
+
+.billing-lines-brick .bline-form .bline-reorder-anchor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.billing-lines-brick .bline-form .bline-reorder-anchor:hover {
+    cursor: move;
+}
+
+.billing-lines-brick .bline-form .bline-ghost {
+    min-height: 140px;
+    border: 2px dashed #999;
+}
+
+.billing-lines-brick .bline-hidden-fields {
+    display: none;
+}
+
+.billing-lines-brick .bline-container > * {
+    padding-bottom: 4px;
+}
+
+.billing-lines-brick .bline-container {
+    border-bottom: 1px solid #ccc;
+}
+
+.billing-lines-brick .bline-container + .bline-container {
+    border-top: 1px solid #ccc;
+    margin-top: 13px;
+    background-clip: border-box;
+    background-color: white;
+}
+
+/* Brick billing lines - end */
+
+/* Brick credit notes */
+
+.billing-cnotes-brick th[data-table-primary-column] {
+    width: 20%;
+}
+
+.billing-cnotes-brick th.cnotes-number {
+    width: 5%;
+}
+
+.billing-cnotes-brick th.cnotes-status,
+.billing-cnotes-brick th.cnotes-issuing-date,
+.billing-cnotes-brick th.cnotes-expiration-date,
+.billing-cnotes-brick th.cnotes-total-vat,
+.billing-cnotes-brick th.cnotes-total-no-vat {
+    width: 10%;
+}
+
+.billing-cnotes-brick th.cnotes-comment {
+    width: 25%;
+}
+
+.billing-cnotes-brick td.cnotes-comment div {
+    display: flex;
+}
+
+.billing-cnotes-brick.brick-table .brick-table-content .brick-table-action {
+    width: initial;
+    padding: 0px 0px 0px 5px;
+}
+
+.billing-cnotes-brick td.cnotes-comment div p {
+    width: 100%;
+}
+
+/* Brick credit notes - end */
+
+/* Brick number generator */
+
+.billing-number_generators-brick .brick-list-item {
+    padding-top: 5px;
+    padding-left: 8px;
+}
+
+.billing-number_generators-brick .brick-list-item + .brick-list-item {
+    border-top: 1px solid #ccc;
+}
+
+.billing-number_generators-brick .brick-list-item-title {
+    font-size: 15px;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group .brick-tile-name {
+    font-weight: 600;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group .brick-tile-value ul {
+    list-style: none;
+    padding-left: 5px;
+    margin: 5px;
+}
+
+/* Brick number generator - end */
+
+.billing-exporters-brick .billing-exporter-empty,
+.billing-exporters-brick .billing-exporter-error {
+    font-style: italic;
+    color: #ec2e2e;
+}
+
+/* Bricks - end */
+
+
+/* Forms */
+
+.billing-exporter-select > div {
+    margin-bottom: 5px;
+}
+
+div.billing-exporter-select > div > label {
+    display: flex;
+}
+
+.billing-exporter-select .billing-exporter-choice {
+    padding: 5px;
+    min-width: 400px;
+
+    background-color: #f7f7f7;
+}
+
+.billing-exporter-select .billing-exporter-choice .billing-exporter-choice-images {
+    padding-left: 20px;
+}
+
+.billing-exporter-select .billing-exporter-choice .billing-exporter-choice-label {
+    padding-left: 5px;
+
+    opacity: .7;
+
+    font-size: 15px;
+    font-style: italic;
+}
+
+/* Mass-import forms */
+
+.billing-mass_import-totals {
+    display: flex;
+}
+
+.billing-mass_import-totals .billing-mass_import-totals-columns {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    margin-left: 20px;
+    padding-left: 20px;
+
+    border-left: solid 1px #d9d9d9;
+}
+
+.billing-mass_import-totals .billing-mass_import-totals-columns li.is-disabled {
+    color: #b1b1b1;
+}
+
+/* Forms - end */
