@@ -161,6 +161,15 @@ class CremePropertyTypeManager(models.Manager):
             | Q(subject_ctypes__isnull=True)
         )
 
+    # TODO: cache (see MinionModel)?
+    def get_by_portable_key(self, key: str) -> CremePropertyType:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
+        return self.get(uuid=key)
+
+    def get_by_portable_keys(self, /, keys: Iterable[str]) -> Iterator[CremePropertyType]:
+        """@raise django.core.exceptions.ValidationError If the key is not a valid UUID."""
+        yield from self.filter(uuid__in=keys)
+
     def proxy(self,
               subject_models: Iterable[type[CremeEntity]] = (),
               **kwargs) -> CremePropertyTypeProxy:
@@ -388,6 +397,10 @@ class CremePropertyType(CremeModel):
         )
 
         return ctype in ctypes
+
+    def portable_key(self) -> str:
+        """See CremeEntity.portable_key()."""
+        return str(self.uuid)
 
 
 class CremeProperty(CremeModel):
