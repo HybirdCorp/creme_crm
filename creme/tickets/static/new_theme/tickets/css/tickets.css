@@ -1,0 +1,12 @@
+.listview tbody tr[data-color="tickets-important"],
+.listview tbody tr.lv-row.odd[data-color="tickets-important"] {
+    background-color: #f08080;
+}
+
+.listview tbody tr[data-color="tickets-important"] td {
+    color: #3b2755;
+}
+
+.brick-tile[data-key="function_field-get_resolving_duration"] .brick-tile-value {
+    font-size: 1.3em;
+}

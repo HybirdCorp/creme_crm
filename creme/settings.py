@@ -798,8 +798,11 @@ GLOBAL_MEDIA_DIRS = [join(dirname(__file__), 'static')]
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
 # First theme is the default one.
 THEMES = [
-    ('icecream',  _('Ice cream')),
-    ('chantilly', _('Chantilly')),
+    # ('icecream',  _('Ice cream')),
+    ('icecream',  _('Ice cream (deprecated)')),
+    # ('chantilly', _('Chantilly')),
+    ('chantilly', _('Chantilly (deprecated)')),
+    ('new_theme', _('New Creme 3.0 theme')),
 ]
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
@@ -1275,7 +1278,7 @@ CLOSURE_COMPILER_PATH = join(
 
 COPY_MEDIA_FILETYPES = {
     'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
-    'woff', 'ttf', 'eot',  # Fonts
+    'woff', 'ttf', 'eot', 'otf', 'woff2',  # Fonts
 }
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
