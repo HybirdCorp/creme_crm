@@ -1,0 +1,224 @@
+/* Button-menu editor */
+
+.buttonmenu-edit-widget {
+    display: flex;
+    margin-top: 10px;
+    padding-bottom: 5px;
+}
+
+.buttonmenu-edit-widget .buttons-list {
+    margin: 5px 0;
+}
+
+.buttonmenu-edit-widget .buttons-list.instance-buttons {
+    margin: 0;
+}
+
+.buttonmenu-edit-widget .widget-available {
+    flex: 0;
+    min-width: 250px;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.buttonmenu-edit-widget .widget-container {
+    margin: 0 0 10px 0;
+}
+
+.buttonmenu-edit-widget .widget-available .widget-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.buttonmenu-edit-widget .buttons-list.instance-buttons.widget-selected {
+    flex: 1;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 25px;
+}
+
+.buttonmenu-edit-widget .widget-selected .widget-container {
+    flex: 1;
+}
+
+.buttonmenu-edit-widget .menu_button {
+    padding: 4px 12px;
+}
+
+.buttonmenu-edit-widget .widget-selected .widget-container .menu_button {
+    margin-right: 13px;
+}
+
+.buttonmenu-edit-widget .buttons-list .buttons-list-header {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #dedede;
+    text-transform: uppercase;
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    flex: 0;
+}
+
+/* Button-menu editor - end */
+
+/* Menu editor */
+
+.menu-edit-widget {
+    display: flex;
+}
+
+.menu-edit-widget .menu-edit-entries {
+    margin-left: 10px;
+}
+
+.menu-edit-widget .menu-edit-entry {
+    margin-bottom: 3px;
+    padding: 3px;
+    min-height: 18px;
+    min-width: 280px;
+
+    background: #414141;
+
+    cursor: grab;
+
+    color: #ebebeb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.menu-edit-widget .menu-edit-entry-creme_core-separator1 {
+    border-top: solid 2px black;
+
+    color: #fafafa;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.menu-edit-entry button {
+    float: right;
+
+    border: none;
+    background: none;
+
+    color: #8e8e8e;
+    font-style: italic;
+
+    cursor: pointer;
+}
+
+.menu-edit-entry button:hover {
+    text-decoration: underline;
+}
+
+.menu-edit-widget .menu-edit-widget-creations {
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.menu-edit-widget .menu-edit-widget-creations .new-entries {
+    position: relative;
+    display: block;
+
+    margin-top: 10px;
+}
+
+form.menu-edit-regular-entries select {
+    min-height: 240px;
+    min-width: 320px;
+}
+
+form.menu-edit-regular-entries .help-text {
+    margin: 3px;
+
+    color: #666;
+    font-style: italic;
+    font-size: 12.5px;
+}
+
+/* Menu editor - end */
+
+/* Bricks config editor */
+
+.bricks-config-widget {
+    display: flex;
+}
+
+.bricks-config-widget .widget-available {
+    min-width: 20%;
+}
+
+.bricks-config-widget .widget-enabled {
+    padding-left: 5px;
+    flex: 1;
+}
+
+.bricks-config-widget .widget-enabled-row {
+    display: flex;
+    min-height: 155px;
+}
+
+.bricks-config-widget .widget-enabled-top {
+    flex: 1;
+    padding-bottom: 5px;
+}
+
+.bricks-config-widget .widget-enabled-right {
+    flex: 1;
+    padding-left: 5px;
+    padding-bottom: 5px;
+}
+
+.bricks-config-widget .widget-enabled-left {
+    flex: 1;
+    padding-bottom: 5px;
+}
+
+.bricks-config-widget .widget-enabled-bottom {
+    flex: 1;
+}
+
+.bricks-config-widget .widget-title {
+    background: #f5f5f5;
+
+    border: 1px solid #dedede;
+
+    text-align: center;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.bricks-config-widget .widget-choices {
+    height: 100%;
+}
+
+.bricks-config-widget .widget-choice {
+    border-top: none;
+    border-left: 1px solid #dedede;
+    border-bottom: 1px solid #dedede;
+    border-right: 1px solid #dedede;
+
+    cursor: pointer;
+
+    text-align: center;
+
+    transition: 0.2s;
+}
+
+.bricks-config-widget .widget-choice:hover {
+    box-shadow: inset 0 0 0.3em #cecece;
+}
+
+.bricks-config-widget .widget-choice.sortable-ghost {
+    box-shadow: inset 0 0 0.3em #cecece;
+}
+
+.bricks-config-widget .widget-choice.sortable-chosen {
+    box-shadow: inset 0 0 0.3em #cecece;
+}
+
+/* Bricks config editor - end */

@@ -1,0 +1,26 @@
+.mobile-favorite-brick .brick-content:not(.is-empty) {
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: start;
+}
+
+.mobile-favorite-brick .mobile-item {
+    padding-right: 5px;
+    padding-left: 5px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.mobile-favorite-brick .mobile-item + .mobile-item {
+    border-left: 1px solid #ededed;
+}
+
+.mobile-favorite-brick .mobile-favorite-actions {
+    padding-left: 5px;
+}

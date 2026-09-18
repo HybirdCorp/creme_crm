@@ -657,7 +657,7 @@ creme.lv_widget.ListViewHeader = creme.component.Component.sub({
         if (isStandalone) {
             list.floatThead({
                 top: headTop,
-                zIndex: 97, // under the popups overlays, under the popovers and their glasspanes
+                zIndex: 97, // under the popups overlays, under the popovers and their glass panes
                 scrollContainer: function (table) {
                     return table.closest('.sub_content');
                 }

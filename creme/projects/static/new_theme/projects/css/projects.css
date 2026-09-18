@@ -1,0 +1,61 @@
+.projects-tasks-brick .task-delay-value {
+    background: #90ee90;
+    font-weight: 600;
+}
+
+.projects-tasks-brick .task-delay-value.-overtime {
+    color: white;
+    background: red;
+}
+
+.projects-tasks-resources-brick .brick-table-content > thead > tr > :first-child {
+    width: 20%;
+}
+
+.projects-tasks-resources-brick .task-activities-subtitle td {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}
+
+.projects-tasks-activities-brick th.task-activities-type {
+    width: 10%;
+}
+
+.projects-tasks-activities-brick .task-activities-subtitle td {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}
+
+.projects-tasks-activities-brick .task-activities-interval {
+    white-space: nowrap;
+}
+
+.projects-tasks-activities-brick .task-activities-interval a {
+    color: #888;
+}
+
+.projects-tasks-activities-brick .task-activities-interval span {
+    color: #333;
+    font-weight: 600;
+}
+
+.projects-tasks-activities-brick .task-activities-type img {
+    width: 16px;
+    margin-top: 2px;
+}
+
+.projects-task-extra-info-brick .brick-kv-value.task-delay-value {
+    color: green;
+}
+
+.projects-task-extra-info-brick .brick-kv-value.task-delay-value.-overtime {
+    color: red;
+}
