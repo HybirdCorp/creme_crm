@@ -562,8 +562,8 @@ class RelationTypeManager(models.Manager):
                 is_copiable: bool = _DEFAULT_IS_COPIABLE,
                 minimal_display: bool = _DEFAULT_MIN_DISPLAY,
                 models: Iterable[type[CremeEntity]] = (),
-                properties: Iterable[str] = (),
-                forbidden_properties: Iterable[str] = (),
+                properties: Iterable[str | CremePropertyType] = (),
+                forbidden_properties: Iterable[str | CremePropertyType] = (),
                 enabled=_DEFAULT_ENABLED,
                 ) -> RelationTypeBuilder:
         """Get a builder to create RelationType instances easily.
@@ -584,10 +584,10 @@ class RelationTypeManager(models.Manager):
         @param models: Value of the M2M field "subject_ctypes" of the main side
                of the RelationType, but model classes are passed.
         @param properties: Value of the M2M field "subject_properties" of the
-               main side of the RelationType, but UUID-strings are passed.
+               main side of the RelationType, but UUID-strings can be passed too.
         @param forbidden_properties: Value of the M2M field
                "subject_forbidden_properties" of the main side of the
-               RelationType, but UUID-strings are passed.
+               RelationType, but UUID-strings can be passed too.
         @param enabled: Value of the field "enabled" of the 2 sides of the
                RelationType.
 
