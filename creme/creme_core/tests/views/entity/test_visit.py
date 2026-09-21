@@ -980,6 +980,13 @@ class VisitTestCase(CremeTestCase):
         }
         self.assertGET(400, self._build_visit_uri(requested_q='[]', **kwargs))
         self.assertGET(400, self._build_visit_uri(internal_q='[]', **kwargs))
+        self.assertGET(
+            400,
+            self._build_visit_uri(
+                requested_q=QSerializer().dumps(Q(user__password__contains='321')),
+                **kwargs
+            ),
+        )
 
     def test_quick_search_errors(self):
         user = self.login_as_root_and_get()

@@ -1390,13 +1390,37 @@ class ListViewTestCase(CremeTestCase):
         user = self.login_as_root_and_get()
         bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
 
+        def assertLogMsg(log_mngr):
+            self.assertIn(
+                'Error when deserializing the argument "q_filter"',
+                '\n'.join(log_mngr.output),
+            )
+
         self._build_hf()
-        response = self.assertGET200(self.url, data={'q_filter': 'invalid_serialized_q'})
+        with self.assertLogs(level='ERROR') as log_mngr1:
+            response = self.assertGET200(self.url, data={'q_filter': 'invalid_serialized_q'})
+        assertLogMsg(log_mngr1)
 
         content = self._get_lv_cell_contents(
             self._get_lv_table_node(self._get_lv_node(response))
         )
         self.assertCountOccurrences(bebop.name, content, count=1)
+
+        # Invalid field ---
+        with self.assertLogs(level='ERROR') as log_mngr2:
+            self.assertGET200(
+                self.url,
+                data={'q_filter': '{"op":"AND","val":[["invalid","Bebop"]]}'},
+            )
+        assertLogMsg(log_mngr2)
+
+        # Forbidden field ---
+        with self.assertLogs(level='ERROR') as log_mngr3:
+            self.assertGET200(
+                self.url,
+                data={'q_filter': '{"op":"AND","val":[["user__password","1234"]]}'},
+            )
+        assertLogMsg(log_mngr3)
 
     def test_qfilter__POST(self):
         user = self.login_as_root_and_get()

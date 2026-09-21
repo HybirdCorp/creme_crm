@@ -110,6 +110,8 @@
                   use 'creme_core.utils.string.suffixed_truncate()' instead (beware to argument names).
                 - The functions 'log_traceback()' & 'print_traceback()' have been
                   moved to the new package 'creme_core.utils.exception'.
+                - In the class 'queries.QSerializer', the methods 'loads()' & 'deserialize()' take
+                  a new argument "model"; passing nothing is deprecated.
             - In the templatetags libray "creme_bricks" :
                - The argument "render" of '{% brick_display %}' is deprecated & ignored.
                - Not passing a "tag" parameter to the following templatetags is deprecated :
