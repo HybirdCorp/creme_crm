@@ -21,6 +21,10 @@
 
     Non breaking changes :
     ----------------------
+        # Deprecations :
+            - In the class 'creme_core.utils.queries.QSerializer', the methods 'loads()'
+              & 'deserialize()' take a new argument "model"; passing nothing is deprecated.
+              It has been backported from Creme '3.0' & so will be removed in Creme '3.1'.
         # There is now a Warning when a field of an entity model is both unique and clonable.
         # The errors with code "blank" are now ignored by 'Snapshot.compare()'.
         # The style of the row actions widget (in list-views) was ugly when there is only the default action.
