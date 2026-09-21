@@ -469,6 +469,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         cells = self.get_cells(header_filter=hf)
         entities_qs = model.objects.filter(is_deleted=False)
         # use_distinct = False
+        lv = listview.EntitiesList
 
         # ----
         efilter = self.get_entity_filter()
@@ -491,7 +492,12 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         serialized_requested_q = request.GET.get(self.requested_q_arg)
         if serialized_requested_q is not None:
             try:
-                requested_q = QSerializer().loads(serialized_requested_q)
+                # requested_q = QSerializer().loads(serialized_requested_q)
+                requested_q = lv.q_serializer_class().loads(
+                    serialized_requested_q,
+                    model=model,
+                    field_checkers=lv.q_serializer_checkers,
+                )
             except Exception as e:
                 raise BadRequest(f'Invalid requested Q: {e}')
 
