@@ -51,7 +51,7 @@ from creme.creme_core.utils.content_type import get_ctype_or_404
 from ..utils import build_cancel_path
 
 logger = logging.getLogger(__name__)
-_NO_SET = object()
+_NOT_SET = object()
 
 
 class CancellableMixin:
@@ -397,7 +397,7 @@ class CheckedView(PermissionsMixin, django_generic.View):
     """Creme version of the django's View ; it checked that the
     user is logged & has some permission.
     """
-    permissions = _NO_SET   # Must be set explicitly
+    permissions = _NOT_SET   # Must be set explicitly
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -405,7 +405,7 @@ class CheckedView(PermissionsMixin, django_generic.View):
         if not user.is_authenticated:
             return self.handle_not_logged()
 
-        if self.permissions is _NO_SET:
+        if self.permissions is _NOT_SET:
             raise ValueError(
                 f'The view {type(self)!r} does not define the attribute "permissions". '
                 f'Hint: generally a permission "my_app" is relevant, but you can '
