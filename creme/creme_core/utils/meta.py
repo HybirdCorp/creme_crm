@@ -529,7 +529,10 @@ class OrderedField:
         return self._raw
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._raw == other._raw
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._raw == other._raw
 
     @classmethod
     def default(cls, model: type[Model]) -> Self:

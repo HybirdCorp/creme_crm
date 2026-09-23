@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class Button:
-    "Button displayed above the bricks in detail-views of CremeEntities."
+    """Button displayed above the bricks in detail-views of CremeEntities."""
 
     # Can be used as a value in 'dependencies' to design the model of the
     # instance which the detail-view is about (think <context['object']>).
@@ -78,6 +78,9 @@ class Button:
     permissions: str | Collection[str] = ''
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return other.id == self.id
 
     @staticmethod

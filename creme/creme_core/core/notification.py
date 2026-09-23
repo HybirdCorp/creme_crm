@@ -82,9 +82,11 @@ class NotificationContent:
         pass
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, NotificationContent)
-            and self.id == other.id
+            self.id == other.id
             and self.as_dict() == other.as_dict()
         )
 

@@ -127,6 +127,9 @@ class CustomFormExtraSubCell:
         self.model = model
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
             self.sub_type_id == other.sub_type_id
             and self.model == other.model
