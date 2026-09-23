@@ -203,7 +203,7 @@ class ClassKeyedMap[T]:
     def __contains__(self, key: type):
         return key in self._data
 
-    # def __eq__(self, other): # Would be an heavy operation....
+    # def __eq__(self, other): # Would be a heavy operation...
 
     def __iter__(self):
         return iter(self._data)

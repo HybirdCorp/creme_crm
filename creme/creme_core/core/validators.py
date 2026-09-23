@@ -85,10 +85,10 @@ class TemplateVariablesValidator:
             )
 
     def __eq__(self, other):
-        return (
-            isinstance(other, TemplateVariablesValidator)
-            and self._allowed_variables == other._allowed_variables
-        )
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._allowed_variables == other._allowed_variables
 
     @property
     def allowed_variables(self):

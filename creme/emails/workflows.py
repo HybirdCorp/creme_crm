@@ -142,7 +142,10 @@ class LiteralRecipient(ActionRecipient):
         self._email_address = email_address
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self.email_address == other.email_address
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self.email_address == other.email_address
 
     def __repr__(self):
         return f'{type(self).__name__}(email_address="{self._email_address}")'
@@ -194,7 +197,10 @@ class FixedUserRecipient(ActionRecipient):
             self._user = user
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self.user == other.user
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self.user == other.user
 
     def __repr__(self):
         return f'{type(self).__name__}(user={self._user})'
@@ -280,9 +286,11 @@ class _BaseFKRecipient(ActionRecipient):
         self._field = field
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._entity_source == other._entity_source
+            self._entity_source == other._entity_source
             and self._field_name == other._field_name
         )
 

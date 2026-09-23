@@ -94,7 +94,10 @@ class IntegerMaker(ValueMaker):
         self._value = int(value)
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._value == other._value
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._value == other._value
 
     @classmethod
     def from_dict(cls, /, data):
@@ -122,7 +125,10 @@ class BooleanMaker(ValueMaker):
         self._value = bool(value)
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._value == other._value
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._value == other._value
 
     @classmethod
     def from_dict(cls, /, data):
@@ -150,11 +156,14 @@ class DecimalMaker(ValueMaker):
             self._value = Decimal(value)
         except DecimalException as e:
             raise ValueError(
-                f'{type(self).__name__}: value should be an decimal string'
+                f'{type(self).__name__}: value should be a decimal string'
             ) from e
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._value == other._value
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._value == other._value
 
     @classmethod
     def from_dict(cls, /, data):
@@ -181,7 +190,10 @@ class StringMaker(ValueMaker):
         self._str = str(value)
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._str == other._str
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._str == other._str
 
     @classmethod
     def from_dict(cls, /, data):
@@ -209,7 +221,10 @@ class DateMaker(ValueMaker):
     _date: date | None
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._date == other._date
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._date == other._date
 
     @classmethod
     def from_date(cls, /, date_obj: date):
@@ -278,7 +293,10 @@ class DateTimeMaker(ValueMaker):
     _dt: datetime | None
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._dt == other._dt
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._dt == other._dt
 
     @classmethod
     def from_datetime(cls, /, dt):
