@@ -13,7 +13,7 @@ from unittest import skipIf
 from unittest.util import safe_repr
 from uuid import UUID
 
-from bleach._vendor import html5lib
+# from bleach._vendor import html5lib
 from django import forms
 from django.apps import apps
 from django.conf import settings

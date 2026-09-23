@@ -12,7 +12,7 @@ from ..base import EntityEmail, _EmailsTestCase, skipIfCustomEntityEmail
 @skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
     def test_get_sanitized_html_field__empty(self):
-        "Empty body."
+        """Empty body."""
         user = self.login_as_root_and_get()
         email = self._create_email(user=user, body_html='')
         # Not an UnsafeHTMLField
@@ -25,36 +25,44 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))
 
     def test_get_sanitized_html_field__filled(self):
+        self.maxDiff = None
         user = self.login_as_root_and_get()
         email = self._create_email(
             user=user,
             body_html=(
-                '<p>hi</p>'
+                '<p style="background-color:red;cursor:help;">hi</p>'
+                '<a href="https://www.hybird.org" title="Official site">Hybird</a>'
                 '<img alt="Totoro" src="http://external/images/totoro.jpg" />'
                 '<img alt="Nekobus" src="{}nekobus.jpg" />'.format(settings.MEDIA_URL)
             ),
         )
 
         url = reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
-        response = self.assertGET200(url)
+        response_no_ext = self.assertGET200(url)
         self.assertEqual(
-            '<p>hi</p>'
+            # '<p style="background-color:red;">hi</p>'
+            '<p style="background-color:red">hi</p>'
+            # '<a href="https://www.hybird.org" title="Official site">Hybird</a>'
+            '<a href="https://www.hybird.org" title="Official site" rel="noopener noreferrer">Hybird</a>'  # NOQA
             '<img alt="Totoro">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.text,
+            response_no_ext.text,
         )
 
-        response = self.assertGET200(url + '?external_img=on')
+        response_ext = self.assertGET200(url + '?external_img=on')
         self.assertEqual(
-            '<p>hi</p>'
+            # '<p style="background-color:red;">hi</p>'
+            '<p style="background-color:red">hi</p>'
+            # '<a href="https://www.hybird.org" title="Official site">Hybird</a>'
+            '<a href="https://www.hybird.org" title="Official site" rel="noopener noreferrer">Hybird</a>'  # NOQA
             '<img alt="Totoro" src="http://external/images/totoro.jpg">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.text,
+            response_ext.text,
         )
-        # TODO: improve sanitization test (other tags, css...)
+        # TODO: improve sanitization test (other tags, CSS...)
 
     def test_refresh_job(self):
-        "Mail is restored + have to be sent => refresh the job."
+        """Mail is restored + have to be sent => refresh the job."""
         user = self.login_as_root_and_get()
         job = self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
 
@@ -72,7 +80,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job__useless(self):
-        "Mail is restored + do not have to be sent => do not refresh the job."
+        """Mail is restored + do not have to be sent => do not refresh the job."""
         user = self.login_as_root_and_get()
 
         email = self._create_email(user=user, status=EntityEmail.Status.SENDING_ERROR)
