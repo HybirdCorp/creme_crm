@@ -109,7 +109,10 @@ class _EntityEvent(WorkflowEvent):
         self._entity = entity
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._entity.id == other._entity.id
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._entity.id == other._entity.id
 
     def __repr__(self):
         return f'{type(self).__name__}(entity={self._entity!r})'
@@ -138,7 +141,10 @@ class PropertyAdded(WorkflowEvent):
         self._property = creme_property
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._property.id == other._property.id
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._property.id == other._property.id
 
     def __repr__(self):
         return f'PropertyAdded(creme_property={self._property!r})'
@@ -154,7 +160,10 @@ class RelationAdded(WorkflowEvent):
         self._relation = relation
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._relation.id == other._relation.id
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._relation.id == other._relation.id
 
     def __repr__(self):
         return f'RelationAdded(relation={self._relation!r})'
@@ -433,7 +442,10 @@ class FromContextSource(WorkflowSource):
         self._model = model
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._model == other._model
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._model == other._model
 
     def __repr__(self):
         return f'{type(self).__name__}(model={self._model.__name__})'

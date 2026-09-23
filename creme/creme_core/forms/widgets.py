@@ -51,6 +51,9 @@ class WidgetAction:
         self.attrs = attrs
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
             self.name == other.name
             and self.label == other.label

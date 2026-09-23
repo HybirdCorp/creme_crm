@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -263,9 +263,10 @@ class ButtonMenuItem(CremeModel):
 
     # TODO?
     # def __eq__(self, other):
+    #     if not isinstance(other, type(self)):
+    #         return NotImplemented
     #     return (
-    #         isinstance(other, type(self))
-    #         and self.content_type == other.content_type
+    #         self.content_type == other.content_type
     #         and self.button_id == other.button_id
     #         and self.order == other.order
     #         and self.superuser == other.superuser

@@ -76,7 +76,10 @@ class _EntityTrigger(WorkflowTrigger):
         self._model = model
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._model == other._model
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._model == other._model
 
     def __repr__(self):
         return f'{type(self).__name__}(model={self._model.__name__})'
@@ -183,9 +186,11 @@ class PropertyAddingTrigger(WorkflowTrigger):
             self._ptype = ptype
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._entity_model == other._entity_model
+            self._entity_model == other._entity_model
             and self._ptype_uuid == other._ptype_uuid
         )
 
@@ -306,9 +311,11 @@ class RelationAddingTrigger(WorkflowTrigger):
             self._rtype = rtype
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._subject_model == other._subject_model
+            self._subject_model == other._subject_model
             and self._rtype_id == other._rtype_id
             and self._object_model == other._object_model
         )
@@ -508,7 +515,10 @@ class FixedEntitySource(WorkflowSource):
         self._model = model
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self._entity_uuid == other._entity_uuid
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._entity_uuid == other._entity_uuid
 
     def __repr__(self):
         return (
@@ -638,9 +648,11 @@ class EntityFKSource(WorkflowSource):
         self._field_name = field_name
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._field_name == other._field_name  # TODO: test
+            self._field_name == other._field_name  # TODO: test
             and self._entity_source == other._entity_source
         )
 
@@ -741,9 +753,11 @@ class FirstRelatedEntitySource(WorkflowSource):
             self._rtype = rtype
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._subject_source == other._subject_source
+            self._subject_source == other._subject_source
             and self._rtype_id == other._rtype_id
             and self._object_model == other._object_model
         )
@@ -947,7 +961,10 @@ class FixedUserSource(UserSource):
             self._user = user
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self.user == other.user
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._user_uuid == other._user_uuid
 
     def __repr__(self):
         return f'{type(self).__name__}(user={self.user!r})'
@@ -1042,9 +1059,11 @@ class UserFKSource(UserSource):
         self._field = field
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._entity_source == other._entity_source
+            self._entity_source == other._entity_source
             and self._field_name == other._field_name
         )
 
@@ -1237,9 +1256,11 @@ class PropertyAddingAction(WorkflowAction):
             self._ptype = ptype
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._entity_source == other._entity_source
+            self._entity_source == other._entity_source
             and self._ptype_uuid == other._ptype_uuid
         )
 
@@ -1361,9 +1382,11 @@ class RelationAddingAction(WorkflowAction):
             self._rtype = rtype
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._subject_source == other._subject_source
+            self._subject_source == other._subject_source
             and self._rtype_id == other._rtype_id
             and self._object_source == other._object_source
         )
@@ -1515,9 +1538,11 @@ class NotificationSendingAction(WorkflowAction):
         self._body = body
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self._channel == other._channel
+            self._channel == other._channel
             and self._user_source == other._user_source
             and self._entity_source == other._entity_source
             and self._subject == other._subject

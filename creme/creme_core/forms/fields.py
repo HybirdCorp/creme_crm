@@ -1664,14 +1664,16 @@ class RelativeDatePeriodField(fields.MultiValueField):
             return f'{"after" if self.sign == 1 else "before"} {self.period}'
 
         def __eq__(self, other):
+            if not isinstance(other, type(self)):
+                return NotImplemented
+
             return (
-                isinstance(other, type(self))
-                and (self.sign == other.sign)
-                and (self.period == other.period)
+                self.sign == other.sign
+                and self.period == other.period
             )
 
         def as_dict(self) -> dict:
-            "As a jsonifiable dictionary."
+            """As a jsonifiable dictionary."""
             return {
                 'sign': self.sign,
                 **self.period.as_dict(),
@@ -2288,7 +2290,7 @@ class OrderedMultipleChoiceField(fields.MultipleChoiceField):
         - Classical tuple: (item_id, item_label)
         - Dictionary: {'value': item_id, 'label': item_label}
           Optional keys:
-            - "help": an help-text/description of the item
+            - "help": a help-text/description of the item
             - "disabled": a boolean ; <True> means that the state of the choice
                (i.e. selected or not selected) cannot be changed.
         - Note: groups are not managed yet. Currently, you can prefix the label

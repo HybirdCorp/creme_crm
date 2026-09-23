@@ -121,7 +121,8 @@ class EntityCell:
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
-            return False
+            # return False
+            return NotImplemented
 
         return (
             self.type_id == other.type_id

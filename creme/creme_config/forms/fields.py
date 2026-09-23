@@ -267,6 +267,9 @@ class MenuEntriesField(fields.JSONField):
             self.entry_class = entry_class
 
         def __eq__(self, other):
+            if not isinstance(other, type(self)):
+                return NotImplemented
+
             return self.label == other.label and self.entry_class == other.entry_class
 
         @property

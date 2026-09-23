@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,9 +81,11 @@ class NumberGeneratorItem(CremeModel):
         unique_together = ('organisation', 'numbered_type')
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            isinstance(other, type(self))
-            and self.organisation_id == other.organisation_id
+            self.organisation_id == other.organisation_id
             and self.numbered_type == other.numbered_type
             and self.is_edition_allowed == other.is_edition_allowed
             and self.data == other.data
