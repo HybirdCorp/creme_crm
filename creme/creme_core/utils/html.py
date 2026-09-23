@@ -24,28 +24,37 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
+# from typing import TYPE_CHECKING
 from html.entities import entitydefs as html_entities
-from typing import TYPE_CHECKING
 
-import bleach
-from bleach.css_sanitizer import CSSSanitizer
+# import bleach
+# from bleach.css_sanitizer import CSSSanitizer
+import nh3
 from django.conf import settings
 from django.utils.encoding import force_str
-from django.utils.html import format_html, format_html_join, mark_safe
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
-if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Dict, Union
+# if TYPE_CHECKING:
+#     from collections.abc import Callable, Sequence
+#     from typing import Dict, Union
+#
+#     AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
 
-    AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
-
-IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
-ALLOWED_ATTRIBUTES: AllowedAttributesDict = {
-    **bleach.ALLOWED_ATTRIBUTES,
-    '*': ['style', 'class'],
-    'a': ['href', 'rel'],
-    'img': ['src', *IMG_SAFE_ATTRIBUTES],  # NB: 'filter_img_src' can be used here
+# IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
+# ALLOWED_ATTRIBUTES: AllowedAttributesDict = {
+#     **bleach.ALLOWED_ATTRIBUTES,
+#     '*': ['style', 'class'],
+#     # 'a': ['href', 'rel'],
+#     'a': ['href', 'title'],
+#     'img': ['src', *IMG_SAFE_ATTRIBUTES],  # NB: 'filter_img_src' can be used here
+# }
+ALLOWED_ATTRIBUTES: dict[str, set[str]] = {
+    **nh3.ALLOWED_ATTRIBUTES,
+    '*': {'style', 'class'},
+    'a': {'href', 'hreflang', 'title'},
 }
 ALLOWED_TAGS = {
     'a', 'abbr', 'acronym', 'address', 'area',
@@ -63,9 +72,12 @@ ALLOWED_TAGS = {
     'sub', 'sup', 'table', 'tbody', 'td', 'textarea', 'time', 'tfoot',
     'th', 'thead', 'tr', 'tt', 'u', 'ul', 'var',  # 'video',
     'html', 'head', 'title', 'body',
+    # NB: default in nh3.ALLOWED_TAGS
+    'mark', 'summary', 'bdo', 'bdi', 'rt', 'data', 'rp', 'rtc', 'hgroup',
+    'ruby', 'wbr',
+
     # 'style'  # TODO: if we allow <style>, we have to sanitize the inline CSS (it's hard)
 }
-# TODO: see html5lib: mathml_elements, svg_elements ??
 
 ALLOWED_STYLES = {
     # 'azimuth',
@@ -88,31 +100,45 @@ ALLOWED_STYLES = {
 }
 
 
-def filter_img_src(tag, attr, value):
-    if attr in IMG_SAFE_ATTRIBUTES:
-        return True
-
-    # XXX: this feature is probably broken (& not used) -- see urls.py
-    # TODO: remove the external image feature ??
-    if attr == 'src':
-        return value.startswith(settings.MEDIA_URL)
-
-    return False
+# def filter_img_src(tag, attr, value):
+#     if attr in IMG_SAFE_ATTRIBUTES:
+#         return True
+#
+#     # XXX: this feature is probably broken (& not used) -- see urls.py
+#     if attr == 'src':
+#         return value.startswith(settings.MEDIA_URL)
+#
+#     return False
 
 
 def sanitize_html(html: str, allow_external_img: bool = False) -> str:
-    attributes: AllowedAttributesDict = (
-        ALLOWED_ATTRIBUTES
-        if allow_external_img else
-        {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
-    )
+    # attributes: AllowedAttributesDict = (
+    #     ALLOWED_ATTRIBUTES
+    #     if allow_external_img else
+    #     {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
+    # )
+    # return bleach.clean(
+    #     html,
+    #     tags=ALLOWED_TAGS, attributes=attributes,
+    #     css_sanitizer=CSSSanitizer(allowed_css_properties=ALLOWED_STYLES),
+    #     strip=True,
+    # )
+    if allow_external_img:
+        attribute_filter = None
+    else:
+        def attribute_filter(tag, attr, value):
+            if tag == 'img' and attr == 'src':
+                return value if value.startswith(settings.MEDIA_URL) else None
 
-    return bleach.clean(
+            return value
+
+    # https://nh3.readthedocs.io/en/latest/
+    return nh3.clean(
         html,
-        tags=ALLOWED_TAGS, attributes=attributes,
-        # styles=ALLOWED_STYLES,
-        css_sanitizer=CSSSanitizer(allowed_css_properties=ALLOWED_STYLES),
-        strip=True,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        attribute_filter=attribute_filter,
+        filter_style_properties=ALLOWED_STYLES,
     )
 
 
@@ -133,7 +159,7 @@ def escapejson(value: str) -> str:
 
 
 def strip_html(text: str) -> str:
-    """ Removes HTML markups from a string, & replaces HTML entities by unicode.
+    """ Removes HTML markups from a string, & replaces HTML entities by Unicode.
 
     THX to:
     http://effbot.org/zone/re-sub.htm#strip-html
