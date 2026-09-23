@@ -74,7 +74,7 @@ you should create a new virtual env, in order to keep the old one working).
      - redis
      - python-dateutil
      - cryptography
-     - bleach
+     - nh3
      - Pillow
      - django-formtools
      - xlrd (to import contacts, organisations, activities, tickets… from xls files)
