@@ -306,7 +306,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Map'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
         self.assertIn(f"apiKey: '{api_key}'", script_node.text)
 
@@ -348,13 +349,16 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Map'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
-        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
-        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
+
+        script_text = script_node.text
+        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_text)
+        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_text)
         self.assertIn(
             f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
-            script_node.text,
+            script_text,
         )
 
     def test_filtered__google(self):
@@ -377,7 +381,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
         self.assertIn(f"apiKey: '{api_key}'", script_node.text)
 
@@ -410,13 +415,16 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
-        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
-        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
+
+        script_text = script_node.text
+        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_text)
+        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_text)
         self.assertIn(
             f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
-            script_node.text,
+            script_text,
         )
 
     @skipIfCustomAddress
@@ -445,7 +453,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
         self.assertIn(f"apiKey: '{api_key}'", script_node.text)
 
@@ -484,7 +493,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
-            brick_node, './/script[@type="text/javascript"]',
+            # brick_node, './/script[@type="text/javascript"]',
+            brick_node, 'script[type="text/javascript"]',
         )
         self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
         self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
@@ -513,7 +523,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
         self.assertEqual(
             _("No address defined for now"),
-            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+            # brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+            brick_node.find('div', class_='geolocation-empty-brick').text,
         )
 
         contact.trash()
@@ -524,5 +535,6 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
         self.assertEqual(
             _("The geolocation feature is disabled for the entities in the trash"),
-            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+            # brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+            brick_node.find('div', class_='geolocation-empty-brick').text,
         )

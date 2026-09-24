@@ -67,8 +67,9 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
 
         # TODO: test icon
         bar_node = self.get_brick_node(tree, brick=Brick.GENERIC_HAT_BRICK_ID)
-        # title_node = self.get_html_node_or_fail(bar_node, ".//div[@class='bar-title']/h1")
-        title_node = self.get_html_node_or_fail(bar_node, ".//h1[@class='bar-title']")
+        # title_node = self.get_html_node_or_fail(bar_node, ".//h1[@class='bar-title']")
+        # title_node = self.get_html_node_or_fail(bar_node, 'h1[class="bar-title"]')
+        title_node = self.get_html_node_or_fail(bar_node, 'h1.bar-title')
         self.assertEqual(f'{type_name} : {entity.name}', title_node.text.strip())
 
     def test_detail__other_type(self):
@@ -89,8 +90,9 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
         )
-        # title_node = self.get_html_node_or_fail(brick_node, ".//div[@class='bar-title']/h1")
-        title_node = self.get_html_node_or_fail(brick_node, ".//h1[@class='bar-title']")
+        # title_node = self.get_html_node_or_fail(brick_node, ".//h1[@class='bar-title']")
+        # title_node = self.get_html_node_or_fail(brick_node, 'h1[class="bar-title"]')
+        title_node = self.get_html_node_or_fail(brick_node, 'h1.bar-title')
         self.assertEqual(f'{type_name} : {entity.name}', title_node.text.strip())
 
     def test_detail__disabled_type(self):

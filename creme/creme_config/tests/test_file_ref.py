@@ -43,7 +43,8 @@ class FileRefTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_brick_table_column_titles(brick_node1),
         )
         rows = self.get_brick_table_rows(brick_node1)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(6, len(table_cells))
         self.assertEqual(path, table_cells[2].text)
 
@@ -85,4 +86,5 @@ class FileRefTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(brick_data[1]), brick=FileRefsBrick,
         )
         # TODO: method?
-        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        # self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        self.assertIn('brick-forbidden', brick_node.attrs.get('class'))

@@ -41,7 +41,8 @@ class EmailSignatureViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=MySignaturesBrick,
         )
-        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        # self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        self.assertIn('brick-void', brick_node.attrs.get('class', []))
 
     def test_creation(self):
         user = self.login_as_emails_user()

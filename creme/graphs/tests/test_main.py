@@ -378,7 +378,8 @@ class GraphsTestCase(views_base.BrickTestCaseMixin,
         ))
         self.assertIn(
             _('Create a block'),
-            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            # [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            button_node.stripped_strings,
         )
 
         # ---
@@ -403,11 +404,13 @@ class GraphsTestCase(views_base.BrickTestCaseMixin,
         button_node = button_nodes[0]
         self.assertIn(
             _('Create a block'),
-            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            # [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            button_node.text
         )
         self.assertEqual(
             _('A block is already available in the configuration'),
-            button_node.attrib.get('title'),
+            # button_node.attrib.get('title'),
+            button_node.attrs.get('title'),
         )
 
         # ---
@@ -431,13 +434,15 @@ class GraphsTestCase(views_base.BrickTestCaseMixin,
         button_node = button_nodes[0]
         self.assertIn(
             _('Create a block'),
-            [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            # [stripped for t in button_node.itertext() if (stripped := t.strip())],
+            button_node.text,
         )
         self.assertEqual(
             _('You are not allowed to configure this app: {}').format(
                 pgettext('graphs', 'Graphs')
             ),
-            button_node.attrib.get('title'),
+            # button_node.attrib.get('title'),
+            button_node.attrs.get('title'),
         )
 
         # ---

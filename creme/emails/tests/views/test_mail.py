@@ -140,11 +140,13 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         body_brick_node = self.get_brick_node(
             self.get_html_tree(response3.content), brick=bricks.EmailHTMLBodyBrick,
         )
-        iframe_node1 = body_brick_node.find('.//iframe')
+        # iframe_node1 = body_brick_node.find('.//iframe')
+        iframe_node1 = body_brick_node.find('iframe')
         self.assertIsNotNone(iframe_node1)
         self.assertEqual(
             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
-            iframe_node1.attrib.get('src'),
+            # iframe_node1.attrib.get('src'),
+            iframe_node1.attrs.get('src'),
         )
 
         # ---
@@ -154,11 +156,13 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         popup_brick_node = self.get_brick_node(
             self.get_html_tree(response4.content), brick=bricks.MailPopupBrick,
         )
-        iframe_node2 = popup_brick_node.find('.//iframe')
+        # iframe_node2 = popup_brick_node.find('.//iframe')
+        iframe_node2 = popup_brick_node.find('iframe')
         self.assertIsNotNone(iframe_node2)
         self.assertEqual(
             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
-            iframe_node2.attrib.get('src'),
+            # iframe_node2.attrib.get('src'),
+            iframe_node2.attrs.get('src'),
         )
 
         # ---
@@ -1134,7 +1138,8 @@ class EntityEmailOtherViewsTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTest
             plural_title='{count} Emails in the history',
         )
 
-        subject_td = brick_node.find('.//td[@class="email-subject"]')
+        # subject_td = brick_node.find('.//td[@class="email-subject"]')
+        subject_td = brick_node.select_one('td[class="email-subject"]')
         self.assertIsNotNone(subject_td)
         self.assertEqual(email.subject, subject_td.text)
 

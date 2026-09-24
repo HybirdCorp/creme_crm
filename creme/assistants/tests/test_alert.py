@@ -1724,7 +1724,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def alert_found(brick_node, alert):
             title = alert.title
-            return any(n.text == title for n in brick_node.findall('.//td'))
+            # return any(n.text == title for n in brick_node.findall('.//td'))
+            return any(n.text == title for n in brick_node.find_all('td'))
 
         # Detail + do not hide ---
         BrickDetailviewLocation.objects.create_if_needed(

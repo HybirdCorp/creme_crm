@@ -320,7 +320,8 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def memo_found(brick_node, memo):
             content = memo.content
-            return any(n.text == content for n in brick_node.findall('.//p'))
+            # return any(n.text == content for n in brick_node.findall('.//p'))
+            return any(n.text == content for n in brick_node.find_all('p'))
 
         BrickDetailviewLocation.objects.create_if_needed(
             brick=MemosBrick,

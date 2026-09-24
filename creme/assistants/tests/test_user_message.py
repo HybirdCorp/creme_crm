@@ -335,7 +335,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def message_found(brick_node, msg):
             title = msg.title
-            return any(n.text == title for n in brick_node.findall('.//td'))
+            # return any(n.text == title for n in brick_node.findall('.//td'))
+            return any(n.text == title for n in brick_node.find_all('td'))
 
         BrickDetailviewLocation.objects.create_if_needed(
             brick=UserMessagesBrick,

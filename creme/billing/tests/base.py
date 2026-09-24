@@ -323,18 +323,26 @@ class _BillingTestCase(_BillingTestCaseMixin,
         for button_node in self.iter_button_nodes(
             self.get_instance_buttons_node(html_tree),
         ):
-            if button_node.tag == 'a':
-                texts = [stripped for txt in button_node.itertext() if (stripped := txt.strip())]
-                if len(texts) == 2:
-                    found.append({
-                        'label': texts[0],
-                        'json_data': texts[1],
-                        'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
-                    })
+            # if button_node.tag == 'a':
+            if button_node.name == 'a':
+                # texts = [stripped for txt in button_node.itertext() if (stripped := txt.strip())]
+                # if len(texts) == 2:
+                #     found.append({
+                #         'label': texts[0],
+                #         'json_data': texts[1],
+                #         # 'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
+                #         'disabled': ('is-disabled' in button_node.attrs.get('class')),
+                #     })
+                found.append({
+                    'label': next(button_node.stripped_strings),
+                    'json_data': button_node.script,
+                    'disabled': ('is-disabled' in button_node.attrs.get('class')),
+                })
             else:
                 found.append({
                     'label': self.get_alone_element(
-                        filter(None, (txt.strip() for txt in button_node.itertext()))
+                        # filter(None, (txt.strip() for txt in button_node.itertext()))
+                        button_node.stripped_strings
                     ),
                     'disabled': True,
                 })
@@ -348,7 +356,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
                     if 'type' in item:
                         btype = item['type']
-                        self.assertIn(f'"type": "{btype}"', f['json_data'])
+                        # self.assertIn(f'"type": "{btype}"', f['json_data'])
+                        self.assertIn(f'"type": "{btype}"', f['json_data'].text)
 
                     break
             else:

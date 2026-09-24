@@ -89,7 +89,9 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         fields = {
             elt.text
-            for elt in brick_node.findall(".//span[@class='address-option-value']")
+            # for elt in brick_node.findall(".//span[@class='address-option-value']")
+            # for elt in brick_node.select("span[class='address-option-value']")
+            for elt in brick_node.find_all('span', class_='address-option-value')
         }
         self.assertIn(department, fields)
         self.assertIn(state,      fields)

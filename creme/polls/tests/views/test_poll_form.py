@@ -52,8 +52,11 @@ class PollFormViewsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 pform.get_delete_absolute_url(),
             ],
             [
-                a.attrib.get('href')
-                for a in hat_node.findall('.//a[@class="bar-button"]')
+                # a.attrib.get('href')
+                a.attrs.get('href')
+                # for a in hat_node.findall('.//a[@class="bar-button"]')
+                # for a in hat_node.select('a[class="bar-button"]')
+                for a in hat_node.find_all('a', class_='bar-button')
             ],
         )
 
