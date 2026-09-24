@@ -112,7 +112,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(5, len(table_cells))
         # self.assertInstanceLink(table_cells[0], entity=credit_note)
         self.assertInstanceLink(table_cells[0], instance=credit_note)
@@ -157,7 +158,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(6, len(table_cells))
         # self.assertInstanceLink(table_cells[0], entity=invoice)
         self.assertInstanceLink(table_cells[0], instance=invoice)
@@ -218,11 +220,12 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         )
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)
-        self.assertEqual(5, len(row.findall('.//td')))
+        # self.assertEqual(5, len(row.findall('.//td')))
+        self.assertEqual(5, len(row.find_all('td')))
 
     @override_settings(HIDDEN_VALUE='?')
     def test_ReceivedInvoicesBrick__forbidden(self):
-        "No VIEW permission."
+        """No VIEW permission."""
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
         self.add_credentials(user.role, own='*')
 
@@ -241,14 +244,16 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
             brick=billing_bricks.ReceivedInvoicesBrick,
         )
         rows = self.get_brick_table_rows(brick_node)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(6, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)
         self.assertEqual('?', table_cells[2].text)
         self.assertEqual('?', table_cells[3].text)
         self.assertEqual('?', table_cells[4].text)
-        self.assertIsNone(table_cells[5].text)
+        # self.assertIsNone(table_cells[5].text)
+        self.assertEqual('', table_cells[5].text)
 
     @skipIfCustomQuote
     def test_ReceivedQuotesBrick(self):
@@ -284,7 +289,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(5, len(table_cells))
         # self.assertInstanceLink(table_cells[0], entity=quote)
         self.assertInstanceLink(table_cells[0], instance=quote)
@@ -326,12 +332,13 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         )
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)
-        self.assertEqual(4, len(row.findall('.//td')))
+        # self.assertEqual(4, len(row.findall('.//td')))
+        self.assertEqual(4, len(row.find_all('td')))
 
     @skipIfCustomQuote
     @override_settings(HIDDEN_VALUE='?')
     def test_ReceivedQuotesBrick__forbidden(self):
-        "No VIEW permission."
+        """No VIEW permission."""
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
         self.add_credentials(user.role, own='*')
 
@@ -352,7 +359,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)
 
-        table_cells = row.findall('.//td')
+        # table_cells = row.findall('.//td')
+        table_cells = row.find_all('td')
         self.assertEqual(5, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)
@@ -401,7 +409,8 @@ class ReceivedBillingEntitiesBricksTestCase(BrickTestCaseMixin, _BillingTestCase
         )
         rows = self.get_brick_table_rows(brick_node2)
 
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(5, len(table_cells))
         # self.assertInstanceLink(table_cells[0], entity=order)
         self.assertInstanceLink(table_cells[0], instance=order)
@@ -448,7 +457,8 @@ class PaymentInformationBricksTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_html_tree(response.content),
             brick=billing_bricks.PaymentInformationBrick,
         )
-        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        # self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        self.assertIn('brick-void', brick_node.attrs.get('class', ''))
 
     @skipIfCustomOrganisation
     def test_PaymentInformationBrick__not_managed_orga_n_displayed(self):
@@ -494,21 +504,26 @@ class PaymentInformationBricksTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         # TODO: method in base ?
-        items = brick_node.findall('.//div[@class="brick-list-item billing-item"]')
+        # items = brick_node.findall('.//div[@class="brick-list-item billing-item"]')
+        items = brick_node.select('div[class="brick-list-item billing-item"]')
         self.assertEqual(2, len(items))
 
         item1 = items[0]
-        key_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-group-key"]')
+        # key_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-group-key"]')
+        key_node1 = self.get_html_node_or_fail(item1, 'div[class="billing-group-key"]')
         self.assertEqual(payment_info1.name, key_node1.text.strip())
 
-        action_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-action"]')
+        # action_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-action"]')
+        action_node1 = self.get_html_node_or_fail(item1, 'div[class="billing-action"]')
         self.assertEqual(_('Selected account for this document'), action_node1.text.strip())
 
         item2 = items[1]
-        key_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-group-key"]')
+        # key_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-group-key"]')
+        key_node2 = self.get_html_node_or_fail(item2, 'div[class="billing-group-key"]')
         self.assertEqual(payment_info2.name, key_node2.text.strip())
 
-        action_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-action"]')
+        # action_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-action"]')
+        action_node2 = self.get_html_node_or_fail(item2, 'div[class="billing-action"]')
         self.assertBrickHasAction(
             action_node2,
             url=reverse(

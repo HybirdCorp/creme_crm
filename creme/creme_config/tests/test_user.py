@@ -113,10 +113,12 @@ class UserPortalTestCase(BaseUserTestCase):
             ['root', user.username, other_user.username],
             [
                 n.text
-                for n in users_brick_node.findall('.//td[@class="user-username"]')
+                # for n in users_brick_node.findall('.//td[@class="user-username"]')
+                for n in users_brick_node.select('td[class="user-username"]')
             ],
         )
-        self.assertIsNone(users_brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+        # self.assertIsNone(users_brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+        self.assertIsNone(users_brick_node.select_one('th[data-key="regular_field-time_zone"]'))
 
         # ---
         teams_brick_node = self.get_brick_node(doc, brick=TeamsBrick)
@@ -147,7 +149,8 @@ class UserPortalTestCase(BaseUserTestCase):
 
         usernames = {
             n.text
-            for n in brick_node.findall('.//td[@class="user-username"]')
+            # for n in brick_node.findall('.//td[@class="user-username"]')
+            for n in brick_node.select('td[class="user-username"]')
         }
         self.assertIn(user.username, usernames)
         self.assertNotIn(other_user.username, usernames)
@@ -168,12 +171,14 @@ class UserPortalTestCase(BaseUserTestCase):
             self.get_html_tree(response.content), brick=UsersBrick,
         )
 
-        self.assertIsNotNone(brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+        # self.assertIsNotNone(brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+        self.assertIsNotNone(brick_node.select('th[data-key="regular_field-time_zone"]'))
         self.assertSetEqual(
             {time_zone, user.time_zone},
             {
                 n.text
-                for n in brick_node.findall('.//td[@class="user-timezone"]')
+                # for n in brick_node.findall('.//td[@class="user-timezone"]')
+                for n in brick_node.select('td[class="user-timezone"]')
             },
         )
 
@@ -188,7 +193,8 @@ class UserPortalTestCase(BaseUserTestCase):
 
         usernames = {
             n.text
-            for n in brick_node.findall('.//td[@class="user-username"]')
+            # for n in brick_node.findall('.//td[@class="user-username"]')
+            for n in brick_node.select('td[class="user-username"]')
         }
         self.assertIn(user.username, usernames)
         self.assertIn(other_user.username, usernames)
@@ -226,7 +232,8 @@ class UserPortalTestCase(BaseUserTestCase):
         )
         self.assertCountEqual(
             [field_value],
-            [n.text for n in brick_node.findall(f'.//td[@class="{css_class}"]')],
+            # [n.text for n in brick_node.findall(f'.//td[@class="{css_class}"]')],
+            [n.text for n in brick_node.select(f'td[class="{css_class}"]')],
         )
 
         build_url = self._build_edit_url
@@ -2321,7 +2328,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             tree=self.get_html_tree(brick_info3[1]),
             brick=invalid_id,
         )
-        self.assertIn('brick-void', brick_node3.attrib.get('class', ''))
+        # self.assertIn('brick-void', brick_node3.attrib.get('class', ''))
+        self.assertIn('brick-void', brick_node3.attrs.get('class', ''))
 
     @staticmethod
     def _build_edit_user_svalue_url(setting_key):
@@ -2497,7 +2505,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         core_app_node = self.get_html_node_or_fail(
             brick_node,
-            './/div[@class="'
+            # './/div[@class="'
+            'div[class="'
             'brick-list-item '
             'setting-values-config-item '
             'setting-values-config-item-creme_core'
@@ -2506,7 +2515,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(
             _('Core'),
             self.get_html_node_or_fail(
-                core_app_node, './/div[@class="setting-values-config-app-name"]'
+                # core_app_node, './/div[@class="setting-values-config-app-name"]'
+                core_app_node, 'div[class="setting-values-config-app-name"]'
             ).text,
         )
         self.assertBrickHasAction(core_app_node, url=self._build_edit_user_svalue_url(core_sk1))
@@ -2515,7 +2525,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         doc_app_node = self.get_html_node_or_fail(
             brick_node,
-            './/div[@class="'
+            # './/div[@class="'
+            'div[class="'
             'brick-list-item '
             'setting-values-config-item '
             'setting-values-config-item-documents'
@@ -2524,7 +2535,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(
             _('Documents'),
             self.get_html_node_or_fail(
-                doc_app_node, './/div[@class="setting-values-config-app-name"]'
+                # doc_app_node, './/div[@class="setting-values-config-app-name"]'
+                doc_app_node, 'div[class="setting-values-config-app-name"]'
             ).text,
         )
         self.assertBrickHasAction(doc_app_node, url=self._build_edit_user_svalue_url(doc_sk1))

@@ -150,8 +150,12 @@ class EntityFilterDetailTestCase(BrickTestCaseMixin,
         config_button_node = self.get_alone_element(
             self.iter_button_nodes(self.get_global_buttons_node(tree))
         )
-        self.assertEqual('a', config_button_node.tag)
-        self.assertEqual(reverse('creme_config__efilters'), config_button_node.attrib.get('href'))
+        # self.assertEqual('a', config_button_node.tag)
+        self.assertEqual('a', config_button_node.name)
+        self.assertEqual(
+            # reverse('creme_config__efilters'), config_button_node.attrib.get('href')
+            reverse('creme_config__efilters'), config_button_node.attrs.get('href'),
+        )
 
         self.get_brick_node(tree, efilter_views.EntityFilterBarHatBrick)
         self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
@@ -179,7 +183,8 @@ class EntityFilterDetailTestCase(BrickTestCaseMixin,
         self.assertInstanceLink(reports_brick_node, report1)
         self.assertNoInstanceLink(reports_brick_node, report2)
 
-        msg_node = self.get_html_node_or_fail(reports_brick_node, ".//div[@class='help']")
+        # msg_node = self.get_html_node_or_fail(reports_brick_node, ".//div[@class='help']")
+        msg_node = self.get_html_node_or_fail(reports_brick_node, 'div[class="help"]')
         self.assertEqual(
             _('You cannot delete the filter because of this dependency.'),
             msg_node.text.strip(),

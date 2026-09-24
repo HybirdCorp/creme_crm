@@ -27,14 +27,20 @@ class CremeSearchTagsTestCase(CremeTestCase):
 
         tree = self.get_html_tree(render)
 
-        input_node = self.get_html_node_or_fail(tree, './/input[@name="search"]')
-        self.assertEqual("['Acme', 'super2000']", input_node.attrib.get('value'))
-        self.assertEqual('3', input_node.attrib.get('minlength'))
+        # input_node = self.get_html_node_or_fail(tree, './/input[@name="search"]')
+        input_node = self.get_html_node_or_fail(tree, 'input[name="search"]')
+        # self.assertEqual("['Acme', 'super2000']", input_node.attrib.get('value'))
+        self.assertEqual("['Acme', 'super2000']", input_node.attrs.get('value'))
+        # self.assertEqual('3', input_node.attrib.get('minlength'))
+        self.assertEqual('3', input_node.attrs.get('minlength'))
 
-        select_node = self.get_html_node_or_fail(tree, './/select[@name="ct_id"]')
+        # select_node = self.get_html_node_or_fail(tree, './/select[@name="ct_id"]')
+        select_node = self.get_html_node_or_fail(tree, 'select[name="ct_id"]')
         choices = [
-            (option_node.attrib.get('value'), option_node.text)
-            for option_node in select_node.findall('.//option')
+            # (option_node.attrib.get('value'), option_node.text)
+            (option_node.attrs.get('value'), option_node.text)
+            # for option_node in select_node.findall('.//option')
+            for option_node in select_node.find_all('option')
         ]
         self.assertInChoices(
             value=str(contact_ct_id),
@@ -56,8 +62,10 @@ class CremeSearchTagsTestCase(CremeTestCase):
         self.assertListEqual(
             [str(contact_ct_id)],
             [
-                option_node.attrib.get('value')
-                for option_node in select_node.findall('.//option[@selected=""]')
+                # option_node.attrib.get('value')
+                option_node.attrs.get('value')
+                # for option_node in select_node.findall('.//option[@selected=""]')
+                for option_node in select_node.select('option[selected=""]')
             ],
         )
 
@@ -75,10 +83,13 @@ class CremeSearchTagsTestCase(CremeTestCase):
 
         tree = self.get_html_tree(render)
 
-        select_node = self.get_html_node_or_fail(tree, './/select[@name="ct_id"]')
+        # select_node = self.get_html_node_or_fail(tree, './/select[@name="ct_id"]')
+        select_node = self.get_html_node_or_fail(tree, 'select[name="ct_id"]')
         choices = [
-            (option_node.attrib.get('value'), option_node.text)
-            for option_node in select_node.findall('.//option')
+            # (option_node.attrib.get('value'), option_node.text)
+            (option_node.attrs.get('value'), option_node.text)
+            # for option_node in select_node.findall('.//option')
+            for option_node in select_node.find_all('option')
         ]
         self.assertNotInChoices(value=str(get_ct(FakeContact).id), choices=choices)
         self.assertInChoices(

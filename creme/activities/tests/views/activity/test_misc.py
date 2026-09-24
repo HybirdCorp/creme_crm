@@ -36,10 +36,12 @@ class ActivityMiscViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             tree=self.get_html_tree(response.content),
             brick=bricks.ActivityCardHatBrick,
         )
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
+        icon_node = self.get_html_node_or_fail(brick_node, 'div[class="card-icon"] div img')
         self.assertEqual(
             get_creme_media_url(theme='icecream', url='images/meeting_22.png'),
-            icon_node.attrib.get('src'),
+            # icon_node.attrib.get('src'),
+            icon_node.attrs.get('src'),
         )
 
     def test_detail_view__phone_call(self):
@@ -57,10 +59,12 @@ class ActivityMiscViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             tree=self.get_html_tree(response.content),
             brick=bricks.ActivityCardHatBrick,
         )
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
+        icon_node = self.get_html_node_or_fail(brick_node, 'div[class="card-icon"] div img')
         self.assertEqual(
             get_creme_media_url(theme='icecream', url='images/phone_22.png'),
-            icon_node.attrib.get('src'),
+            # icon_node.attrib.get('src'),
+            icon_node.attrs.get('src'),
         )
 
     @skipIfCustomContact
@@ -113,8 +117,10 @@ class ActivityMiscViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertListEqual(
             [f'background-color:#{cal.color};'],
             [
-                n.attrib.get('style')
-                for n in brick_node3.findall('.//div[@class="activity-calendar-color-square"]')
+                # n.attrib.get('style')
+                # for n in brick_node3.findall('.//div[@class="activity-calendar-color-square"]')
+                n.attrs.get('style')
+                for n in brick_node3.select('div[class="activity-calendar-color-square"]')
             ],
         )
 

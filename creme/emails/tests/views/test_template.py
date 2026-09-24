@@ -58,11 +58,13 @@ class EmailTemplateViewsTestCase(BrickTestCaseMixin,
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content), brick=TemplateHTMLBodyBrick,
         )
-        iframe_node = brick_node.find('.//iframe')
+        # iframe_node = brick_node.find('.//iframe')
+        iframe_node = brick_node.find('iframe')
         self.assertIsNotNone(iframe_node)
         self.assertEqual(
             reverse('creme_core__sanitized_html_field', args=(template.id, 'body_html')),
-            iframe_node.attrib.get('src'),
+            # iframe_node.attrib.get('src'),
+            iframe_node.attrs.get('src'),
         )
 
     def test_creation__attachments(self):

@@ -369,7 +369,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         exc_total_node = self.get_html_node_or_fail(
-            brick_node, './/h1[@name="total_no_vat"]'
+            # brick_node, './/h1[@name="total_no_vat"]'
+            brick_node, 'h1[name="total_no_vat"]',
         )
         self.assertIn(
             currency_format.currency(invoice.total_no_vat, invoice.currency),
@@ -377,7 +378,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         inc_total_node = self.get_html_node_or_fail(
-            brick_node, './/h1[@name="total_vat"]'
+            # brick_node, './/h1[@name="total_vat"]'
+            brick_node, 'h1[name="total_vat"]',
         )
         self.assertIn(
             currency_format.currency(invoice.total_vat, invoice.currency),

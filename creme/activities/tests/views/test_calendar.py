@@ -1153,9 +1153,9 @@ class CremeConfigViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.get_html_tree(cal_portal.content), brick=CalendarsBrick,
         )
         user_names = {
-            div.text for div in brick_node.findall(
-                './/div[@class="calendar-config-group-title"]'
-            )
+            div.text
+            # for div in brick_node.findall( './/div[@class="calendar-config-group-title"]')
+            for div in brick_node.select('div[class="calendar-config-group-title"]')
         }
         self.assertIn(str(user), user_names)
         self.assertIn(str(self.get_root_user()), user_names)
@@ -1417,9 +1417,9 @@ class CremeConfigViewsTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.get_html_tree(response.content), brick=CalendarsBrick,
         )
         user_names = {
-            div.text for div in brick_node.findall(
-                './/div[@class="calendar-config-group-title"]'
-            )
+            div.text
+            # for div in brick_node.findall('.//div[@class="calendar-config-group-title"]')
+            for div in brick_node.select('div[class="calendar-config-group-title"]')
         }
         self.assertIn(str(user), user_names)
         self.assertIn(str(self.get_root_user()), user_names)

@@ -40,17 +40,20 @@ class BrickTestCaseMixin:
     def get_brick_node(self, tree, brick):
         brick_id = getattr(brick, 'id', brick)
 
-        brick_node = tree.find(f".//div[@id='brick-{brick_id}']")
+        # brick_node = tree.find(f".//div[@id='brick-{brick_id}']")
+        brick_node = tree.select_one(f"div[id='brick-{brick_id}']")
         if brick_node is None:
             self.fail(f'The brick node id="brick-{brick_id}" is not found.')  # pragma: no cover
 
-        classes = brick_node.attrib.get('class')
+        # classes = brick_node.attrib.get('class')
+        classes = brick_node.attrs.get('class')
         if classes is None:
             self.fail(
                 f'The brick node id="brick-{brick_id}" is invalid (no "class" attribute).'
             )  # pragma: no cover
 
-        if 'brick' not in classes.split():
+        # if 'brick' not in classes.split():
+        if 'brick' not in classes:
             self.fail(
                 f'The brick node id="brick-{brick_id}" is invalid (no "brick" class).'
             )  # pragma: no cover
@@ -58,7 +61,8 @@ class BrickTestCaseMixin:
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
-        if tree.find(f".//div[@id='brick-{brick_id}']") is not None:
+        # if tree.find(f".//div[@id='brick-{brick_id}']") is not None:
+        if tree.select_one(f"div[id='brick-{brick_id}']") is not None:
             self.fail(
                 f'The brick node id="brick-{brick_id}" has been unexpectedly found.'
             )  # pragma: no cover
@@ -70,8 +74,9 @@ class BrickTestCaseMixin:
             self.fail(f'{instance} has not get_absolute_url() method (no <a> is possible)')
 
         link_node = self.get_html_node_or_fail(
-            # brick_node, f".//a[@href='{entity.get_absolute_url()}']"
-            brick_node, f".//a[@href='{get_url()}']"
+            # # brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+            # brick_node, f".//a[@href='{get_url()}']"
+            brick_node, f"a[href='{get_url()}']"
         )
         if check_text:
             # self.assertEqual(str(entity), link_node.text.strip())
@@ -86,42 +91,58 @@ class BrickTestCaseMixin:
         if get_url is None:
             self.fail(f'{instance} has not get_absolute_url() method (no <a> is possible)')
 
-        self.assertIsNone(brick_node.find(f".//a[@href='{get_url()}']"))
+        # self.assertIsNone(brick_node.find(f".//a[@href='{get_url()}']"))
+        self.assertIsNone(brick_node.select_one(f"a[href='{get_url()}']"))
 
     def assertBrickHasClass(self, brick_node, css_class):
-        self.assertIn(css_class, brick_node.attrib.get('class').split())
+        # self.assertIn(css_class, brick_node.attrib.get('class').split())
+        self.assertIn(css_class, brick_node.attrs.get('class'))
 
     def assertBrickHasNotClass(self, brick_node, css_class):
-        self.assertNotIn(css_class, brick_node.attrib.get('class').split())
+        # self.assertNotIn(css_class, brick_node.attrib.get('class').split())
+        self.assertNotIn(css_class, brick_node.attrs.get('class'))
 
     def get_brick_tile(self, content_node, key):
-        tile_node = self.get_html_node_or_fail(content_node, f'.//div[@data-key="{key}"]')
+        # tile_node = self.get_html_node_or_fail(content_node, f'.//div[@data-key="{key}"]')
+        tile_node = self.get_html_node_or_fail(content_node, f'div[data-key="{key}"]')
 
-        return self.get_html_node_or_fail(tile_node, './/span[@class="brick-tile-value"]')
+        # return self.get_html_node_or_fail(tile_node, './/span[@class="brick-tile-value"]')
+        return self.get_html_node_or_fail(tile_node, 'span[class="brick-tile-value"]')
 
     def get_brick_title(self, brick_node):
-        return self.get_html_node_or_fail(
-            brick_node, './/span[@class="brick-title"]',
-        ).text.strip()
+        # return self.get_html_node_or_fail(
+        #     brick_node, './/span[@class="brick-title"]',
+        # ).text.strip()
+        return next(
+            self.get_html_node_or_fail(
+                brick_node, 'span[class="brick-title"]'
+            ).stripped_strings,
+            ''
+        )
 
     def get_brick_header_buttons(self, brick_node):
-        return self.get_html_node_or_fail(brick_node, './/div[@class="brick-header-buttons"]')
+        # return self.get_html_node_or_fail(brick_node, './/div[@class="brick-header-buttons"]')
+        return self.get_html_node_or_fail(brick_node, 'div[class="brick-header-buttons"]')
 
     def assertBrickHeaderHasButton(self, buttons_node, url, label):
-        button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        # button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        button_node = buttons_node.select_one(f'a[href="{url}"]')
         if button_node is None:
             self.fail(
                 'The <a> markup with href="{url}" has not been found '
                 '(URLs found: {found}).'.format(
                     url=url,
                     found=', '.join(
-                        f'"{a.attrib.get("href")}"'
-                        for a in buttons_node.findall('.//a')
+                        # f'"{a.attrib.get("href")}"'
+                        f'"{a.attrs.get("href")}"'
+                        # for a in buttons_node.findall('.//a')
+                        for a in buttons_node.find_all('a')
                     ),
                 )
             )  # pragma: no cover
 
-        button_label = button_node.attrib.get('title')  # TODO: get the inner-span instead ?
+        # button_label = button_node.attrib.get('title')  # TODO: get the inner-span instead ?
+        button_label = button_node.attrs.get('title')  # TODO: get the inner-span instead ?
         if label != button_label:
             self.fail(
                 f'The button has been found but with a different label:\n'
@@ -130,35 +151,42 @@ class BrickTestCaseMixin:
             )  # pragma: no cover
 
     def assertBrickHeaderHasNoButton(self, buttons_node, url):
-        button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        # button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        button_node = buttons_node.select_one(f'a[href="{url}"]')
         if button_node is not None:
             self.fail(
                 f'The <a> markup with href="{url}" has been unexpectedly found.'
             )  # pragma: no cover
 
     def assertBrickHasAction(self, brick_node, url, action_type='edit'):
-        action_node = brick_node.find(f'.//a[@href="{url}"]')
+        # action_node = brick_node.find(f'.//a[@href="{url}"]')
+        action_node = brick_node.select_one(f'a[href="{url}"]')
         if action_node is None:
             self.fail(
                 'The <a> markup with href="{url}" has not been found '
                 '(URLs found: {found}).'.format(
                     url=url,
                     found=', '.join(
-                        '"{}"'.format(a.attrib.get('href'))
-                        for a in brick_node.findall('.//a')
+                        # '"{}"'.format(a.attrib.get('href'))
+                        '"{}"'.format(a.attrs.get('href'))
+                        # for a in brick_node.findall('.//a')
+                        for a in brick_node.find_all('a')
                     ),
                 )
             )  # pragma: no cover
 
-        css_class = action_node.attrib.get('class')
+        # css_class = action_node.attrib.get('class')
+        css_class = action_node.attrs.get('class')
         self.assertIsNotNone(css_class, 'No attribute "class" found.')
         self.assertIn('brick-action', css_class)
         self.assertIn(f'action-type-{action_type}', css_class)
 
     def assertBrickHasNoAction(self, brick_node, url):
-        for action_node in brick_node.findall(f'.//a[@href="{url}"]'):
-            css_class = action_node.attrib.get('class')
-            if css_class and 'brick-action' in css_class:
+        # for action_node in brick_node.findall(f'.//a[@href="{url}"]'):
+        for action_node in brick_node.select(f'a[href="{url}"]'):
+            # css_class = action_node.attrib.get('class')
+            # if css_class and 'brick-action' in css_class:
+            if 'brick-action' in action_node.attrs.get('class', ()):
                 self.fail(
                     f'The <a> markup with href="{url}" has been unexpectedly found.'
                 )  # pragma: no cover
@@ -171,38 +199,48 @@ class BrickTestCaseMixin:
 
     def get_brick_table_column_titles(self, brick_node):
         row_node = self.get_html_node_or_fail(
-            brick_node, './/table[@class="brick-table-content"]/thead/tr'
+            # brick_node, './/table[@class="brick-table-content"]/thead/tr'
+            brick_node, 'table[class="brick-table-content"] thead tr'
         )
 
-        return [span.text for span in row_node.findall('.//th/span')]
+        # return [span.text for span in row_node.findall('.//th/span')]
+        return [span.text for span in row_node.select('th span')]
 
     def get_brick_table_rows(self, brick_node):
         body_node = self.get_html_node_or_fail(
-            brick_node, './/table[@class="brick-table-content"]/tbody'
+            # brick_node, './/table[@class="brick-table-content"]/tbody'
+            brick_node, 'table[class="brick-table-content"] tbody'
         )
-        return body_node.findall('.//tr')
+        # return body_node.findall('.//tr')
+        return body_node.find_all('tr')
 
 
 class ButtonTestCaseMixin:
     def get_global_buttons_node(self, tree):
-        for div_node in tree.findall('.//div'):
-            classes_attr = div_node.attrib.get('class')
-            if classes_attr is None:
+        # for div_node in tree.findall('.//div'):
+        for div_node in tree.find_all('div'):
+            # classes_attr = div_node.attrib.get('class')
+            classes = div_node.attrs.get('class')
+            # if classes_attr is None:
+            if classes is None:
                 continue
 
-            classes = classes_attr.split()
+            # classes = classes_attr.split()
             if 'buttons-list' in classes and 'global-buttons' in classes:
                 return div_node
 
         self.fail('The global buttons node has not been found.')  # pragma: no cover
 
     def get_instance_buttons_node(self, tree):
-        for div_node in tree.findall('.//div'):
-            classes_attr = div_node.attrib.get('class')
-            if classes_attr is None:
+        # for div_node in tree.findall('.//div'):
+        for div_node in tree.find_all('div'):
+            # classes_attr = div_node.attrib.get('class')
+            classes = div_node.attrs.get('class')
+            # if classes_attr is None:
+            if classes is None:
                 continue
 
-            classes = classes_attr.split()
+            # classes = classes_attr.split()
             if 'buttons-list' in classes and 'instance-buttons' in classes:
                 return div_node
 
@@ -211,26 +249,35 @@ class ButtonTestCaseMixin:
     @staticmethod
     def iter_button_nodes(buttons_node, *, tags=('a', 'span'), data_action=None, href=None):
         if 'a' in tags:
-            for a_node in buttons_node.findall('.//a'):
-                classes_attr = a_node.attrib.get('class')
-                if classes_attr:
+            # for a_node in buttons_node.findall('.//a'):
+            for a_node in buttons_node.find_all('a'):
+                # classes_attr = a_node.attrib.get('class')
+                classes = a_node.attrs.get('class')
+                # if classes_attr:
+                if classes:
                     if (
-                        'menu_button' in classes_attr.split()
+                        # 'menu_button' in classes_attr.split()
+                        'menu_button' in classes
                         and (
                             not data_action
-                            or data_action == a_node.attrib.get('data-action')
+                            # or data_action == a_node.attrib.get('data-action')
+                            or data_action == a_node.attrs.get('data-action')
                         ) and (
                             href is None
-                            or href == a_node.attrib.get('href')
+                            # or href == a_node.attrib.get('href')
+                            or href == a_node.attrs.get('href')
                         )
                     ):
                         yield a_node
 
         if 'span' in tags:
-            for span_node in buttons_node.findall('.//span'):
-                classes_attr = span_node.attrib.get('class')
-                if classes_attr:
-                    classes = classes_attr.split()
+            # for span_node in buttons_node.findall('.//span'):
+            for span_node in buttons_node.find_all('span'):
+                # classes_attr = span_node.attrib.get('class')
+                classes = span_node.attrs.get('class')
+                # if classes_attr:
+                if classes:
+                    # classes = classes_attr.split()
                     if 'menu_button' in classes:
                         if 'forbidden' not in classes:
                             logger.warning(

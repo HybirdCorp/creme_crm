@@ -73,7 +73,8 @@ class QuoteDetailViewTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInstanceLink(hat_brick_node1, instance=receiver)
 
         indicator_path = (
-            './/div[@class="business-card-indicator business-card-warning-indicator"]'
+            # './/div[@class="business-card-indicator business-card-warning-indicator"]'
+            'div[class="business-card-indicator business-card-warning-indicator"]'
         )
         self.assertIsNone(hat_brick_node1.find(indicator_path))
 
@@ -123,7 +124,7 @@ class QuoteDetailViewTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_invoice_creation_forbidden(self):
-        "Cannot create Invoice => convert button disabled."
+        """Cannot create Invoice => convert button disabled."""
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice

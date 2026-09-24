@@ -83,17 +83,22 @@ class VisitTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/visit-end.html')
 
         html = self.get_html_tree(response.content)
-        title_node = self.get_html_node_or_fail(html, './/div[@class="bar-title"]//h1')
+        # title_node = self.get_html_node_or_fail(html, './/div[@class="bar-title"]//h1')
+        title_node = self.get_html_node_or_fail(html, 'div[class="bar-title"] h1')
         self.assertEqual(_('The exploration is over'), title_node.text)
 
-        content_node = self.get_html_node_or_fail(html, './/div[@class="buttons-list"]')
-        button_node = self.get_html_node_or_fail(content_node, './/a')
+        # content_node = self.get_html_node_or_fail(html, './/div[@class="buttons-list"]')
+        content_node = self.get_html_node_or_fail(html, 'div[class="buttons-list"]')
+        # button_node = self.get_html_node_or_fail(content_node, './/a')
+        button_node = self.get_html_node_or_fail(content_node, 'a')
         self.assertIn(
             _('Back to the list'),
-            (txt.strip() for txt in button_node.itertext()),
+            # (txt.strip() for txt in button_node.itertext()),
+            button_node.stripped_strings,
         )
 
-        parsed_uri = urlparse(button_node.attrib.get('href'))
+        # parsed_uri = urlparse(button_node.attrib.get('href'))
+        parsed_uri = urlparse(button_node.attrs.get('href'))
         self.assertEqual(
             lv_url or FakeOrganisation.get_lv_absolute_url(),
             parsed_uri.path,

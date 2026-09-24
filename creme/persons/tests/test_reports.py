@@ -119,7 +119,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
         volatile_span = self.get_html_node_or_fail(
-            brick_node, './/span[@class="chart-volatile-value"]',
+            # brick_node, './/span[@class="chart-volatile-value"]',
+            brick_node, 'span[class="chart-volatile-value"]',
         )
         self.assertEqual(vname, volatile_span.text)
 
@@ -162,7 +163,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         dom = self.get_html_tree(response1.content)
         brick_node = self.get_brick_node(dom, brick=ibci.brick_id)
         self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-content is-empty"]'
+            # brick_node, './/div[@class="brick-content is-empty"]'
+            brick_node, 'div[class="brick-content is-empty"]',
         )
 
     @skipIfCustomReport

@@ -13,7 +13,8 @@ from unittest import skipIf
 from unittest.util import safe_repr
 from uuid import UUID
 
-from bleach._vendor import html5lib
+# from bleach._vendor import html5lib
+from bs4 import BeautifulSoup
 from django import forms
 from django.apps import apps
 from django.conf import settings
@@ -1224,10 +1225,12 @@ class _CremeTestCase:
 
     @staticmethod
     def get_html_tree(content):
-        return html5lib.parse(content, namespaceHTMLElements=False)
+        # return html5lib.parse(content, namespaceHTMLElements=False)
+        return BeautifulSoup(content, 'html.parser')
 
     def get_html_node_or_fail(self, parent_node, path):
-        child = parent_node.find(path)
+        # child = parent_node.find(path)
+        child = parent_node.select_one(path)
 
         if child is None:
             self.fail(f'The HTML node with path <{path}> has not been found.')

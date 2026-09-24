@@ -96,8 +96,10 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         # )
 
         fake_contact_node = None
-        for div in brick_node.findall('.//div'):
-            if 'entityfilter-config-item-creme_core-fakecontact' in div.attrib.get('class'):
+        # for div in brick_node.findall('.//div'):
+        for div in brick_node.find_all('div'):
+            # if 'entityfilter-config-item-creme_core-fakecontact' in div.attrib.get('class'):
+            if 'entityfilter-config-item-creme_core-fakecontact' in div.attrs.get('class'):
                 fake_contact_node = div
                 break
         else:
@@ -105,8 +107,10 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
 
         efilters_ids = [
             efilter_id
-            for li in fake_contact_node.findall('.//li')
-            if (efilter_id := li.attrib.get('data-efilter-id'))
+            # for li in fake_contact_node.findall('.//li')
+            for li in fake_contact_node.find_all('li')
+            # if (efilter_id := li.attrib.get('data-efilter-id'))
+            if (efilter_id := li.attrs.get('data-efilter-id'))
         ]
         self.assertIn(report_efilter.id, efilters_ids)
         self.assertNotIn(system_efilter.id,  efilters_ids)
@@ -157,10 +161,12 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         config_button_node = self.get_alone_element(
             self.iter_button_nodes(self.get_global_buttons_node(tree))
         )
-        self.assertEqual('a', config_button_node.tag)
+        # self.assertEqual('a', config_button_node.tag)
+        self.assertEqual('a', config_button_node.name)
         self.assertEqual(
             reverse('creme_config__app_portal', args=('reports',)),
-            config_button_node.attrib.get('href'),
+            # config_button_node.attrib.get('href'),
+            config_button_node.attrs.get('href'),
         )
 
         self.get_brick_node(tree, EntityFilterInfoBrick)
@@ -188,7 +194,8 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertInstanceLink(reports_brick_node, report1)
         self.assertNoInstanceLink(reports_brick_node, report2)
 
-        msg_node = self.get_html_node_or_fail(reports_brick_node, ".//div[@class='help']")
+        # msg_node = self.get_html_node_or_fail(reports_brick_node, ".//div[@class='help']")
+        msg_node = self.get_html_node_or_fail(reports_brick_node, "div[class='help']")
         self.assertEqual(
             _('You cannot delete the filter because of this dependency.'),
             msg_node.text.strip(),

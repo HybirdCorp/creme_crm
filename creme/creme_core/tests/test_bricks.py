@@ -97,11 +97,17 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @staticmethod
     def _get_button_action_ids(node):
+        # return [
+        #     node.attrib.get('data-action')
+        #     for li_node in node.findall('.//li')
+        #     for node in li_node.findall('.//a')
+        #     if 'menu_button' in node.attrib.get('class').split()
+        # ]
         return [
-            node.attrib.get('data-action')
-            for li_node in node.findall('.//li')
-            for node in li_node.findall('.//a')
-            if 'menu_button' in node.attrib.get('class').split()
+            node.attrs.get('data-action')
+            for li_node in node.find_all('li')
+            for node in li_node.find_all('a')
+            if 'menu_button' in node.attrs.get('class', ())
         ]
 
     def _assertMenuButtons(self, user, entity, buttons):
@@ -342,7 +348,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertInstanceLink(brick_node2, tenma)
         self.assertInstanceLink(brick_node2, uran)
-        self.assertEqual('{}', brick_node2.attrib.get('data-brick-reloading-info'))
+        # self.assertEqual('{}', brick_node2.attrib.get('data-brick-reloading-info'))
+        self.assertEqual('{}', brick_node2.attrs.get('data-brick-reloading-info'))
 
     def test_relations_brick__no_minimal_display(self):
         """With A SpecificRelationBrick; but the concerned relationship is minimal_display=False
@@ -389,13 +396,15 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         reloading_info = {'include': [rtype1.id]}
         self.assertEqual(
             json_dump(reloading_info, separators=(',', ':')),
-            rel_brick_node.attrib.get('data-brick-reloading-info'),
+            # rel_brick_node.attrib.get('data-brick-reloading-info'),
+            rel_brick_node.attrs.get('data-brick-reloading-info'),
         )
         self.assertInstanceLink(rel_brick_node, tenma)
         self.assertInstanceLink(rel_brick_node, uran)
 
         rbi_brick_node = self.get_brick_node(document, rbi.brick_id)
-        self.assertIsNone(rbi_brick_node.attrib.get('data-brick-reloading-info'))
+        # self.assertIsNone(rbi_brick_node.attrib.get('data-brick-reloading-info'))
+        self.assertIsNone(rbi_brick_node.attrs.get('data-brick-reloading-info'))
         self.assertInstanceLink(rbi_brick_node, tenma)
         self.assertNoInstanceLink(rbi_brick_node, uran)
 
@@ -466,7 +475,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         reloading_info = {'exclude': [rtype1.id]}
         self.assertEqual(
             json_dump(reloading_info, separators=(',', ':')),
-            rel_brick_node.attrib.get('data-brick-reloading-info'),
+            # rel_brick_node.attrib.get('data-brick-reloading-info'),
+            rel_brick_node.attrs.get('data-brick-reloading-info'),
         )
 
         # Reloading
@@ -556,7 +566,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_brick_tile(brick_node2, f'custom_field-{cfield2.id}').text,
         )
 
-    def test_history_brick__deatilview(self):
+    def test_history_brick__detailview(self):
         user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(
             user=user, first_name='Atom', last_name='Tenma', phone='123456',
@@ -592,8 +602,10 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         h_info = []
         cls_prefix = 'history-line-'
-        for div_node in brick_node.findall('.//div'):
-            css_classes = div_node.attrib.get('class', '').split(' ')
+        # for div_node in brick_node.findall('.//div'):
+        for div_node in brick_node.find_all('div'):
+            # css_classes = div_node.attrib.get('class', '').split(' ')
+            css_classes = div_node.attrs.get('class', ())
             if 'history-line' in css_classes:
                 for css_cls in css_classes:
                     if css_cls.startswith(cls_prefix):
@@ -606,7 +618,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         edition_cls, edition_node = h_info[0]
         self.assertEqual('edition', edition_cls)
-        self.assertEqual(2, len(edition_node.findall('.//li')))
+        # self.assertEqual(2, len(edition_node.findall('.//li')))
+        self.assertEqual(2, len(edition_node.find_all('li')))
 
     def test_history_brick__home(self):
         user = self.login_as_root_and_get()
@@ -764,8 +777,10 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         stats_info = {}
 
-        for tr_node in brick_node.findall('.//tr'):
-            texts = [td_node.text.strip() for td_node in tr_node.findall('.//td')]
+        # for tr_node in brick_node.findall('.//tr'):
+        for tr_node in brick_node.find_all('tr'):
+            # texts = [td_node.text.strip() for td_node in tr_node.findall('.//td')]
+            texts = [td_node.text.strip() for td_node in tr_node.find_all('td')]
             self.assertEqual(2, len(texts))
 
             stats_info[texts[0]] = texts[1]

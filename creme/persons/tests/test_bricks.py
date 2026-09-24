@@ -79,14 +79,17 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
 
         address_node = self.get_html_node_or_fail(
             brick_node,
-            f".//div[@class='address-container {address_type}-address-container']"
+            # f".//div[@class='address-container {address_type}-address-container']"
+            f"div[class='address-container {address_type}-address-container']"
             if address_type else
-            ".//div[@class='address-container']",
+            # ".//div[@class='address-container']",
+            "div[class='address-container']",
         )
 
         fields = {
             elt.text.strip()
-            for elt in address_node.findall(".//span[@class='address-option-value']")
+            # for elt in address_node.findall(".//span[@class='address-option-value']")
+            for elt in address_node.select("span[class='address-option-value']")
             if elt.text
         }
         # self.assertIn(address.address, fields)   # TODO: extract from <p>
@@ -106,17 +109,22 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
 
         address_node = self.get_html_node_or_fail(
             brick_node,
-            f".//div[@class='address-container {address_type}-address-container']"
+            # f".//div[@class='address-container {address_type}-address-container']"
+            f"div[class='address-container {address_type}-address-container']"
             if address_type else
-            ".//div[@class='address-container']",
+            # ".//div[@class='address-container']",
+            "div[class='address-container']",
         )
 
-        pretty_addr_node = self.get_html_node_or_fail(address_node, ".//div[@class='address']")
-        self.assertEqual(address.address, pretty_addr_node.text)
+        # pretty_addr_node = self.get_html_node_or_fail(address_node, ".//div[@class='address']")
+        pretty_addr_node = self.get_html_node_or_fail(address_node, "div[class='address']")
+        # self.assertEqual(address.address, pretty_addr_node.text)
+        self.assertEqual(address.address, next(pretty_addr_node.stripped_strings))
 
         fields = {
             elt.text
-            for elt in address_node.findall(".//span[@class='address-option-value']")
+            # for elt in address_node.findall(".//span[@class='address-option-value']")
+            for elt in address_node.select("span[class='address-option-value']")
         }
 
         if country_in:
@@ -125,24 +133,29 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
             self.assertNotIn(address.country, fields)
 
     def _assertAddressNotIn(self, brick_node, address):
-        pretty_addr_node = brick_node.findall(".//div[@class='address']")
+        # pretty_addr_node = brick_node.findall(".//div[@class='address']")
+        pretty_addr_node = brick_node.select("div[class='address']")
         self.assertIsNotNone(pretty_addr_node)
 
         pretty_addr = {
             elt.text.strip()
-            for elt in brick_node.findall(".//div[@class='address']")
+            # for elt in brick_node.findall(".//div[@class='address']")
+            for elt in brick_node.select("div[class='address']")
         }
         self.assertNotIn(address.address, pretty_addr)
 
     @staticmethod
     def _get_URLs(brick_node):
-        return {elt.get('href').split('?')[0] for elt in brick_node.findall('.//a')}
+        # return {elt.get('href').split('?')[0] for elt in brick_node.findall('.//a')}
+        return {elt.attrs.get('href').split('?')[0] for elt in brick_node.find_all('a')}
 
     @staticmethod
     def get_address_titles(brick_node):
         return {
-            elt.text.strip()
-            for elt in brick_node.findall(".//span[@class='address-title']")
+            # elt.text.strip()
+            # for elt in brick_node.findall(".//span[@class='address-title']")
+            next(elt.stripped_strings)
+            for elt in brick_node.select("span[class='address-title']")
         }
 
     def _assertNoAction(self, brick_node, url_name, entity):
@@ -206,21 +219,27 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
             self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
         )
 
-        name_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-name"]')
-        self.assertEqual(persons_pretty_contact(c), name_node.text.strip())
+        # name_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-name"]')
+        name_node = self.get_html_node_or_fail(brick_node, 'div[class="card-name"]')
+        # self.assertEqual(persons_pretty_contact(c), name_node.text.strip())
+        self.assertIn(persons_pretty_contact(c), name_node.stripped_strings)
 
-        jobs_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-jobs"]')
+        # jobs_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-jobs"]')
+        jobs_node = self.get_html_node_or_fail(brick_node, 'div[class="card-jobs"]')
 
-        job_nodes = jobs_node.findall('.//div[@class="card-job"]')
+        # job_nodes = jobs_node.findall('.//div[@class="card-job"]')
+        job_nodes = jobs_node.select('div[class="card-job"]')
         self.assertEqual(2, len(job_nodes))
 
         job_node1 = job_nodes[0]
-        job_name_node1 = self.get_html_node_or_fail(job_node1, './/span[@class="card-function"]')
+        # job_name_node1 = self.get_html_node_or_fail(job_node1, './/span[@class="card-function"]')
+        job_name_node1 = self.get_html_node_or_fail(job_node1, 'span[class="card-function"]')
         self.assertEqual(_('Manager'), job_name_node1.text.strip())
         self.assertInstanceLink(job_node1, managed)
 
         job_node2 = job_nodes[1]
-        job_name_node2 = self.get_html_node_or_fail(job_node2, './/span[@class="card-function"]')
+        # job_name_node2 = self.get_html_node_or_fail(job_node2, './/span[@class="card-function"]')
+        job_name_node2 = self.get_html_node_or_fail(job_node2, 'span[class="card-function"]')
         self.assertEqual(_('Employee'), job_name_node2.text.strip())
         self.assertInstanceLink(job_node2, employer)
 
@@ -346,11 +365,13 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
         )
 
         summaries_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="card-info-summary"]',
+            # brick_node, './/div[@class="card-info-summary"]',
+            brick_node, 'div[class="card-info-summary"]',
         )
         self.assertInstanceLink(summaries_node, future_meetings[0], check_text=False)
 
-        intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        # intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        intro_node = self.get_html_node_or_fail(brick_node, 'div[class="card-intro"]')
         self.assertInstanceLink(intro_node, past_meetings[0], check_text=False)
 
     @skipIfCustomActivity
@@ -437,11 +458,13 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
         )
 
         summaries_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="card-info-summary"]',
+            # brick_node, './/div[@class="card-info-summary"]',
+            brick_node, 'div[class="card-info-summary"]',
         )
         self.assertInstanceLink(summaries_node, future_meetings[0], check_text=False)
 
-        intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        # intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        intro_node = self.get_html_node_or_fail(brick_node, 'div[class="card-intro"]')
         self.assertInstanceLink(intro_node, past_meetings[0], check_text=False)
 
     @skipIfCustomOpportunity
@@ -503,9 +526,11 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
             })
 
         a_node = self.get_html_node_or_fail(
-            self.get_html_tree(render2), './/span[@class="card-info-value"]/a',
+            # self.get_html_tree(render2), './/span[@class="card-info-value"]/a',
+            self.get_html_tree(render2), 'span[class="card-info-value"] a',
         )
-        self.assertStartsWith(a_node.attrib.get('href'), Opportunity.get_lv_absolute_url())
+        # self.assertStartsWith(a_node.attrib.get('href'), Opportunity.get_lv_absolute_url())
+        self.assertStartsWith(a_node.attrs.get('href'), Opportunity.get_lv_absolute_url())
 
     @skipIfCustomOpportunity
     def test_orga_hat_card_brick_opp(self):
@@ -602,9 +627,11 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
             })
 
         a_node = self.get_html_node_or_fail(
-            self.get_html_tree(render2), './/span[@class="card-info-value"]/a',
+            # self.get_html_tree(render2), './/span[@class="card-info-value"]/a',
+            self.get_html_tree(render2), 'span[class="card-info-value"] a',
         )
-        self.assertStartsWith(a_node.attrib.get('href'), Act.get_lv_absolute_url())
+        # self.assertStartsWith(a_node.attrib.get('href'), Act.get_lv_absolute_url())
+        self.assertStartsWith(a_node.attrs.get('href'), Act.get_lv_absolute_url())
 
     @skipIfCustomAct
     def test_orga_hat_card_brick_commercial(self):
@@ -687,19 +714,20 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
     def test_pretty_addresses_brick__no_address(self):
-        "No address set."
+        """No address set."""
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(
             user=user, billing_address=False, shipping_address=False,
         )
 
         brick_node = self._get_address_brick_node(c, bricks.PrettyAddressesBrick)
-        msg_node = brick_node.find("div[@class='brick-content is-empty']")
+        # msg_node = brick_node.find("div[@class='brick-content is-empty']")
+        msg_node = brick_node.select_one('div[class="brick-content is-empty"]')
         self.assertIsNotNone(msg_node)
         self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
     def test_pretty_addresses_brick__hidden__sub_field(self):
-        "With field config on sub-field."
+        """With field config on sub-field."""
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
@@ -840,12 +868,13 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
         )
 
         brick_node = self._get_address_brick_node(c, brick_cls)
-        msg_node = brick_node.find("div[@class='brick-content is-empty']")
+        # msg_node = brick_node.find("div[@class='brick-content is-empty']")
+        msg_node = brick_node.select_one("div[class='brick-content is-empty']")
         self.assertIsNotNone(msg_node)
         self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
     def test_detailed_addresses_brick__hidden__sub_field(self):
-        "With field config on sub-field."
+        """With field config on sub-field."""
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
@@ -985,14 +1014,18 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
 
         def get_phones(brick_node):
             return [
-                n.text.strip()
-                for n in brick_node.findall('.//td[@data-type="phone"]')
-                if n.text
+                # n.text.strip()
+                # for n in brick_node.findall('.//td[@data-type="phone"]')
+                # if n.text
+                phone
+                for n in brick_node.select('td[data-type="phone"]')
+                if (phone := next(n.stripped_strings)) != '—'
             ]
 
         self.assertListEqual(
             [f'mailto:{c1.email}'],
-            [n.attrib.get('href') for n in brick_node1.findall('.//td[@data-type="email"]/a')],
+            # [n.attrib.get('href') for n in brick_node1.findall('.//td[@data-type="email"]/a')],
+            [n.attrs.get('href') for n in brick_node1.select('td[data-type="email"] a')],
         )
         self.assertListEqual([c2.phone, c2.mobile], get_phones(brick_node1))
 
@@ -1003,7 +1036,8 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
         )
 
         brick_node2 = get_brick_node()
-        self.assertFalse(brick_node2.findall('.//td[@data-type="email"]'))
+        # self.assertFalse(brick_node2.findall('.//td[@data-type="email"]'))
+        self.assertFalse(brick_node2.select('td[data-type="email"]'))
         self.assertListEqual([c2.phone, c2.mobile], get_phones(brick_node2))
 
         # phone hidden ---
@@ -1035,15 +1069,19 @@ class BricksTestCase(BrickTestCaseMixin, _PersonsTestCase):
             self.get_html_tree(response.content), brick=bricks.ManagersBrick,
         )
 
-        self.assertEqual(1, len(brick_node.findall('.//td[@data-table-primary-column]')))
-        self.assertFalse(brick_node.findall('.//td[@data-type="email"]'))
-        self.assertFalse(brick_node.findall('.//td[@data-type="phone"]'))
+        # self.assertEqual(1, len(brick_node.findall('.//td[@data-table-primary-column]')))
+        self.assertEqual(1, len(brick_node.select('td[data-table-primary-column]')))
+        # self.assertFalse(brick_node.findall('.//td[@data-type="email"]'))
+        self.assertFalse(brick_node.select('td[data-type="email"]'))
+        # self.assertFalse(brick_node.findall('.//td[@data-type="phone"]'))
+        self.assertFalse(brick_node.select('td[data-type="phone"]'))
 
         self.assertEqual(
             4,
             sum(
                 int(n.text == settings.HIDDEN_VALUE)
-                for n in brick_node.findall('.//tbody/tr/td')
+                # for n in brick_node.findall('.//tbody/tr/td')
+                for n in brick_node.select('tbody tr td')
             ),
         )
 

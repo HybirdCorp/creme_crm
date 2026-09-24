@@ -67,7 +67,8 @@ class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
         msg_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-tiles-empty"]',
+            # brick_node, './/div[@class="brick-tiles-empty"]',
+            brick_node, 'div[class="brick-tiles-empty"]',
         )
         self.assertEqual(_('No image for the moment'), msg_node.text)
 
@@ -102,10 +103,12 @@ class ImagesBrickTestCase(BrickTestCaseMixin, _ProductsTestCase):
             count=2, title='{count} Image', plural_title='{count} Images',
         )
         self.get_html_node_or_fail(
-            brick_node, f".//a[@href='{img_1.get_absolute_url()}']"
+            # brick_node, f".//a[@href='{img_1.get_absolute_url()}']"
+            brick_node, f"a[href='{img_1.get_absolute_url()}']"
         )
         self.get_html_node_or_fail(
-            brick_node, f".//a[@href='{img_2.get_absolute_url()}']"
+            # brick_node, f".//a[@href='{img_2.get_absolute_url()}']"
+            brick_node, f"a[href='{img_2.get_absolute_url()}']"
         )
 
     @skipIfCustomService

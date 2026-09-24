@@ -267,7 +267,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def action_found(brick_node, action):
             title = action.title
-            return any(n.text == title for n in brick_node.findall('.//td'))
+            # return any(n.text == title for n in brick_node.findall('.//td'))
+            return any(n.text == title for n in brick_node.find_all('td'))
 
         create_detail = partial(
             BrickDetailviewLocation.objects.create_if_needed,

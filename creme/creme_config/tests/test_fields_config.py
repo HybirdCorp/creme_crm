@@ -82,7 +82,8 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=FieldsConfigsBrick,
         )
-        error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')
+        # error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')
+        error_node = self.get_html_node_or_fail(brick_node, 'ul[class="errorlist"] li')
         self.assertEqual(
             _(
                 'This type of resource cannot be configured; '
@@ -154,7 +155,8 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # TODO: assertSorted
         labels = [
             elt.text
-            for elt in self.get_html_tree(response1.content).findall('.//label')
+            # for elt in self.get_html_tree(response1.content).findall('.//label')
+            for elt in self.get_html_tree(response1.content).find_all('label')
         ]
         self.assertListEqual(sorted(labels), labels)
 

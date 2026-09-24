@@ -68,7 +68,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_brick_import_n_display__object_brick(self):
-        "Object Brick (generic brick)."
+        """Object Brick (generic brick)."""
         user = self.get_root_user()
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi', phone='123489',
@@ -87,12 +87,16 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         document = self.get_html_tree(render)
         brick_node = self.get_brick_node(document, MODELBRICK_ID)
 
-        content_node = self.get_html_node_or_fail(brick_node, './/div[@class="brick-content "]')
+        # content_node = self.get_html_node_or_fail(brick_node, './/div[@class="brick-content "]')
+        content_node = self.get_html_node_or_fail(brick_node, 'div[class="brick-content"]')
         self.assertEqual(
             motoko.last_name,
-            self.get_brick_tile(content_node, 'regular_field-last_name').text
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
         )
-        self.assertIn(motoko.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
+        self.assertIn(
+            motoko.phone,
+            self.get_brick_tile(content_node, 'regular_field-phone').text,
+        )
 
     def test_brick_declare_n_display__named_brick(self):
         class _FooBrick(Brick):

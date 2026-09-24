@@ -88,18 +88,27 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def assertInstanceLinkNoLabel(self, brick_node, entity):
+        # link_node = self.get_html_node_or_fail(
+        #     brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+        # )
         link_node = self.get_html_node_or_fail(
-            brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+            brick_node, f"a[href='{entity.get_absolute_url()}']",
         )
         self.assertFalse(link_node.text.strip())
 
     def get_search_brick_node(self, tree, brick_id_prefix):
         prefix = f'brick-{brick_id_prefix}'
 
-        for div_node in tree.findall('.//div'):
+        # for div_node in tree.findall('.//div'):
+        #     if (
+        #         'brick' in div_node.attrib.get('class', '')
+        #         and div_node.attrib.get('id', '').startswith(prefix)
+        #     ):
+        #         return div_node
+        for div_node in tree.find_all('div'):
             if (
-                'brick' in div_node.attrib.get('class', '')
-                and div_node.attrib.get('id', '').startswith(prefix)
+                'brick' in div_node.attrs.get('class', '')
+                and div_node.attrs.get('id', '').startswith(prefix)
             ):
                 return div_node
 
@@ -108,10 +117,18 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
     def assertNoSearchBrick(self, tree, brick_id_prefix):
         prefix = f'brick-{brick_id_prefix}'
 
-        for div_node in tree.findall('.//div'):
+        # for div_node in tree.findall('.//div'):
+        #     if (
+        #         'brick' in div_node.attrib.get('class', '')
+        #         and div_node.attrib.get('id', '').startswith(prefix)
+        #     ):
+        #         self.fail(
+        #             f'A brick unexpectedly found for prefix "{brick_id_prefix}".'
+        #         )  # pragma: no cover
+        for div_node in tree.find_all('div'):
             if (
-                'brick' in div_node.attrib.get('class', '')
-                and div_node.attrib.get('id', '').startswith(prefix)
+                'brick' in div_node.attrs.get('class', '')
+                and div_node.attrs.get('id', '').startswith(prefix)
             ):
                 self.fail(
                     f'A brick unexpectedly found for prefix "{brick_id_prefix}".'

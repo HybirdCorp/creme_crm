@@ -86,13 +86,15 @@ class CustomFieldsPortalTestCase(BrickTestCaseMixin, CremeTestCase):
             [cfield1.name, cfield2.name, cfield3.name],
             [
                 n.text
-                for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+                # for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+                for n in brick_node.select('td[class="cfields-config-name"]')
             ],
         )
 
         def choices_node(cfield):
             url = reverse('creme_config__custom_enums', args=(cfield.id,))
-            return brick_node.find(f'.//a[@href="{url}"]')
+            # return brick_node.find(f'.//a[@href="{url}"]')
+            return brick_node.select_one(f'a[href="{url}"]')
 
         self.assertIsNotNone(choices_node(cfield1))
         self.assertIsNotNone(choices_node(cfield2))
@@ -133,7 +135,8 @@ class CustomFieldsPortalTestCase(BrickTestCaseMixin, CremeTestCase):
             [cfield.name],
             [
                 n.text
-                for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+                # for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+                for n in brick_node.select('td[class="cfields-config-name"]')
             ],
         )
 
@@ -2413,7 +2416,8 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
             label=_('New choices'),
         )
 
-        values = {node.text for node in brick_node.findall('.//td')}
+        # values = {node.text for node in brick_node.findall('.//td')}
+        values = {node.text for node in brick_node.find_all('td')}
         self.assertIn(eval1.value, values)
         self.assertIn(eval2.value, values)
         self.assertIn(eval3.value, values)

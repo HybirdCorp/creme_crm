@@ -94,10 +94,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        icon_node = self.get_html_node_or_fail(brick_node, 'div[class="bar-icon"] img')
         self.assertEqual(
             get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
-            icon_node.attrib.get('src'),
+            # icon_node.attrib.get('src'),
+            icon_node.attrs.get('src'),
         )
 
     def test_bar__phone_call(self):
@@ -119,10 +121,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        icon_node = self.get_html_node_or_fail(brick_node, 'div[class="bar-icon"] img')
         self.assertEqual(
             get_creme_media_url(theme='icecream', url='images/phone_48.png'),
-            icon_node.attrib.get('src'),
+            # icon_node.attrib.get('src'),
+            icon_node.attrs.get('src'),
         )
 
     @skipIfCustomContact
@@ -310,7 +314,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         future_minutes = {
             n.text
-            for n in future_brick_node2.findall('.//div[@class="activity-group-value"]/p')
+            # for n in future_brick_node2.findall('.//div[@class="activity-group-value"]/p')
+            for n in future_brick_node2.select('div[class="activity-group-value"] p')
         }
         self.assertIn(future[0].minutes, future_minutes)
         self.assertIn(future[1].minutes, future_minutes)
@@ -326,7 +331,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         past_minutes = {
             n.text
-            for n in past_brick_node.findall('.//div[@class="activity-group-value"]/p')
+            # for n in past_brick_node.findall('.//div[@class="activity-group-value"]/p')
+            for n in past_brick_node.select('div[class="activity-group-value"] p')
         }
         self.assertIn(past[0].minutes, past_minutes)
         self.assertIn(past[1].minutes, past_minutes)
@@ -510,7 +516,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             future[0].minutes,
             {
                 n.text
-                for n in future_brick_node.findall('.//div[@class="activity-group-value"]')
+                # for n in future_brick_node.findall('.//div[@class="activity-group-value"]')
+                for n in future_brick_node.select('div[class="activity-group-value"]')
             },
         )
 
@@ -524,13 +531,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             past[0].minutes,
             {
                 n.text
-                for n in past_brick_node.findall('.//div[@class="activity-group-value"]')
+                # for n in past_brick_node.findall('.//div[@class="activity-group-value"]')
+                for n in past_brick_node.select('div[class="activity-group-value"]')
             },
         )
 
     @skipIfCustomContact
     def test_bricks_future_n_past__staff(self):
-        "Home + staff root."
+        """Home + staff root."""
         FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
         PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
 
@@ -615,9 +623,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertCountEqual(
             [f'background-color:#{cal.color};' for cal in [cal1, cal2]],
             [
-                n.attrib.get('style')
+                # n.attrib.get('style')
+                n.attrs.get('style')
                 # TODO: make uniform?
-                for n in brick_node.findall('.//div[@class="colored-square"]')
+                # for n in brick_node.findall('.//div[@class="colored-square"]')
+                for n in brick_node.select('div[class="colored-square"]')
             ],
         )
 
@@ -628,7 +638,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=UserCalendarsBrick,
         )
-        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        # self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+        self.assertIn('brick-void', brick_node.attrs.get('class', ''))
 
     def test_fullcalendar(self):
         user = self.login_as_activities_user()
@@ -652,10 +663,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 
         settings = json_loads(
-            brick_node.find('.//script[@class="brick-calendar-settings"]').text[4:-4]
+            # brick_node.find('.//script[@class="brick-calendar-settings"]').text[4:-4]
+            brick_node.select_one('script[class="brick-calendar-settings"]').text[4:-4]
         )
         sources = json_loads(
-            brick_node.find('.//script[@class="brick-calendar-sources"]').text[4:-4]
+            # brick_node.find('.//script[@class="brick-calendar-sources"]').text[4:-4]
+            brick_node.select_one('script[class="brick-calendar-sources"]').text[4:-4]
         )
 
         self.assertDictEqual(settings, {

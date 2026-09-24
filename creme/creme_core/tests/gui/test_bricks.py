@@ -729,7 +729,8 @@ class BrickRegistryTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasClass(brick_node=brick_node, css_class='brick-error')
 
         content_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-content"]'
+            # brick_node, './/div[@class="brick-content"]'
+            brick_node, 'div[class="brick-content"]',
         )
         self.assertIn(err_msg, content_node.text)
 

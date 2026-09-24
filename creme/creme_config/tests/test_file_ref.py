@@ -43,7 +43,8 @@ class FileRefTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_brick_table_column_titles(brick_node1),
         )
         rows = self.get_brick_table_rows(brick_node1)
-        table_cells = self.get_alone_element(rows).findall('.//td')
+        # table_cells = self.get_alone_element(rows).findall('.//td')
+        table_cells = self.get_alone_element(rows).find_all('td')
         self.assertEqual(6, len(table_cells))
         self.assertEqual(path, table_cells[2].text)
 

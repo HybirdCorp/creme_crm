@@ -412,7 +412,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job = Job.objects.create(type_id=not_configurable_type.id)
         self.assertGET409(job.get_edit_absolute_url())
 
-    def test_jobs_all01(self):
+    def test_jobs_all(self):
         user = self.login_as_root_and_get()
         job_count = 2
         for i in range(job_count):
@@ -429,14 +429,15 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(response.content), brick=JobsBrick,
         )
         counter = Counter(
-            n.text for n in brick_node.findall('.//td[@class="job-type"]')
+            # n.text for n in brick_node.findall('.//td[@class="job-type"]')
+            n.text for n in brick_node.select('td[class="job-type"]')
         )
         self.assertEqual(1, counter[_('Temporary files cleaner')])
         self.assertEqual(1, counter[_('Reminders')])
         self.assertEqual(2, counter[str(batch_process_type.verbose_name)])
 
     def test_jobs_all__regular_user(self):
-        "Not super-user: forbidden."
+        """Not super-user: forbidden."""
         self.login_as_standard()
         self.assertGET403(self.LIST_URL)
 
@@ -500,11 +501,13 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_node = self.get_brick_node(tree, brick=MyJobsBrick)
         self.assertListEqual(
             [str(_('Core'))] * job_count,
-            [n.text for n in brick_node.findall('.//td[@class="job-app"]')],
+            # [n.text for n in brick_node.findall('.//td[@class="job-app"]')],
+            [n.text for n in brick_node.select('td[class="job-app"]')],
         )
         self.assertListEqual(
             [str(batch_process_type.verbose_name)] * job_count,
-            [n.text for n in brick_node.findall('.//td[@class="job-type"]')],
+            # [n.text for n in brick_node.findall('.//td[@class="job-type"]')],
+            [n.text for n in brick_node.select('td[class="job-type"]')],
         )
         # TODO: complete
 
@@ -518,7 +521,8 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job_vname = str(batch_process_type.verbose_name)
         self.assertListEqual(
             [job_vname],
-            [n.text for n in brick_node1.findall('.//td[@class="job-type"]')],
+            # [n.text for n in brick_node1.findall('.//td[@class="job-type"]')],
+            [n.text for n in brick_node1.select('td[class="job-type"]')],
         )
 
         self._create_batchprocess_job(user=self.get_root_user())
@@ -528,7 +532,8 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertListEqual(
             [job_vname],  # Only job1
-            [n.text for n in brick_node2.findall('.//td[@class="job-type"]')],
+            # [n.text for n in brick_node2.findall('.//td[@class="job-type"]')],
+            [n.text for n in brick_node2.select('td[class="job-type"]')],
         )
 
     @override_settings(MAX_JOBS_PER_USER=1)

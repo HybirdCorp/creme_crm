@@ -177,11 +177,13 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         list_response = self.assertGET200(self.LIST_URL)
         buttons_node = self.get_html_node_or_fail(
             self.get_html_tree(list_response.content),
-            './/div[@class="buttons-list"]',
+            # './/div[@class="buttons-list"]',
+            'div[class="buttons-list"]',
         )
         self.get_html_node_or_fail(
             buttons_node,
-            f'.//a[@href="{self.ANNOUNCE_URL}"]',
+            # f'.//a[@href="{self.ANNOUNCE_URL}"]',
+            f'a[href="{self.ANNOUNCE_URL}"]',
         )
 
         # GET ---

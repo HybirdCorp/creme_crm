@@ -130,15 +130,18 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(tree, brick=StatisticsBrick)
 
         brick_node = self.get_brick_node(tree, brick=AppPermissionBrick)
-        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        # self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        self.assertIn('brick-forbidden', brick_node.attrs.get('class'))
         self.assertEqual(AppPermissionBrick.verbose_name, self.get_brick_title(brick_node))
 
         content_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-content"]',
+            # brick_node, './/div[@class="brick-content"]',
+            brick_node, 'div[class="brick-content"]',
         )
         self.assertEqual(
             _('You are not allowed to view this block'),
-            content_node.text.strip(),
+            # content_node.text.strip(),
+            next(content_node.stripped_strings),
         )
 
     def test_my_page(self):
@@ -172,13 +175,16 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(tree, brick=StatisticsBrick)
 
         brick_node = self.get_brick_node(tree, brick=AppPermissionBrick)
-        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        # self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        self.assertIn('brick-forbidden', brick_node.attrs.get('class'))
         self.assertEqual(AppPermissionBrick.verbose_name, self.get_brick_title(brick_node))
 
         content_node = self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-content"]',
+            # brick_node, './/div[@class="brick-content"]',
+            brick_node, 'div[class="brick-content"]',
         )
         self.assertEqual(
             _('You are not allowed to view this block'),
-            content_node.text.strip(),
+            # content_node.text.strip(),
+            next(content_node.stripped_strings),
         )

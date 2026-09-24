@@ -1131,14 +1131,17 @@ class BaseTestCaseTestCase(CremeTestCase):
 """)  # NOQA
 
         with self.assertRaises(self.failureException) as cm:
-            self.get_html_node_or_fail(tree, './/div[@class="content"]')
+            # self.get_html_node_or_fail(tree, './/div[@class="content"]')
+            self.get_html_node_or_fail(tree, 'div[class="content"]')
         self.assertEqual(
-            'The HTML node with path <.//div[@class="content"]> has not been found.',
+            # 'The HTML node with path <.//div[@class="content"]> has not been found.',
+            'The HTML node with path <div[class="content"]> has not been found.',
             str(cm.exception),
         )
 
         with self.assertNoException():
-            node = self.get_html_node_or_fail(tree, './/div[@class="main-content"]')
+            # node = self.get_html_node_or_fail(tree, './/div[@class="main-content"]')
+            node = self.get_html_node_or_fail(tree, 'div[class="main-content"]')
         self.assertEqual('Hi', node.text)
 
     def test_formfield_value_date(self):

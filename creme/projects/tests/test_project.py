@@ -89,7 +89,8 @@ class ProjectTestCase(views_base.BrickTestCaseMixin,
                 currency(0, project.currency),  # Cost
                 '—',  # Delay
             ],
-            [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+            # [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+            [node.text for node in info_brick_node.select('div[class="brick-kv-value"]')],
         )
 
         # ---
@@ -131,7 +132,8 @@ class ProjectTestCase(views_base.BrickTestCaseMixin,
                 currency(300, project.currency),  # Cost
                 '2',  # Delay (3 - 1)
             ],
-            [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+            # [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+            [node.text for node in info_brick_node.select('div[class="brick-kv-value"]')],
         )
 
         # ---

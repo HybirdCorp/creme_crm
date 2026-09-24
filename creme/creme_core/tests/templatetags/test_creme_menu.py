@@ -41,14 +41,21 @@ class MenuTestCase(CremeTestCase):
         # ET.dump(tree)
 
         class_prefix = self.css_class_prefix
-        creme_li_node = tree.find(
-            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
+        # creme_li_node = tree.find(
+        #     f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
+        # )
+        creme_li_node = tree.select_one(
+            f"li[class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
         )
         self.assertIsNotNone(creme_li_node)
-        self.assertEqual(settings.SOFTWARE_LABEL, creme_li_node.text)
+        # self.assertEqual(settings.SOFTWARE_LABEL, creme_li_node.text)
+        self.assertEqual(settings.SOFTWARE_LABEL, next(creme_li_node.stripped_strings))
 
-        home_li_node = creme_li_node.find(
-            f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
+        # home_li_node = creme_li_node.find(
+        #     f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
+        # )
+        home_li_node = creme_li_node.select_one(
+            f"li[class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
         )
         self.assertIsNotNone(home_li_node)
 
@@ -60,19 +67,31 @@ class MenuTestCase(CremeTestCase):
 
     def _assert_custom_url_entry(self, container_node, url):
         class_prefix = self.css_class_prefix
-        url_li_node = container_node.find(
-            f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-custom_url']"
+        # url_li_node = container_node.find(
+        #     f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-custom_url']"
+        # )
+        url_li_node = container_node.select_one(
+            f"li[class='{class_prefix}-level1 {class_prefix}-id_creme_core-custom_url']"
         )
         self.assertIsNotNone(url_li_node)
 
-        url_anchor_node = url_li_node.find('.//a')
+        # url_anchor_node = url_li_node.find('.//a')
+        url_anchor_node = url_li_node.select_one('a')
         self.assertIsNotNone(url_anchor_node)
-        self.assertEqual(url, url_anchor_node.attrib.get('href'))
+        # self.assertEqual(url, url_anchor_node.attrib.get('href'))
+        self.assertEqual(url, url_anchor_node.attrs.get('href'))
 
     def _assert_no_container(self, tree, label):
         class_prefix = self.css_class_prefix
-        for container in tree.findall(
-            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        # for container in tree.findall(
+        #     f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        # ):
+        #     if container.text == label:
+        #         self.fail(
+        #             f'A container named "{label}" has been unexpectedly found.'
+        #         )  # pragma: no cover
+        for container in tree.select(
+            f"li[class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
         ):
             if container.text == label:
                 self.fail(
@@ -113,23 +132,24 @@ class MenuTestCase(CremeTestCase):
 
     def _get_containers(self, tree, length):
         class_prefix = self.css_class_prefix
-        containers = tree.findall(
-            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        # containers = tree.findall(
+        #     f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        # )
+        containers = tree.select(
+            f"li[class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
         )
         self.assertEqual(length, len(containers))
 
         return containers
 
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_regular_config01(self):
-        "Logged as superuser."
+    def test_regular_config__logged_as_superuser(self):
         user = self.get_root_user()
         render = self._render(user)
         self._assert_vanilla_menu(self.get_html_tree(render))
 
     @override_settings(SOFTWARE_LABEL='Amazing CRM')
-    def test_regular_config02(self):
-        "Logged as not super-user."
+    def test_regular_config__logged_as_regular_user(self):
         create_role = self.create_role
         role1 = create_role(name='Developer')
         role2 = create_role(name='Salesman')
@@ -168,7 +188,8 @@ class MenuTestCase(CremeTestCase):
 
         containers = self._get_containers(tree, length=1)
         container_li_node = containers[0]
-        self.assertEqual(container_label, container_li_node.text)
+        # self.assertEqual(container_label, container_li_node.text)
+        self.assertEqual(container_label, next(container_li_node.stripped_strings))
         self._assert_custom_url_entry(container_node=container_li_node, url=url)
 
     def test_role_config(self):
@@ -197,7 +218,8 @@ class MenuTestCase(CremeTestCase):
 
         containers = self._get_containers(tree, length=1)
         container_li_node = containers[0]
-        self.assertEqual(container_label, container_li_node.text)
+        # self.assertEqual(container_label, container_li_node.text)
+        self.assertEqual(container_label, next(container_li_node.stripped_strings))
         self._assert_custom_url_entry(container_node=container_li_node, url=url)
 
     def test_menu_notifications(self):

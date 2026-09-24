@@ -44,7 +44,8 @@ class SubCategoryConfigViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         texts = {
             text
             for row in self.get_brick_table_rows(brick_node)
-            for cell in row.findall('.//td') if (text := cell.text.strip())
+            # for cell in row.findall('.//td') if (text := cell.text.strip())
+            for cell in row.find_all('td') if (text := cell.text.strip())
         }
         self.assertIn(
             SubCategory.objects.filter(category=cat1).first().name,

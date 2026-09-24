@@ -28,7 +28,8 @@ from .. import bricks
 
 
 class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
-    def _build_required_url(self, channel):
+    @staticmethod
+    def _build_required_url(channel):
         return reverse('creme_config__set_notif_channel_required', args=(channel.id,))
 
     def test_portal(self):
@@ -49,7 +50,8 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=bricks.NotificationChannelsBrick,
         )
-        names = {tr.find('.//td').text for tr in self.get_brick_table_rows(brick_node)}
+        # names = {tr.find('.//td').text for tr in self.get_brick_table_rows(brick_node)}
+        names = {tr.find('td').text for tr in self.get_brick_table_rows(brick_node)}
         self.assertIn(SystemChannelType.verbose_name,         names)
         self.assertIn(AdministrationChannelType.verbose_name, names)
         self.assertIn(custom_chan.name,                       names)
@@ -474,7 +476,8 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             title='{count} Channel',
             plural_title='{count} Channels',
         )
-        names = {tr.find('.//td').text for tr in self.get_brick_table_rows(brick_node)}
+        # names = {tr.find('.//td').text for tr in self.get_brick_table_rows(brick_node)}
+        names = {tr.find('td').text for tr in self.get_brick_table_rows(brick_node)}
         self.assertIn(SystemChannelType.verbose_name,         names)
         self.assertIn(AdministrationChannelType.verbose_name, names)
         self.assertIn(custom_chan.name,                       names)
@@ -483,7 +486,7 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(NotificationChannelConfigItem.objects.filter(user=root))
 
     def test_edition__already_exists(self):
-        "Item already exists."
+        """Item already exists."""
         user = self.login_as_standard()
         custom_chan = NotificationChannel.objects.create(
             name='My Channel', default_outputs=[OUTPUT_WEB],

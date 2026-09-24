@@ -369,8 +369,11 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             [cat1.name, cat2.name],
             [
                 n.text
-                for n in self.get_brick_tile(brick_node, 'regular_field-categories')
-                             .findall('.//li')
+                # for n in self.get_brick_tile(brick_node, 'regular_field-categories')
+                #              .findall('.//li')
+                for n in self.get_brick_tile(
+                    brick_node, 'regular_field-categories'
+                ).find_all('li')
             ],
         )
 
