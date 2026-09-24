@@ -119,13 +119,15 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
         volatile_span = self.get_html_node_or_fail(
-            brick_node, './/span[@class="chart-volatile-value"]',
+            # brick_node, './/span[@class="chart-volatile-value"]',
+            # brick_node, 'span[class="chart-volatile-value"]',
+            brick_node, 'span.chart-volatile-value',
         )
         self.assertEqual(vname, volatile_span.text)
 
     @skipIfCustomReport
     def test_report_chart_fetcher__regular_contact(self):
-        "Basic Contact (is_user=None)."
+        """Basic Contact (is_user=None)."""
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         chart = ReportChart.objects.create(
@@ -162,12 +164,14 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         dom = self.get_html_tree(response1.content)
         brick_node = self.get_brick_node(dom, brick=ibci.brick_id)
         self.get_html_node_or_fail(
-            brick_node, './/div[@class="brick-content is-empty"]'
+            # brick_node, './/div[@class="brick-content is-empty"]'
+            # brick_node, 'div[class="brick-content is-empty"]',
+            brick_node, 'div.brick-content.is-empty',
         )
 
     @skipIfCustomReport
     def test_report_chart_fetcher__not_contact(self):
-        "Entity is not even a Contact."
+        """Entity is not even a Contact."""
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         chart = ReportChart.objects.create(

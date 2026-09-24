@@ -75,9 +75,12 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(response.content), brick=SearchConfigBrick,
         )
         title_node = self.get_html_node_or_fail(
-            brick_node, ".//div[@class='search-config-group-title']",
+            # brick_node, ".//div[@class='search-config-group-title']",
+            # brick_node, 'div[class="search-config-group-title"]',
+            brick_node, 'div.search-config-group-title',
         )
-        self.assertEqual([str(ctype)], [text.strip() for text in title_node.itertext()])
+        # self.assertEqual([str(ctype)], [text.strip() for text in title_node.itertext()])
+        self.assertEqual(str(ctype), title_node.text.strip())
 
         # Missing default configurations are built
         sci = self.get_object_or_fail(SearchConfigItem, content_type=ctype)
@@ -86,7 +89,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(sci.all_fields)
 
     def test_portal__build_missing_configurations(self):
-        "Missing default configurations are built, even when configs for users exist."
+        """Missing default configurations are built, even when configs for users exist."""
         ctype = self._get_first_entity_ctype()
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 

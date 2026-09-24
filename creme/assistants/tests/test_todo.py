@@ -323,7 +323,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def todo_found(brick_node, todo):
             title = todo.title
-            return any(n.text == title for n in brick_node.findall('.//td'))
+            # return any(n.text == title for n in brick_node.findall('.//td'))
+            return any(n.text == title for n in brick_node.find_all('td'))
 
         # Detail + do not hide ---
         BrickDetailviewLocation.objects.create_if_needed(
@@ -401,7 +402,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.get_html_tree(response.content), brick=TodosBrick,
         )
         # TODO: method?
-        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        # self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        self.assertIn('brick-forbidden', brick_node.attrs.get('class'))
 
     def test_brick_reload__detailview(self):
         user = self.login_as_root_and_get()

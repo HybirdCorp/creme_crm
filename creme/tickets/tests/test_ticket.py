@@ -193,7 +193,11 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             priority.name,
             self.get_brick_tile(brick_node, 'regular_field-priority').text,
         )
-        self.assertIsNone(
+        # self.assertIsNone(
+        #     self.get_brick_tile(brick_node, 'function_field-get_resolving_duration').text,
+        # )
+        self.assertEqual(
+            '—',
             self.get_brick_tile(brick_node, 'function_field-get_resolving_duration').text,
         )
 

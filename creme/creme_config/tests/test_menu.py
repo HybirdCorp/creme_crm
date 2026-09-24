@@ -328,13 +328,19 @@ class MenuEntriesTestCase(CremeTestCase):
             '<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">'
         )
 
-        ul_node = self.get_html_node_or_fail(self.get_html_tree(render), './/ul')
+        # ul_node = self.get_html_node_or_fail(self.get_html_tree(render), './/ul')
+        ul_node = self.get_html_node_or_fail(self.get_html_tree(render), 'ul')
 
         links = []
-        for li_node in ul_node.findall('li'):
+        # for li_node in ul_node.findall('li'):
+        #     links.extend(
+        #         (a_node.get('href'), a_node.text)
+        #         for a_node in li_node.findall('.//a')
+        #     )
+        for li_node in ul_node.find_all('li'):
             links.extend(
-                (a_node.get('href'), a_node.text)
-                for a_node in li_node.findall('.//a')
+                (a_node.attrs.get('href'), a_node.text)
+                for a_node in li_node.find_all('a')
             )
 
         self.maxDiff = None

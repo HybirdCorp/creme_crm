@@ -83,9 +83,12 @@ class InvoiceMiscViewsTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInstanceLink(hat_brick_node1, instance=receiver)
 
         indicator_path = (
-            './/div[@class="business-card-indicator business-card-warning-indicator"]'
+            # './/div[@class="business-card-indicator business-card-warning-indicator"]'
+            # 'div[class="business-card-indicator business-card-warning-indicator"]'
+            'div.business-card-indicator.business-card-warning-indicator'
         )
-        self.assertIsNone(hat_brick_node1.find(indicator_path))
+        # self.assertIsNone(hat_brick_node1.find(indicator_path))
+        self.assertIsNone(hat_brick_node1.select_one(indicator_path))
 
         # Expiration passed ---
         invoice.status = InvoiceStatus.objects.filter(pending_payment=True)[0]
@@ -276,7 +279,7 @@ class InvoiceCreationTestCase(_BillingTestCase):
         self.assertEqual(invoice, invoice.shipping_address.owner)
 
     def test_contact_target(self):
-        "Workflow for Contact too."
+        """Workflow for Contact too."""
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -294,7 +297,7 @@ class InvoiceCreationTestCase(_BillingTestCase):
         self.assertEqual(contact, invoice.target)
 
     def test_error(self):
-        "Credentials errors with Organisation."
+        """Credentials errors with Organisation."""
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'], creatable_models=[Invoice],
         )
@@ -340,7 +343,7 @@ class InvoiceCreationTestCase(_BillingTestCase):
         )
 
     def test_payment_info(self):
-        "One PaymentInformation in the source => used automatically."
+        """One PaymentInformation in the source => used automatically."""
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -353,7 +356,7 @@ class InvoiceCreationTestCase(_BillingTestCase):
         self.assertEqual(pi, invoice.payment_info)
 
     def test_payment_info__several(self):
-        "Several PaymentInformation in the source => default one is used."
+        """Several PaymentInformation in the source => default one is used."""
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)

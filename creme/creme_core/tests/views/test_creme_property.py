@@ -742,7 +742,8 @@ class PropertyTypeDetailTestCase(BrickTestCaseMixin, CremeTestCase):
         # TODO:
         #   self.assertInstanceLink(brick_node, related_wf1)
         #   self.assertNoInstanceLink(brick_node, ...)
-        titles = {td.text for td in brick_node.findall('.//td')}
+        # titles = {td.text for td in brick_node.findall('.//td')}
+        titles = {td.text for td in brick_node.find_all('td')}
         self.assertIn(related_wf1.title, titles)
         self.assertIn(related_wf2.title, titles)
         self.assertNotIn(not_related_wf1.title, titles)

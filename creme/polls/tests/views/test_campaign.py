@@ -59,7 +59,10 @@ class PollCampaignViewsTestCase(BrickTestCaseMixin, _PollsTestCase):
             title='{count} Filled form reply',
             plural_title='{count} Filled form replies',
         )
-        self.get_html_node_or_fail(brick_node1, './/td[@class="brick-table-data-error"]')
+        self.get_html_node_or_fail(
+            # brick_node1, './/td[@class="brick-table-data-error"]'
+            brick_node1, 'td.brick-table-data-error',
+        )
 
         # ----
         create_reply(name='Reply#2')
@@ -73,7 +76,10 @@ class PollCampaignViewsTestCase(BrickTestCaseMixin, _PollsTestCase):
             title='{count} Filled form reply',
             plural_title='{count} Filled form replies',
         )
-        self.get_html_node_or_fail(brick_node2, './/td[@class="brick-table-data-valid"]')
+        self.get_html_node_or_fail(
+            # brick_node2, './/td[@class="brick-table-data-valid"]'
+            brick_node2, 'td.brick-table-data-valid'
+        )
 
     def test_creation(self):
         user = self.login_as_root_and_get()

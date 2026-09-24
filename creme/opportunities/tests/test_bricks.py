@@ -61,7 +61,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         )
 
     def test_target__emitter_shown(self):
-        "Source is displayed."
+        """Source is displayed."""
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         self.assertEqual(
@@ -76,7 +76,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertInstanceLink(brick_node, emitter)
 
     def test_target__emitter_hidden(self):
-        "Source is not displayed."
+        """Source is not displayed."""
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(
             user=user, name='Opp#1', managed=False,
@@ -94,7 +94,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     @skipIfCustomContact
     def test_hat_card(self):
-        "All contacts can be displayed."
+        """All contacts can be displayed."""
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
@@ -146,7 +146,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     @skipIfCustomContact
     def test_hat_card__too_many_contacts(self):
-        "Too many contacts to display."
+        """Too many contacts to display."""
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
@@ -386,12 +386,13 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         rows = self.get_brick_table_rows(brick_node)
         self.assertEqual(2, len(rows))
 
-        table_cells1 = rows[0].findall('.//td')
+        # table_cells1 = rows[0].findall('.//td')
+        table_cells1 = rows[0].find_all('td')
         self.assertEqual(6, len(table_cells1))
         # TODO: test content
 
     def test_targeting__hidden_estimated_sales(self):
-        "Field 'Estimated sales' is hidden."
+        """Field 'Estimated sales' is hidden."""
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -419,11 +420,12 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         )
 
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(5, len(rows[0].findall('.//td')))
+        # self.assertEqual(5, len(rows[0].findall('.//td')))
+        self.assertEqual(5, len(rows[0].find_all('td')))
         # TODO: test content
 
     def test_targeting__hidden_made_sales(self):
-        "Field 'Made sales' is hidden."
+        """Field 'Made sales' is hidden."""
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -451,4 +453,5 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         )
 
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(5, len(rows[0].findall('.//td')))
+        # self.assertEqual(5, len(rows[0].findall('.//td')))
+        self.assertEqual(5, len(rows[0].find_all('td')))

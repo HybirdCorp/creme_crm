@@ -38,9 +38,13 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         return [
-            ct_group[0].tail.strip()
-            for ct_group in brick_node.findall(
-                './/div[@class="entityfilter-config-group-title"]'
+            # ct_group[0].tail.strip()
+            # for ct_group in brick_node.findall(
+            #     './/div[@class="entityfilter-config-group-title"]'
+            # )
+            ct_group.text.strip()
+            for ct_group in brick_node.select(
+                'div[class="entityfilter-config-group-title"]'
             )
         ]
 

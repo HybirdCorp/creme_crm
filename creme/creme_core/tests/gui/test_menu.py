@@ -1021,8 +1021,10 @@ class MenuTestCase(CremeTestCase):
 
         tree = self.get_html_tree(render.removeprefix(label))
         li_classes = set()
-        for li_node in tree.findall('.//li'):
-            classes = {*li_node.get('class').split()}
+        # for li_node in tree.findall('.//li'):
+        for li_node in tree.find_all('li'):
+            # classes = {*li_node.get('class').split()}
+            classes = {*li_node.attrs.get('class')}
             if 'ui-creme-navigation-item-level1' in classes:
                 li_classes |= classes
 

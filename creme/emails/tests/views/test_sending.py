@@ -592,7 +592,8 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         popup_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content), brick=LwMailPopupBrick,
         )
-        self.assertIsNone(popup_brick_node.find('.//iframe'))
+        # self.assertIsNone(popup_brick_node.find('.//iframe'))
+        self.assertIsNone(popup_brick_node.find('iframe'))
 
         # ---
         response2 = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
@@ -614,7 +615,8 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.get_brick_node(tree3, brick=SendingBrick)
 
         body_brick_node = self.get_brick_node(tree3, brick=SendingHTMLBodyBrick)
-        self.assertIsNone(body_brick_node.find('.//iframe'))
+        # self.assertIsNone(body_brick_node.find('.//iframe'))
+        self.assertIsNone(body_brick_node.find('iframe'))
 
         # HTML body ----------------------------------------------------------
         body_url = reverse('emails__sending_body', args=(sending.id,))
@@ -748,11 +750,13 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         body_brick_node = self.get_brick_node(
             self.get_html_tree(response2.content), brick=SendingHTMLBodyBrick,
         )
-        iframe_node1 = body_brick_node.find('.//iframe')
+        # iframe_node1 = body_brick_node.find('.//iframe')
+        iframe_node1 = body_brick_node.find('iframe')
         self.assertIsNotNone(iframe_node1)
         self.assertEqual(
             reverse('emails__sending_body', args=(sending.id,)),
-            iframe_node1.attrib.get('src'),
+            # iframe_node1.attrib.get('src'),
+            iframe_node1.attrs.get('src'),
         )
 
         # Email Detail view ----------------------------------------------------
@@ -760,11 +764,13 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         email_brick_node = self.get_brick_node(
             self.get_html_tree(response3.content), brick=LwMailPopupBrick,
         )
-        iframe_node2 = email_brick_node.find('.//iframe')
+        # iframe_node2 = email_brick_node.find('.//iframe')
+        iframe_node2 = email_brick_node.find('iframe')
         self.assertIsNotNone(iframe_node2)
         self.assertEqual(
             reverse('emails__lw_mail_body', args=(mail1.id,)),
-            iframe_node2.attrib.get('src'),
+            # iframe_node2.attrib.get('src'),
+            iframe_node2.attrs.get('src'),
         )
 
         # View template --------------------------------------------------------

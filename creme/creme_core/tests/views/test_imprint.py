@@ -72,7 +72,8 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
         link_node = brick_node.find(
-            f".//a[@href='{user.linked_contact.get_absolute_url()}']"
+            # f".//a[@href='{user.linked_contact.get_absolute_url()}']"
+            'a', href=user.linked_contact.get_absolute_url(),
         )
         self.assertIsNotNone(link_node)
         self.assertEqual(str(user), link_node.text)

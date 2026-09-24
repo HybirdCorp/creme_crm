@@ -345,8 +345,10 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         )
 
         questions = {
-            self.get_html_node_or_fail(question_node, 'span').text
-            for question_node in lines_brick_node.findall(".//div[@class='poll-title-label']")
+            # self.get_html_node_or_fail(question_node, 'span').text
+            # for question_node in lines_brick_node.findall(".//div[@class='poll-title-label']")
+            span_node.text
+            for span_node in lines_brick_node.select('div.poll-title-label span')
         }
         self.assertIn(line1.question, questions)
         self.assertIn(line2.question, questions)
@@ -360,7 +362,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
             replies_node,
             count=1,
             title='{count} Reply',
-            plural_title='{count} Repliess',
+            plural_title='{count} Replies',
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(replies_node),
@@ -374,7 +376,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         )
 
     def test_no_poll_form(self):
-        "Create view: validation error when no PollForm."
+        """Create view: validation error when no PollForm."""
         user = self.login_as_root_and_get()
         response = self.assertPOST200(
             self.ADD_REPLIES_URL,
@@ -389,7 +391,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         )
 
     def test_no_line(self):
-        "Create view: validation error when no line."
+        """Create view: validation error when no line."""
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -409,7 +411,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         )
 
     def test_no_valid_line(self):
-        "Create view: validation error when no valid line."
+        """Create view: validation error when no valid line."""
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -435,7 +437,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         )
 
     def test_orders(self):
-        "Create view: orders are not successive."
+        """Create view: orders are not successive."""
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(
             user=user, name='Form#1', type=PollType.objects.all()[0],
@@ -470,7 +472,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
         self.assertTemplateUsed(response, 'polls/view_pollreply.html')
 
     def test_several_replies(self):
-        "Create view: create several replies."
+        """Create view: create several replies."""
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -503,7 +505,7 @@ class PollReplyCreationTestCase(BrickTestCaseMixin, BasePollReplyViewsTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_several_replies__linked(self):
-        "Create view: create several replies linked to Contact/Organisation."
+        """Create view: create several replies linked to Contact/Organisation."""
         user = self.login_as_root_and_get()
         count = PollReply.objects.count()
 

@@ -49,7 +49,8 @@ class CommercialApproachViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def _get_commap_titles(self, response):
         brick_node = self._get_commap_brick_node(response)
 
-        return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
+        # return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
+        return {elt.text for elt in brick_node.select('td[data-table-primary-column]')}
 
     def test_creation(self):
         entity = FakeOrganisation.objects.create(user=self.user, name='NERV')

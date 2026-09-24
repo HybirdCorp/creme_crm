@@ -155,6 +155,33 @@
         # The view-mixin 'creme_core.views.generic.base.BricksMixin' has been improved ;
           a class attribute 'brick_classes' has been added to facilitate the injection
           of "static" (i.e. no configuration in DB) Bricks in the related template.
+        # In 'creme.creme_core.tests.base', the lib 'html5' (which is not supported anymore) has
+          been replaced by 'beautifulsoup' (which was already in our "dev" dependencies).
+          It means that the method '_CremeTestCase.get_html_tree()' now returns a 'BeautifulSoup' instance which
+          has a different API (see "https://www.crummy.com/software/BeautifulSoup/bs4/doc/" for the complete documentation) :
+            - It does not manage XPath queries (but it notably manages CCS selectors which are generally better).
+                - The calls to the nodes method 'find()' have to be modified like :
+                    - `.find('.//li')` => `.find('li')`
+                    - `.find('.//li[@name="foobar"]')` => `.find('li', name='foobar')` or `.select_one('li[name="foobar"]')`
+                    - `.find('.//li[@class="foobar"]')`
+                      => `.find('li', class_="foobar"')` or `.select_one('li[name="foobar"]')` or even `.select_one('li.foobar')`
+                - The calls to teh nodes method 'findall()' have to be modified like :
+                    - `.findall('.//li')` => `.find_all('li')`
+                    - `.findall('.//li[@class="foobar"]')`
+                      => `.find_all('li', class_='foobar')` or `.select('li[class="foobar"]')` or even `.select('li.foobar')`
+            - The attribute to get HTML attributes is now "attrs" instead of "attrib".
+            - The attribute "text" behaves differently when you call it on a node whith child tags ;
+              you may need the new property 'stripped_strings' to replace it.
+            - There is no 'itertext()' method any ; see 'strings' or 'stripped_strings' to replace it.
+            - The nodes are not iterable anymore ; use properties 'contents' or 'children' instead.
+            - ...
+          The method '_CremeTestCase.get_html_node_or_fail()' now gets CSS selectors.
+            E.g. :
+             `img_node = self.get_html_node_or_fail(node, './/div[@class="with-icon"]/img')`
+             has to become something like :
+             `img_node = self.get_html_node_or_fail(node, 'div.with-icon img')`
+          All test code has been reworked to use the new API, & so you may encounter some breaking
+          which you have to fix in a way explained above.
 
     Breaking changes :
     ------------------

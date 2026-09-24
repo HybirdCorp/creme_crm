@@ -100,7 +100,9 @@ class UserRolePortalTestCase(BaseUserRoleTestCase):
         )
         self.assertIn(
             role.name,
-            [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
+            # [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
+            # [n.text for n in brick_node.select('td[class="role-name"]')],
+            [n.text for n in brick_node.find_all('td', class_='role-name')],
         )
 
     def test_forbidden(self):
