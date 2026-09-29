@@ -32,7 +32,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from ..utils.date_period import HoursPeriod, date_period_registry
+from ..utils.date_period import DatePeriod, HoursPeriod, date_period_registry
 from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601, round_hour
 from . import fields as core_fields
 from .entity import CremeEntity
@@ -195,7 +195,7 @@ class Job(models.Model):
             return jtype.progress(self)
 
     @property
-    def real_periodicity(self):
+    def real_periodicity(self) -> DatePeriod | None:
         periodicity = self.periodicity
 
         if periodicity is None and self.user_id is None:
