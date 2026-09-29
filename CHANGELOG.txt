@@ -238,6 +238,8 @@
                 - There is no hard-coded specific enumerator related to 'CremeEntity' anymore;
                   but an enumerator is registered in the global registry (so don't worry if you
                   do not instanciate your own registry).
+            - The method 'entity_filter.condition_handler.DateRegularFieldConditionHandler.build_condition()'
+              takes now its arguments by keywords only.
             - In the base class 'sorter.AbstractCellSorter' (& so all child classes) the method
               'get_field_name()' has been removed, & replaced by 'get_sorting_item()'.
               It could affect your code if one of your 'FunctionField' defines its attribute

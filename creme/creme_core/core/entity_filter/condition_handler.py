@@ -863,7 +863,8 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
         )
 
     @classmethod
-    def build_condition(cls,
+    # def build_condition(cls,
+    def build_condition(cls, *,
                         model: type[CremeEntity],
                         field_name: str,
                         date_range: str | None = None,
