@@ -148,11 +148,13 @@ class JobScheduler:
         reference_run + N * period, & be > now_value.
         """
         next_wakeup: datetime
+        periodicity = job.real_periodicity
 
-        if job.enabled:
+        if periodicity is not None and job.enabled:
             next_wakeup = reference_run or job.reference_run
             now_value = now()
-            period = job.real_periodicity.as_timedelta()
+            # TODO: use .as_rrule()?
+            period = periodicity.as_timedelta()
 
             # TODO: optimise this computing to avoid O(N) complexity;
             #       we could probably remove the argument "reference_run".

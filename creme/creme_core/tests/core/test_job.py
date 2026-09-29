@@ -1,9 +1,10 @@
 import os
-from datetime import timedelta
+from datetime import MAXYEAR, datetime, timedelta
 from shutil import rmtree
 from tempfile import mkdtemp
 from unittest import skipIf
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import override_settings
 from django.utils.timezone import now
@@ -11,10 +12,14 @@ from django.utils.timezone import now
 from creme.creme_core.core.job import JobScheduler, _JobTypeRegistry
 from creme.creme_core.core.job.queue.unix_socket import UnixSocketQueue
 from creme.creme_core.core.reminder import Reminder, reminder_registry
-from creme.creme_core.creme_jobs import reminder_type
+from creme.creme_core.creme_jobs import (
+    batch_process_type,
+    reminder_type,
+    sessions_cleaner_type,
+)
 from creme.creme_core.creme_jobs.base import JobType
-from creme.creme_core.models import Job
-from creme.creme_core.utils.date_period import HoursPeriod
+from creme.creme_core.models import FakeOrganisation, Job
+from creme.creme_core.utils.date_period import DaysPeriod, HoursPeriod
 from creme.creme_core.utils.dates import round_hour
 
 from ..base import CremeTestCase
@@ -165,9 +170,45 @@ class JobSchedulerTestCase(CremeTestCase):
         reminder_registry.register(reminder)
         self.reminders.append(reminder)
 
+    def test_next_wake_up__periodic_job__one_tick(self):
+        rounded_hour = round_hour(now())
+        job = Job.objects.get(type_id=sessions_cleaner_type.id)
+
+        if job.reference_run != rounded_hour:
+            job.reference_run = rounded_hour
+            job.save()
+
+        self.assertEqual(DaysPeriod(value=1), job.real_periodicity)
+
+        next_wakeup = JobScheduler()._next_wakeup
+
+        next_day = rounded_hour + timedelta(days=1)
+        self.assertEqual(next_day, next_wakeup(job))
+
+        # Should not be used because "rounded_hour" is given
+        job.reference_run = rounded_hour - timedelta(days=1)
+        self.assertEqual(next_day, next_wakeup(job, reference_run=rounded_hour))
+
+    def test_next_wake_up__periodic_job__several_ticks(self):
+        job = Job.objects.get(type_id=sessions_cleaner_type.id)
+        job.reference_run = round_hour(now() - timedelta(days=10, hours=3))
+        job.save()
+        self.assertEqual(
+            round_hour(now() + timedelta(days=1) - timedelta(hours=3)),
+            JobScheduler()._next_wakeup(job),
+        )
+
+    def test_next_wake_up__periodic_job__disabled(self):
+        job = Job.objects.get(type_id=sessions_cleaner_type.id)
+        job.enabled = False
+        # job.save()
+
+        wakeup = JobScheduler()._next_wakeup(job)
+        self.assertIsInstance(wakeup, datetime)
+        self.assertEqual(MAXYEAR, wakeup.year)
+
     @override_settings(PSEUDO_PERIOD=1)
-    def test_next_wake_up__pseudo_periodic(self):
-        "PSEUDO_PERIODIC job."
+    def test_next_wake_up__pseudo_periodic_job(self):
         rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
 
@@ -187,7 +228,7 @@ class JobSchedulerTestCase(CremeTestCase):
         self.assertEqual(next_hour, next_wakeup(job, reference_run=rounded_hour))
 
     @override_settings(PSEUDO_PERIOD=1)
-    def test_next_wake_up__pseudo_periodic__before_security(self):
+    def test_next_wake_up__pseudo_periodic_job__before_security(self):
         """PSEUDO_PERIODIC job + reminder returns a wake-up date before the new
         security period.
         """
@@ -225,3 +266,23 @@ class JobSchedulerTestCase(CremeTestCase):
             rounded_hour + timedelta(hours=1),
             JobScheduler()._next_wakeup(job),
         )
+
+    def test_next_wake_up__user_job(self):
+        """Should not happen..."""
+        job = Job.objects.create(
+            user=self.get_root_user(),
+            type_id=batch_process_type.id,
+            language='en',
+            status=Job.STATUS_WAIT,
+            data={
+                'ctype': ContentType.objects.get_for_model(FakeOrganisation).id,
+                'actions': [],
+            },
+        )
+        self.assertIsNotNone(job.reference_run)
+        self.assertIsNone(job.real_periodicity)
+
+        with self.assertNoException():
+            wakeup = JobScheduler()._next_wakeup(job)
+        self.assertIsInstance(wakeup, datetime)
+        self.assertEqual(MAXYEAR, wakeup.year)
