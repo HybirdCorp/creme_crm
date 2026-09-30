@@ -1,0 +1,5 @@
+{% if entry.permission_error %}
+ {% block error_content %}<span class="ui-creme-navigation-text-entry forbidden" title="{{entry.permission_error}}">{{entry.label}}</span>{% endblock %}
+{% else %}
+ {% block content %}<span class="ui-creme-navigation-text-entry">{{entry.label}}</span>{% endblock %}
+{% endif %}

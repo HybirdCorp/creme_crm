@@ -1,0 +1,8 @@
+{% load creme_perms %}
+{% with contact=entry.user.linked_contact %}
+ {% if contact and entry.user|has_perm_to_view:contact %}
+  <a href="{{contact.get_absolute_url}}">{{entry.user}}</a>
+ {% else %}
+  <span class="ui-creme-navigation-text-entry forbidden">{{entry.user}}</span>
+ {% endif %}
+{% endwith %}

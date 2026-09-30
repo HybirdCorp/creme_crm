@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.core.exceptions import PermissionDenied
+# from django.utils.html import format_html
+# from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -48,6 +49,8 @@ class MySettingsEntry(menu.FixedURLEntry):
 class CurrentAppConfigEntry(menu.MenuEntry):
     id = 'creme_config-current_app'
     label = _("*Current app's settings*")
+    # template_name = 'creme_core/menu/link.html'
+    template_name = 'creme_config/menu/current-app-config.html'
 
     config_registry = config_registry
 
@@ -82,25 +85,41 @@ class CurrentAppConfigEntry(menu.MenuEntry):
 
         return None
 
-    def render(self, context):
+    # def render(self, context):
+    #     app_config = self.guess_current_app_config(context)
+    #
+    #     if app_config is None:
+    #         return ''
+    #
+    #     label = _('Configuration of «{app}»').format(app=app_config.verbose_name)
+    #
+    #     if not context['user'].has_perm_to_admin(app_config.name):
+    #         return format_html(
+    #             '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+    #             label,
+    #         )
+    #
+    #     return format_html(
+    #         '<a href="{url}">{label}</a>',
+    #         url=app_config.portal_url,
+    #         label=label,
+    #     )
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
         app_config = self.guess_current_app_config(context)
 
-        if app_config is None:
-            return ''
+        if app_config is not None:
+            ctxt['app_config'] = app_config
+            ctxt['label'] = _('Configuration of «{app}»').format(app=app_config.verbose_name)
 
-        label = _('Configuration of «{app}»').format(app=app_config.verbose_name)
+            try:
+                context['user'].has_perm_to_admin_or_die(app_config.name)
+            except PermissionDenied as e:
+                ctxt['permission_error'] = str(e)
+            else:
+                ctxt['url'] = app_config.portal_url
 
-        if not context['user'].has_perm_to_admin(app_config.name):
-            return format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-                label,
-            )
-
-        return format_html(
-            '<a href="{url}">{label}</a>',
-            url=app_config.portal_url,
-            label=label,
-        )
+        return ctxt
 
 
 class _ConfigURLEntry(menu.FixedURLEntry):
@@ -228,26 +247,26 @@ class FileRefsEntry(_ConfigURLEntry):
     label = _('Temporary files')
     url_name = 'creme_config__file_refs'
 
-    def render(self, context):
-        return super().render(context=context) if context['user'].is_staff else ''
+    # def render(self, context):
+    #     return super().render(context=context) if context['user'].is_staff else ''
 
 
 class CremeConfigEntry(menu.ContainerEntry):
     id = 'creme_config-main'
     label = _('Configuration')
     is_required = True
+    template_name = 'creme_config/menu/config-container.html'
     single_instance = True
     accepts_children = False
 
-    # NB: http://google.github.io/material-design-icons/action/svg/ic_settings_24px.svg
-    SVG_DATA = """<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <defs>
-    <g id="creme_config-menu_icon">
-      <path d="M0 0h24v24h-24z" fill="none"/>
-      <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65c-.03-.24-.24-.42-.49-.42h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-7.43 2.52c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
-    </g>
-  </defs>
-</svg>"""  # NOQA
+#     SVG_DATA = """<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+#   <defs>
+#     <g id="creme_config-menu_icon">
+#       <path d="M0 0h24v24h-24z" fill="none"/>
+#       <path d="..."/>
+#     </g>
+#   </defs>
+# </svg>"""
 
     class CredentialsSeparatorEntry(menu.Separator1Entry):
         id = 'creme_config-credentials_separator'
@@ -257,21 +276,13 @@ class CremeConfigEntry(menu.ContainerEntry):
         id = 'creme_config-listviews_separator'
         label = _('List-views management')
 
-    # NB: 'ContainerEntry.render()' always generates <li> tags, even for empty
-    #     entries, so we cannot use Separator1Entry because the top border will
-    #     always be displayed even for not staff users.
-    # TODO: we could entirely define 'CremeConfigEntry.render()', but improving
-    #       ContainerEntry would be better.
-    #       Idea: the property "children" could become a classical method like
-    #             "get_children(self, context)" to skip entries depending on the context.
-    #       (remove/rework the CSS class when it's done)
-    class StaffSeparatorEntry(menu.MenuEntry):
-        id = 'creme_config-staff_separator'
-        type = 'creme_config-staff_separator'
-        label = _('Staff tools')
-
-        def render(self, context):
-            return self.render_label(context) if context['user'].is_staff else ''
+    # class StaffSeparatorEntry(menu.MenuEntry):
+    #     id = 'creme_config-staff_separator'
+    #     type = 'creme_config-staff_separator'
+    #     label = _('Staff tools')
+    #
+    #     def render(self, context):
+    #         return self.render_label(context) if context['user'].is_staff else ''
 
     children_classes = [
         ConfigPortalEntry,
@@ -302,18 +313,29 @@ class CremeConfigEntry(menu.ContainerEntry):
         EntityFiltersConfigEntry,
         HeaderFiltersConfigEntry,
 
-        StaffSeparatorEntry,
+        # StaffSeparatorEntry,
+        # FileRefsEntry,
+    ]
+    staff_children_classes = [
+        menu.Separator1Entry,
         FileRefsEntry,
     ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._children[:] = (cls() for cls in self.children_classes)
+        self._staff_children = [cls() for cls in self.staff_children_classes]
 
-    def render_label(self, context):
-        return mark_safe(
-            '<svg viewBox="0 0 24 24"><use xlink:href="#creme_config-menu_icon" /></svg>'
-        )
+    def _get_children(self, context):
+        yield from super()._get_children(context=context)
 
-    def render(self, context):
-        return mark_safe(self.SVG_DATA + super().render(context))
+        if context['user'].is_staff:
+            yield from self._staff_children
+
+    # def render_label(self, context):
+    #     return mark_safe(
+    #         '<svg viewBox="0 0 24 24"><use xlink:href="#creme_config-menu_icon" /></svg>'
+    #     )
+
+    # def render(self, context):
+    #     return mark_safe(self.SVG_DATA + super().render(context))

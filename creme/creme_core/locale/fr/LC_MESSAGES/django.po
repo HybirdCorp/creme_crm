@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 08:56+0200\n"
+"POT-Creation-Date: 2026-10-05 16:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1988,6 +1988,9 @@ msgstr "Ajouter une entrée URL"
 msgid "{label} (broken configuration)"
 msgstr "{label} (configuration cassée)"
 
+msgid "Fix your menu configuration"
+msgstr "Corrigez votre configuration de menu"
+
 msgid "Separator"
 msgstr "Séparateur"
 
@@ -2046,9 +2049,6 @@ msgstr "Aucun type disponible."
 
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
-
-msgid "Create an entity of any type"
-msgstr "Créer une fiche de n'importe quel type"
 
 msgid "Quick access"
 msgstr "Accès rapide"
@@ -4356,6 +4356,9 @@ msgstr "Nb / Page :"
 
 msgid "End"
 msgstr "Fin"
+
+msgid "Create an entity of any type"
+msgstr "Créer une fiche de n'importe quel type"
 
 #, python-format
 msgid "%(counter)s entity"

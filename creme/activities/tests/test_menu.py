@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.timezone import now
@@ -16,13 +17,30 @@ from creme.activities.tests.base import _ActivitiesTestCase
 
 # TODO: complete
 class ActivitiesMenuTestCase(_ActivitiesTestCase):
+    def _build_context(self, user=None):
+        user = user or self.get_root_user()
+
+        return {
+            # 'request': self.build_request(user=user),
+            'user': user,
+        }
+
+    def _render_entry(self, *, user=None, entry):
+        page_context = self._build_context(user=user)
+        context = entry if isinstance(entry, dict) else entry.get_context(page_context)
+
+        return get_template(context['template_name']).render({
+            **page_context, 'entry': context,
+        })
+
     def test_PhoneCallsEntry(self):
         entry = PhoneCallsEntry()
         url = reverse('activities__list_phone_calls')
         self.assertEqual(url, entry.url)
         self.assertHTMLEqual(
             f'<a href="{url}">{_('Phone calls')}</a>',
-            entry.render({'user': self.get_root_user()}),
+            # entry.render({'user': self.get_root_user()}),
+            self._render_entry(entry=entry),
         )
 
     def test_PhoneCallsEntry__forbidden(self):
@@ -38,7 +56,8 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
                 ),
                 label=_('Phone calls'),
             ),
-            PhoneCallsEntry().render({'user': user}),
+            # PhoneCallsEntry().render({'user': user}),
+            self._render_entry(user=user, entry=PhoneCallsEntry()),
         )
 
     def test_PhoneCallsEntry__type_disabled(self):
@@ -49,7 +68,8 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
             atype.disabled = now()
             atype.save()
 
-            html = entry.render({'user': self.get_root_user()})
+            # html = entry.render({'user': self.get_root_user()})
+            html = self._render_entry(entry=entry)
         finally:
             atype.disabled = None
             atype.save()
@@ -70,7 +90,8 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
         self.assertEqual(url, entry.url)
         self.assertHTMLEqual(
             f'<a href="{url}">{_('Meetings')}</a>',
-            entry.render({'user': self.get_root_user()}),
+            # entry.render({'user': self.get_root_user()}),
+            self._render_entry(entry=entry),
         )
 
     def test_MeetingsEntry__forbidden(self):
@@ -86,7 +107,8 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
                 ),
                 label=_('Meetings'),
             ),
-            MeetingsEntry().render({'user': user}),
+            # MeetingsEntry().render({'user': user}),
+            self._render_entry(user=user, entry=MeetingsEntry()),
         )
 
     def test_MeetingsEntry__type_disabled(self):
@@ -97,7 +119,8 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
             atype.disabled = now()
             atype.save()
 
-            html = entry.render({'user': self.get_root_user()})
+            # html = entry.render({'user': self.get_root_user()})
+            html = self._render_entry(entry=entry)
         finally:
             atype.disabled = None
             atype.save()
@@ -132,5 +155,6 @@ class ActivitiesMenuTestCase(_ActivitiesTestCase):
                 )),
                 label=TestTypedActivitiesEntry.label,
             ),
-            TestTypedActivitiesEntry().render({'user': self.get_root_user()}),
+            # TestTypedActivitiesEntry().render({'user': self.get_root_user()}),
+            self._render_entry(entry=TestTypedActivitiesEntry()),
         )
