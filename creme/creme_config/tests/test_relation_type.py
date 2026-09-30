@@ -84,7 +84,8 @@ class RelationTypeCreationTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(RelationType.save_label, context.get('submit_label'))
 
         count = RelationType.objects.count()
-        subject_pred = 'loves'
+        # subject_pred = 'loves'
+        subject_pred = 'lovës'  # Special char should be transformed in ID
         object_pred  = 'is loved by'
         response = self.client.post(
             url,
@@ -100,6 +101,8 @@ class RelationTypeCreationTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(count + 2, RelationType.objects.count())  # 2 freshly created
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
+        # self.assertStartsWith(rel_type.pk, 'creme_config-subject_userrelationtype')
+        self.assertStartsWith(rel_type.pk, 'creme_config-subject_custom_loves')
         self.assertTrue(rel_type.is_custom)
         self.assertTrue(rel_type.is_copiable)
         self.assertFalse(rel_type.minimal_display)
@@ -108,6 +111,8 @@ class RelationTypeCreationTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(rel_type.subject_forbidden_properties.all())
 
         sym_type = rel_type.symmetric_type
+        # self.assertStartsWith(sym_type.pk, 'creme_config-object_userrelationtype')
+        self.assertStartsWith(sym_type.pk, 'creme_config-object_custom_loves')
         self.assertEqual(object_pred, sym_type.predicate)
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)

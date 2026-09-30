@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from functools import partial
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.forms import BooleanField, CharField
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
@@ -157,25 +158,41 @@ class _RelationTypeForm(core_forms.CremeForm):
         return cdata
 
     def save(self,
-             pk_subject='creme_config-subject_userrelationtype',
-             pk_object='creme_config-object_userrelationtype',
+             # pk_subject='creme_config-subject_userrelationtype',
+             pk_subject='creme_config-subject_custom_',
+             # pk_object='creme_config-object_userrelationtype',
+             pk_object='creme_config-object_custom_',
              generate_pk=True,
              *args, **kwargs):
+        assert '-subject_' in pk_subject
+        assert '-subject_' not in pk_object
+        assert '-object_' in pk_object
+
         get_data = self.cleaned_data.get
 
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
+        subject_predicate = get_data('subject_predicate')
+
+        slug_limit = RelationType._meta.get_field('id').max_length - max(
+            len(pk_subject), len(pk_object),
+        ) - 20  # Max size of the 64 bits random number added at the end
+        slug = slugify(subject_predicate)[:slug_limit]
+
         return RelationType.objects.smart_update_or_create(
             (
-                pk_subject,
-                get_data('subject_predicate'),
+                # pk_subject,
+                pk_subject + slug,
+                # get_data('subject_predicate'),
+                subject_predicate,
                 subject_ctypes,
                 get_data('subject_properties'),
                 get_data('subject_forbidden_properties'),
             ),
             (
-                pk_object,
+                # pk_object,
+                pk_object + slug,
                 get_data('object_predicate'),
                 object_ctypes,
                 get_data('object_properties'),
