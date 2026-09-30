@@ -4,6 +4,7 @@ from unittest import skipIf
 
 from django.apps import apps
 from django.forms import CharField
+from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.functional import partition
 from django.utils.html import escape
@@ -61,6 +62,23 @@ else:
 
 
 class MenuEntriesTestCase(CremeTestCase):
+    def _build_context(self, user=None, **kwargs):
+        user = user or self.get_root_user()
+
+        return {
+            'request': self.build_request(user=user),
+            'user': user,
+            # 'TIME_ZONE': 'Europe/Paris',
+            **kwargs
+        }
+
+    def _render_entry(self, *, page_context, entry):
+        context = entry if isinstance(entry, dict) else entry.get_context(page_context)
+
+        return get_template(context['template_name']).render({
+            **page_context, 'entry': context,
+        })
+
     def test_tz_entry(self):
         entry = TimezoneEntry()
         self.assertEqual('creme_config-timezone', entry.id)
@@ -72,11 +90,15 @@ class MenuEntriesTestCase(CremeTestCase):
                 url=reverse('creme_config__user_settings'),
                 label=_('Time zone: {}').format(tz),
             ),
-            entry.render({
-                # 'request': self.build_request(user=user),
-                'user': self.get_root_user(),
-                'TIME_ZONE': tz,
-            }),
+            # entry.render({
+            #     # 'request': self.build_request(user=user),
+            #     'user': self.get_root_user(),
+            #     'TIME_ZONE': tz,
+            # }),
+            self._render_entry(
+                page_context=self._build_context(TIME_ZONE=tz),
+                entry=entry,
+            ),
         )
 
         # ---
@@ -211,30 +233,51 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config-current_app',    entry.id)
         self.assertEqual(_("*Current app's settings*"), entry.label)
 
+        context = self._build_context(user=user)
+        entry_ctxt1 = entry.get_context(context=context)
+        self.assertDictEqual(
+            {
+                'id': entry.id,
+                'label': entry.label,
+                'permission_error': '',
+                # 'template_name': 'creme_core/menu/link.html',
+                'template_name': 'creme_config/menu/current-app-config.html',
+                'type': '',
+            },
+            entry_ctxt1,
+        )
         self.assertEqual(
             '',
-            entry.render({
-                # 'request': self.build_request(user=user),
-                'user': user,
-            }),
+            # entry.render({
+            #     # 'request': self.build_request(user=user),
+            #     'user': user,
+            # }),
+            self._render_entry(page_context=context, entry=entry_ctxt1).strip(),
         )
 
+        # ---
         fake_contact = FakeContact.objects.create(user=user, last_name='Doe')
+        context['object'] = fake_contact
+
+        entry_ctxt2 = entry.get_context(context=context)
+        self.assertIn('app_config', entry_ctxt2)
+
         self.assertHTMLEqual(
             '<a href="{url}">{label}</a>'.format(
                 url=reverse('creme_config__app_portal', args=('creme_core',)),
                 label=_('Configuration of «{app}»').format(app=_('Core')),
             ),
-            entry.render({
-                # 'request': self.build_request(user=user),
-                'user': user,
-                'object': fake_contact,
-            }),
+            # entry.render({
+            #     # 'request': self.build_request(user=user),
+            #     'user': user,
+            #     'object': fake_contact,
+            # }),
+            self._render_entry(page_context=context, entry=entry_ctxt2),
         )
 
     @skipIfCustomContact
     def test_current_app_entry__other_app(self):
-        "Other app."
+        """Other app."""
         user = self.login_as_standard(admin_4_apps=('persons',))
 
         contact = get_contact_model().objects.create(user=user, last_name='Doe')
@@ -244,17 +287,26 @@ class MenuEntriesTestCase(CremeTestCase):
                 app=_('Accounts and Contacts'),
             ),
         )
-        render = CurrentAppConfigEntry().render
+        # render = CurrentAppConfigEntry().render
+        entry = CurrentAppConfigEntry()
         self.assertHTMLEqual(
             expected,
-            render({'user': user, 'object': contact}),
+            # render({'user': user, 'object': contact}),
+            self._render_entry(
+                page_context=self._build_context(user=user, object=contact),
+                entry=entry,
+            ),
         )
 
         # ---
         from creme.persons.views.contact import ContactsList
         self.assertHTMLEqual(
             expected,
-            render({'user': user, 'view': ContactsList()}),
+            # render({'user': user, 'view': ContactsList()}),
+            self._render_entry(
+                page_context=self._build_context(user=user, view=ContactsList()),
+                entry=entry,
+            ),
         )
 
     @skipIfCustomContact
@@ -262,21 +314,34 @@ class MenuEntriesTestCase(CremeTestCase):
         user = self.login_as_standard()
 
         contact = get_contact_model().objects.create(user=user, last_name='Doe')
+        app_label = _('Accounts and Contacts')
         self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-text-entry forbidden">{}</span>'.format(
-                escape(_('Configuration of «{app}»').format(
-                    app=_('Accounts and Contacts'),
-                )),
+            # '<span class="ui-creme-navigation-text-entry forbidden">{}</span>'.format(
+            #     escape(_('Configuration of «{app}»').format(
+            #         app=_('Accounts and Contacts'),
+            #     )),
+            # ),
+            '<span class="ui-creme-navigation-text-entry forbidden" title="{title}">'
+            '{label}'
+            '</span>'.format(
+                title=_(
+                    'You are not allowed to configure this app: {}'
+                ).format(app_label),
+                label=escape(_('Configuration of «{app}»').format(app=app_label)),
             ),
-            CurrentAppConfigEntry().render({
-                'user': user,
-                'object': contact,
-            }),
+            # CurrentAppConfigEntry().render({
+            #     'user': user,
+            #     'object': contact,
+            # }),
+            self._render_entry(
+                page_context=self._build_context(user=user, object=contact),
+                entry=CurrentAppConfigEntry(),
+            ),
         )
 
     @skipIfNotInstalled('creme.activities')
     def test_current_app_entry__no_model(self):
-        "View without model."
+        """View without model."""
         from creme.activities.views.calendar import CalendarView
 
         user = self.login_as_root_and_get()
@@ -290,15 +355,23 @@ class MenuEntriesTestCase(CremeTestCase):
                     app=_('Activities'),
                 ),
             ),
-            CurrentAppConfigEntry().render({'user': user, 'view': view}),
+            # CurrentAppConfigEntry().render({'user': user, 'view': view}),
+            self._render_entry(
+                page_context=self._build_context(user=user, view=view),
+                entry=CurrentAppConfigEntry(),
+            ),
         )
 
     def test_current_app_entry__creme_config(self):
-        "creme_config's view."
+        """creme_config's view."""
         user = self.login_as_root_and_get()
 
         self.assertFalse(
-            CurrentAppConfigEntry().render({'user': user, 'view': Portal()}),
+            # CurrentAppConfigEntry().render({'user': user, 'view': Portal()}),
+            self._render_entry(
+                page_context=self._build_context(user=user, view=Portal()),
+                entry=CurrentAppConfigEntry(),
+            ).strip(),
         )
 
     def test_config_entry(self):
@@ -322,9 +395,20 @@ class MenuEntriesTestCase(CremeTestCase):
             # 'THEME_NAME': 'icecream',
         }
 
-        render = entry.render(context)
+        # render = entry.render(context)
+        entry_context = entry.get_context(context=context)
+        self.assertEqual(
+            'creme_config/menu/config-container.html',
+            entry_context.get('template_name'),
+        )
+        self.assertIn('sub_entries', entry_context)
+
+        render = get_template(entry_context['template_name']).render({
+            **context, 'entry': entry_context,
+        })
         self.assertStartsWith(
-            render,
+            # render,
+            render.strip(),
             '<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">'
         )
 

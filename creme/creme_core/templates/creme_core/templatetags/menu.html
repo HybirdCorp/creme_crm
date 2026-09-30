@@ -1,5 +1,15 @@
 <ul class="ui-creme-navigation">
+  {% for entry_ctxt in entries %}
+    <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_{{entry_ctxt.id}}{% if entry_ctxt.type %} ui-creme-navigation-item-type_{{entry_ctxt.type}}{% endif %}">
+        {% include entry_ctxt.template_name with entry=entry_ctxt %}
+    </li>
+  {% endfor %}
+</ul>
+
+{% comment %}
+<ul class="ui-creme-navigation">
 {% for entry, rendered_entry in entries %}
     <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_{{entry.id}}">{{rendered_entry}}</li>
 {% endfor %}
 </ul>
+{% endcomment %}

@@ -1,3 +1,6 @@
+{% load log from creme_core_tags %}
+{% log "The template creme/creme_core/templates/creme_core/menu/placeholder.html is deprecated" level='WARN' %}
+
 <span class="ui-creme-navigation-text-entry" title="{{ entry.permission_error }}">
     {{ entry.label }}
 </span>
