@@ -55,8 +55,8 @@ logger = logging.getLogger(__name__)
 
 
 class ReportHand:
-    "Class which computes values of a report column (ie reports.models.Field)."
-    verbose_name = 'OVERLOADME'
+    """Class which computes values of a report column (i.e. reports.models.Field)."""
+    verbose_name = 'OVERRIDE_ME'
 
     class ValueError(Exception):
         pass
@@ -231,7 +231,7 @@ class ReportHand:
 
     @property
     def hidden(self) -> bool:
-        "Is the hand hidden ? (see FieldsConfig or deleted CustomFields)."
+        """Is the hand hidden? (see FieldsConfig or deleted CustomFields)."""
         return False
 
     @property

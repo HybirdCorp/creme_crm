@@ -107,7 +107,7 @@ def _get_value_quoter():
 
 
 class ChartHand:
-    "Class that computes abscissa & ordinate values of a ReportChart."
+    """Class that computes abscissa & ordinate values of a ReportChart."""
     verbose_name: str = 'OVERRIDE_ME'
     hand_id: int  # Set by ChartHandRegistry decorator
 
