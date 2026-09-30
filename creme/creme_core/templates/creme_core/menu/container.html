@@ -1,0 +1,8 @@
+{{entry.label}}
+<ul>
+  {% for sub_ctxt in entry.sub_entries %}
+    <li class="ui-creme-navigation-item-level1 ui-creme-navigation-item-id_{{sub_ctxt.id}}{% if sub_ctxt.type %} ui-creme-navigation-item-type_{{sub_ctxt.type}}{% endif %}">
+        {% include sub_ctxt.template_name with entry=sub_ctxt %}
+    </li>
+  {% endfor %}
+</ul>

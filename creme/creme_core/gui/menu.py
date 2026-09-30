@@ -24,10 +24,10 @@ from collections.abc import Collection, Iterable, Iterator
 from typing import Self
 
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.template.loader import get_template
+# from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
-from django.utils.html import format_html, mark_safe
-from django.utils.translation import gettext
+# from django.utils.html import format_html, mark_safe
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.icons import (
@@ -37,7 +37,7 @@ from creme.creme_core.gui.icons import (
 )
 
 from .. import auth
-from ..core.exceptions import ConflictError
+# from ..core.exceptions import ConflictError
 from ..forms import menu as menu_forms
 from ..models import CremeEntity, CremeUser, CustomEntityType, MenuConfigItem
 from ..models.utils import model_verbose_name
@@ -90,6 +90,9 @@ class MenuEntry:
     creation_label = 'Add an entry'
     form_class = menu_forms.MenuEntryForm
 
+    # Path of the template used to render the entry.
+    template_name: str = 'creme_core/menu/base.html'
+
     # <True> means that only one instance of entry with the corresponding ID
     # should be created.
     # These attribute is used by 'creme_config', mainly for special level-0
@@ -115,6 +118,7 @@ class MenuEntry:
         self.data = data = {} if data is None else data  # Used by creme_config
         self.label = data.get('label') or self.label
 
+    # TODO: ConflictError???
     def check_permissions(self, user: CremeUser) -> None:
         """@raise PermissionDenied."""
         user.has_perms_or_die(self.permissions)
@@ -123,16 +127,39 @@ class MenuEntry:
     def children(self) -> Iterator[MenuEntry]:
         yield from ()
 
+    # TODO: remove????
     def render_label(self, context) -> str:
         return self.label
 
-    # TODO: get_context() instead (like form widgets, buttons, etc...)
-    def render(self, context) -> str:
-        """Render the entry as HTML."""
-        return format_html(
-            '<span class="ui-creme-navigation-text-entry">{label}</span>',
-            label=self.render_label(context),
-        )
+    # def render(self, context) -> str:
+    #     """Render the entry as HTML."""
+    #     return format_html(
+    #         '<span class="ui-creme-navigation-text-entry">{label}</span>',
+    #         label=self.render_label(context),
+    #     )
+
+    # NB: the only argument could be "request", but some rare entries inspect
+    #     the context to work (e.g. creme_config.menu.CurrentAppConfigEntry )
+    def get_context(self, context) -> dict:
+        """Build the context to be used to render the related template
+
+        @param context: Context of the whole page (useful to retrieve "request" or "user").
+        @return A fresh context.
+        """
+        permission_error = ''
+
+        try:
+            self.check_permissions(context['user'])
+        except PermissionDenied as e:  # TODO: ConflictError???
+            permission_error = str(e)
+
+        return {
+            'id': self.id,
+            'type': self.type,
+            'label': self.label,
+            'permission_error': permission_error,
+            'template_name': self.template_name,
+        }
 
     @classmethod
     def validate(cls, data: dict) -> dict:
@@ -157,7 +184,10 @@ class MenuEntrySequence(MenuEntry):
     """Represents a sequence of level-1 entries, which are generated dynamically.
     See 'creme_core.menu.QuickFormsEntries' for an example of use.
     """
-    def render(self, context):
+    # def render(self, context):
+    #     raise TypeError('You should not call this method on entry sequence')
+
+    def get_context(self, context):
         raise TypeError('You should not call this method on entry sequence')
 
     def __iter__(self) -> Iterator[MenuEntry]:
@@ -169,6 +199,7 @@ class FixedURLEntry(MenuEntry):
     # URL name of as argument for 'django.urls.reverse()'.
     url_name: str = ''
     label = 'Fixed URL entry'
+    template_name = 'creme_core/menu/link.html'
 
     form_class = menu_forms.FixedURLEntryForm
     single_instance = True
@@ -181,22 +212,27 @@ class FixedURLEntry(MenuEntry):
 
         raise ValueError(f'{self} has an empty URL name.')
 
-    def render(self, context):
-        label = self.render_label(context)
+    # def render(self, context):
+    #     label = self.render_label(context)
+    #
+    #     try:
+    #         self.check_permissions(context['user'])
+    #     except (PermissionDenied, ConflictError) as e:
+    #         return format_html(
+    #             '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
+    #             '{label}'
+    #             '</span>',
+    #             error=str(e), label=label,
+    #         )
+    #
+    #     return format_html(
+    #         '<a href="{url}">{label}</a>', url=self.url, label=label,
+    #     )
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['url'] = self.url
 
-        try:
-            self.check_permissions(context['user'])
-        except (PermissionDenied, ConflictError) as e:
-            return format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
-                '{label}'
-                '</span>',
-                error=str(e), label=label,
-            )
-
-        return format_html(
-            '<a href="{url}">{label}</a>', url=self.url, label=label,
-        )
+        return ctxt
 
 
 class CreationEntry(FixedURLEntry):
@@ -247,34 +283,36 @@ class ListviewEntry(FixedURLEntry):
         return get_url()
 
 
+# TODO: deperecate? remove?
 class TemplateEntry(MenuEntry):
-    """Base menu entry that uses Django templates for rendering"""
-    template_name = 'creme_core/menu/placeholder.html'
+    pass
+    # """Base menu entry that uses Django templates for rendering"""
+    # template_name = 'creme_core/menu/placeholder.html'
 
-    def get_context(self, request):
-        label = self.render_label(request)
-        user = request['user']
+    # def get_context(self, request):
+    #     label = self.render_label(request)
+    #     user = request['user']
+    #
+    #     try:
+    #         self.check_permissions(user)
+    #         permission_error = ''
+    #     except PermissionDenied as e:
+    #         permission_error = str(e)
+    #
+    #     return {
+    #         'label': label,
+    #         'permission_error': permission_error,
+    #         'template_name': self.template_name
+    #     }
 
-        try:
-            self.check_permissions(user)
-            permission_error = ''
-        except PermissionDenied as e:
-            permission_error = str(e)
-
-        return {
-            'label': label,
-            'permission_error': permission_error,
-            'template_name': self.template_name
-        }
-
-    def render(self, request):
-        context = self.get_context(request)
-        template = get_template(context['template_name'])
-        return template.render({
-            'user': request['user'],
-            'request': request,
-            'entry': context,
-        })
+    # def render(self, request):
+    #     context = self.get_context(request)
+    #     template = get_template(context['template_name'])
+    #     return template.render({
+    #         'user': request['user'],
+    #         'request': request,
+    #         'entry': context,
+    #     })
 
 
 class ActionEntry(TemplateEntry):
@@ -332,40 +370,42 @@ class ActionEntry(TemplateEntry):
         """Returns extra CSS classes for the link"""
         return self.classes
 
-    def get_description(self, context) -> str:
-        """
-        Text displayed as title of the link.
-        Replaced by the permission error message if the entry is forbidden.
-        """
-        return self.description
+    # def get_description(self, context) -> str:
+    #     """
+    #     Text displayed as title of the link.
+    #     Replaced by the permission error message if the entry is forbidden.
+    #     """
+    #     return self.description
+    #
+    # def get_icon_title(self, context) -> str:
+    #     """
+    #     Returns the title/alt of the used icon.
+    #     Replaced by the permission error message if the entry is forbidden.
+    #     """
+    #     return self.icon_title
+    #
+    # def get_icon_name(self, context) -> str:
+    #     """
+    #     Returns the name of an Icon (e.g. 'add')
+    #     (see the templatetag {% widget_icon  %} of the lib creme_widget).
+    #     """
+    #     return self.icon_name
 
-    def get_icon_title(self, context) -> str:
-        """
-        Returns the title/alt of the used icon.
-        Replaced by the permission error message if the entry is forbidden.
-        """
-        return self.icon_title
+    def get_context(self, context):
+        ctxt = super().get_context(context)
+        ctxt['action'] = self.get_action_context(ctxt, user=context['user'])
 
-    def get_icon_name(self, context) -> str:
-        """
-        Returns the name of an Icon (e.g. 'add')
-        (see the templatetag {% widget_icon  %} of the lib creme_widget).
-        """
-        return self.icon_name
+        return ctxt
 
-    def get_context(self, request):
-        user = request['user']
-
-        entry = super().get_context(request)
-        entry['action'] = self.get_action_context(entry, user)
-
-        return entry
-
+    # TODO: rework !!!!
     def get_action_context(self, context, user):
-        description = self.get_description(context) or self.render_label(context)
+        # description = self.get_description(context) or self.render_label(context)
+        description = self.description or self.label
         permission_error = context.get('permission_error')
-        icon_title = permission_error or self.get_icon_title(context) or description
-        icon_name = self.get_icon_name(context)
+        # icon_title = permission_error or self.get_icon_title(context) or description
+        icon_title = permission_error or self.icon_title or description
+        # icon_name = self.get_icon_name(context)
+        icon_name = self.icon_name
 
         return {
             'id': self.action,
@@ -438,22 +478,22 @@ class CustomURLEntry(MenuEntry):
         super().__init__(**kwargs)
         self.url = self.data.get('url', '')
 
-    # TODO: factorise ?
-    def render(self, context):
-        label = self.render_label(context)
-        url = self.url
-
-        if not url:
-            return format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-                gettext('{label} (broken configuration)').format(label=label),
-            )
-
-        return format_html(
-            '<a href="{url}" target="_blank">{label}</a>',
-            url=url,
-            label=label,
-        )
+    # TODO: FIXMEEEEEEEEEEEEEEEEEEEEEEE
+    # def render(self, context):
+    #     label = self.render_label(context)
+    #     url = self.url
+    #
+    #     if not url:
+    #         return format_html(
+    #             '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+    #             gettext('{label} (broken configuration)').format(label=label),
+    #         )
+    #
+    #     return format_html(
+    #         '<a href="{url}" target="_blank">{label}</a>',
+    #         url=url,
+    #         label=label,
+    #     )
 
 
 class ContainerEntry(MenuEntry):
@@ -464,6 +504,7 @@ class ContainerEntry(MenuEntry):
     """
     id = 'creme_core-container'
     level = 0
+    template_name = 'creme_core/menu/container.html'
 
     # creation_label = ...
     form_class = menu_forms.ContainerEntryForm
@@ -479,41 +520,65 @@ class ContainerEntry(MenuEntry):
         yield from self._children
 
     @children.setter
-    def children(self, children: Iterable[MenuEntry]):
+    def children(self, children: Iterable[MenuEntry]) -> None:
         if self.accepts_children:
             self._children[:] = children
         else:
             logger.warning('%s: children cannot be set', type(self))
 
-    def render(self, context):
-        # NB: we flatten entries "contained" by MenuEntrySequences
+    # def render(self, context):
+    #     # NB: we flatten entries "contained" by MenuEntrySequences
+    #     def expanded_children():
+    #         for entry in self._children:
+    #             if isinstance(entry, MenuEntrySequence):
+    #                 yield from entry
+    #             else:
+    #                 yield entry
+    #
+    #     return format_html(
+    #         '{label}<ul>{li_tags}</ul>',
+    #         label=self.render_label(context),
+    #         li_tags=mark_safe(''.join(
+    #             format_html(
+    #                 '<li class="ui-creme-navigation-item-level1 '
+    #                 '{type_class}'
+    #                 'ui-creme-navigation-item-id_{id}">'
+    #                 '{item}'
+    #                 '</li>',
+    #                 id=entry.id,
+    #                 type_class=(
+    #                     f'ui-creme-navigation-item-type_{entry.type} '
+    #                     if entry.type else ''
+    #                 ),
+    #                 item=entry.render(context),
+    #             )
+    #             for entry in expanded_children()
+    #         )),
+    #     )
+
+    def _build_sub_contexts(self, entries, context):
+        # We flatten entries "contained" by MenuEntrySequences
         def expanded_children():
-            for entry in self._children:
+            for entry in entries:
                 if isinstance(entry, MenuEntrySequence):
                     yield from entry
                 else:
                     yield entry
 
-        return format_html(
-            '{label}<ul>{li_tags}</ul>',
-            label=self.render_label(context),
-            li_tags=mark_safe(''.join(
-                format_html(
-                    '<li class="ui-creme-navigation-item-level1 '
-                    '{type_class}'
-                    'ui-creme-navigation-item-id_{id}">'
-                    '{item}'
-                    '</li>',
-                    id=entry.id,
-                    type_class=(
-                        f'ui-creme-navigation-item-type_{entry.type} '
-                        if entry.type else ''
-                    ),
-                    item=entry.render(context),
-                )
-                for entry in expanded_children()
-            )),
-        )
+        for entry in expanded_children():
+            ctxt = entry.get_context(context=context)
+            assert isinstance(ctxt, dict), f'{entry} => get_context() did not returned a dict'
+            assert 'template_name' in ctxt
+
+            yield ctxt
+
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['sub_entries'] = [
+            *self._build_sub_contexts(entries=self._children, context=context),
+        ]
+
+        return ctxt
 
 
 class Separator0Entry(MenuEntry):
@@ -521,9 +586,10 @@ class Separator0Entry(MenuEntry):
     id = 'creme_core-separator0'
     label = _('Separator')
     level = 0
+    template_name = 'creme_core/menu/separator-0.html'
 
-    def render(self, context):
-        return ''
+    # def render(self, context):
+    #     return ''
 
 
 class Separator1Entry(MenuEntry):
@@ -535,16 +601,17 @@ class Separator1Entry(MenuEntry):
     id = 'creme_core-separator1'
     type = 'creme_core-separator1'
     # label = '----'
+    template_name = 'creme_core/menu/separator-1.html'
 
     creation_label = _('Add a separator')
     form_class = menu_forms.Separator1EntryForm
 
-    def render(self, context):
-        label = self.render_label(context)
-        return format_html(
-            '<span class="ui-creme-navigation-title">{label}</span>',
-            label=label,
-        ) if label else ''
+    # def render(self, context):
+    #     label = self.render_label(context)
+    #     return format_html(
+    #         '<span class="ui-creme-navigation-title">{label}</span>',
+    #         label=label,
+    #     ) if label else ''
 
 
 class MenuRegistry:

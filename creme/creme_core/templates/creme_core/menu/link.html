@@ -1,3 +1,7 @@
+{% extends 'creme_core/menu/base.html' %}
+{% block content %}<a href="{{entry.url}}">{{entry.label}}</a>{% endblock %}
+
+{% comment %}
 {% if entry.permission_error %}
 <span class="ui-creme-navigation-text-entry forbidden" title="{{ entry.permission_error }}">
     {{ entry.label }}
@@ -5,3 +9,4 @@
 {% else %}
 <a href="{{ entry.url }}">{{ entry.label }}</a>
 {% endif %}
+{% endcomment %}

@@ -23,7 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
-from django.utils.html import format_html
+# from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -72,16 +72,18 @@ class LogoutEntry(menu.UpdateActionEntry):
     follow_redirect = True
 
 
-class TrashEntry(menu.TemplateEntry):
+# class TrashEntry(menu.TemplateEntry):
+class TrashEntry(menu.MenuEntry):
     """Menu entry rendering as a link to the Creme trash."""
     template_name = 'creme_core/menu/trash.html'
     id = 'creme_core-trash'
     label = _('Trash')
 
     def get_context(self, context):
-        context = super().get_context(context)
-        context["entity_count"] = CremeEntity.objects.filter(is_deleted=True).count()
-        return context
+        ctxt = super().get_context(context=context)
+        ctxt['entity_count'] = CremeEntity.objects.filter(is_deleted=True).count()
+
+        return ctxt
 
 
 class PasswordChangeEntry(menu.FixedURLEntry):
@@ -103,21 +105,22 @@ class PasswordChangeEntry(menu.FixedURLEntry):
             ))
 
 
-class RoleSwitchEntry(menu.TemplateEntry):
+# class RoleSwitchEntry(menu.TemplateEntry):
+class RoleSwitchEntry(menu.MenuEntry):
     """Menu entry rendering button to switch to another role."""
     template_name = 'creme_core/menu/role-switch.html'
     id = 'creme_core-role_switch'
     label = _('Available roles')
 
     def get_context(self, context):
+        ctxt = super().get_context(context=context)
         user = context['user']
-        entry = super().get_context(context)
 
         if not user.is_superuser:
             # TODO: user.normalize_roles(roles)?
-            entry["roles"] = user.roles.all()
+            ctxt['roles'] = user.roles.all()
 
-        return entry
+        return ctxt
 
 
 class CremeEntry(menu.ContainerEntry):
@@ -162,12 +165,18 @@ class QuickFormsEntries(menu.MenuEntrySequence):
 
     quickforms_registry = quick_forms.quickform_registry
 
+    # TODO: factorise with FixedURLEntry
     class QuickCreationEntry(menu.MenuEntry):
         id = 'creme_core-quick_forms-link'
+        template_name = 'creme_core/menu/quick-creation.html'
 
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
             self.model = self.data['model']
+
+        def check_permissions(self, user):
+            super().check_permissions(user=user)
+            user.has_perm_to_create_or_die(self.model)
 
         @property
         def url(self):
@@ -176,14 +185,19 @@ class QuickFormsEntries(menu.MenuEntrySequence):
                 args=(ContentType.objects.get_for_model(self.model).id,),
             )
 
-        def render(self, context):
-            return format_html(
-                '<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
-                url=self.url, label=self.label,
-            ) if context['user'].has_perm_to_create(self.model) else format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-                self.label,
-            )
+        # def render(self, context):
+        #     return format_html(
+        #         '<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
+        #         url=self.url, label=self.label,
+        #     ) if context['user'].has_perm_to_create(self.model) else format_html(
+        #         '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+        #         self.label,
+        #     )
+        def get_context(self, context):
+            ctxt = super().get_context(context=context)
+            ctxt['url'] = self.url
+
+            return ctxt
 
     def __iter__(self):
         models = [
@@ -208,6 +222,7 @@ class EntitiesCreationEntry(menu.MenuEntry):
     id = 'creme_core-creation_forms'
     label = _('Other type of entity')
     form_class = FixedURLEntryForm
+    template_name = 'creme_core/menu/entities-creation.html'
 
     creation_menu_registry = menu.creation_menu_registry
 
@@ -255,15 +270,20 @@ class EntitiesCreationEntry(menu.MenuEntry):
 
         return grid
 
-    def render(self, context):
-        return format_html(
-            '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">'
-            '{label}'
-            '</a>',
-            title=_('Create an entity of any type'),
-            links=json_encode(self.as_grid(context['user'])),
-            label=self.render_label(context),
-        )
+    # def render(self, context):
+    #     return format_html(
+    #         '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">'
+    #         '{label}'
+    #         '</a>',
+    #         title=_('Create an entity of any type'),
+    #         links=json_encode(self.as_grid(context['user'])),
+    #         label=self.render_label(context),
+    #     )
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['links'] = json_encode(self.as_grid(context['user']))
+
+        return ctxt
 
 
 class QuickAccessEntry(menu.ContainerEntry):
@@ -280,6 +300,7 @@ class QuickAccessEntry(menu.ContainerEntry):
 
         class RecentEntityEntry(menu.MenuEntry):
             id = 'creme_core-recent_entity-link'
+            template_name = 'creme_core/menu/recent-entity.html'
 
             def __init__(self, last_viewed_entity):
                 super().__init__()
@@ -287,14 +308,20 @@ class QuickAccessEntry(menu.ContainerEntry):
                 self.ctype = last_viewed_entity.entity_ctype
                 self.label = str(last_viewed_entity.real_entity)
 
-            def render(self, context):
-                return format_html(
-                    '<a href="{url}">'
-                    '<span class="ui-creme-navigation-ctype">{ctype}</span>'
-                    '{label}'
-                    '</a>',
-                    url=self.url, label=self.label, ctype=self.ctype,
-                )
+            # def render(self, context):
+            #     return format_html(
+            #         '<a href="{url}">'
+            #         '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+            #         '{label}'
+            #         '</a>',
+            #         url=self.url, label=self.label, ctype=self.ctype,
+            #     )
+            def get_context(self, context):
+                ctxt = super().get_context(context=context)
+                ctxt['url'] = self.url
+                ctxt['ctype'] = self.ctype
+
+                return ctxt
 
         def __init__(self, user, **kwargs):
             super().__init__(**kwargs)
@@ -317,6 +344,7 @@ class QuickAccessEntry(menu.ContainerEntry):
 
         class PinnedEntityEntry(menu.MenuEntry):
             id = 'creme_core-pinned_entity-link'
+            template_name = 'creme_core/menu/pinned-entity.html'
 
             def __init__(self, pinned_entity):
                 super().__init__()
@@ -326,15 +354,22 @@ class QuickAccessEntry(menu.ContainerEntry):
                 self.label = str(entity)
                 self.is_deleted = entity.is_deleted
 
-            def render(self, context):
-                return format_html(
-                    '<a href="{url}" class="{cls}">'
-                    '<span class="ui-creme-navigation-ctype">{ctype}</span>'
-                    '{label}'
-                    '</a>',
-                    url=self.url, label=self.label, ctype=self.ctype,
-                    cls='is_deleted' if self.is_deleted else '',
-                )
+            # def render(self, context):
+            #     return format_html(
+            #         '<a href="{url}" class="{cls}">'
+            #         '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+            #         '{label}'
+            #         '</a>',
+            #         url=self.url, label=self.label, ctype=self.ctype,
+            #         cls='is_deleted' if self.is_deleted else '',
+            #     )
+            def get_context(self, context):
+                ctxt = super().get_context(context=context)
+                ctxt['url'] = self.url
+                ctxt['ctype'] = self.ctype
+                ctxt['is_deleted'] = self.is_deleted
+
+                return ctxt
 
         def __init__(self, user, **kwargs):
             super().__init__(**kwargs)
@@ -348,15 +383,32 @@ class QuickAccessEntry(menu.ContainerEntry):
             else:
                 yield menu.MenuEntry(data={'label': _('No pinned entity')})
 
-    def render(self, context):
+    # def render(self, context):
+    #     user = context['user']
+    #     # NB: we set children in render() which is ugly, but we need user to
+    #     #     compute sub-entries.
+    #     self._children = [
+    #         menu.Separator1Entry(data={'label': _('Recent entities')}),
+    #         self.RecentEntitiesEntries(user=user),
+    #         menu.Separator1Entry(data={'label': _('Pinned entities')}),
+    #         self.PinnedEntitiesEntries(user=user),
+    #     ]
+    #
+    #     return super().render(context)
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
         user = context['user']
-        # NB: se set children in render() which is ugly, but we need user to
-        #     compute sub-entries.
-        self._children = [
-            menu.Separator1Entry(data={'label': _('Recent entities')}),
-            self.RecentEntitiesEntries(user=user),
-            menu.Separator1Entry(data={'label': _('Pinned entities')}),
-            self.PinnedEntitiesEntries(user=user),
+        # NB: we need user to compute sub-entries
+        ctxt['sub_entries'] = [
+            *self._build_sub_contexts(
+                entries=[
+                    menu.Separator1Entry(data={'label': _('Recent entities')}),
+                    self.RecentEntitiesEntries(user=user),
+                    menu.Separator1Entry(data={'label': _('Pinned entities')}),
+                    self.PinnedEntitiesEntries(user=user),
+                ],
+                context=context,
+            ),
         ]
 
-        return super().render(context)
+        return ctxt

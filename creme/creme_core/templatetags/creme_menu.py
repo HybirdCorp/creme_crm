@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,12 +40,31 @@ def menu_display(context):
             | Q(role=None, superuser=False)
         ),
     )
-    context['entries'] = [
-        (entry, entry.render(context))
-        for entry in menu_registry.get_entries(role_items or regular_items)
-    ]
+    # context['entries'] = [
+    #     (entry, entry.render(context))
+    #     for entry in menu_registry.get_entries(role_items or regular_items)
+    # ]
+    # return context
 
-    return context
+    # TODO: clean
+    # entries = []
+    # for entry in menu_registry.get_entries(role_items or regular_items):
+    #     entries.append(entry.get_context(context=context))
+    def get_entry_context(entry):
+        ctxt = entry.get_context(context=context)
+        assert isinstance(ctxt, dict), f'{entry} => get_context() did not returned a dict'
+        assert 'template_name' in ctxt
+
+        return ctxt
+
+    return {
+        'entries': [
+            # entry.get_context(context=context)
+            get_entry_context(entry)
+            for entry in menu_registry.get_entries(role_items or regular_items)
+        ],
+        # 'entries': [entries[9]], # TODO: clean
+    }
 
 
 @register.simple_tag

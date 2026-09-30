@@ -16,7 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.html import format_html
+from django.core.exceptions import PermissionDenied
+# from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -35,8 +36,13 @@ class TimezoneEntry(menu.FixedURLEntry):
     label = _("*User's timezone*")
     url_name = 'creme_config__user_settings'
 
-    def render_label(self, context):
-        return gettext('Time zone: {}').format(context['TIME_ZONE'])
+    # def render_label(self, context):
+    #     return gettext('Time zone: {}').format(context['TIME_ZONE'])
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['label'] = gettext('Time zone: {}').format(context['TIME_ZONE'])
+
+        return ctxt
 
 
 class MySettingsEntry(menu.FixedURLEntry):
@@ -48,6 +54,7 @@ class MySettingsEntry(menu.FixedURLEntry):
 class CurrentAppConfigEntry(menu.MenuEntry):
     id = 'creme_config-current_app'
     label = _("*Current app's settings*")
+    template_name = 'creme_core/menu/link.html'
 
     config_registry = config_registry
 
@@ -82,25 +89,40 @@ class CurrentAppConfigEntry(menu.MenuEntry):
 
         return None
 
-    def render(self, context):
+    # def render(self, context):
+    #     app_config = self.guess_current_app_config(context)
+    #
+    #     if app_config is None:
+    #         return ''
+    #
+    #     label = _('Configuration of «{app}»').format(app=app_config.verbose_name)
+    #
+    #     if not context['user'].has_perm_to_admin(app_config.name):
+    #         return format_html(
+    #             '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+    #             label,
+    #         )
+    #
+    #     return format_html(
+    #         '<a href="{url}">{label}</a>',
+    #         url=app_config.portal_url,
+    #         label=label,
+    #     )
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
         app_config = self.guess_current_app_config(context)
 
-        if app_config is None:
-            return ''
+        if app_config is not None:
+            ctxt['label'] = _('Configuration of «{app}»').format(app=app_config.verbose_name)
 
-        label = _('Configuration of «{app}»').format(app=app_config.verbose_name)
+            try:
+                context['user'].has_perm_to_admin_or_die(app_config.name)
+            except PermissionDenied as e:
+                ctxt['permission_error'] = str(e)
+            else:
+                ctxt['url'] = app_config.portal_url
 
-        if not context['user'].has_perm_to_admin(app_config.name):
-            return format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-                label,
-            )
-
-        return format_html(
-            '<a href="{url}">{label}</a>',
-            url=app_config.portal_url,
-            label=label,
-        )
+        return ctxt
 
 
 class _ConfigURLEntry(menu.FixedURLEntry):
@@ -227,9 +249,15 @@ class FileRefsEntry(_ConfigURLEntry):
     id = 'creme_config-file_refs'
     label = _('Temporary files')
     url_name = 'creme_config__file_refs'
+    template_name = 'creme_config/menu/file-refs.html'
 
-    def render(self, context):
-        return super().render(context=context) if context['user'].is_staff else ''
+    # def render(self, context):
+    #     return super().render(context=context) if context['user'].is_staff else ''
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['user'] = context['user']
+
+        return ctxt
 
 
 class CremeConfigEntry(menu.ContainerEntry):
@@ -310,10 +338,12 @@ class CremeConfigEntry(menu.ContainerEntry):
         super().__init__(**kwargs)
         self._children[:] = (cls() for cls in self.children_classes)
 
+    # TODO: FIXME
     def render_label(self, context):
         return mark_safe(
             '<svg viewBox="0 0 24 24"><use xlink:href="#creme_config-menu_icon" /></svg>'
         )
 
+    # TODO: FIXME
     def render(self, context):
         return mark_safe(self.SVG_DATA + super().render(context))

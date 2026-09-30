@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.html import format_html
+# from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -30,22 +30,28 @@ Organisation = persons.get_organisation_model()
 class UserContactEntry(menu.MenuEntry):
     id = 'persons-user_contact'
     label = _("*User's contact*")
+    template_name = 'persons/menu/user-contact.html'
 
-    def render(self, context):
-        user = context['user']
-        contact = user.linked_contact
+    # def render(self, context):
+    #     user = context['user']
+    #     contact = user.linked_contact
+    #
+    #     return (
+    #         format_html(
+    #             '<a href="{url}">{user}</a>',
+    #             url=contact.get_absolute_url(), user=user,
+    #         )
+    #         if contact and user.has_perm_to_view(contact) else
+    #         format_html(
+    #             '<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
+    #             user=user,
+    #         )
+    #     )
+    def get_context(self, context):
+        ctxt = super().get_context(context=context)
+        ctxt['user'] = context['user']
 
-        return (
-            format_html(
-                '<a href="{url}">{user}</a>',
-                url=contact.get_absolute_url(), user=user,
-            )
-            if contact and user.has_perm_to_view(contact) else
-            format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
-                user=user,
-            )
-        )
+        return ctxt
 
 
 class ContactsEntry(menu.ListviewEntry):
