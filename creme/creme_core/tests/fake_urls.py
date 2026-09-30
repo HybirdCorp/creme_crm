@@ -149,4 +149,9 @@ urlpatterns = [
         ErrorView.as_view(message='Custom error message'),
         name='creme_core__fake_removed_view',
     ),
+    re_path(
+        r'^tests/disable_me/(?P<useless>\d+)[/]?$',
+        fake_views.ToBeDisabled.as_view(),
+        name='creme_core__fake_view_to_be_disabled',
+    ),
 ]

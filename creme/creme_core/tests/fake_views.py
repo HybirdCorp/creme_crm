@@ -145,3 +145,13 @@ class FakeMailingListDetail(generic.EntityDetail):
 class FakeReportDetail(generic.EntityDetail):
     model = fake_models.FakeReport
     pk_url_kwarg = 'report_id'
+
+
+class ToBeDisabled(generic.CheckedView):
+    permissions = ''
+
+    def get(self, *args, **kwargs):
+        return HttpResponse()
+
+    def post(self, *args, **kwargs):
+        return HttpResponse()

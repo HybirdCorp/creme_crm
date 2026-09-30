@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from urllib.parse import urlparse
 
 from django.db.models.base import Model
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 
 PROTOCOL_TO_PORT = {
@@ -50,7 +51,19 @@ def build_cancel_path(request) -> str | None:
     return None
 
 
-# TODO: Find a better name
+def disable_view(view_class,
+                 error_class=ConflictError,
+                 message='These view has been disabled',
+                 ):
+    def disabled_method(*args, **kwargs):
+        raise error_class(message)
+
+    for method_name in view_class.http_method_names:
+        if hasattr(view_class, method_name):
+            setattr(view_class, method_name, disabled_method)
+
+
+# TODO: find a better name
 def json_update_from_widget_response(instance):
     """
     This function is designed for JavaScript selectors (list-view or combobox)
