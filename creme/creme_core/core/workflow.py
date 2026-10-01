@@ -567,7 +567,7 @@ class WorkflowConditions:
                during the request handling make the conditions pass).
         @param use_or: <True> means OR is used between conditions;
                        <False> means AND is used between conditions.
-        @return <True> the conditions are filled.
+        @return <True> if the conditions are filled.
         """
         def accepted():
             for source_conditions in self._conditions_per_source:

@@ -485,20 +485,25 @@ class MassExportViewsTestCase(CremeTestCase):
         )
         self.assertEqual(next(it), '"","Black","Bebop",""')
 
-    def test_extra_filter(self):
+    def test_extra_q(self):
         user = self.login_as_root_and_get()
         self._build_hf_n_contacts(user=user)
+        serialize_q = QSerializer().dumps
+        build_url = self._build_contact_dl_url
 
         response = self.assertGET200(
-            self._build_contact_dl_url(extra_q=QSerializer().dumps(Q(last_name='Wong'))),
+            build_url(extra_q=serialize_q(Q(last_name='Wong'))),
         )
 
         result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
-        # Error
-        self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
+        # Errors
+        self.assertGET(400, build_url(extra_q='[123]'))
+        self.assertGET(
+            400, build_url(extra_q=serialize_q(Q(user__password__startswith='abc'))),
+        )
 
     def test_entity_filter(self):
         user = self.login_as_root_and_get()

@@ -416,7 +416,7 @@ class RelationTypeManagerTestCase(CremeTestCase):
         self.assertEqual(new_pred, new_rtype1.predicate)
 
     def test_builder__update_or_create__constraints(self):
-        "Constraints for ContentTypes & CremePropertyTypes."
+        """Constraints for ContentTypes & CremePropertyTypes."""
         subject_id = 'test-subject_foobaz'
         subject_pred = 'is liking'
         object_id = 'test-object_foobaz'

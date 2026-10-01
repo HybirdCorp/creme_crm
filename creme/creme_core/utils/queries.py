@@ -3,7 +3,7 @@
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2024  Hybird
+# Copyright (c)  2015-2026  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -33,15 +33,24 @@
 
 import json
 import logging
+import warnings
+from collections.abc import Callable, Sequence
 from datetime import date, datetime
+from typing import Any
 
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    FieldError,
+    PermissionDenied,
+)
 from django.core.serializers.base import SerializationError
-from django.db.models import Model, Q
-from django.db.models.query import QuerySet
+from django.db.models import Model, Q, QuerySet
+from django.db.models.sql import Query
 
 from . import dates
 
 logger = logging.getLogger(__name__)
+_NOT_SET = object()
 
 
 class QSerializer:
@@ -49,11 +58,14 @@ class QSerializer:
 
     By default, the class provides loads/dumps methods which wrap around
     JSON serialization, but they may be easily overwritten to serialize
-    into other formats (i.e XML, YAML, etc...).
+    into other formats (i.e. XML, YAML, etc…).
     """
+    class PathError(Exception):
+        pass
+
     def _serialize_value(self, value):
         if isinstance(value, date):
-            # TODO: same format for deserialization...
+            # TODO: same format for deserialization…
             if isinstance(value, datetime):
                 return dates.to_utc(value).strftime(dates.DATETIME_ISO8601_FMT)
             else:
@@ -88,13 +100,79 @@ class QSerializer:
             'val': children,
         }
 
-    def deserialize(self, d: dict) -> Q:
+    def _check_path_n_value(self, model, path, value, field_checkers=()):
+        # NB: Query.build_filter() returns notably a WhereNode which is too low level
+        #      to perform simple check
+        try:
+            Query(model=model).build_filter(Q(**{path: value}))
+        except FieldError as e:
+            raise self.PathError(f'Invalid field "{model.__name__}.{path}"') from e
+
+        depth = 0
+        current_model = model
+        for field_name in path.split('__'):
+            try:
+                field = current_model._meta.get_field(field_name)
+            except FieldDoesNotExist:
+                break
+            else:
+                try:
+                    for checker in field_checkers:
+                        checker(field=field, depth=depth)
+                except PermissionDenied as e:
+                    raise self.PathError(str(e)) from e
+
+                remote_field = getattr(field, 'remote_field', None)
+                if remote_field is None:
+                    break
+
+                depth += 1
+                current_model = remote_field.model
+
+    def _check_child(self, child: tuple[str, Any], model, field_checkers=()) -> tuple[str]:
+        if len(child) != 2:
+            raise self.PathError('"val" must be a list of couples')
+
+        if model is _NOT_SET:  # DEPRECATED
+            return child
+
+        if not isinstance(child[0], str):
+            raise self.PathError('First value of couples must be a string')
+
+        self._check_path_n_value(
+            model=model, path=child[0], value=child[1], field_checkers=field_checkers,
+        )
+
+        return child
+
+    # def deserialize(self, d: dict) -> Q:
+    def deserialize(self, d: dict, *, model=_NOT_SET, field_checkers=()) -> Q:
+        """Build a Q instance from a dictionary.
+        @param d: Serialized Q which can be built by the method 'serialize()'.
+        @param model: see 'loads()'.
+        @param field_checkers: see 'loads()'.
+        @return The deserialized 'Q'.
+        """
+        if model is _NOT_SET:
+            warnings.warn(
+                'QSerializer.deserialize() should receive an argument "model"',
+                DeprecationWarning,
+            )
+
+            if field_checkers:
+                logger.critical(
+                    'QSerializer.deserialize() does not use "field_checkers" '
+                    'if model is not given.'
+                )
+
         query = Q()
-        # NB: we re-build a tuple because deserialization gives us lists;
-        #     it works, but it's not the natural type we get when instancing a Q
-        #     & so it makes unit testing more difficult.
         query.children = [
-            self.deserialize(child) if isinstance(child, dict) else tuple(child)
+            self.deserialize(child)
+            if isinstance(child, dict) else
+            # NB: we re-build a tuple because deserialization gives us lists;
+            #     it works, but it's not the natural type we get when instancing a Q
+            #     & so it makes unit testing more difficult.
+            self._check_child(tuple(child), model=model, field_checkers=field_checkers)
             for child in d['val']
         ]
 
@@ -104,15 +182,41 @@ class QSerializer:
         return query
 
     def dumps(self, obj: Q) -> str:
+        """Serialize a Q instance as a JSON string.
+        This string can then be deserialized by the method 'loads()'.
+        """
         try:
             return json.dumps(self.serialize(obj), separators=(',', ':'))
         except Exception:
             logger.exception('QSerializer.dumps(): error when serializing <%s>', obj)
             raise
 
-    def loads(self, string: str) -> Q:
+    def loads(self, string: str, *,
+              model=_NOT_SET,
+              field_checkers: Sequence[Callable] = (),
+              ) -> Q:
+        """Load a JSON string and build a Q instance.
+        @param string: data to load. Can be generated by the method 'dumps()'.
+        @param model: Model class related to the query; it's used to make some checks.
+               Not giving it is deprecated (no check-mode).
+        @param field_checkers Each checkers is a function which take the arguments
+               "field" (Field instance)  & "depth" (integer) & can raise a
+               'PermissionDenied' exception if an error is detected.
+        @return The deserialized 'Q'.
+        """
+        if model is _NOT_SET:
+            warnings.warn(
+                'QSerializer.loads() should receive an argument "model"',
+                DeprecationWarning,
+            )
+
         try:
-            return self.deserialize(json.loads(string))
+            d = json.loads(string)
+            if not isinstance(d, dict):
+                raise ValueError('Data must be a dict')
+
+            # return self.deserialize(d)
+            return self.deserialize(d, model=model, field_checkers=field_checkers)
         except Exception:
             logger.exception('QSerializer.loads(): error when deserializing <%s>', string)
             raise

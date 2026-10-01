@@ -1,4 +1,4 @@
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -147,6 +147,33 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIn(ptype1.id, ptype_ids2)
         self.assertIn(ptype2.id, ptype_ids2)
         self.assertNotIn(ptype3.id, ptype_ids2)
+
+    def test_manager__get_by_portable_key(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='is delicious')
+        ptype2 = create_ptype(text='is happy')
+        ptype3 = create_ptype(text='is cool')
+
+        get_by_portable_key = CremePropertyType.objects.get_by_portable_key
+        self.assertEqual(ptype1, get_by_portable_key(ptype1.portable_key()))
+        self.assertEqual(ptype2, get_by_portable_key(ptype2.portable_key()))
+
+        with self.assertRaises(CremePropertyType.DoesNotExist):
+            get_by_portable_key(uuid4())
+
+        with self.assertRaises(ValidationError):
+            get_by_portable_key('not_uuid')
+
+        # ---
+        self.assertCountEqual(
+            [ptype3, ptype1],
+            CremePropertyType.objects.get_by_portable_keys(
+                [ptype3.portable_key(), str(uuid4()), ptype1.portable_key()],
+            ),
+        )
+
+        with self.assertRaises(ValidationError):
+            next(CremePropertyType.objects.get_by_portable_keys(['not-uuid']))
 
     def test_manager__proxy__get_or_create__minimal(self):
         count = CremePropertyType.objects.count()
@@ -361,12 +388,15 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertFalse(ptype.is_custom)
         self.assertTrue(ptype.is_copiable)
         self.assertTrue(ptype.enabled)
+        self.assertIsInstance(ptype.uuid, UUID)
 
         with self.assertNumQueries(1):
             self.assertEqual(0, ptype.properties_count)
 
         with self.assertNumQueries(0):
             self.assertEqual(0, ptype.properties_count)
+
+        self.assertEqual(str(ptype.uuid), ptype.portable_key())
 
     def test_properties_count(self):
         create_ptype = CremePropertyType.objects.create

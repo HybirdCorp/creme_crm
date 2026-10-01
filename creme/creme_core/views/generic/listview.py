@@ -23,7 +23,9 @@ from json import JSONDecodeError
 from json import loads as json_load
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
@@ -61,6 +63,12 @@ from creme.creme_core.utils.serializers import json_encode
 from . import base
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
+
+
+def password_field_checker(field, depth):
+    if field.model == User and field.name == 'password':
+        raise PermissionDenied('cannot request on password')
 
 
 class SelectionMode(Enum):
@@ -144,6 +152,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         lv_gui.VisitorModeButton,
     ]
 
+    q_serializer_class = QSerializer
+    q_serializer_checkers = [password_field_checker]
     internal_q = Q()
 
     def __init__(self):
@@ -369,15 +379,21 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         arg_name = self.requested_q_arg
         json_q_filter = self.arguments.get(arg_name)
 
-        # TODO: better validation (e.g. corresponding EntityCell allowed + searchable ?) ?
+        # TODO: better validation (e.g. corresponding EntityCell allowed + searchable?) ?
         #  - limit the max depth of sub-fields chain ?
-        #  - do not allow all fields ?
         if json_q_filter:
             try:
-                return QSerializer().loads(json_q_filter)
-            except JSONDecodeError:
+                # return QSerializer().loads(json_q_filter)
+                return self.q_serializer_class().loads(
+                    json_q_filter,
+                    model=self.model,
+                    field_checkers=self.q_serializer_checkers,
+                )
+            # except JSONDecodeError:
+            except (JSONDecodeError, self.q_serializer_class.PathError):
                 logger.exception(
-                    'Error when decoding the argument "%s": %s',
+                    # 'Error when decoding the argument "%s": %s',
+                    'Error when deserializing the argument "%s": %s',
                     arg_name, json_q_filter,
                 )
 

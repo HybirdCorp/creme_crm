@@ -1,3 +1,34 @@
+== Version 2.8.6 ==
+
+  Users side :
+  ------------
+    # The library 'xhtml2pdf' has been upgraded to the version '0.2.18' (better support of Python 3.14).
+    # Apps :
+        * Creme_config :
+            - A crash in the wizard for Worflows has been fixed (when there is a validation error).
+            - The deletion of Minions (i.e. small models for statuses, sectors etc…),
+              which are used by credentials filters or Workflows, is forbidden.
+            - The deletion of propery types & relationship types which are used
+              by a Workflow action is forbidden.
+            - The permissions of the reloading view for custom-fields's choices were too strict.
+        * Activities :
+            - The display of the calendar is now better with big number of users/calendars.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - In the class 'creme_core.utils.queries.QSerializer', the methods 'loads()'
+              & 'deserialize()' take a new argument "model"; passing nothing is deprecated.
+              It has been backported from Creme '3.0' & so will be removed in Creme '3.1'.
+        # There is now a Warning when a field of an entity model is both unique and clonable.
+        # The errors with code "blank" are now ignored by 'Snapshot.compare()'.
+        # The style of the row actions widget (in list-views) was ugly when there is only the default action.
+        # 'CremePropertyType' & its manager got methods for portable key.
+
+
 == Version 2.8.5 ==
 
   Developers side :

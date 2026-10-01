@@ -106,11 +106,12 @@ class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
         proxy1 = ButtonMenuItem.objects.proxy(
             model=FakeContact, button=TestButton, order=order1,
         )
-        self.assertEqual(FakeContact,     proxy1.model)
-        self.assertEqual(FakeContact,     proxy1.content_type.model_class())
-        self.assertEqual(TestButton,      proxy1.button)
-        self.assertEqual(TestButton.id,   proxy1.button_id)
-        self.assertEqual(order1,           proxy1.order)
+        self.assertEqual(FakeContact, proxy1.model)
+        self.assertEqual(FakeContact, proxy1.content_type.model_class())
+        # self.assertEqual(TestButton,      proxy1.button)
+        self.assertIsInstance(proxy1.button, TestButton)
+        self.assertEqual(TestButton.id, proxy1.button_id)
+        self.assertEqual(order1, proxy1.order)
         self.assertIsNone(proxy1.role)
         self.assertFalse(proxy1.superuser)
 
@@ -139,16 +140,18 @@ class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
         proxy2 = ButtonMenuItem.objects.proxy(button=TestButton, order=order2)
         self.assertIsNone(proxy2.model)
         self.assertIsNone(proxy2.content_type)
-        self.assertEqual(TestButton, proxy2.button)
-        self.assertEqual(order2,     proxy2.order)
+        # self.assertEqual(TestButton, proxy2.button)
+        self.assertIsInstance(proxy2.button, TestButton)
+        self.assertEqual(order2, proxy2.order)
 
         bmi2, created2 = proxy2.get_or_create()
         self.assertIs(created2, True)
         self.assertTrue(bmi1_again.pk)
         self.assertEqual(old_count + 2, ButtonMenuItem.objects.count())
         self.assertIsNone(bmi2.content_type)
-        self.assertEqual(TestButton, bmi2.button)
-        self.assertEqual(order2,     bmi2.order)
+        # self.assertEqual(TestButton, bmi2.button)
+        self.assertIsInstance(bmi2.button, TestButton)
+        self.assertEqual(order2, bmi2.order)
 
     def test_proxy__superuser(self):
         proxy1 = ButtonMenuItem.objects.proxy(
@@ -225,7 +228,8 @@ class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
     def test_proxy__buttons(self):
         proxy = ButtonMenuItem.objects.proxy(button=Restrict2SuperusersButton, order=1)
         proxy.button = TestButton
-        self.assertEqual(TestButton, proxy.button)
+        # self.assertEqual(TestButton, proxy.button)
+        self.assertIsInstance(proxy.button, TestButton)
 
     def test_proxy__helper_errors(self):
         proxy = ButtonMenuItem.objects.proxy(button=TestButton, order=1)

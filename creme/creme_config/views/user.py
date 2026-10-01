@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -207,5 +207,6 @@ class UserActivation(generic.CheckedView):
 
 
 class HideInactiveUsers(BrickStateExtraDataSetting):
+    permissions = user_config_perm.as_perm
     brick_cls = bricks.UsersBrick
     data_key = constants.BRICK_STATE_HIDE_INACTIVE_USERS

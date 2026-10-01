@@ -33,8 +33,7 @@ from ..models import EntityCredentials, EntityFilter, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import bool_from_str_extended, get_from_GET_or_404
 from ..utils.meta import Order
-from ..utils.queries import QSerializer
-from .generic import base
+from .generic import base, listview
 
 logger = logging.getLogger(__name__)
 
@@ -188,10 +187,16 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 entities_qs = efilter.filter(entities_qs)
 
             # ----
+            lv = listview.EntitiesList
             serialized_extra_q = request.GET.get(self.extra_q_arg)
             if serialized_extra_q is not None:
                 try:
-                    extra_q = QSerializer().loads(serialized_extra_q)
+                    # extra_q = QSerializer().loads(serialized_extra_q)
+                    extra_q = lv.q_serializer_class().loads(
+                        serialized_extra_q,
+                        model=model,
+                        field_checkers=lv.q_serializer_checkers,
+                    )
                 except Exception as e:
                     raise BadRequest(f'Invalid extra Q: {e}')
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023-2025  Hybird
+#    Copyright (C) 2023-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,7 +50,7 @@ class EntityVisitor:
                  index: int | None = None,
                  callback_url: str = '',
                  ):
-        "@raise <EntityVisitor.Error> if only one argument in {page_info, index} is given."
+        """@raise <EntityVisitor.Error> if only one argument in {page_info, index} is given."""
         self.model = model
         self.hfilter_id = hfilter_id
         self.efilter_id = efilter_id
