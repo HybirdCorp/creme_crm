@@ -1,7 +1,5 @@
 == Version 2.8.6 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (creme_core, creme_config)
-
   Users side :
   ------------
     # The library 'xhtml2pdf' has been upgraded to the version '0.2.18' (better support of Python 3.14).
