@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -103,7 +103,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
     identifier = models.CharField(
         _('Email ID'), unique=True, max_length=ID_LENGTH, editable=False,
         default=utils.generate_id,  # TODO: lambda for this
-    )
+    ).set_tags(clonable=False)
     body_html = UnsafeHTMLField(_('Body (HTML)'))
     signature = models.ForeignKey(
         EmailSignature, verbose_name=_('Signature'),

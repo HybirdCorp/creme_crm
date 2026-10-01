@@ -1,3 +1,24 @@
+== Version 2.7.13 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - A crash in the wizard for Worflows has been fixed (when there is a validation error).
+            - The permissions of the reloading view for custom-fields's choices were too strict.
+        * Activities :
+            - The display of the calendar is now better with big number of users/calendars.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # There is now a Warning when a field of an entity model is both unique and clonable.
+        # The errors with code "blank" are now ignored by 'Snapshot.compare()'.
+        # The style of the row actions widget (in list-views) was ugly when there is only the default action.
+
+
 == Version 2.7.12 ==
 
   Developers side :

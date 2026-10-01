@@ -1445,7 +1445,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             [*self.refresh(john).get_custom_value(cfield1).get_enumvalues()]
         )
 
-    def test_reload_enum_brick01(self):
+    def test_reload_enum_brick(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -1485,18 +1485,18 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(eval02.value, values)
         self.assertIn(eval03.value, values)
 
-    def test_reload_enum_brick02(self):
-        "Not allowed."
-        self.login_as_standard()  # admin_4_apps=('creme_core',)
-
-        cfield = CustomField.objects.create(
-            content_type=FakeContact,
-            field_type=CustomField.MULTI_ENUM,
-            name='Programming languages',
-        )
-        self.assertGET403(
-            reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
-        )
+    # TODO: if portal is restricted
+    # def test_reload_enum_brick__forbidden(self):
+    #     self.login_as_standard()  # admin_4_apps=('creme_core',)
+    #
+    #     cfield = CustomField.objects.create(
+    #         content_type=FakeContact,
+    #         field_type=CustomField.MULTI_ENUM,
+    #         name='Programming languages',
+    #     )
+    #     self.assertGET403(
+    #         reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
+    #     )
 
     def test_brick_hide_deleted_cfields(self):
         self.login_as_root()

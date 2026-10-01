@@ -859,6 +859,11 @@ class SourceFieldTestCase(CremeTestCase):
             )),
         )
 
+        tuple_value = (fk_kind, {fk_kind: 'image'})
+        self.assertTupleEqual(
+            tuple_value, field.prepare_value(tuple_value),
+        )
+
     def test_empty_required(self):
         field = SourceField(required=True)
         msg = _('This field is required.')
