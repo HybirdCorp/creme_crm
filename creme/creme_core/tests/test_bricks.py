@@ -579,16 +579,19 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         HistoryBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        ContentType.objects.get_for_models(HistoryLine, CremeEntity)  # Fill cache
+        # Fill cache
+        # ContentType.objects.get_for_models(HistoryLine, CremeEntity)
+        HistoryBrick().render(self.build_context(user=user, instance=atom))
 
         context = self.build_context(user=user, instance=atom)
         # Queries:
         #   - COUNT HistoryLines
         #   - BrickStates
-        #   - SettingValues "is open"/"how empty fields"
+        # [  - SettingValues "is open"/"how empty fields"]
         #   - HistoryLines
         #   - Users
-        with self.assertNumQueries(5):
+        # with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             # render = HistoryBrick().detailview_display(context)
             render = HistoryBrick().render(context)
 
@@ -636,17 +639,20 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         HistoryBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        ContentType.objects.get_for_models(HistoryLine, CremeEntity)  # Fill cache
+        # Fill cache
+        # ContentType.objects.get_for_models(HistoryLine, CremeEntity)
+        HistoryBrick().render(self.build_context(user=user))
 
         context = self.build_context(user=user)
         # Queries:
         #   - COUNT HistoryLines
         #   - BrickStates
-        #   - SettingValues "is open"/"how empty fields"
+        # [  - SettingValues "is open"/"how empty fields"]
         #   - HistoryLines
         #   - Contacts
         #   - Users
-        with self.assertNumQueries(6):
+        # with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             # render = HistoryBrick().home_display(context)
             render = HistoryBrick().render(context)
 
