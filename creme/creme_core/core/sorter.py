@@ -543,8 +543,10 @@ class CellSorterRegistry(AbstractCellSorter):
         #   (EntityCellVolatile.type_id, ...),
     )
 
+    _registries: dict[str, AbstractCellSorter]
+
     def __init__(self, to_register=DEFAULT_REGISTRIES):
-        self._registries: dict[str, AbstractCellSorter] = {}
+        self._registries = {}
 
         for cell_id, registry_class in to_register:
             self.register(cell_id=cell_id, registry_class=registry_class)

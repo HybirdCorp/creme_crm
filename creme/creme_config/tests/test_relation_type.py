@@ -270,7 +270,7 @@ class RelationTypeEditionTestCase(_RelationTypeBaseTestCase):
     def test_not_custom(self) -> None:
         self._login_as_admin()
 
-        rt = RelationType.objects.builder(
+        rt: RelationType = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate', models=[FakeContact],
             # is_custom=False,
         ).symmetric(
@@ -309,7 +309,7 @@ class RelationTypeEditionTestCase(_RelationTypeBaseTestCase):
         )
         self.assertNoFormError(response2)
 
-        rt: RelationType = self.refresh(rt)
+        rt = self.refresh(rt)
         self.assertTrue(rt.minimal_display)
         self.assertFalse(rt.is_custom)
         self.assertFalse(rt.is_internal)
@@ -320,7 +320,7 @@ class RelationTypeEditionTestCase(_RelationTypeBaseTestCase):
     def test_not_custom__other_values(self) -> None:
         self._login_as_admin()
 
-        rt = RelationType.objects.builder(
+        rt: RelationType = RelationType.objects.builder(
             id='test-subfoo', predicate='Subject predicate', minimal_display=True,
             # is_custom=False,
         ).symmetric(
@@ -349,7 +349,7 @@ class RelationTypeEditionTestCase(_RelationTypeBaseTestCase):
         )
         self.assertNoFormError(response2)
 
-        rt: RelationType = self.refresh(rt)
+        rt = self.refresh(rt)
         self.assertFalse(rt.minimal_display)
 
         sym_rt = rt.symmetric_type

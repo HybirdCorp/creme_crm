@@ -357,7 +357,7 @@ class OperatorConditionHandlerMixin:
     def get_operand(self, value, user) -> operands.ConditionDynamicOperand | None:
         return self.efilter_registry.get_operand(type_id=value, user=user)
 
-    def get_operator(self, operator_id: int) -> operators.ConditionOperator | None:
+    def get_operator(self, operator_id: str) -> operators.ConditionOperator | None:
         return self.efilter_registry.get_operator(operator_id)
 
     def resolve_operands(self, values, user):
