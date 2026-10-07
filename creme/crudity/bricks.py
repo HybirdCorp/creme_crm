@@ -81,7 +81,7 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
             ct=ct, source=backend.source, subject=backend.subject,
         )
 
-        if is_sandbox_by_user:
+        if is_sandbox_by_user():
             waiting_actions = waiting_actions.filter(user=context['user'])
 
         crud_input = backend.crud_input
@@ -116,7 +116,7 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)
-        if is_sandbox_by_user:
+        if is_sandbox_by_user():
             histories = histories.filter(user=context['user'])
 
         return self._render(self.get_template_context(context, histories, ct=ct))
