@@ -21,6 +21,7 @@ import unicodedata
 from collections.abc import Iterator
 from random import randint
 from re import sub as re_sub
+from typing import Any
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import CommandError
@@ -112,15 +113,17 @@ class FieldConverter:
     type of CustomField.
     """
     cls_name: str = 'models.Field'
-    default_attrs = {}
+    default_attrs: dict[str, Any] = {}
     # Note: 'from django.db import models' is already imported
     default_imports: list[str] = []
+
+    _extra_imports: list[str]
 
     def __init__(self, cfield):
         self._cfield = cfield
         self._name = snake_casify(cfield.name)
         self._minion = None
-        self._extra_imports: list[str] = []
+        self._extra_imports = []
 
         maker = cfield.default_value_maker
         self._default_value = (

@@ -39,7 +39,7 @@ from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import as_int
 from creme.creme_core.utils.chunktools import iter_as_chunk
-from creme.persons.models import Civility
+from creme.persons.models import AbstractContact, Civility
 
 from .. import constants
 from ..models import Calendar
@@ -610,7 +610,7 @@ def get_massimport_form_builder(header_dict, choices) -> type[ImportForm4CremeEn
             ],
         })
 
-        user_participants: set[Contact]
+        user_participants: set[AbstractContact]
         calendars: list[Calendar]
 
         def __init__(self, *args, **kwargs):

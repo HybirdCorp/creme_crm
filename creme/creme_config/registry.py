@@ -249,6 +249,8 @@ class _ModelConfigDeletor(_FormModelConfigAction):
 class _ModelConfigDisablor(_ModelConfigAction):
     __slots__ = (*_ModelConfigAction.__slots__, 'enable_func', '_needed_instances')
 
+    _needed_instances: defaultdict[UUID, set[str]]
+
     def __init__(self, *,
                  model: type[Model],
                  model_name: str,
