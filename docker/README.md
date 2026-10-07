@@ -40,28 +40,28 @@ docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data
 ```
 
 The installation process can take a minute or two the first time the command runs.
-Creme will soon be available at [http://localhost:8001](http://localhost:8001).  
+Creme will soon be available at [http://localhost:8001](http://localhost:8001).
 
-You can then log in using the default admin user:  
-username: `root`  
+You can then log in using the default admin user:
+username: `root`
 password: `root`
 
 
 ### Environment Variables
 
 #### `CREME_DEBUG`
-Run Creme in debug mode.  
-Available values: `0`, `1`  
+Run Creme in debug mode.
+Available values: `0`, `1`
 Default value: `0`.
 
 
 #### `CREME_SECRET_KEY`
-The Django secret key. Keep it secret!  
+The Django secret key. Keep it secret!
 Default value: `'Creme-Demo-Secret-Key'`.
 
 
 #### `CREME_DATABASE_ENGINE`
-The database engine to use.  
+The database engine to use.
 Available values:
 - `'django.db.backends.postgresql'`
 - `'django.db.backends.mysql'`
@@ -71,59 +71,59 @@ Default value: `'django.db.backends.sqlite3'`.
 
 
 #### `CREME_DATABASE_NAME`
-Name of the database, or path to the database file if using 'sqlite3'.  
-Default value: `'/srv/creme/data/cremecrm.db'`.  
+Name of the database, or path to the database file if using 'sqlite3'.
+Default value: `'/srv/creme/data/cremecrm.db'`.
 
 It has been placed in the volume defined in the run command, for persistence.
 
 
 #### `CREME_DATABASE_USER`
-The database user. Not used with sqlite3.  
-Default value: `''`. 
+The database user. Not used with sqlite3.
+Default value: `''`.
 
 
 #### `CREME_DATABASE_PASSWORD`
-The database user password. Not used with sqlite3.  
-Default value: `''`. 
+The database user password. Not used with sqlite3.
+Default value: `''`.
 
 
 #### `CREME_DATABASE_HOST`
-The database host. Not used with sqlite3.  
-Default value: `''`. 
+The database host. Not used with sqlite3.
+Default value: `''`.
 
 
 #### `CREME_DATABASE_PORT`
-The database port. Not used with sqlite3.  
-Default value: `''`. 
+The database port. Not used with sqlite3.
+Default value: `''`.
 
 
 #### `CREME_TIME_ZONE`
 The default timezone for this setup.  
 Available values: Any timezone name from the tz database.  
-Default value: `'Europe/London'`. 
+Default value: `'Europe/London'`.
 
 
 #### `CREME_LANGUAGE_CODE`
-The language to use for this setup.  
-Available values: `'en'`, `'fr'`  
+The language to use for this setup.
+Available values: `'en'`, `'fr'`
 Default value: `'en'`.
 
 
 #### `CREME_MEDIA_ROOT`
-Path to the root directory where user media will be stored.  
-Default value: `'/srv/creme/data/media/upload'`.  
+Path to the root directory where user media will be stored.
+Default value: `'/srv/creme/data/media/upload'`.
 
 It has been placed in the volume defined in the run command, for persistence.
 
 
 #### `CREME_JOBMANAGER_BROKER`
 DSN used to connect to a message broker, required for the jobs to work correctly.  
-Default value: `'unix_socket:///srv/creme/jobs/'`.  
+Default value: `'unix_socket:///srv/creme/jobs/'`.
 
 
 ## License
 
-Creme's source code is released under the GNU AFFERO GENERAL PUBLIC LICENSE version 3.  
+Creme's source code is released under the GNU AFFERO GENERAL PUBLIC LICENSE version 3.
 [See details here.](https://github.com/HybirdCorp/creme_crm/blob/adca145bc382cdf8b274dce154c8f86424fa9224/LICENSE.txt)
 
 As with all Docker images, these likely also contain other software which may be under other licenses.
@@ -133,18 +133,18 @@ As with all Docker images, these likely also contain other software which may be
 
 Creme CRM source code is available on the [Creme CRM GitHub Repository](https://github.com/HybirdCorp/creme_crm).
 
-Want to know more about Creme CRM ?
+Want to know more about Creme CRM?
 Check out the [Creme CRM Website](https://www.cremecrm.com).
 
-Want to try Creme CRM ?
+Want to try Creme CRM?
 Visit the [Creme CRM Public Demo Website](https://demos.cremecrm.com/).
 
-Want your own demo instance ?
+Want your own demo instance?
 Pull the latest Creme CRM Demo Docker image on the [Creme CRM DockerHub Repository](https://hub.docker.com/r/cremecrm/cremecrm-demo).
 
-Want to know more about our company ?
+Want to know more about our company?
 Check out the [Hybird Website](https://hybird.org/).
 
-Any other questions ?
-Need help ?
+Any other questions?
+Need help?
 Reach us on the [Creme CRM Forums](https://www.cremecrm.com/forum/).
