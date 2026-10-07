@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Opportunities :
+            - An inconsistent display of checkboxes in the related Quotes has been fixed (FireFox).
         * Crudity :
             - Two bricks always considered you use a sandbox.
 
