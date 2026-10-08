@@ -84,6 +84,7 @@ ALLOWED_STYLES = {
     'background-color',
     'border-bottom-color', 'border-collapse', 'border-color',
     'border-left-color', 'border-right-color', 'border-top-color',
+    'margin-left', 'margin-right',  # Used for image centering
     'clear',
     'color',
     # 'cursor',
