@@ -145,6 +145,24 @@ class MediaGeneratorConfig(AppConfig):
             ] for theme_dir, theme_vb_name in settings.THEMES
         )
 
+        # TODO: move to 'new_theme' app?
+        if is_installed('creme.new_theme'):
+            MEDIA_BUNDLES.append([
+                # Name
+                'new' + 'main.css',
+
+                # External content
+                'new/creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
+                'new/creme_core/css/select2/select2-4.0.13.css',
+                'new/creme_core/css/select2/select2-creme.css',
+                'new/creme_core/css/tinymce/tmce8-creme.css',
+
+                # Content
+                'new/creme_core/css/main.css',
+            ])
+
+        # print('MEDIA_BUNDLES', MEDIA_BUNDLES)
+
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
 

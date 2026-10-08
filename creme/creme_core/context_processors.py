@@ -39,6 +39,14 @@ def get_software_label(request):
 
 
 def get_css_theme(request):
+    # TODO: override from the 'new_theme' app?
+    from django.apps import apps
+    if apps.is_installed('creme.new_theme'):
+        return {
+            'THEME_NAME':         'new',
+            'THEME_VERBOSE_NAME': 'New!!',
+        }
+
     # NB: AnonymousUser has no 'theme_info' attribute (we need it for the login view)
     theme_info = getattr(request.user, 'theme_info', settings.THEMES[0])
 
