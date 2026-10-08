@@ -7,7 +7,8 @@
             - An inconsistent display of checkboxes in the related Quotes has been fixed (FireFox).
         * Crudity :
             - Two bricks always considered you use a sandbox.
-
+        * Emails :
+            - Unfocusable text input issue in "link" dialog of TinyMCE editor has been fixed.
 
 == Version 2.8.6 ==
 
