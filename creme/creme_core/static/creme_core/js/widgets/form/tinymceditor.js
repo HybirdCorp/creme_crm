@@ -146,10 +146,10 @@ var EDITOR_TOOLBARS = {
             'numlist', 'bullist', '|',
             'outdent', 'indent', '|',
             'backcolor', 'forecolor', 'fontfamily', 'fontsize', '|',
-            'link', 'unlink', '|', 'blockquote', 'table', 'image' //, '|', 'placeholder'
+            'image', 'link', 'unlink', '|', 'blockquote', 'table' //, '|', 'placeholder'
         ],
         insert_quickbars: [
-            'quickimage', 'quicktable'
+            /* 'quickimage', */ 'quicktable'
         ]
     },
     full: {
@@ -162,7 +162,7 @@ var EDITOR_TOOLBARS = {
             'numlist', 'bullist', '|',
             'outdent', 'indent', '|',
             'backcolor', 'forecolor', 'fontfamily', 'fontsize', '|',
-            'link', 'unlink', '|', 'blockquote', 'hr', 'tables', 'image'
+            'image', 'link', 'unlink', '|', 'blockquote', 'hr', 'tables'
         ],
         toolbar_groups: {
             heading: {
@@ -181,7 +181,7 @@ var EDITOR_TOOLBARS = {
             }
         },
         insert_quickbars: [
-            'quickimage', 'quicktable'
+            /* 'quickimage', */ 'quicktable'
         ]
     }
 };
@@ -411,9 +411,6 @@ creme.TinyMCEditor = creme.component.Component.sub({
         if (options.uploadURL) {
             editorOptions.images_upload_handler = this._editorUploadHandler(options);
             editorOptions.automatic_uploads = !!options.uploadOnChange;
-        } else {
-            toolbarItems.toolbar = _.without(toolbarItems.toolbar, 'image');
-            plugins = _.without(plugins, 'image');
         }
 
         editorOptions.width = parseWidth(options.width, element);

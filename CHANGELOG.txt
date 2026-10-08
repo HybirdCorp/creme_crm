@@ -9,6 +9,8 @@
             - Two bricks always considered you use a sandbox.
         * Emails :
             - Unfocusable text input issue in "link" dialog of TinyMCE editor has been fixed.
+            - Remove image upload in quickmenu.
+            - Add external image selection & position in main menu.
 
 == Version 2.8.6 ==
 
