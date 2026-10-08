@@ -1,0 +1,1052 @@
+div.form-container {
+    padding-bottom: 10px;
+}
+
+/* Layout */
+
+.form-container-blocks .form-layout-regular {
+    box-sizing: border-box;
+}
+
+.form-container-blocks .form-layout-regular,
+.form-container-blocks .form-layout-dual-columns {
+    width: 99.9%;
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column {
+    width: 49.9%;
+    width: calc(49.9% - 10px);
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column-left {
+    float: left;
+    margin-left: 0px;
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column-right {
+    float: right;
+    margin-right: 0px;
+    padding-left: 13px;
+}
+
+.form-container-blocks div.clear + .form-layout-regular,
+.form-container-blocks .form-layout-regular + .form-layout-dual-columns {
+    margin-top: 15px;
+}
+
+.form-container .form-block {
+    width: 100%;
+    display: inline-block;
+
+    background: white;
+}
+
+.form-container-blocks .form-block {
+    border-left: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-right: 1px solid #d9d9d9;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-container .form-block-errors {
+    width: 100%;
+    display: inline-block;
+
+    background: #fef1ec;
+
+    border: 2px solid #ffa3a3;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-container .form-block + .form-block {
+    margin-top: 15px;
+}
+
+.form-container .form-block-errors {
+    margin-bottom: 15px;
+}
+
+/* Layout - end */
+
+/* Blocks */
+
+.form-block-errors .form-block-errors-header {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 26px;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffd4c4;
+}
+
+.form-block-errors .form-block-errors-header .form-block-errors-title {
+    padding-left: 10px;
+
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #612f2f;
+    font-weight: 600;
+}
+
+.form-block-errors .form-block-errors-content .errorlist {
+    border: none;
+    background: none;
+}
+
+.form-block .form-block-header {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 26px;
+
+    margin: 0;
+    padding: 0;
+
+    background: #f5f5f5;
+
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #dedede;
+}
+
+.form-block .form-block-header .form-block-title {
+    padding-left: 10px;
+
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+}
+
+.form-block .form-block-field {
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-bottom: 8px;
+}
+
+.form-block .form-block-fields {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    padding: 10px;
+    padding-top: 0;
+}
+
+.form-block .form-block-fields > label {
+    padding: 10px;
+
+    border-top: 1px solid #d9d9d9;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+}
+
+.form-block .form-block-field-value {
+    padding-top: 10px;
+    padding-bottom: 5px;
+
+    border-top: 1px solid #d9d9d9;
+}
+
+.form-block .form-block-field .form-block-field-value,
+.form-block .form-block-fields > label:first-child,
+.form-block .form-block-fields > label:first-child + .form-block-field-value {
+    border-top: none;
+}
+
+.form-block .form-block-field .form-block-field-value ul.errorlist,
+.form-block .form-block-fields .form-block-field-value ul.errorlist {
+    margin-top: 0px;
+}
+
+/* Blocks - end */
+
+div.submit_buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+div.submit_buttons a {
+    padding-left: 20px;
+}
+
+/* Factorise with .ui-dialog .ui-dialog-buttonset button */
+div.submit_buttons input,
+div.submit_buttons button {
+    padding: 10px 30px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+div.submit_buttons input:hover,
+div.submit_buttons button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+div.submit_buttons input:active,
+div.submit_buttons button:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+
+    color: #1a1a1a;
+}
+
+input,
+textarea,
+select,
+label,
+.ui-widget input,
+.ui-widget textarea,
+.ui-widget select {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+    font-size: 13px;
+}
+
+input,
+textarea {
+    padding-left: 5px;
+
+    border-radius: 0;
+    border: 1px solid #a9a9a9;
+    background: white;
+}
+
+input[type="file"] {
+    border: 0;
+}
+
+select {
+    padding-left: 3px;
+    font-size: 12.5px;
+}
+
+.is-field-invalid {
+    box-shadow: 0px 0px 4px #cd0a0a;
+    border: 1px solid #cd0a0a !important;
+}
+
+button.is-form-submit,
+input.is-form-submit {
+    color: grey;
+}
+
+input:disabled,
+input[type="radio"]:disabled,
+input[readonly], /* "input:read-only" includes types "checkbox", "radio" */
+textarea:disabled,
+textarea:read-only {
+    background: #f5f2f2;
+
+    border-color: #dddddd;
+    color: #8c8c8c;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+input[type="radio"] {
+    cursor: pointer;
+}
+
+.help-text ul {
+    margin: 0px;
+    padding-left: 20px;
+}
+
+ul.multi-select {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.form-block-field-value > input[type="text"],
+.form-block-field-value > input[type="email"] {
+    min-width: 250px;
+}
+
+.form-block-field-value > input[type="url"] {
+    min-width: 300px;
+}
+
+.form-block-field-value textarea {
+    width: 99%;
+}
+
+/* TODO: factorise ? */
+.form-block-field-value input[type="button"] {
+    height: 23px;
+    padding: 2px 10px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+/* .form-block-field-value .is-enum { */
+/* NB:
+    <select> with Select2 but without class "is-enum" can be too short (eg: ContentType selector with 1 choice)
+    Better solution?
+*/
+.form-block-field-value .ui-creme-dselect {
+    min-width: 259px;
+}
+
+.form-block-field-value .help-text {
+    margin-bottom: 3px;
+
+    color: #666;
+    font-style: italic;
+    font-size: 12.5px;
+}
+
+.form-block-field-value .help-text-format {
+    color: #646464;
+}
+
+.select-wrapper {
+    display: inline-block;
+    height: 24px;
+}
+
+.select-wrapper select {
+/*
+    -webkit-appearance: none;
+       -moz-appearance: none;
+*/
+    appearance: none;
+
+    width: 255px;
+    height: 23px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: left;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+/* Not used by all browsers... */
+.select-wrapper option {
+    background-color: #fff;
+    color: #333;
+}
+
+.select-wrapper .select-arrow {
+    position: relative;
+
+    top: -14px;
+    left: 235px; /* see .form-block-field-value select => width: 255px */
+
+    width: 0;
+    height: 0;
+
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #00000063;
+
+    pointer-events: none;
+}
+
+.form-block-field-value input[type="button"][disabled],
+.select-wrapper select:disabled,
+.select-wrapper select:disabled + .select-arrow  {
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+
+    box-shadow: none;
+
+    cursor: default;
+    cursor: not-allowed;
+}
+
+.form-block-field-value input[type="button"]:hover,
+.select-wrapper select:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.form-block-field-value input[type="button"][disabled]:hover,
+.select-wrapper select[disabled]:hover {
+    background-color: #ebebeb; /* desaturate and lighten */
+}
+
+.form-block-field-value .percent-widget-marker {
+    font-size: 16px;
+}
+
+input.dperiod-value {
+    width: 40px;
+}
+
+ul.optional-widget,
+ul.select_or_input-widget {
+    display: inline-flex;
+    flex-direction: row;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.optional-widget li:first-child {
+    margin-bottom: 5px;
+    margin-right: 15px;
+}
+
+ul.select_or_input-widget li {
+    margin-right: 3px;
+}
+
+ul.select_or_input-widget input[type="text"] {
+    min-width: 250px;
+}
+
+
+ul.union-widget {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.union-widget .union-sub_widget + .union-sub_widget {
+    margin-top: 15px;
+}
+
+ul.union-widget .union-sub_widget label {
+    font-weight: 600;
+}
+
+ul.union-widget.is-disabled .union-sub_widget label {
+    color: #a3a3a3;
+}
+
+ul.union-widget .union-sub_widget_container {
+    margin-left: 25px;
+    margin-top: 2px;
+}
+
+ul.union-widget .union-sub_widget_container:not(.switch-on) {
+    opacity: 0.3;
+}
+
+/* MERGE TOOL */
+.merge-field-header-1 {
+    display: inline;
+    width: 33%;
+
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #5a92ab;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.merge-field-header-2 {
+    display: inline;
+    width: 33%;
+
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #d87d72;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.merge-field-header-result {
+    display: inline;
+    width: 32%;
+
+    font-size: 1.6em;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.merge-field-1,
+.merge-field-2,
+.merge-field-result {
+    width: 30%;
+}
+
+.merge-field-button {
+    max-width: 5%;
+}
+
+.merge-field-button > button {
+    padding: 9px 5px;
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 white;
+
+    cursor: pointer;
+}
+
+.merge-field-button .merge-right-arrow,
+.merge-field-button .merge-left-arrow {
+    width: 0;
+    height: 0;
+
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+
+    pointer-events: none;
+}
+
+.merge-field-button .merge-right-arrow {
+    border-left: 5px solid #00000063;
+}
+
+.merge-field-button .merge-left-arrow {
+    border-right: 5px solid #00000063;
+}
+
+.form-container .form-block .merge-field-1 input,
+.form-container .form-block .merge-field-1 textarea {
+    color: #5a92ab;
+    background: #edf9ff;
+    border: 1px solid #bbe0f0;
+}
+
+.form-container .form-block .merge-field-2 input,
+.form-container .form-block .merge-field-2 textarea {
+    color: #d87d72;
+    background: #ffedeb;
+    border: 1px solid #f9c9c4;
+}
+
+.form-container .form-block .merge-field-1 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .merge-field-1 .select-wrapper select {
+    background: linear-gradient(#edf9ff, #cae8f7);
+
+    border: 1px solid #6abee3;
+    border-bottom: 1px solid #62bde5;
+
+    color: #001822;
+}
+
+.form-container .form-block .merge-field-2 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .merge-field-2 .select-wrapper select {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+
+    color: #760f03;
+}
+
+.form-container .form-block .merge-field-1 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#edf9ff, #cae8f7);
+
+    border: 1px solid #6abee3;
+    border-bottom: 1px solid #62bde5;
+}
+.form-container .form-block .merge-field-1 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .merge-field-1 .select2-container--disabled .select2-selection__rendered {
+    color: #032d3e;
+}
+
+.form-container .form-block .merge-field-2 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+}
+.form-container .form-block .merge-field-2 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .merge-field-2 .select2-container--disabled .select2-selection__rendered {
+    color: #760f03;
+}
+
+.form-container .merge-field-1 .help-text,
+.form-container .merge-field-1 .help-text-format,
+.form-container .merge-field-2 .help-text,
+.form-container .merge-field-2 .help-text-format {
+    visibility: hidden; /* Not display:none to keep inputs aligned */
+}
+
+/* HEADER FILTER */
+
+/* Apply a natural box layout model to all elements
+    TODO: does not work at wished when not global...
+.hfilter_widget * {
+    box-sizing: border-box;
+} */
+
+.hfilter_widget .selectors {
+    clear: both;
+}
+
+/* Filters */
+.hfilter_widget .selector_filter {
+    float: right;
+    position: relative;
+    top: -20px;
+
+    font-size: 10px;
+}
+
+.hfilter_widget .field_selectors .selector {
+    margin-left: 10px;
+}
+
+.hfilter_widget .field_selector_filter {
+    font-size: 10px;
+    padding-right: 15px;
+    margin-left: 15px;
+
+    font-size: 10px;
+}
+/* Filters end */
+
+.hfilter_widget .selector_title {
+    margin-bottom: 5px;
+}
+
+.hfilter_widget .selector_close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 12px 5px;
+}
+
+.hfilter_widget .selector_close:hover {
+    cursor: pointer;
+}
+
+.hfilter_widget .inline_selectors .selector_title {
+    display: inline-block;
+}
+
+.hfilter_widget .selector_list {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    clear: both;
+}
+
+.hfilter_widget .selector_list input[type=checkbox] {
+    margin-right: 4px;
+}
+
+.hfilter_widget .selector_list > .selector {
+    display: inline-block;
+    margin-right: 20px;
+
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hfilter_widget .selector_list > .selector:last-child {
+    margin-right: 0px;
+}
+
+.hfilter_widget .inline_selectors .selector_list {
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.hfilter_widget .basic_field_selectors > .selector_list > .selector {
+    margin-right: 0px;
+    width: 230px; /* to compute with the largest element of the list */
+}
+
+.hfilter_widget .relationship_selectors .selector_list {
+    display: inline-block;
+
+    margin-top: -15px;
+    margin-left: 10px;
+    width: 99%;
+}
+
+.hfilter_widget .relationship_selectors .selector {
+    width: 300px;
+}
+
+/* TODO: uncomment when secondary relationship are managed
+.hfilter_widget .relationship_selectors .secondary_relationship {
+    display: none;
+} */
+
+.hfilter_widget .selector .selected_count {
+    opacity: 0.5;
+}
+
+/* Underlay */
+.hfilter_widget .underlay {
+    position: relative;
+    width: 100%;
+
+    margin-top: 12px;
+    margin-bottom: 5px;
+
+    /* bg color of the underlay, needs to match the arrow bg color */
+    color: white;
+    font-weight: 500;
+
+    background: #376e86;
+
+    border-radius: 4px;
+}
+
+.hfilter_widget .underlay_selector_list {
+    margin: 10px 0px 0px 0px;
+    padding: 0;
+
+    list-style: none;
+
+    column-width: 200px;
+    column-gap: 20px;
+}
+
+.hfilter_widget .underlay_selector_list .selector {
+    break-inside: avoid;
+
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hfilter_widget .underlay-container {
+    display: none;
+}
+
+.hfilter_widget .underlay .underlay-container {
+    display: block;
+}
+
+.hfilter_widget .underlay-content {
+    padding: 10px 20px 5px 30px;
+}
+
+.hfilter_widget .arrow {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    overflow: hidden;
+
+    border: 2px solid rgba(255, 255, 255, 0.0);
+    border-bottom: 0;
+    border-right: 0;
+
+    transform: rotateZ(45deg);
+
+    z-index: 1;
+}
+
+.hfilter_widget .inside-arrow {
+    position: relative;
+    top: -15px;
+    left: -15px;
+
+    width: 30px;
+    height: 30px;
+
+    transform: rotateZ(-45deg);
+
+    /* bg color of the arrow needs to match underlay color */
+    background: #376e86;
+
+    border-radius: 4px;
+}
+
+.hfilter_widget .inside-arrow:before {
+    content: ' ';
+
+    display: block;
+    position: relative;
+    top: 17px;
+    left: 6px;
+
+    width: 17px;
+    height: 17px;
+
+    transform: rotateZ(45deg);
+
+    background: none;
+}
+
+.hfilter_widget .underlay_wrapper {
+    position: relative;
+    top: -9px;
+}
+
+.hfilter_widget .underlay_mask {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    pointer-events: none;
+
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+/* Underlay end */
+
+.hfilter_widget .remove_all_columns {
+    text-transform: uppercase;
+}
+
+.hfilter_widget .help_instructions {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: #777;
+}
+
+.hfilter_widget .preview_table {
+    width: 100%;
+    min-height: 100px;
+
+    background: #eee;
+
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+}
+
+.hfilter_widget .preview_table .preview_row {
+    border: 1px solid #ccc;
+    vertical-align: top;
+}
+
+.hfilter_widget .preview_table .preview_row td:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+.hfilter_widget .preview_table .preview_row ul,
+.dragtable-drag-wrapper ul {
+    list-style-type: none;
+
+    margin: 0;
+/*    padding-left: 25px; */
+    padding: 0px;
+}
+
+/* TODO: remove if we manage to limit in rendered HTML on server side */
+.hfilter_widget .preview_table .preview_row ul li:nth-child(n + 4),
+.dragtable-drag-wrapper ul li:nth-child(n + 4) {
+    display: none;
+}
+
+.hfilter_widget .preview_table_header {
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+.hfilter_widget .preview_table_header th {
+    vertical-align: top;
+}
+
+.hfilter_widget .preview_table_header th:not(:last-child),
+.preview_table_header td:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+.hfilter_widget .preview_table .preview_row td {
+    padding: 3px;
+}
+
+.hfilter_widget .preview_table .preview_row p,
+.dragtable-drag-wrapper p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 64px;
+    max-width: 128px;
+}
+
+/* For sample fake filter (disabled in JS)
+.hfilter_widget .filterable_header .header_filter, .dragtable-drag-wrapper .header_filter {
+    min-width: 140px;
+}
+
+.hfilter_widget .filterable_header input.header_filter, .dragtable-drag-wrapper input.header_filter {
+    font-size: 9px;
+}
+
+.hfilter_widget .filterable_header {
+    font-size: 10px;
+}*/
+
+/* DRAGTABLE (HeaderFilter only at the moment) */
+.dragtable-drag-wrapper .dragtable-drag-col th {
+    text-align: left;
+}
+
+/* @Version 1.0.3
+* default css
+*/
+.dragtable-drag-handle {
+    cursor: move;
+}
+
+/* Gets wrapped around placeholder table */
+.dragtable-drag-wrapper {
+    position: absolute;
+    /* z-index: 1000; */
+    z-index: 2000; /* TMP: increase z-index to handle dragtables in popups (since they are at z-index: 1002) */
+    /* TODO: make all z-indexes dynamic, so that widgets can be stacked in multiple layers */
+}
+
+/* This gets applied to the table copy of the col that we are dragging */
+.dragtable-drag-wrapper .dragtable-drag-col {
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    cursor: move;
+}
+
+/* Placeholder is just a name for the real table col */
+.dragtable-col-placeholder {
+    border-left: 1px dotted black;
+    border-right: 1px dotted black;
+    color: #efefef;
+    background: #efefef !important;
+    visibility: visible !important;
+}
+table .dragtable-col-placeholder:first {
+    border-top: 1px dotted black;
+}
+
+.dragtable-col-placeholder * {
+    opacity: 0.0;
+    visibility: hidden;
+}
+/* Dragtable - end */
+
+/* Ordered multiple select */
+
+.ordered-widget {
+    display: flex;
+}
+
+.ordered-widget .ordered-widget-container {
+    width: 50%;
+}
+
+.ordered-widget .ordered-widget-container + .ordered-widget-container {
+    padding-left: 5px;
+}
+
+.ordered-widget .ordered-widget-title {
+    background: #f5f5f5;
+    border: 1px solid #dedede;
+
+    cursor: help;
+
+    text-align: center;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.ordered-widget button {
+    display: none;
+}
+
+.ordered-widget .ordered-widget-enabled .ordered-widget-title {
+    background: rgba(71, 158, 245, 0.07);
+    border: 1px solid #5cadff;
+
+    color: #376e86;
+}
+
+.ordered-widget .ordered-widget-enabled button {
+    display: block;
+}
+
+.ordered-widget .ordered-widget-choice {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 1px;
+
+    border: 1px solid #dedede;
+    border-top: none;
+
+    cursor: grab;
+
+    transition: 0.2s;
+}
+
+.ordered-widget .ordered-widget-choice:hover,
+.ordered-widget .ordered-widget-choice.sortable-ghost,
+.ordered-widget .ordered-widget-choice.sortable-chosen {
+    box-shadow: inset 0 0 0.3em #cecece;
+}
+
+.ordered-widget .ordered-widget-choice.not-draggable {
+    cursor: not-allowed;
+    color: grey;
+}
+
+.ordered-widget button.deselect-choice {
+    border: none;
+
+    background: none;
+    cursor: pointer;
+
+    color: #8e8e8e;
+    font-style: italic;
+}
+
+.ordered-widget button.deselect-choice:hover {
+    text-decoration: underline;
+}
+
+.ordered-widget button[disabled].deselect-choice {
+    visibility: hidden;
+}
+
+/* Ordered multiple select - end */
+
+/* Mass import forms */
+
+.relationships_extractor-creation {
+    margin-bottom: 10px;
+}
+
+/* Mass import forms - end */

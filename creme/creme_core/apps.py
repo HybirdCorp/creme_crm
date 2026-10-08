@@ -145,6 +145,47 @@ class MediaGeneratorConfig(AppConfig):
             ] for theme_dir, theme_vb_name in settings.THEMES
         )
 
+        # TODO: move to 'new_theme' app?
+        if is_installed('creme.new_theme'):
+            MEDIA_BUNDLES.append([
+                # Name
+                'new' + 'main.css',
+
+                # External content
+                'new/creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
+                'new/creme_core/css/select2/select2-4.0.13.css',
+                'new/creme_core/css/select2/select2-creme.css',
+                'new/creme_core/css/tinymce/tmce8-creme.css',
+
+                # Old Content
+                # TODO: remove useless/overriden parts
+                # TODO: inspect css files in different apps
+                'new/creme_core/css/old/bricks.css',
+                'new/creme_core/css/old/creme.css',
+                'new/creme_core/css/old/creme-ui.css',
+                'new/creme_core/css/old/detail_view.css',
+                'new/creme_core/css/old/forms.css',
+                'new/creme_core/css/old/header_menu.css',
+                'new/creme_core/css/old/home.css',
+                'new/creme_core/css/old/list_view.css',
+                'new/creme_core/css/old/my_page.css',
+                'new/creme_core/css/old/popover.css',
+                'new/creme_core/css/old/search_results.css',
+
+                # Content
+                # TODO: rename some files with ridicilous names
+                # TODO: sub directories for different kinds of bricks?
+                'new/creme_core/css/reset.css',
+                'new/creme_core/css/global.css',
+                'new/creme_core/css/bloc-documents.css',
+                'new/creme_core/css/blocs-3-colonnes.css',
+                'new/creme_core/css/blocs-card-listes.css',
+                'new/creme_core/css/blocs-cards-dates.css',
+
+            ])
+
+        # print('MEDIA_BUNDLES', MEDIA_BUNDLES)
+
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
 

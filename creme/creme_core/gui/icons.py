@@ -195,6 +195,58 @@ _ICON_SIZES_MAP = {
         'listview-filter-action': 22,
         'listview-td-action':     16,
     },
+
+    # TODO: inject from 'new_app'?
+    'new': {
+        # Fall-backs (should be avoided)
+        'big': 48,
+        'high': 32,
+        'medium': 22,
+        'small': 16,
+        'tiny': 12,
+
+        # Semantic sizes (use these)
+        'header-menu-home': 30,
+        'header-menu': 16,
+
+        'help-sign': 16,
+
+        # Brick sizes
+        'brick-header': 16,
+        'brick-header-action': 12,  # TODO: 10 ?
+
+        'brick-loading': 16,
+
+        'brick-action': 16,
+        'brick-table-action': 16,
+        'brick-tile-action': 16,
+        'brick-menu-action': 16,
+
+        'brick-table': 16,
+        'brick-list': 16,
+
+        'brick-hat-bar': 48,  # TODO: 50 ?
+        'brick-hat-bar-button': 48,  # TODO: 50 ?
+
+        'brick-hat-card': 22,
+        'brick-hat-card-intro': 16,
+        'brick-hat-card-summary': 16,
+        'brick-hat-card-button': 16,
+
+        # Forms
+        'form-widget': 16,
+
+        # Detail-view buttons
+        'global-button': 16,
+        'instance-button': 16,
+
+        # Listview
+        'listview-menu': 16,
+        'listview-button': 16,
+        'listview-filter': 16,
+        'listview-filter-action': 22,
+        'listview-td-action': 16,
+    },
 }
 
 

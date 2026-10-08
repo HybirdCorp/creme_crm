@@ -317,6 +317,11 @@ INSTALLED_DJANGO_APPS = [
 ]
 INSTALLED_CREME_APPS = [
     # ----------------------
+    # NEW CREME THEME #
+    # ----------------------
+    'creme.new_theme',
+
+    # ----------------------
     # MANDATORY CREME APPS #
     # ----------------------
     'creme.creme_core',

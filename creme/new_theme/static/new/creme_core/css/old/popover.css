@@ -1,0 +1,247 @@
+/*!
+ * Bootstrap v3.1.1 (http://getbootstrap.com)
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+.popover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1010;
+/*  max-width: 276px; causes problems with specific relation brick menu */
+    padding: 1px;
+
+    text-align: left;
+    background-color: #ffffff;
+    background-clip: padding-box;
+
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    white-space: normal;
+    max-width: calc(100vw - 10px);
+    max-height: calc(100vh - 10px);
+}
+
+.popover hr {
+    display: block;
+    height: 1px;
+
+    margin: 5px 0;
+
+    border: 0;
+    border-top: 1px solid currentColor;
+    padding: 0;
+
+    color: #ccc;
+}
+
+.popover.top {
+    margin-top: -10px;
+}
+
+.popover.right {
+    margin-left: 10px;
+}
+
+.popover.bottom,
+.popover.bottom-left,
+.popover.bottom-right {
+    margin-top: 10px;
+}
+
+.popover.left {
+    margin-left: -10px;
+}
+
+.popover-title {
+    margin: 0;
+    padding: 4px 9px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 18px;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ebebeb;
+    border-radius: 5px 5px 0 0;
+}
+
+.popover-title.hidden {
+    display: none;
+}
+
+.popover-content {
+    padding: 5px 9px;
+}
+
+.popover > .arrow,
+.popover > .arrow:after {
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+}
+
+.popover > .arrow {
+    border-width: 9px;
+}
+
+.popover > .arrow:after {
+    border-width: 8px;
+    content: "";
+}
+
+.popover.top > .arrow {
+    left: 50%;
+    margin-left: -9px;
+    border-bottom-width: 0;
+    border-top-color: #999999;
+    border-top-color: rgba(0, 0, 0, 0.25);
+    bottom: -9px;
+}
+
+.popover.top > .arrow:after {
+    content: " ";
+    bottom: 1px;
+    margin-left: -8px;
+    border-bottom-width: 0;
+    border-top-color: #ffffff;
+}
+
+.popover.right > .arrow {
+    top: 18px;
+    left: -9px;
+    margin-top: -9px;
+    border-left-width: 0;
+    border-right-color: #999999;
+    border-right-color: rgba(0, 0, 0, 0.25);
+}
+
+.popover.right > .arrow:after {
+    content: " ";
+    left: 1px;
+    bottom: -8px;
+    border-left-width: 0;
+    border-right-color: #ffffff;
+}
+
+.popover.bottom > .arrow {
+    left: 50%;
+    margin-left: -9px;
+    border-top-width: 0;
+    border-bottom-color: #999999;
+    border-bottom-color: rgba(0, 0, 0, 0.25);
+    top: -9px;
+}
+
+.popover.bottom-right > .arrow {
+    left: 23px;
+    margin-left: -9px;
+    border-top-width: 0;
+    border-bottom-color: #999999;
+    border-bottom-color: rgba(0, 0, 0, 0.25);
+    top: -9px;
+}
+
+.popover.bottom-left > .arrow {
+    right: 23px;
+    margin-left: -9px;
+    border-top-width: 0;
+    border-bottom-color: #999999;
+    border-bottom-color: rgba(0, 0, 0, 0.25);
+    top: -9px;
+}
+
+.popover.bottom  > .arrow:after {
+    content: " ";
+    top: 1px;
+    margin-left: -8px;
+    border-top-width: 0;
+    border-bottom-color: #ffffff;
+}
+
+.popover.bottom-left > .arrow:after {
+    content: " ";
+    top: 1px;
+    margin-left: -8px;
+    border-top-width: 0;
+    border-bottom-color: #ffffff;
+}
+
+.popover.bottom-right > .arrow:after {
+    content: " ";
+    top: 1px;
+    margin-left: -8px;
+    border-top-width: 0;
+    border-bottom-color: #ffffff;
+}
+
+.popover.left > .arrow {
+    top: 18px;
+    right: -9px;
+    margin-top: -9px;
+    border-right-width: 0;
+    border-left-color: #999999;
+    border-left-color: rgba(0, 0, 0, 0.25);
+}
+
+.popover.left > .arrow:after {
+    content: " ";
+    right: 1px;
+    border-right-width: 0;
+    border-left-color: #ffffff;
+    bottom: -8px;
+}
+
+.popover .popover-list-item {
+    padding: 3px 0px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    display: block;
+    cursor: pointer;
+}
+
+.popover-glasspane {
+    z-index: 100;
+}
+
+.popover.popover-picture {
+    max-height: calc(100vh - 16px);
+    max-width: calc(100vw - 16px);
+    padding: 0px;
+    border-top: 32px;
+}
+
+.popover.popover-picture .popover-content {
+    padding: 0px;
+}
+
+.popover.popover-picture img {
+    max-height: calc(100vh - 50px);
+    max-width: calc(100vw - 50px);
+    padding: 0px;
+}
+
+.popover.popover-picture img.no-title {
+    border-radius: 3px;
+    margin-bottom: -4px;
+    margin-right: -1px;
+}
+
+.popover-glasspane-picture {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.popover.popover-picture .picture-wait {
+    width: 50px;
+    height: 50px;
+    background-image: url("icecream/images/wait.gif");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}

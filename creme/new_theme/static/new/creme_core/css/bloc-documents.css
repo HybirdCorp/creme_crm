@@ -1,0 +1,78 @@
+.bloc-documents {
+	container: bloc-contacts1 / inline-size;
+	box-shadow: var(--depth-0) var(--depth-025) var(--depth-100) var(--depth-0) var(--black-100),var(--depth-0) var(--depth-025) var(--depth-100) var(--depth-0) var(--black-200);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-400);
+	background-color: var(--background-default-default);
+	padding: var(--space-600);
+	border-radius: var(--radius-200);
+}
+
+.entete-de-bloc8 .btn4 {
+	width: 181px;
+}
+
+.bloc-documents-col-bottom {
+	container: bloc-documents-col-bottom / inline-size;
+	display: flex;
+	flex-direction: column;
+}
+
+
+
+/* row-g */
+
+.row-g {
+	display: flex;
+	align-items: center;
+}
+
+.row-link3 {
+	flex-grow: 1;
+	color: var(--text-brand-default);
+	font-size: 14px;
+	font-family: var(--body-font-family);
+	font-style: normal;
+	font-weight: 400;
+	text-decoration: underline;
+	line-height: 1.4;
+	letter-spacing: 0px;
+	text-align: left;
+}
+
+.row-graphic2 {
+	width: 50px; height: 32px;
+	flex-shrink: 0;
+}
+/* end row-g*/
+
+
+
+
+/** breakpoints (margin / paddings) **/
+
+@media screen and (max-width: 768px) {
+	.bloc-documents {
+		padding-inline: var(--margin-sm);
+	}
+}
+
+
+
+/* container queries (flex rows) */
+
+@container bloc-documents-col-bottom (width < 855px) {
+	.row-g {
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+	}
+	.row-g > * {
+		margin-left: unset !important; margin-top: unset !important;
+		text-align: center;
+	}
+	.row-g > .row-link3 {
+		width: 100%;
+	}
+}
