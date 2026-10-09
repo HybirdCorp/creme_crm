@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-08-2025 pour la version 2.8 de Creme
+:Version: 09-10-2026 pour la version 2.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -635,10 +635,10 @@ Créons un fichier ``my_project/beavers/deletors.py`` : ::
     class BeaverDeletor(EntityDeletor):
         def check_permissions(self, *, user, entity):
             # On appelle la super-méthode pour être sûr que les vérifications
-            # de base sont faites...
+            # de base sont faites…
             super().check_permissions(user=user, entity=entity)
 
-            # ...et là on met des règles en plus.
+            # …et là on met des règles en plus.
             # "entity" est une instance de Beaver
             # "user" est l'utilisateur qui tente de supprimer
             if entity.name == 'Betty':
@@ -1648,7 +1648,7 @@ l'installation, il faut s'en occuper dans notre fichier ``beavers/populate.py`` 
             create_bdl(brick=BeaverAgeBrick, order=40, zone=RIGHT, model=Beaver)
 
             # Classiquement on ajoute aussi les blocs de l'app "assistants" (en vérifiant qu'elle est installée)
-            # Le lecteur intéressé ira regarder dans le code source d'une app Creme pour voir comment...
+            # Le lecteur intéressé ira regarder dans le code source d'une app Creme pour voir comment…
 
 
 Utilisation des boutons
@@ -2396,7 +2396,7 @@ la méthode ``ForeignKey.formfield()`` (définie dans Django) : ::
 
             from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-            # Ici on stocke la méthode originelle...
+            # Ici on stocke la méthode originelle…
             original_fk_formfield = ForeignKey.formfield
 
             def new_fk_formfield(self, **kwargs):
@@ -2557,8 +2557,8 @@ variable suivante : ::
                 'loaders': [
                     # Don't use cached loader when developing (in your local_settings.py)
                     ('django.template.loaders.cached.Loader',
-                        'django.template.loaders.filesystem.Loader',
                         'django.template.loaders.app_directories.Loader',
+                        'django.template.loaders.filesystem.Loader',
                     )),
                 ],
 
@@ -2568,14 +2568,22 @@ variable suivante : ::
     ]
 
 
-L'ordre des *loaders* est important ; cet ordre va faire que les *templates*
-présents dans le répertoire ``creme/templates/`` seront chargés en priorité par
-rapport aux *templates* présents dans les répertoires ``templates/`` que l'on
-trouve dans les répertoires des apps.
+Django cherche les *templates* à plusieurs endroits, et retourne le premier
+fichier qui correspond au chemin demandé. La configuration ci-dessus fait que
+les *templates* vont d'abord être cherchés dans les répertoires ``templates/``
+qu'il y a dans les répertoires des apps, puis dans le répertoire
+``creme/templates/``.
+
+Plus intéressant dans notre cas, les apps sont inspectées dans l'ordre de
+``settings.INSTALLED_APPS``. Donc en mettant une de vos apps avant une app de
+Creme, vous pouvez faire qu'un de vos *templates* est utilisé à la place d'un
+*template* par défaut.
 
 Exemple : plutôt que de modifier directement le *template*
-``creme/persons/templates/persons/view_contact.html``, vous pouvez mettre votre
-version modifiée dans le fichier ``creme/templates/persons/view_contact.html``.
+``creme/persons/templates/persons/view_contact.html``, créez une app
+``my_project.my_templates`` que vous mettez avant ``creme.creme_core`` dans
+``settings.INSTALLED_APPS``, puis mettez votre version modifiée dans le fichier
+``my_project/my_templates/templates/persons/view_contact.html``.
 
 
 Surcharge de label
@@ -2615,7 +2623,7 @@ pour filtrer les instances : ::
     TAG_COMPANY = 1
     TAG_COMMUNITY = 2
 
-    # Dans votre code des vues, formulaires, blocs... --------------------------
+    # Dans votre code des vues, formulaires, blocs… ----------------------------
     from creme.persons import get_organisation_model
     from my_project.beavers.constants import TAG_COMPANY
     [...]
