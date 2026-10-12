@@ -140,6 +140,10 @@
               class is used as fallback for child models.
             - The class 'paginator.FlowPaginator' now manages ordering items which are annotations names
               (only real field names were managed).
+            - A new module 'soft_reference' has been added to prevent some elements to be deleted when
+              they are referenced from things like JSONField. The old hard coded rules (in deletion views)
+              have been converted to this new system.
+              Register your own reference collectors in the new method 'AppConfig.register_soft_collectors()'.
         # A new class 'creme_core.enumerators.MinionEnumerator' has been created ; you should use it
           has base class for your own enumerators for Minion models (e.g. 'VatEnumerator' inherits it now).
         # In 'creme_core.gui.field_printers', if a Minion model has a 'color' field, the color is
@@ -340,8 +344,13 @@
             * Creme_config :
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
                   So the attribute 'forms.fields.BricksConfigField.zones' has been renamed 'Zone'.
-                - The class-view 'views.workflow.WorkflowEnabling' has been reworked & can only be
-                  used to enable a 'WorkFlow' (a view 'WorkflowDisabling' has been added).
+                - In 'views' :
+                    - The class-view 'workflow.WorkflowEnabling' has been reworked & can only be
+                      used to enable a 'WorkFlow' (a view 'WorkflowDisabling' has been added).
+                    - In these class-views, some protected methods have been removed :
+                        - custom_field.CustomEnumDeletion()
+                        - generics.GenericDeletion()
+                        - user.UserDeletion()
             * Reports :
                 - The module 'core.report' has been split ('hand' & 'line').
                 - The module 'report_aggregation_registry' has been moved to 'core.report.aggregation'.

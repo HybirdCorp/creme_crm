@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from .core.reminder import ReminderRegistry
     from .core.sandbox import SandboxTypeRegistry
     from .core.setting_key import SettingKeyRegistry
+    from .core.soft_reference import SoftReferenceRegistry
     from .core.sorter import CellSorterRegistry
     from .core.workflow import WorkflowRegistry
     from .gui.actions import ActionRegistry
@@ -284,6 +285,7 @@ class CremeAppConfig(AppConfig):
                 reminder,
                 sandbox,
                 setting_key,
+                soft_reference,
                 sorter,
                 workflow,
             )
@@ -340,6 +342,7 @@ class CremeAppConfig(AppConfig):
             self.register_sandboxes(sandbox.sandbox_type_registry)
             self.register_search_fields(listview.search_field_registry)
             self.register_setting_keys(setting_key.setting_key_registry)
+            self.register_soft_collectors(soft_reference.soft_reference_registry)
             self.register_statistics(statistics.statistic_registry)
             self.register_smart_columns(listview.smart_columns_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
@@ -438,6 +441,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry') -> None:
+        pass
+
+    def register_soft_collectors(self, soft_reference_registry: 'SoftReferenceRegistry') -> None:
         pass
 
     def register_statistics(self, statistic_registry: 'StatisticRegistry') -> None:
@@ -786,6 +792,31 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.brick_opening_key,
             setting_keys.brick_showempty_key,
             setting_keys.currency_symbol_key,
+        )
+
+    @override
+    def register_soft_collectors(self, soft_reference_registry):
+        from . import soft_references
+
+        soft_reference_registry.register(
+            soft_references.RelationTypeConstraintPTypeRefCollector,
+
+            soft_references.EFilterConditionCFieldRefCollector,
+            soft_references.EFilterConditionCFieldEnumValueRefCollector,
+            soft_references.EFilterConditionPTypeRefCollector,
+            soft_references.EFilterConditionRTypeRefCollector,
+            soft_references.EFilterConditionPortableKeyedRefCollector,
+
+            soft_references.PropertyAddingTriggerPTypeRefCollector,
+            soft_references.RelationAddingTriggerRTypeRefCollector,
+
+            soft_references.WorkflowConditionCFieldRefCollector,
+            soft_references.WorkflowConditionCFieldEnumValueRefCollector,
+            soft_references.WorkflowConditionPortableKeyedRefCollector,
+
+            soft_references.PropertyAddingActionPTypeRefCollector,
+            soft_references.RelationAddingActionRTypeRefCollector,
+            soft_references.NotificationSendingActionUserRefCollector,
         )
 
     @override

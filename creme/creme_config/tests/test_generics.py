@@ -1947,14 +1947,29 @@ class GenericDeletionTestCase(CremeTestCase):
             ],
             check_cycles=False, check_privacy=False,
         )
-        self.assertContains(
-            self.client.get(self._build_url(sector)),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'credentials filters: {filters}'
-            ).format(item=sector, filters=efilter.name),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_url(sector)),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'credentials filters: {filters}'
+        #     ).format(item=sector, filters=efilter.name),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model='Test sector')
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
+            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
+            f' </li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_blocking_soft_ref__credential_filter__two_filters(self):
@@ -1981,14 +1996,33 @@ class GenericDeletionTestCase(CremeTestCase):
         efilter1 = create_filter(name='Comics editor')
         efilter2 = create_filter(name='Comics drawer')
 
-        self.assertContains(
-            self.client.get(self._build_url(sector)),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'credentials filters: {filters}'
-            ).format(item=sector, filters=f'{efilter2.name}, {efilter1.name}'),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_url(sector)),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'credentials filters: {filters}'
+        #     ).format(item=sector, filters=f'{efilter2.name}, {efilter1.name}'),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model='Test sector')
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter2}</a>'  # TODO {efilter2.get_absolute_url()}
+            f' </li>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter1}</a>'
+            f' </li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_blocking_soft_ref__workflow__none(self):
@@ -2039,14 +2073,27 @@ class GenericDeletionTestCase(CremeTestCase):
                 ],
             ),
         )
-        self.assertContains(
-            self.client.get(self._build_url(sector)),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'Workflows (in conditions): {workflows}'
-            ).format(item=sector, workflows=wf.title),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_url(sector)),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'Workflows (in conditions): {workflows}'
+        #     ).format(item=sector, workflows=wf.title),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model='Test sector')
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf}</li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_blocking_soft_ref__workflow__two_workflows(self):
@@ -2071,14 +2118,29 @@ class GenericDeletionTestCase(CremeTestCase):
 
         wf1 = create_workflow('Singers')
         wf2 = create_workflow('Musicians')
-        self.assertContains(
-            self.client.get(self._build_url(sector)),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'Workflows (in conditions): {workflows}'
-            ).format(item=sector, workflows=f'{wf2.title}, {wf1.title}'),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_url(sector)),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'Workflows (in conditions): {workflows}'
+        #     ).format(item=sector, workflows=f'{wf2.title}, {wf1.title}'),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model='Test sector')
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1}</li>'  # TODO: order by title?
+            f' <li>{type_label}&nbsp;{wf2}</li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_customisation__disabled(self):
