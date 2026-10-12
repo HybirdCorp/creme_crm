@@ -17,27 +17,22 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F, ProtectedError
+from django.db.models import ProtectedError  # F
 from django.shortcuts import get_object_or_404, render
-from django.utils.html import format_html
+# from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core import utils
-from creme.creme_core.core.entity_filter import (
-    EF_CREDENTIALS,
-    condition_handler,
-)
+# from creme.creme_core.core.entity_filter import EF_CREDENTIALS, condition_handler
 from creme.creme_core.core.exceptions import ConflictError
+# from creme.creme_core.models import EntityFilter, EntityFilterCondition, Workflow
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
     DeletionCommand,
-    EntityFilter,
-    EntityFilterCondition,
     Job,
-    Workflow,
 )
 from creme.creme_core.utils.html import render_limited_list
 from creme.creme_core.utils.translation import verbose_instances_groups
@@ -118,9 +113,73 @@ class CustomFieldEdition(base.ConfigModelEdition):
             raise ConflictError(gettext('This custom field is deleted.'))
 
 
-class CustomFieldDeletion(base.ConfigDeletion):
+# class CustomFieldDeletion(base.ConfigDeletion):
+class CustomFieldDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
     id_arg = 'id'
-    dependencies_limit = 3
+    # dependencies_limit = 3
+
+    def check_instance_permissions(self, instance, user):
+        times_used = instance.value_class.objects.filter(custom_field=instance).count()
+
+        if times_used:
+            raise ConflictError(
+                ngettext(
+                    'This custom field is still used by {count} entity, '
+                    'so it cannot be deleted.',
+                    'This custom field is still used by {count} entities, '
+                    'so it cannot be deleted.',
+                    times_used
+                ).format(count=times_used)
+            )
+
+        # cond_type_ids = (
+        #     condition_handler.CustomFieldConditionHandler.type_id,
+        #     condition_handler.DateCustomFieldConditionHandler.type_id,
+        # )
+        # efilters = EntityFilter.objects.filter(
+        #     conditions__type__in=cond_type_ids,
+        #     conditions__name=instance.uuid,
+        # )
+        # if efilters:
+        #     def efilter_to_link(efilter):
+        #         url = efilter.get_absolute_url()
+        #
+        #         return format_html(
+        #             '<a href="{url}" target="_blank">{label}</a>',
+        #             url=url, label=efilter,
+        #         ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+        #
+        #     raise ConflictError(
+        #         _(
+        #             'The custom field cannot be deleted because it is used '
+        #             'in filter conditions: {filters}'
+        #         ).format(
+        #             filters=render_limited_list(
+        #                 items=efilters,
+        #                 limit=self.dependencies_limit,
+        #                 render_item=efilter_to_link,
+        #             ),
+        #         )
+        #     )
+        #
+        # cfield_uuid = str(instance.uuid)
+        # workflows = [
+        #     workflow
+        #     for workflow in Workflow.objects.all_workflows()
+        #     for source_conditions in workflow.conditions._conditions_per_source
+        #     for condition in source_conditions['conditions']
+        #     if condition.type in cond_type_ids and condition.name == cfield_uuid
+        # ]
+        # if workflows:
+        #     raise ConflictError(
+        #         gettext(
+        #             'The custom field cannot be deleted because it is used by '
+        #             'conditions of Workflow: {workflows}'
+        #         ).format(
+        #             workflows=', '.join(f'«{wf}»' for wf in workflows),
+        #         )
+        #     )
+        self.check_soft_references(instance=instance, user=user)
 
     def perform_deletion(self, request):
         cfield = get_object_or_404(
@@ -128,73 +187,8 @@ class CustomFieldDeletion(base.ConfigDeletion):
             id=utils.get_from_POST_or_404(request.POST, self.id_arg),
         )
         if cfield.is_deleted:
-            times_used = cfield.value_class.objects.filter(custom_field=cfield).count()
+            self.check_instance_permissions(instance=cfield, user=request.user)
 
-            if times_used:
-                raise ConflictError(
-                    ngettext(
-                        'This custom field is still used by {count} entity, '
-                        'so it cannot be deleted.',
-                        'This custom field is still used by {count} entities, '
-                        'so it cannot be deleted.',
-                        times_used
-                    ).format(count=times_used)
-                )
-
-            # ---
-            # TODO: factorise with creme_core.views.creme_property.PropertyTypeDeletion
-            cond_type_ids = (
-                condition_handler.CustomFieldConditionHandler.type_id,
-                condition_handler.DateCustomFieldConditionHandler.type_id,
-            )
-            efilters = EntityFilter.objects.filter(
-                conditions__type__in=cond_type_ids,
-                conditions__name=cfield.uuid,
-            )
-            if efilters:
-                def efilter_to_link(efilter):
-                    url = efilter.get_absolute_url()
-
-                    return format_html(
-                        '<a href="{url}" target="_blank">{label}</a>',
-                        url=url, label=efilter,
-                    ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
-
-                raise ConflictError(
-                    _(
-                        'The custom field cannot be deleted because it is used '
-                        'in filter conditions: {filters}'
-                    ).format(
-                        filters=render_limited_list(
-                            items=efilters,
-                            limit=self.dependencies_limit,
-                            render_item=efilter_to_link,
-                        ),
-                    )
-                )
-
-            # ---
-            cfield_uuid = str(cfield.uuid)
-            workflows = [
-                workflow
-                for workflow in Workflow.objects.all_workflows()
-                # TODO: add an API for '_conditions_per_source'
-                for source_conditions in workflow.conditions._conditions_per_source
-                for condition in source_conditions['conditions']
-                if condition.type in cond_type_ids and condition.name == cfield_uuid
-            ]
-            if workflows:
-                raise ConflictError(
-                    gettext(
-                        'The custom field cannot be deleted because it is used by '
-                        'conditions of Workflow: {workflows}'
-                    ).format(
-                        # TODO: add a detail view for workflows, then render a link?
-                        workflows=', '.join(f'«{wf}»' for wf in workflows),
-                    )
-                )
-
-            # ---
             try:
                 cfield.delete()
             except ProtectedError as e:
@@ -277,7 +271,7 @@ class CustomEnumEdition(base.ConfigModelEdition):
             raise ConflictError(gettext('This custom field is deleted.'))
 
 
-class CustomEnumDeletion(base.ConfigModelEdition):
+class CustomEnumDeletion(generic.CremeDeletionMixin, base.ConfigModelEdition):
     model = CustomFieldEnumValue
     pk_url_kwarg = 'enum_id'
     form_class = cf_forms.CustomEnumDeletionForm
@@ -286,59 +280,58 @@ class CustomEnumDeletion(base.ConfigModelEdition):
     title = _('Replace & delete «{object}»')
     submit_label = _('Delete the choice')
 
-    def _check_soft_references__efilters(self, instance, user):
-        efilter_names = set()
-
-        for cond in EntityFilterCondition.objects.filter(
-            filter__filter_type=EF_CREDENTIALS,
-            type=condition_handler.CustomFieldConditionHandler.type_id,
-            name=str(instance.custom_field.uuid),
-            value__values__regex=f'"{instance.uuid}"',
-        ).annotate(filter_name=F('filter__name')):
-            efilter_names.add(cond.filter_name)
-
-        if efilter_names:
-            raise ConflictError(
-                gettext(
-                    'You cannot delete «{item}» because it is used by some '
-                    'credentials filters: {filters}'
-                ).format(
-                    item=instance,
-                    filters=', '.join(sorted(efilter_names)),
-                )
-            )
-
-    def _check_soft_references__workflows(self, instance, user):
-        key = str(instance.uuid)
-        workflow_names = set()
-        cond_type_id = condition_handler.CustomFieldConditionHandler.type_id
-        cf_uuid = instance.custom_field.uuid
-
-        for wf in Workflow.objects.all_workflows():
-            # TODO: public API for '_conditions_per_source' ?
-            for source_conditions in wf.conditions._conditions_per_source:
-                for cond in source_conditions['conditions']:
-                    if (
-                        cond.type == cond_type_id
-                        and cond.handler._custom_field_uuid == cf_uuid
-                        and key in cond.value['values']
-                    ):
-                        workflow_names.add(wf.title)
-
-        if workflow_names:
-            raise ConflictError(
-                gettext(
-                    'You cannot delete «{item}» because it is used by some '
-                    'Workflows (in conditions): {workflows}'
-                ).format(
-                    item=instance,
-                    workflows=', '.join(sorted(workflow_names)),
-                )
-            )
-
-    def _check_soft_references(self, instance, user):
-        self._check_soft_references__efilters(instance=instance, user=user)
-        self._check_soft_references__workflows(instance=instance, user=user)
+    # def _check_soft_references__efilters(self, instance, user):
+    #     efilter_names = set()
+    #
+    #     for cond in EntityFilterCondition.objects.filter(
+    #         filter__filter_type=EF_CREDENTIALS,
+    #         type=condition_handler.CustomFieldConditionHandler.type_id,
+    #         name=str(instance.custom_field.uuid),
+    #         value__values__regex=f'"{instance.uuid}"',
+    #     ).annotate(filter_name=F('filter__name')):
+    #         efilter_names.add(cond.filter_name)
+    #
+    #     if efilter_names:
+    #         raise ConflictError(
+    #             gettext(
+    #                 'You cannot delete «{item}» because it is used by some '
+    #                 'credentials filters: {filters}'
+    #             ).format(
+    #                 item=instance,
+    #                 filters=', '.join(sorted(efilter_names)),
+    #             )
+    #         )
+    #
+    # def _check_soft_references__workflows(self, instance, user):
+    #     key = str(instance.uuid)
+    #     workflow_names = set()
+    #     cond_type_id = condition_handler.CustomFieldConditionHandler.type_id
+    #     cf_uuid = instance.custom_field.uuid
+    #
+    #     for wf in Workflow.objects.all_workflows():
+    #         for source_conditions in wf.conditions._conditions_per_source:
+    #             for cond in source_conditions['conditions']:
+    #                 if (
+    #                     cond.type == cond_type_id
+    #                     and cond.handler._custom_field_uuid == cf_uuid
+    #                     and key in cond.value['values']
+    #                 ):
+    #                     workflow_names.add(wf.title)
+    #
+    #     if workflow_names:
+    #         raise ConflictError(
+    #             gettext(
+    #                 'You cannot delete «{item}» because it is used by some '
+    #                 'Workflows (in conditions): {workflows}'
+    #             ).format(
+    #                 item=instance,
+    #                 workflows=', '.join(sorted(workflow_names)),
+    #             )
+    #         )
+    #
+    # def _check_soft_references(self, instance, user):
+    #     self._check_soft_references__efilters(instance=instance, user=user)
+    #     self._check_soft_references__workflows(instance=instance, user=user)
 
     # TODO: factorise with .generics_views.GenericDeletion
     def check_instance_permissions(self, instance, user):
@@ -358,7 +351,8 @@ class CustomEnumDeletion(base.ConfigModelEdition):
                     gettext('A deletion process for a choice already exists.')
                 )
 
-        self._check_soft_references(instance=instance, user=user)
+        # self._check_soft_references(instance=instance, user=user)
+        self.check_soft_references(instance=instance, user=user)
 
     def form_valid(self, form):
         self.object = form.save()

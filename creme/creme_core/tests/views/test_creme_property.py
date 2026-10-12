@@ -246,11 +246,23 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         rtype = self.assertStillExists(rtype)
         self.assertListEqual([ptype], [*rtype.subject_properties.all()])
 
-        self.assertEqual(
-            _(
-                'The property type cannot be deleted because it is used as '
-                'relationship type constraint in: {rtypes}'
-            ).format(rtypes=f'«{rtype.predicate}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The property type cannot be deleted because it is used as '
+        #         'relationship type constraint in: {rtypes}'
+        #     ).format(rtypes=f'«{rtype.predicate}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Type of relationship'))}&nbsp;'
+            f'  <a href="{rtype.get_absolute_url()}" target="_blank">{rtype}</a>'
+            f' </li>'
+            f'</ul>',
             response.text,
         )
 
@@ -272,11 +284,23 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
 
         rtype = self.assertStillExists(rtype)
         self.assertListEqual([ptype], [*rtype.subject_forbidden_properties.all()])
-        self.assertEqual(
-            _(
-                'The property type cannot be deleted because it is used as '
-                'relationship type constraint in: {rtypes}'
-            ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The property type cannot be deleted because it is used as '
+        #         'relationship type constraint in: {rtypes}'
+        #     ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Type of relationship'))}&nbsp;'
+            f'  <a href="{rtype.get_absolute_url()}" target="_blank">{rtype}</a>'
+            f' </li>'
+            f'</ul>',
             response.text,
         )
 
@@ -321,18 +345,33 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         efilter1 = self.assertStillExists(efilter1)
         self.assertEqual(1, efilter1.conditions.count())
 
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The property type cannot be deleted because it is used in '
+        #         'filter conditions: {filters}'
+        #     ).format(filters=(
+        #         f'<ul class="limited-list">'
+        #         f'<li>'
+        #         f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+        #         f'</li>'
+        #         f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+        #         f'</ul>'
+        #     )),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
         self.assertHTMLEqual(
-            _(
-                'The property type cannot be deleted because it is used in '
-                'filter conditions: {filters}'
-            ).format(filters=(
-                f'<ul class="limited-list">'
-                f'<li>'
-                f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
-                f'</li>'
-                f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
-                f'</ul>'
-            )),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f'<li>{type_label}&nbsp;'
+            f' <a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+            f'</li>'
+            # TODO: fix URL? remove <a>?
+            f'<li>{type_label}&nbsp;<a href="" target="_blank">{efilter2.name}</a></li>'
+            f'</ul>',
             response.text,
         )
 
@@ -376,11 +415,23 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         )
         self.assertStillExists(ptype1)
 
-        self.assertEqual(
-            _(
-                'The property type cannot be deleted because it is used by '
-                'triggers of Workflow: {workflows}'
-            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The property type cannot be deleted because it is used by '
+        #         'triggers of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'  # TODO: class="limited-list"?
+            f'<li>{type_label}&nbsp;{wf1.title}</li>'
+            f'<li>{type_label}&nbsp;{wf3.title}</li>'
+            f'</ul>',
             response.text,
         )
 
@@ -494,11 +545,23 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
             ptype1.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         self.assertStillExists(ptype1)
-        self.assertEqual(
-            _(
-                'The property type cannot be deleted because it is used by '
-                'actions of Workflow: {workflows}'
-            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The property type cannot be deleted because it is used by '
+        #         'actions of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f'<li>{type_label}&nbsp;{wf1.title}</li>'
+            f'<li>{type_label}&nbsp;{wf3.title}</li>'
+            f'</ul>',
             response.text,
         )
 

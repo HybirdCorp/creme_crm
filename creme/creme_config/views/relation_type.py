@@ -20,27 +20,20 @@ from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.html import format_html
+# from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.core.entity_filter import condition_handler
+# from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import (
-    EntityFilter,
-    RelationType,
-    SemiFixedRelationType,
-    Workflow,
-)
+# from creme.creme_core.models import EntityFilter, Workflow
+from creme.creme_core.models import RelationType, SemiFixedRelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import render_limited_list
 from creme.creme_core.utils.translation import verbose_instances_groups
+# from creme.creme_core.workflows import RelationAddingAction, RelationAddingTrigger
 from creme.creme_core.views import generic
-from creme.creme_core.workflows import (
-    RelationAddingAction,
-    RelationAddingTrigger,
-)
 
 from .. import bricks
 from ..forms import relation_type as rtype_forms
@@ -129,91 +122,87 @@ class RelationTypeEnabling(generic.CheckedView):
         return HttpResponse()
 
 
-class RelationTypeDeletion(base.ConfigDeletion):
+# class RelationTypeDeletion(base.ConfigDeletion):
+class RelationTypeDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
     id_arg = 'id'
-    dependencies_limit = 3
+    # dependencies_limit = 3
 
-    # TODO: split in several methods
+    def check_instance_permissions(self, instance, user):
+        if not instance.is_custom:
+            raise Http404("Can't delete a standard RelationType")
+
+        # efilters = EntityFilter.objects.filter(
+        #     conditions__type__in=(
+        #         condition_handler.RelationConditionHandler.type_id,
+        #         condition_handler.RelationSubFilterConditionHandler.type_id,
+        #     ),
+        #     conditions__name__in=(instance.id, instance.symmetric_type_id),
+        # )
+        # if efilters:
+        #     def efilter_to_link(efilter):
+        #         url = efilter.get_absolute_url()
+        #
+        #         return format_html(
+        #             '<a href="{url}" target="_blank">{label}</a>',
+        #             url=url, label=efilter,
+        #         ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+        #
+        #     raise ConflictError(
+        #         gettext(
+        #             'The relationship type cannot be deleted because it is used '
+        #             'in filter conditions: {filters}'
+        #         ).format(
+        #             filters=render_limited_list(
+        #                 items=efilters,
+        #                 limit=self.dependencies_limit,
+        #                 render_item=efilter_to_link,
+        #             ),
+        #         )
+        #     )
+        #
+        # workflows = [*Workflow.objects.all_workflows()]
+        # triggered_workflows = [
+        #     workflow
+        #     for workflow in workflows
+        #     if isinstance(workflow.trigger, RelationAddingTrigger)
+        #     and workflow.trigger.relation_type in (instance, instance.symmetric_type)
+        # ]
+        # if triggered_workflows:
+        #     raise ConflictError(
+        #         gettext(
+        #             'The relationship type cannot be deleted because it is '
+        #             'used by triggers of Workflow: {workflows}'
+        #         ).format(
+        #             workflows=', '.join(f'«{wf}»' for wf in triggered_workflows),
+        #         )
+        #     )
+        #
+        # actioned_workflows = [
+        #     workflow
+        #     for workflow in workflows
+        #     for action in workflow.actions
+        #     if isinstance(action, RelationAddingAction)
+        #     and action._rtype_id in (instance.id, instance.symmetric_type_id)
+        # ]
+        # if actioned_workflows:
+        #     raise ConflictError(
+        #         gettext(
+        #             'The relationship type cannot be deleted because it is '
+        #             'used by actions of Workflow: {workflows}'
+        #         ).format(
+        #             workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
+        #         )
+        #     )
+        self.check_soft_references(instance=instance, user=user)
+
     def perform_deletion(self, request):
         relation_type = get_object_or_404(
             RelationType,
             pk=get_from_POST_or_404(request.POST, self.id_arg),
         )
 
-        if not relation_type.is_custom:
-            raise Http404("Can't delete a standard RelationType")
+        self.check_instance_permissions(instance=relation_type, user=request.user)
 
-        # ---
-        # TODO: factorise with creme_core.views.creme_property.PropertyTypeDeletion
-        efilters = EntityFilter.objects.filter(
-            conditions__type__in=(
-                condition_handler.RelationConditionHandler.type_id,
-                condition_handler.RelationSubFilterConditionHandler.type_id,
-            ),
-            conditions__name__in=(relation_type.id, relation_type.symmetric_type_id),
-        )
-        if efilters:
-            def efilter_to_link(efilter):
-                url = efilter.get_absolute_url()
-
-                return format_html(
-                    '<a href="{url}" target="_blank">{label}</a>',
-                    url=url, label=efilter,
-                ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
-
-            raise ConflictError(
-                gettext(
-                    'The relationship type cannot be deleted because it is used '
-                    'in filter conditions: {filters}'
-                ).format(
-                    filters=render_limited_list(
-                        items=efilters,
-                        limit=self.dependencies_limit,
-                        render_item=efilter_to_link,
-                    ),
-                )
-            )
-
-        # ---
-        # TODO: check Workflows' conditions when they manage RelationTypes
-        workflows = [*Workflow.objects.all_workflows()]
-        triggered_workflows = [
-            workflow
-            for workflow in workflows
-            if isinstance(workflow.trigger, RelationAddingTrigger)
-            and workflow.trigger.relation_type in (relation_type, relation_type.symmetric_type)
-        ]
-        if triggered_workflows:
-            raise ConflictError(
-                gettext(
-                    'The relationship type cannot be deleted because it is '
-                    'used by triggers of Workflow: {workflows}'
-                ).format(
-                    # TODO: add a detail view for workflows, then render a link?
-                    workflows=', '.join(f'«{wf}»' for wf in triggered_workflows),
-                )
-            )
-
-        actioned_workflows = [
-            workflow
-            for workflow in workflows
-            for action in workflow.actions
-            # TODO: public method for type's id?
-            if isinstance(action, RelationAddingAction)
-            and action._rtype_id in (relation_type.id, relation_type.symmetric_type_id)
-        ]
-        if actioned_workflows:
-            raise ConflictError(
-                gettext(
-                    'The relationship type cannot be deleted because it is '
-                    'used by actions of Workflow: {workflows}'
-                ).format(
-                    # TODO: see above
-                    workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
-                )
-            )
-
-        # ---
         try:
             relation_type.delete()
         except ProtectedError as e:

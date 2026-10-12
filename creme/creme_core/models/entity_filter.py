@@ -904,6 +904,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     clone.alters_data = True
 
     def delete(self, check_orphan=True, *args, **kwargs):
+        # TODO: use the soft reference system instead?
         if check_orphan:
             parents = {str(cond.filter) for cond in self._iter_parent_conditions()}
 

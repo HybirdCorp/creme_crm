@@ -25,16 +25,16 @@ from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.translation import gettext
+# from django.utils.html import format_html
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# TODO: move them to creme_core ?
+# TODO: move them to creme_core?
 import creme.creme_config.forms.creme_property_type as ptype_forms
 
 from ..auth import EntityCredentials
 from ..core.entity_filter.condition_handler import PropertyConditionHandler
-from ..core.exceptions import ConflictError
+# from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
 # from ..gui.bricks import  SimpleBrick
@@ -50,7 +50,7 @@ from ..models import (
 from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
-from ..utils.html import render_limited_list
+# from ..utils.html import render_limited_list
 from ..utils.unicode_collation import collator
 from ..workflows import PropertyAddingAction, PropertyAddingTrigger
 from . import generic
@@ -263,111 +263,78 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
     ptype_id_url_kwarg = 'ptype_id'
 
-    # TODO: do we need a "weak reference" (M2M, id/uuid stored in JSON...) system?
-    # TODO: split in several methods?
     def check_instance_permissions(self, instance, user):
-        rtypes = [
-            *instance.relationtype_subjects_set.all(),
-            *instance.relationtype_forbidden_set.all(),
-        ]
-        if rtypes:
-            raise ConflictError(
-                gettext(
-                    'The property type cannot be deleted because it is used as '
-                    'relationship type constraint in: {rtypes}'
-                ).format(
-                    # TODO: add a detail view for relation type, then render a link
-                    rtypes=', '.join(f'«{rtype.predicate}»' for rtype in rtypes),
-                )
-            )
-
+        # rtypes = [
+        #     *instance.relationtype_subjects_set.all(),
+        #     *instance.relationtype_forbidden_set.all(),
+        # ]
+        # if rtypes:
+        #     raise ConflictError(
+        #         gettext(
+        #             'The property type cannot be deleted because it is used as '
+        #             'relationship type constraint in: {rtypes}'
+        #         ).format(rtypes=', '.join(f'«{rtype.predicate}»' for rtype in rtypes))
+        #     )
+        #
         # ---
-        efilters = EntityFilter.objects.filter(
-            conditions__type=PropertyConditionHandler.type_id,
-            conditions__name=instance.uuid,
-        )
-        if efilters:
-            def efilter_to_link(efilter):
-                url = efilter.get_absolute_url()
-
-                return format_html(
-                    '<a href="{url}" target="_blank">{label}</a>',
-                    url=url, label=efilter,
-                ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
-
-            raise ConflictError(
-                _(
-                    'The property type cannot be deleted because it is used in '
-                    'filter conditions: {filters}'
-                ).format(
-                    filters=render_limited_list(
-                        items=efilters,
-                        limit=self.dependencies_limit,
-                        render_item=efilter_to_link,
-                    ),
-                )
-            )
-
-        # ---
-        workflows = [*Workflow.objects.all_workflows()]
-        triggered_workflows = [
-            workflow
-            for workflow in workflows
-            if isinstance(workflow.trigger, PropertyAddingTrigger)
-            and workflow.trigger.property_type == instance
-        ]
-        if triggered_workflows:
-            raise ConflictError(
-                gettext(
-                    'The property type cannot be deleted because it is used by '
-                    'triggers of Workflow: {workflows}'
-                ).format(
-                    # TODO: add a detail view for workflows, then render a link?
-                    workflows=', '.join(f'«{wf}»' for wf in triggered_workflows),
-                )
-            )
-
-        # TODO: uncomment when conditions on properties are managed by Workflow
-        # ptype_uuid = str(instance.uuid)
-        # conditioned_workflows = [
+        # efilters = EntityFilter.objects.filter(
+        #     conditions__type=PropertyConditionHandler.type_id,
+        #     conditions__name=instance.uuid,
+        # )
+        # if efilters:
+        #     def efilter_to_link(efilter):
+        #         url = efilter.get_absolute_url()
+        #
+        #         return format_html(
+        #             '<a href="{url}" target="_blank">{label}</a>',
+        #             url=url, label=efilter,
+        #         ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+        #
+        #     raise ConflictError(
+        #         _(
+        #             'The property type cannot be deleted because it is used in '
+        #             'filter conditions: {filters}'
+        #         ).format(
+        #             filters=render_limited_list(
+        #                 items=efilters,
+        #                 limit=self.dependencies_limit,
+        #                 render_item=efilter_to_link,
+        #             ),
+        #         )
+        #     )
+        #
+        # # ---
+        # workflows = [*Workflow.objects.all_workflows()]
+        # triggered_workflows = [
         #     workflow
         #     for workflow in workflows
-        #     # todo: add an API for '_conditions_per_source'
-        #     for source_conditions in workflow.conditions._conditions_per_source
-        #     for condition in source_conditions['conditions']
-        #     if condition.type == PropertyConditionHandler.type_id
-        #     and condition.name == ptype_uuid
+        #     if isinstance(workflow.trigger, PropertyAddingTrigger)
+        #     and workflow.trigger.property_type == instance
         # ]
-        # if conditioned_workflows:
+        # if triggered_workflows:
         #     raise ConflictError(
         #         gettext(
         #             'The property type cannot be deleted because it is used by '
-        #             'conditions of Workflow in: {workflows}'
-        #         ).format(
-        #             # todo: add a detail view for workflows, then render a link?
-        #             workflows=', '.join(f'«{wf}»' for wf in conditioned_workflows),
-        #         )
+        #             'triggers of Workflow: {workflows}'
+        #         ).format(workflows=', '.join(f'«{wf}»' for wf in triggered_workflows))
         #     )
-
-        ptype_uuid = instance.uuid
-        actioned_workflows = [
-            workflow
-            for workflow in workflows
-            for action in workflow.actions
-            # TODO: public method for uuid?
-            if isinstance(action, PropertyAddingAction)
-            and action._ptype_uuid == ptype_uuid
-        ]
-        if actioned_workflows:
-            raise ConflictError(
-                gettext(
-                    'The property type cannot be deleted because it is used by '
-                    'actions of Workflow: {workflows}'
-                ).format(
-                    # TODO: add a detail view for workflows, then render a link?
-                    workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
-                )
-            )
+        #
+        # ptype_uuid = instance.uuid
+        # actioned_workflows = [
+        #     workflow
+        #     for workflow in workflows
+        #     for action in workflow.actions
+        #     if isinstance(action, PropertyAddingAction)
+        #     and action._ptype_uuid == ptype_uuid
+        # ]
+        # if actioned_workflows:
+        #     raise ConflictError(
+        #         gettext(
+        #             'The property type cannot be deleted because it is used by '
+        #             'actions of Workflow: {workflows}'
+        #         ).format(workflows=', '.join(f'«{wf}»' for wf in actioned_workflows))
+        #     )
+        self.check_soft_references(instance=instance, user=user)
 
     def get_query_kwargs(self):
         return {

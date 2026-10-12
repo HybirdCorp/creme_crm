@@ -732,6 +732,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('id',),
+                'verbose_name': 'Choice of custom field',
+                'verbose_name_plural': 'Choices of custom field',
             },
         ),
         migrations.CreateModel(

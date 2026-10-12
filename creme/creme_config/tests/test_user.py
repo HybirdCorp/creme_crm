@@ -1936,13 +1936,28 @@ class UserDeletionTestCase(BaseUserTestCase):
             check_cycles=False, check_privacy=False,
         )
 
-        self.assertContains(
-            self.client.get(self._build_delete_url(user_to_del)),
-            text=_('This user is used by some credentials filters: {}').format(
-                f'{efilter1.name}, {efilter3.name}'
-            ),
-            status_code=403,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_delete_url(user_to_del)),
+        #     text=_('This user is used by some credentials filters: {}').format(
+        #         f'{efilter1.name}, {efilter3.name}'
+        #     ),
+        #     status_code=403,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('User'))
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;<a href="" target="_blank">{efilter1}</a></li>'
+            f' <li>{type_label}&nbsp;<a href="" target="_blank">{efilter3}</a></li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_soft_referenced__workflow__conditions(self):
@@ -2015,13 +2030,28 @@ class UserDeletionTestCase(BaseUserTestCase):
             ),
             # actions=[],
         )
-        self.assertContains(
-            self.client.get(self._build_delete_url(user_to_del)),
-            text=_('This user is used by some conditions of Workflow: {}').format(
-                f'{wf1.title}, {wf3.title}'
-            ),
-            status_code=403,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_delete_url(user_to_del)),
+        #     text=_('This user is used by some conditions of Workflow: {}').format(
+        #         f'{wf1.title}, {wf3.title}'
+        #     ),
+        #     status_code=403,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('User'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1}</li>'
+            f' <li>{type_label}&nbsp;{wf3}</li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_soft_referenced__workflow__actions(self):
@@ -2088,13 +2118,28 @@ class UserDeletionTestCase(BaseUserTestCase):
                 ),
             ],
         )
-        self.assertContains(
-            self.client.get(self._build_delete_url(user_to_del)),
-            text=_('This user is used by some actions of Workflow: {}').format(
-                f'{wf1.title}, {wf3.title}'
-            ),
-            status_code=403,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self._build_delete_url(user_to_del)),
+        #     text=_('This user is used by some actions of Workflow: {}').format(
+        #         f'{wf1.title}, {wf3.title}'
+        #     ),
+        #     status_code=403,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('User'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1}</li>'
+            f' <li>{type_label}&nbsp;{wf3}</li>'
+            f'</ul>',
+            response.text,
         )
 
 

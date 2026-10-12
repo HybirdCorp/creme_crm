@@ -577,7 +577,7 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         )
         efilter2 = EntityFilter.objects.create(
             id='creme_core-tests_views_rtype2',
-            name='Not related',
+            name='Related (symmetric)',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         ).set_conditions(
@@ -586,7 +586,7 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         )
         EntityFilter.objects.smart_update_or_create(
             'creme_core-tests_views_rtype3',
-            name='Related but different', model=FakeContact,
+            name='Not related', model=FakeContact,
             is_custom=True,
             conditions=[build_cond(rtype=rtype2, has=True)],
         )
@@ -599,20 +599,36 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         efilter1 = self.assertStillExists(efilter1)
         self.assertEqual(1, efilter1.conditions.count())
 
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The relationship type cannot be deleted because it is used in '
+        #         'filter conditions: {filters}'
+        #     ).format(
+        #         filters=(
+        #           f'<ul class="limited-list">'
+        #           f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+        #           f'<li>'
+        #           f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+        #           f'</li>'
+        #           f'</ul>'
+        #         ),
+        #     ),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of relationship'))
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
         self.assertHTMLEqual(
-            _(
-                'The relationship type cannot be deleted because it is used in '
-                'filter conditions: {filters}'
-            ).format(
-                filters=(
-                    f'<ul class="limited-list">'
-                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
-                    f'<li>'
-                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
-                    f'</li>'
-                    f'</ul>'
-                ),
-            ),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1}</a>'
+            f' </li>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter2}</a>'  # TODO: fix href
+            f' </li>'
+            f'</ul>',
             response.text,
         )
 
@@ -652,15 +668,27 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
 
         efilter = self.assertStillExists(efilter)
         self.assertEqual(1, efilter.conditions.count())
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The relationship type cannot be deleted because it is used in '
+        #         'filter conditions: {filters}'
+        #     ).format(
+        #         filters=(
+        #             f'<a href="{efilter.get_absolute_url()}" target="_blank">{efilter.name}</a>'
+        #         ),
+        #     ),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of relationship'))
         self.assertHTMLEqual(
-            _(
-                'The relationship type cannot be deleted because it is used in '
-                'filter conditions: {filters}'
-            ).format(
-                filters=(
-                    f'<a href="{efilter.get_absolute_url()}" target="_blank">{efilter.name}</a>'
-                ),
-            ),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
+            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
+            f' </li>'
+            f'</ul>',
             response.text,
         )
 
@@ -708,11 +736,23 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
             self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype1.id},
         )
         self.assertStillExists(rtype1)
-        self.assertEqual(
-            _(
-                'The relationship type cannot be deleted because it is used by '
-                'triggers of Workflow: {workflows}'
-            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The relationship type cannot be deleted because it is used by '
+        #         'triggers of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of relationship'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1.title}</li>'
+            f' <li>{type_label}&nbsp;{wf3.title}</li>'
+            f'</ul>',
             response.text,
         )
 
@@ -777,11 +817,23 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
             self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype1.id},
         )
         self.assertStillExists(rtype1)
-        self.assertEqual(
-            _(
-                'The relationship type cannot be deleted because it is used by '
-                'actions of Workflow: {workflows}'
-            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        # self.assertEqual(
+        #     _(
+        #         'The relationship type cannot be deleted because it is used by '
+        #         'actions of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of relationship'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1.title}</li>'
+            f' <li>{type_label}&nbsp;{wf3.title}</li>'
+            f'</ul>',
             response.text,
         )
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 16:37+0200\n"
+"POT-Creation-Date: 2026-10-20 12:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2607,6 +2607,12 @@ msgstr "Date"
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
+msgid "Choice of custom field"
+msgstr "Choix de champ personnalisé"
+
+msgid "Choices of custom field"
+msgstr "Choix de champ personnalisé"
+
 msgid "Choice list"
 msgstr "Liste de choix"
 
@@ -4752,38 +4758,6 @@ msgid "New properties for «{entity}»"
 msgstr "Nouvelles propriétés pour «{entity}»"
 
 #, python-brace-format
-msgid ""
-"The property type cannot be deleted because it is used as relationship type "
-"constraint in: {rtypes}"
-msgstr ""
-"Le type de propriété ne peut être supprimé car il est utilisé comme "
-"contrainte de type de relation par : {rtypes}"
-
-#, python-brace-format
-msgid ""
-"The property type cannot be deleted because it is used in filter conditions: "
-"{filters}"
-msgstr ""
-"Le type de propriété ne peut être supprimé car il est utilisé dans des "
-"conditions de filtre : {filters}"
-
-#, python-brace-format
-msgid ""
-"The property type cannot be deleted because it is used by triggers of "
-"Workflow: {workflows}"
-msgstr ""
-"Le type de propriété ne peut être supprimé car il est utilisé par des "
-"déclenchements de Processus automatisé : {workflows}"
-
-#, python-brace-format
-msgid ""
-"The property type cannot be deleted because it is used by actions of "
-"Workflow: {workflows}"
-msgstr ""
-"Le type de propriété ne peut être supprimé car il est utilisé par des "
-"actions de Processus automatisé : {workflows}"
-
-#, python-brace-format
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
 
@@ -4939,6 +4913,13 @@ msgid "{count} relationship «{predicate}»"
 msgid_plural "{count} relationships «{predicate}»"
 msgstr[0] "{count} relation «{predicate}»"
 msgstr[1] "{count} relations «{predicate}»"
+
+#, python-brace-format
+msgid ""
+"This «{model}» can not be deleted because of its links with other elements:"
+msgstr ""
+"Cet objet «{model}» ne peut être supprimé à cause de ses liens avec d'autres "
+"éléments :"
 
 #, python-brace-format
 msgid "This object can not be deleted ({reason})"
@@ -5224,6 +5205,38 @@ msgstr "Sujet : {subject}"
 
 msgid "Body:"
 msgstr "Corps :"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The property type cannot be deleted because it is used as relationship "
+#~ "type constraint in: {rtypes}"
+#~ msgstr ""
+#~ "Le type de propriété ne peut être supprimé car il est utilisé comme "
+#~ "contrainte de type de relation par : {rtypes}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The property type cannot be deleted because it is used in filter "
+#~ "conditions: {filters}"
+#~ msgstr ""
+#~ "Le type de propriété ne peut être supprimé car il est utilisé dans des "
+#~ "conditions de filtre : {filters}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The property type cannot be deleted because it is used by triggers of "
+#~ "Workflow: {workflows}"
+#~ msgstr ""
+#~ "Le type de propriété ne peut être supprimé car il est utilisé par des "
+#~ "déclenchements de Processus automatisé : {workflows}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The property type cannot be deleted because it is used by actions of "
+#~ "Workflow: {workflows}"
+#~ msgstr ""
+#~ "Le type de propriété ne peut être supprimé car il est utilisé par des "
+#~ "actions de Processus automatisé : {workflows}"
 
 #~ msgid "You are not allowed to delete this filter (you are not the owner)"
 #~ msgstr ""

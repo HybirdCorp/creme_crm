@@ -31,6 +31,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.core import exceptions as core_exceptions
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.soft_reference import soft_reference_registry
 from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import (
@@ -39,6 +41,7 @@ from creme.creme_core.models import (
     CremeUser,
     EntityFilter,
     Relation,
+    RelationType,
     Workflow,
 )
 from creme.creme_core.utils import get_from_POST_or_404
@@ -54,6 +57,7 @@ class CremeDeletionMixin:
     # Models whose instances get a <li> per instance, possibly with a link to
     # their detail-view; the order of this list is kept for the result.
     important_dependencies: list[type[Model]] = [
+        RelationType,
         EntityFilter,
         Workflow,  # TODO: detail-view for Workflow?
     ]
@@ -81,7 +85,7 @@ class CremeDeletionMixin:
                     )
 
                     return format_html(
-                        '{type}&nbsp{label}', type=get_type_label(entity), label=dep,
+                        '{type}&nbsp;{label}', type=get_type_label(entity), label=dep,
                     )
 
                 return format_html(
@@ -195,6 +199,20 @@ class CremeDeletionMixin:
             '<ul>{}</ul>',  # TODO: <class="...">?
             format_html_join('', '<li>{}</li>', limited_items())
         )
+
+    def check_soft_references(self, instance, user):
+        refs = [*soft_reference_registry.collect(instance=instance)]
+        if refs:
+            raise ConflictError(format_html(
+                '<span>{message}</span>{dependencies}',
+                message=_(
+                    'This «{model}» can not be deleted because of its '
+                    'links with other elements:'
+                ).format(model=type(instance)._meta.verbose_name),
+                dependencies=self.dependencies_to_html(
+                    instance=instance, dependencies=refs, user=user,
+                ),
+            ))
 
 
 class CremeDeletion(CremeDeletionMixin, CheckedView):

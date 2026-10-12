@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 09:46+0200\n"
+"POT-Creation-Date: 2026-10-20 12:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1080,9 +1080,6 @@ msgstr "Gestion des droits"
 
 msgid "List-views management"
 msgstr "Gestion des vues en liste"
-
-msgid "Staff tools"
-msgstr "Outils administrateur"
 
 # Already in contrib.auth
 msgid "Password change"
@@ -2906,22 +2903,6 @@ msgstr[1] ""
 
 #, python-brace-format
 msgid ""
-"The custom field cannot be deleted because it is used in filter conditions: "
-"{filters}"
-msgstr ""
-"Le champ personnalisé ne peut pas être supprimé car il est utilisé dans des "
-"conditions de filtre : {filters}"
-
-#, python-brace-format
-msgid ""
-"The custom field cannot be deleted because it is used by conditions of "
-"Workflow: {workflows}"
-msgstr ""
-"Le champ personnalisé ne peut pas être supprimé car il est utilisé par des "
-"conditions de Processus automatisé : {workflows}"
-
-#, python-brace-format
-msgid ""
 "The custom field cannot be deleted because of its dependencies: "
 "{dependencies}"
 msgstr ""
@@ -2991,22 +2972,6 @@ msgstr ""
 "La valeur supprimée peut être remplacée dans les fiches existantes par une "
 "autre valeur. Si un champ ne peut être vide, vous devez choisir une valeur "
 "de remplacement."
-
-#, python-brace-format
-msgid ""
-"You cannot delete «{item}» because it is used by some credentials filters: "
-"{filters}"
-msgstr ""
-"Vous ne pouvez pas supprimer «{item}» car ces filtres de droits s'en "
-"servent : {filters}"
-
-#, python-brace-format
-msgid ""
-"You cannot delete «{item}» because it is used by some Workflows (in "
-"conditions): {workflows}"
-msgstr ""
-"Vous ne pouvez pas supprimer «{item}» car ces Processus automatisés s'en "
-"servent : {workflows}"
 
 #, python-brace-format
 msgid "A deletion process for an instance of «{model}» already exists."
@@ -3084,30 +3049,6 @@ msgstr "Modifier le type «{object}»"
 
 #, python-brace-format
 msgid ""
-"The relationship type cannot be deleted because it is used in filter "
-"conditions: {filters}"
-msgstr ""
-"Le type de relation ne peut pas être supprimé car il est utilisé dans des "
-"conditions de filtre : {filters}"
-
-#, python-brace-format
-msgid ""
-"The relationship type cannot be deleted because it is used by triggers of "
-"Workflow: {workflows}"
-msgstr ""
-"Le type de relation ne peut pas être supprimé car il est utilisé par des "
-"déclenchements de Processus automatisé : {workflows}"
-
-#, python-brace-format
-msgid ""
-"The relationship type cannot be deleted because it is used by actions of "
-"Workflow: {workflows}"
-msgstr ""
-"Le type de relation ne peut pas être supprimé car il est utilisé par des "
-"actions de Processus automatisé : {workflows}"
-
-#, python-brace-format
-msgid ""
 "The relationship type cannot be deleted because of its dependencies: "
 "{dependencies}"
 msgstr ""
@@ -3141,20 +3082,6 @@ msgstr "Supprimer «{object}» et réassigner ses fiches"
 
 msgid "Delete the user"
 msgstr "Supprimer l'utilisateur"
-
-msgid "This user is used by some credentials filters: {}"
-msgstr ""
-"Cet utilisateur est utilisé par des filtres de droits : {}"
-
-msgid "This user is used by some conditions of Workflow: {}"
-msgstr ""
-"Cet utilisateur est utilisé par des conditions de Processus automatisé : "
-"{workflows}"
-
-msgid "This user is used by some actions of Workflow: {}"
-msgstr ""
-"Cet utilisateur est utilisé par des actions de Processus automatisé : "
-"{workflows}"
 
 msgid "You cannot delete this user. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer cet utilisateur. [erreur d'origine : {}]"
@@ -3257,6 +3184,78 @@ msgstr "Cette action est invalide (rafraîchissez votre page)"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid "Staff tools"
+#~ msgstr "Outils administrateur"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The custom field cannot be deleted because it is used in filter "
+#~ "conditions: {filters}"
+#~ msgstr ""
+#~ "Le champ personnalisé ne peut pas être supprimé car il est utilisé dans "
+#~ "des conditions de filtre : {filters}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The custom field cannot be deleted because it is used by conditions of "
+#~ "Workflow: {workflows}"
+#~ msgstr ""
+#~ "Le champ personnalisé ne peut pas être supprimé car il est utilisé par "
+#~ "des conditions de Processus automatisé : {workflows}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "You cannot delete «{item}» because it is used by some credentials "
+#~ "filters: {filters}"
+#~ msgstr ""
+#~ "Vous ne pouvez pas supprimer «{item}» car ces filtres de droits s'en "
+#~ "servent : {filters}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "You cannot delete «{item}» because it is used by some Workflows (in "
+#~ "conditions): {workflows}"
+#~ msgstr ""
+#~ "Vous ne pouvez pas supprimer «{item}» car ces Processus automatisés s'en "
+#~ "servent : {workflows}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The relationship type cannot be deleted because it is used in filter "
+#~ "conditions: {filters}"
+#~ msgstr ""
+#~ "Le type de relation ne peut pas être supprimé car il est utilisé dans des "
+#~ "conditions de filtre : {filters}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The relationship type cannot be deleted because it is used by triggers of "
+#~ "Workflow: {workflows}"
+#~ msgstr ""
+#~ "Le type de relation ne peut pas être supprimé car il est utilisé par des "
+#~ "déclenchements de Processus automatisé : {workflows}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The relationship type cannot be deleted because it is used by actions of "
+#~ "Workflow: {workflows}"
+#~ msgstr ""
+#~ "Le type de relation ne peut pas être supprimé car il est utilisé par des "
+#~ "actions de Processus automatisé : {workflows}"
+
+#~ msgid "This user is used by some credentials filters: {}"
+#~ msgstr "Cet utilisateur est utilisé par des filtres de droits : {}"
+
+#~ msgid "This user is used by some conditions of Workflow: {}"
+#~ msgstr ""
+#~ "Cet utilisateur est utilisé par des conditions de Processus automatisé : "
+#~ "{workflows}"
+
+#~ msgid "This user is used by some actions of Workflow: {}"
+#~ msgstr ""
+#~ "Cet utilisateur est utilisé par des actions de Processus automatisé : "
+#~ "{workflows}"
 
 #~ msgid ""
 #~ "Give the possible choices (one per line) if you choose the type \"Choice "

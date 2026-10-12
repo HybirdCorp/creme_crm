@@ -1325,20 +1325,40 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={'id': cfield1.id},
         )
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The custom field cannot be deleted because it is used in '
+        #         'filter conditions: {filters}'
+        #     ).format(
+        #         filters=(
+        #             f'<ul class="limited-list">'
+        #             f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+        #             f'<li>'
+        #             f'<a href="{efilter1.get_absolute_url()}" target="_blank">
+        #             {efilter1.name}</a>'
+        #             f'</li>'
+        #             f'</ul>'
+        #         ),
+        #     ),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Custom field'))
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
         self.assertHTMLEqual(
-            _(
-                'The custom field cannot be deleted because it is used in '
-                'filter conditions: {filters}'
-            ).format(
-                filters=(
-                    f'<ul class="limited-list">'
-                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
-                    f'<li>'
-                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
-                    f'</li>'
-                    f'</ul>'
-                ),
-            ),
+            f'<span>{label}</span>'
+            f'<ul>'
+            # TODO
+            # f' <li>{type_label}&nbsp;
+            #  <a href="{efilter2.get_absolute_url()}" target="_blank">{efilter2.name}</a></li>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter2.name}</a>'
+            f' </li>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+            f' </li>'
+            f'</ul>',
             response.text,
         )
         self.assertStillExists(cfield1)
@@ -1366,17 +1386,29 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={'id': cfield.id},
         )
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The custom field cannot be deleted because it is used in '
+        #         'filter conditions: {filters}'
+        #     ).format(
+        #         filters=(
+        #             f'<a href="{efilter.get_absolute_url()}" target="_blank">'
+        #             f'{efilter.name}'
+        #             f'</a>'
+        #         ),
+        #     ),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Custom field'))
         self.assertHTMLEqual(
-            _(
-                'The custom field cannot be deleted because it is used in '
-                'filter conditions: {filters}'
-            ).format(
-                filters=(
-                    f'<a href="{efilter.get_absolute_url()}" target="_blank">'
-                    f'{efilter.name}'
-                    f'</a>'
-                ),
-            ),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
+            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
+            f' </li>'
+            f'</ul>',
             response.text,
         )
 
@@ -1436,13 +1468,26 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={'id': cfield1.id},
         )
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The custom field cannot be deleted because it is used by '
+        #         'conditions of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Custom field'))
+        type_label = _('{model}:').format(model=_('Workflow'))
         self.assertHTMLEqual(
-            _(
-                'The custom field cannot be deleted because it is used by '
-                'conditions of Workflow: {workflows}'
-            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1.title}</li>'
+            f' <li>{type_label}&nbsp;{wf3.title}</li>'
+            f'</ul>',
             response.text,
         )
+
         self.assertStillExists(cfield1)
         self.assertStillExists(wf1)
 
@@ -1473,16 +1518,26 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={'id': cfield.id},
         )
+        # self.assertHTMLEqual(
+        #     _(
+        #         'The custom field cannot be deleted because it is used by '
+        #         'conditions of Workflow: {workflows}'
+        #     ).format(workflows=f'«{wf.title}»'),
+        #     response.text,
+        # )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Custom field'))
         self.assertHTMLEqual(
-            _(
-                'The custom field cannot be deleted because it is used by '
-                'conditions of Workflow: {workflows}'
-            ).format(workflows=f'«{wf.title}»'),
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf.title}</li>'
+            f'</ul>',
             response.text,
         )
 
     def test_deletion__no_app_perms(self):
-        "Not allowed."
+        """Not allowed."""
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -2176,17 +2231,37 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
             check_cycles=False, check_privacy=False,
         )
 
-        self.assertContains(
-            self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'credentials filters: {filters}'
-            ).format(
-                item=eval1.value,
-                filters=f'{efilter1.name}, {efilter3.name}',
-            ),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'credentials filters: {filters}'
+        #     ).format(
+        #         item=eval1.value,
+        #         filters=f'{efilter1.name}, {efilter3.name}',
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            reverse('creme_config__delete_custom_enum', args=(eval1.id,)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Choice of custom field'))
+        type_label = _('{model}:').format(model=_('Filter of Entity'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter1}</a>'
+            f' </li>'
+            f' <li>{type_label}&nbsp;'
+            f'  <a href="" target="_blank">{efilter3}</a>'
+            f' </li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_delete_enum_value__soft_referenced__workflows(self):
@@ -2260,17 +2335,33 @@ class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-        self.assertContains(
-            self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
-            text=_(
-                'You cannot delete «{item}» because it is used by some '
-                'Workflows (in conditions): {workflows}'
-            ).format(
-                item=eval1.value,
-                workflows=f'{wf1.title}, {wf3.title}',
-            ),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(reverse('creme_config__delete_custom_enum', args=(eval1.id,))),
+        #     text=_(
+        #         'You cannot delete «{item}» because it is used by some '
+        #         'Workflows (in conditions): {workflows}'
+        #     ).format(
+        #         item=eval1.value,
+        #         workflows=f'{wf1.title}, {wf3.title}',
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET409(
+            reverse('creme_config__delete_custom_enum', args=(eval1.id,)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Choice of custom field'))
+        type_label = _('{model}:').format(model=_('Workflow'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{type_label}&nbsp;{wf1}</li>'
+            f' <li>{type_label}&nbsp;{wf3}</li>'
+            f'</ul>',
+            response.text,
         )
 
     def test_delete_multi_enum__not_used(self):
