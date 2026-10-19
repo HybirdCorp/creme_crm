@@ -8,6 +8,18 @@
         * Crudity :
             - Two bricks always considered you use a sandbox.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+    # In Javascript :
+       - Fix an issue when using FormData with creme.ajax.Query().
+       - A function '_.formDataEntriesAll()' has been added; it completes the standard
+         'FormData.entries()' using 'FormData.getAll()' to retrieve all the data of a key.
+       - The function '_.assignFormData()' now accepts multiple arguments
+         like 'Object.assign()' and also supports 'FormData' objects.
+
 
 == Version 2.7.13 ==
 
