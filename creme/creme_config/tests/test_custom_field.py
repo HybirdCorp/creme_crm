@@ -1343,8 +1343,8 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Custom field'))
+            'This custom field can not be deleted because of its links with other elements:'
+        )
         type_label = _('{model}:').format(model=_('Filter of Entity'))
         self.assertHTMLEqual(
             f'<span>{label}</span>'
@@ -1400,8 +1400,8 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Custom field'))
+            'This custom field can not be deleted because of its links with other elements:'
+        )
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
@@ -1476,8 +1476,8 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Custom field'))
+            'This custom field can not be deleted because of its links with other elements:'
+        )
         type_label = _('{model}:').format(model=_('Workflow'))
         self.assertHTMLEqual(
             f'<span>{label}</span>'
@@ -1530,8 +1530,8 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Custom field'))
+            'This custom field can not be deleted because of its links with other elements:'
+        )
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'

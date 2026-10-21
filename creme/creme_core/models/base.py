@@ -21,18 +21,20 @@ from __future__ import annotations
 import logging
 import uuid
 from itertools import chain
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, override
 
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import FileField, Model
+from django.db.models.deletion import ProtectedError
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..core.exceptions import ConflictError
+from ..core.soft_reference import soft_reference_registry
 from ..global_info import get_per_request_cache
 from . import fields as core_fields
 from .file_ref import FileRef
@@ -170,13 +172,22 @@ class CremeModel(Model):
     class Meta:
         abstract = True
 
-    def _pre_delete(self):
+    def _check_soft_references(self) -> None:
+        """@raise django.db.models.deletion.ProtectedError."""
+        refs = [*soft_reference_registry.collect(instance=self)]
+        if refs:
+            raise ProtectedError(
+                msg='This instance is soft referenced',
+                protected_objects=refs,
+            )
+
+    def _pre_delete(self) -> None:
         """Called just before deleting the model.
         It is useful for cleaning, within the delete() transaction.
         """
         pass
 
-    def _delete_stored_file(self, field_value):
+    def _delete_stored_file(self, field_value) -> None:
         max_length = FileRef._meta.get_field('filedata').max_length
         path = str(field_value)
         if len(path) > max_length:
@@ -193,7 +204,7 @@ class CremeModel(Model):
                 description=gettext('Deletion of «{}»').format(self),
             )
 
-    def _delete_stored_files(self):
+    def _delete_stored_files(self) -> None:
         for field in chain(self._meta.fields, self._meta.many_to_many):
             if isinstance(field, FileField):
                 fname = field.name
@@ -202,12 +213,15 @@ class CremeModel(Model):
                 if file_instance:
                     self._delete_stored_file(file_instance)
 
-    def _delete_without_transaction(self, using=None, keep_parents=False):
+    def _delete_without_transaction(self, using=None, keep_parents=False) -> None:
         self._delete_stored_files()
         self._pre_delete()  # TODO: keep_parents ?
         super().delete(using=using, keep_parents=keep_parents)
 
+    @override
     def delete(self, using=None, keep_parents=False):
+        self._check_soft_references()
+
         try:
             with atomic():
                 self._delete_without_transaction(using=using)
@@ -215,6 +229,7 @@ class CremeModel(Model):
             logger.exception('Error in CremeModel.delete()')
             raise
 
+    @override
     def full_clean(self, *args, **kwargs):
         super().full_clean(*args, **kwargs)
 

@@ -5,15 +5,17 @@ from django.utils.translation import gettext as _
 
 from creme.commercial.bricks import SegmentsBrick
 from creme.commercial.models import MarketSegment
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
+    EntityFilter,
     RelationType,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..base import CommercialBaseTestCase, Organisation, Strategy
+from ..base import CommercialBaseTestCase, Contact, Organisation, Strategy
 
 
 class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
@@ -33,13 +35,11 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         segment = self._create_segment(name)
 
         ptype = segment.property_type
-        self.assertEqual(
-            _('is in the segment «{}»').format(name), ptype.text,
-        )
+        self.assertEqual(_('is in the segment «{}»').format(name), ptype.text)
         self.assertEqual('commercial', ptype.app_label)
 
     def test_creation__name_uniqueness(self):
-        "A segment with the same name already exists."
+        """A segment with the same name already exists."""
         self.login_as_standard(allowed_apps=['commercial'])
 
         name = 'Industry'
@@ -54,7 +54,7 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     def test_creation__property_type_uniqueness(self):
-        "A property type with the same name already exists."
+        """A property type with the same name already exists."""
         self.login_as_root()
 
         name = 'Industry'
@@ -226,16 +226,17 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.objects.builder(
-            id='commercial-subject_test_segment_delete',
-            predicate='has produced',
-            models=[Organisation],
-            properties=[old_ptype],
-        ).symmetric(
-            id='commercial-object_test_segment_delete',
-            predicate='has been produced by',
-            models=[Organisation],
-        ).get_or_create()[0]
+        # TODO: uncomment when soft-reference system manages replacement
+        # rtype = RelationType.objects.builder(
+        #     id='commercial-subject_test_segment_delete',
+        #     predicate='has produced',
+        #     models=[Organisation],
+        #     properties=[old_ptype],
+        # ).symmetric(
+        #     id='commercial-object_test_segment_delete',
+        #     predicate='has been produced by',
+        #     models=[Organisation],
+        # ).get_or_create()[0]
 
         segment2 = self._create_segment('Industry')
 
@@ -261,19 +262,20 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         prop = self.assertStillExists(prop)
         self.assertEqual(prop.type, segment2.property_type)
 
-        ptypes = rtype.subject_properties.all()
-        self.assertIn(prop.type,    ptypes)
-        self.assertNotIn(old_ptype, ptypes)
+        # TODO: see above
+        # ptypes = rtype.subject_properties.all()
+        # self.assertIn(prop.type,    ptypes)
+        # self.assertNotIn(old_ptype, ptypes)
 
     def test_deletion__one_remaining(self):
-        "Cannot delete if there is only one segment."
+        """Cannot delete if there is only one segment."""
         self.login_as_root()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
         self.assertGET409(self._build_delete_url(segment))
 
     def test_deletion__replace_no_distinct(self):
-        "Cannot replace a segment by itself."
+        """Cannot replace a segment by itself."""
         self.login_as_root()
 
         segment = self._create_segment('Noobs')
@@ -292,7 +294,7 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_deletion__property_types_duplicates(self):
-        "Avoid CremeProperty duplicates."
+        """Avoid CremeProperty duplicates."""
         user = self.login_as_root_and_get()
 
         Strategy.objects.create(user=user, name='Producers')
@@ -331,7 +333,7 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertListEqual(expected, ptypes(orga3))
 
     def test_deletion__null_not_deletable(self):
-        "Cannot delete the segment with property_type=NULL."
+        """Cannot delete the segment with property_type=NULL."""
         self.login_as_root()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
@@ -340,9 +342,9 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertGET404(self._build_delete_url(segment))
 
+    # TODO: rework when soft-reference system manages replacement
     @skipIfCustomOrganisation
-    def test_deletion__replace_with_null(self):
-        "We replace with the segment with property_type=NULL."
+    def test_deletion__soft_referenced(self):
         user = self.login_as_root_and_get()
 
         strategy = Strategy.objects.create(user=user, name='Producers')
@@ -351,9 +353,56 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         old_ptype = segment1.property_type
 
         orga = Organisation.objects.create(user=user, name='NHK')
-        prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
+        CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
+        # prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.objects.builder(
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'commercial-tests_replace_segment',
+            name='Fighters', model=Contact,
+            is_custom=True,
+            conditions=[
+                condition_handler.PropertyConditionHandler.build_condition(
+                    model=Contact, ptype=old_ptype, has=True,
+                )
+            ],
+        )
+
+        # segment2 = self._create_segment('Industry')
+        url = self._build_delete_url(segment1)
+        self.assertGET409(url)
+
+        response = self.assertPOST409(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertStillExists(segment1)
+
+        label = _(
+            'This «{model}» can not be deleted because of its links with other elements:'
+        ).format(model=_('Type of property'))
+        self.assertHTMLEqual(
+            f'<span>{label}</span>'
+            f'<ul>'
+            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
+            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
+            f' </li>'
+            f'</ul>',
+            response.text,
+        )
+
+    @skipIfCustomOrganisation
+    def test_deletion__replace_with_null(self):
+        """We replace with the segment with property_type=NULL."""
+        user = self.login_as_root_and_get()
+
+        strategy = Strategy.objects.create(user=user, name='Producers')
+        desc = self._create_segment_desc(strategy, 'Producer')
+        segment1 = desc.segment
+        old_ptype = segment1.property_type
+
+        orga = Organisation.objects.create(user=user, name='NHK')
+        CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
+        # prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
+
+        # rtype = RelationType.objects.builder(
+        RelationType.objects.builder(
             id='commercial-subject_test_segment_delete7',
             predicate='has produced',
             models=[Organisation],
@@ -365,14 +414,18 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         ).get_or_create()[0]
 
         segment2 = self.get_object_or_fail(MarketSegment, property_type=None)
-        self.assertPOST200(
+        self.assertPOST409(
             self._build_delete_url(segment1), data={'to_segment': segment2.id},
         )
-        self.assertDoesNotExist(segment1)
-        self.assertDoesNotExist(old_ptype)
-
-        desc = self.assertStillExists(desc)
-        self.assertEqual(segment2, desc.segment)
-
-        self.assertDoesNotExist(prop)
-        self.assertFalse(rtype.subject_properties.all())
+        # TODO: uncomment when replacement is managed by soft references
+        # self.assertPOST200(
+        #     self._build_delete_url(segment1), data={'to_segment': segment2.id},
+        # )
+        # self.assertDoesNotExist(segment1)
+        # self.assertDoesNotExist(old_ptype)
+        #
+        # desc = self.assertStillExists(desc)
+        # self.assertEqual(segment2, desc.segment)
+        #
+        # self.assertDoesNotExist(prop)
+        # self.assertFalse(rtype.subject_properties.all())
