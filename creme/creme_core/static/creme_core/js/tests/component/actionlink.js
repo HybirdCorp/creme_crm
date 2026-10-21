@@ -116,7 +116,7 @@ QUnit.test('creme.action.ActionLink (unbind, not bound)', function(assert) {
     }, Error, 'Error: action link is not bound');
 });
 
-QUnit.test('creme.action.ActionLink (unbind)', function(assert) {
+QUnit.test('creme.action.ActionLink (unbind, no builder)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a data-action="a"></a>');
 
@@ -130,6 +130,31 @@ QUnit.test('creme.action.ActionLink (unbind)', function(assert) {
 
     assert.equal(false, action.isRunning());
     assert.equal(false, action.isBound());
+});
+
+QUnit.test('creme.action.ActionLink (unbind, href)', function(assert) {
+    var action = new creme.action.ActionLink();
+    var link = $('<a href="/actions/" data-action="a"/>');
+
+    action.builders(this.mockActionBuilderDict);
+    action.bind(link)
+          .on('action-link-start', this.mockListener('start'))
+          .onComplete(this.mockListener('complete'));
+
+    assert.equal(true, action.isBound(), 'is bound');
+    assert.equal(false, link.is('.is-disabled'), 'is not disabled');
+    assert.equal(false, action.isDisabled(), 'is not disabled');
+
+    action.unbind();
+
+    assert.equal(false, action.isBound());
+    assert.equal(false, link.is('.is-disabled'), 'is not disabled');
+    assert.equal(false, action.isDisabled(), 'is not disabled');
+
+    // now 'click' does do anything
+    link.trigger('click');
+    assert.deepEqual([], this.mockActionCalls());
+    assert.deepEqual([], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
 });
 
 QUnit.test('creme.action.ActionLink (bind, no builder)', function(assert) {

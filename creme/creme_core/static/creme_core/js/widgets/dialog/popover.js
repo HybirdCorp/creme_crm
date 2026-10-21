@@ -77,6 +77,8 @@ creme.dialog.Popover = creme.component.Component.sub({
         this._anchor = anchor;
 
         $('body').append(dialog);
+        this._events.trigger('before-open', [this.content()], this);
+
         this._glasspane.open(dialog);
         this._onclose = function() { close(); };
 
@@ -171,6 +173,7 @@ creme.dialog.Popover = creme.component.Component.sub({
         this._dialog.off('modal-close', this._onclose);
         this._dialog.detach();
 
+        this._events.trigger('before-close', [this.content()].concat(Array.from(arguments)), this);
         this._anchor = null;
 
         this._glasspane.pane().off('mousedown', this._onclose);
@@ -353,7 +356,7 @@ creme.dialog.PopoverAction = creme.component.Action.sub({
     }
 });
 
-creme.dialog.PopoverAction.fromTarget = function(target, options) {
+creme.dialog.PopoverAction.fromTarget = function(target, options, listeners) {
     /*
         Opens a popover at the given DOM/jquery target element.
         Some arguments like the title and the content are extracted directly from the element :
@@ -384,7 +387,7 @@ creme.dialog.PopoverAction.fromTarget = function(target, options) {
         target: target
     });
 
-    return new creme.dialog.PopoverAction(options);
+    return new creme.dialog.PopoverAction(options, listeners);
 };
 
 }(jQuery));

@@ -169,7 +169,21 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
 
     _build_popover: function(url, options, data, e) {
         var link = $(e.target).closest('[data-action]');
-        return creme.dialog.PopoverAction.fromTarget(link, options);
+        var brick = this._brick;
+        var actions = [];
+
+        return creme.dialog.PopoverAction.fromTarget(link, options, {
+            "before-open": function(event, content) {
+                actions = $('[data-action]', content).map(function() {
+                    return brick._initializeActionButton($(this));
+                }).get();
+            },
+            "before-close": function(event, content) {
+                actions.forEach(function(link) {
+                    link.unbind();
+                });
+            }
+        });
     },
 
     _build_delete: function(url, options, data) {

@@ -40,7 +40,10 @@
                         {% blocktranslate with date=workflow.disabled context 'creme_config-workflow' %}Disabled on {{date}}{% endblocktranslate %}
                         <a data-action="popover" data-title="{% translate 'Reason' %}">
                             {% widget_icon name='info' label=_('Reason') size='brick-action' %}
-                            <script type="text/html"><p>{{workflow.disabling_reason|linebreaksbr}}</p></script>
+                            <script type="text/html">
+                                <p>{{workflow.disabling_reason|linebreaksbr}}</p>
+                                {% brick_action id='edit' url='creme_config__disable_workflow'|url:workflow.id label=_('Edit') display='text' enabled=admin_perm %}
+                            </script>
                         </a>
                         {% brick_action id='edit' url='creme_config__disable_workflow'|url:workflow.id label=_('Edit the reason') enabled=admin_perm %}
                     </span>
