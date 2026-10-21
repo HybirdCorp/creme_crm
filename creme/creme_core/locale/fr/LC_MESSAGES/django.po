@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 12:53+0200\n"
+"POT-Creation-Date: 2026-10-21 13:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -4925,13 +4925,6 @@ msgstr ""
 msgid "This object can not be deleted ({reason})"
 msgstr "Cet objet ne peut être supprimé ({reason})"
 
-msgid ""
-"This deletion cannot be performed because of the links with some entities (& "
-"other elements):"
-msgstr ""
-"La suppression ne peut être effectuée à cause des liens avec certaines "
-"fiches (& autres éléments) :"
-
 #, python-brace-format
 msgid "Edit «{object}»"
 msgstr "Modifier «{object}»"
@@ -5205,6 +5198,13 @@ msgstr "Sujet : {subject}"
 
 msgid "Body:"
 msgstr "Corps :"
+
+#~ msgid ""
+#~ "This deletion cannot be performed because of the links with some entities "
+#~ "(& other elements):"
+#~ msgstr ""
+#~ "La suppression ne peut être effectuée à cause des liens avec certaines "
+#~ "fiches (& autres éléments) :"
 
 #, python-brace-format
 #~ msgid ""

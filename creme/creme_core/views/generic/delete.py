@@ -44,6 +44,7 @@ from creme.creme_core.models import (
     RelationType,
     Workflow,
 )
+from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
@@ -208,7 +209,7 @@ class CremeDeletionMixin:
                 message=_(
                     'This «{model}» can not be deleted because of its '
                     'links with other elements:'
-                ).format(model=type(instance)._meta.verbose_name),
+                ).format(model=model_verbose_name(type(instance))),
                 dependencies=self.dependencies_to_html(
                     instance=instance, dependencies=refs, user=user,
                 ),
@@ -272,13 +273,18 @@ class CremeModelDeletion(CremeDeletion):
                     _('This object can not be deleted ({reason})').format(reason=e.args[0]),
                 ) from e
             except ProtectedError as e:
+                # TODO: factorise with CremeDeletionMixin.check_soft_references()
                 raise core_exceptions.ConflictError(
                     format_html(
                         '<span>{message}</span>{dependencies}',
+                        # message=_(
+                        #     'This deletion cannot be performed because of the '
+                        #     'links with some entities (& other elements):'
+                        # ),
                         message=_(
-                            'This deletion cannot be performed because of the '
-                            'links with some entities (& other elements):'
-                        ),
+                            'This «{model}» can not be deleted because of its '
+                            'links with other elements:'
+                        ).format(model=model_verbose_name(type(instance))),
                         dependencies=self.dependencies_to_html(
                             instance=instance, dependencies=e.args[1], user=user,
                         ),

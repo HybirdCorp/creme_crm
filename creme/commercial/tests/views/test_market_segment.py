@@ -33,13 +33,11 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         segment = self._create_segment(name)
 
         ptype = segment.property_type
-        self.assertEqual(
-            _('is in the segment «{}»').format(name), ptype.text,
-        )
+        self.assertEqual(_('is in the segment «{}»').format(name), ptype.text)
         self.assertEqual('commercial', ptype.app_label)
 
     def test_creation__name_uniqueness(self):
-        "A segment with the same name already exists."
+        """A segment with the same name already exists."""
         self.login_as_standard(allowed_apps=['commercial'])
 
         name = 'Industry'
@@ -54,7 +52,7 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     def test_creation__property_type_uniqueness(self):
-        "A property type with the same name already exists."
+        """A property type with the same name already exists."""
         self.login_as_root()
 
         name = 'Industry'
@@ -342,7 +340,7 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_deletion__replace_with_null(self):
-        "We replace with the segment with property_type=NULL."
+        """We replace with the segment with property_type=NULL."""
         user = self.login_as_root_and_get()
 
         strategy = Strategy.objects.create(user=user, name='Producers')

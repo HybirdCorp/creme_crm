@@ -2187,10 +2187,14 @@ class EntityFilterDeletionTestCase(EntityFilterTestCaseMixin, CremeTestCase):
             '  <a href="/tests/report/{report_id}" target="_blank">{label}</a>'
             ' </li>'
             '</ul>'.format(
+                # message=_(
+                #     'This deletion cannot be performed because of the links '
+                #     'with some entities (& other elements):'
+                # ),
                 message=_(
-                    'This deletion cannot be performed because of the links '
-                    'with some entities (& other elements):'
-                ),
+                    'This «{model}» can not be deleted because of its '
+                    'links with other elements:'
+                ).format(model=_('Filter of Entity')),
                 report_id=report.id,
                 label=str(report),
             ),
