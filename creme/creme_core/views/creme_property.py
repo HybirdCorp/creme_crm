@@ -334,7 +334,8 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
         #             'actions of Workflow: {workflows}'
         #         ).format(workflows=', '.join(f'«{wf}»' for wf in actioned_workflows))
         #     )
-        self.check_soft_references(instance=instance, user=user)
+        # self.check_soft_references(instance=instance, user=user)
+        pass
 
     def get_query_kwargs(self):
         return {

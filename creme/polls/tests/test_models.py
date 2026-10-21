@@ -396,7 +396,7 @@ class PollFormSectionTestCase(_PollsTestCase):
         self.assertFalse(PollFormSection.objects.filter(pk__in=[section.pk, sub_section.pk]))
 
     def test_delete__sub_section__not_empty(self):
-        "Deleted section has a line (indirectly)."
+        """Deleted section has a line (indirectly)."""
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -423,10 +423,14 @@ class PollFormSectionTestCase(_PollsTestCase):
         self.assertStillExists(line)
         self.assertHTMLEqual(
             '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
+                # message=_(
+                #     'This deletion cannot be performed because of the links '
+                #     'with some entities (& other elements):'
+                # ),
                 message=_(
-                    'This deletion cannot be performed because of the links '
-                    'with some entities (& other elements):'
-                ),
+                    'This «{model}» can not be deleted because of its links '
+                    'with other elements:'
+                ).format(model=_('Section')),
                 dependencies=_('{count} {model}').format(
                     count=1,
                     model=smart_model_verbose_name(model=PollFormSection, count=1),
@@ -507,7 +511,7 @@ class PollFormLineTestCase(_PollsTestCase):
     #     self.assertEqual(404, self._delete_line(line).status_code)
 
     def test_delete__ajax__is_destination(self):
-        "Deleted line depends on other lines."
+        """Deleted line depends on other lines."""
         user = self.login_as_root_and_get()
         line1, line2, line3 = self._create_pform_with_3_lines_for_conditions(user=user)
 
@@ -524,7 +528,7 @@ class PollFormLineTestCase(_PollsTestCase):
         self.assertDoesNotExist(cond2)
 
     def test_delete__ajax__is_source(self):
-        "Deleted line has a line that depends on it."
+        """Deleted line has a line that depends on it."""
         user = self.login_as_root_and_get()
         line2, line3 = self._create_pform_with_3_lines_for_conditions(user=user)[1:]
         cond = PollFormLineCondition.objects.create(
@@ -538,10 +542,14 @@ class PollFormLineTestCase(_PollsTestCase):
         self.assertStillExists(cond)
         self.assertHTMLEqual(
             '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
+                # message=_(
+                #     'This deletion cannot be performed because of the links '
+                #     'with some entities (& other elements):'
+                # ),
                 message=_(
-                    'This deletion cannot be performed because of the links '
-                    'with some entities (& other elements):'
-                ),
+                    'This «{model}» can not be deleted because of its '
+                    'links with other elements:'
+                ).format(model=_('Question')),
                 dependencies=_('{count} {model}').format(
                     count=1,
                     model=smart_model_verbose_name(model=PollFormLine, count=1),

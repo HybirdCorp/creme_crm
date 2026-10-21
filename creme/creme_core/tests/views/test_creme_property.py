@@ -215,10 +215,14 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         self.assertStillExists(contact)
         self.assertHTMLEqual(
             '<span>{message}</span><ul><li>{dep}</li></ul>'.format(
+                # message=_(
+                #     'This deletion cannot be performed because of the links '
+                #     'with some entities (& other elements):'
+                # ),
                 message=_(
-                    'This deletion cannot be performed because of the links '
-                    'with some entities (& other elements):'
-                ),
+                    'This «{model}» can not be deleted because of its links '
+                    'with other elements:'
+                ).format(model=_('Type of property')),
                 dep=_('{count} {model}').format(
                     count=1,
                     model=smart_model_verbose_name(model=CremeProperty, count=1),

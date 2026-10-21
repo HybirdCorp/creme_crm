@@ -19,7 +19,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ProtectedError  # F
 from django.shortcuts import get_object_or_404, render
-# from django.utils.html import format_html
+from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -34,8 +34,8 @@ from creme.creme_core.models import (
     DeletionCommand,
     Job,
 )
-from creme.creme_core.utils.html import render_limited_list
-from creme.creme_core.utils.translation import verbose_instances_groups
+# from creme.creme_core.utils.html import render_limited_list
+# from creme.creme_core.utils.translation import verbose_instances_groups
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import (
     BricksReloading,
@@ -179,7 +179,6 @@ class CustomFieldDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
         #             workflows=', '.join(f'«{wf}»' for wf in workflows),
         #         )
         #     )
-        self.check_soft_references(instance=instance, user=user)
 
     def perform_deletion(self, request):
         cfield = get_object_or_404(
@@ -187,22 +186,32 @@ class CustomFieldDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
             id=utils.get_from_POST_or_404(request.POST, self.id_arg),
         )
         if cfield.is_deleted:
-            self.check_instance_permissions(instance=cfield, user=request.user)
+            user = request.user
+            self.check_instance_permissions(instance=cfield, user=user)
 
             try:
                 cfield.delete()
             except ProtectedError as e:
-                # TODO: unit test (need a new fake model)
-                # TODO: factorise
-                raise ConflictError(
-                    _(
-                        'The custom field cannot be deleted because of its '
-                        'dependencies: {dependencies}'
-                    ).format(dependencies=render_limited_list(
-                        items=[*verbose_instances_groups(e.args[1])],
-                        limit=self.dependencies_limit,
-                    ))
-                ) from e
+                # TODO: factorise better?
+                # raise ConflictError(
+                #     _(
+                #         'The custom field cannot be deleted because of its '
+                #         'dependencies: {dependencies}'
+                #     ).format(dependencies=render_limited_list(
+                #         items=[*verbose_instances_groups(e.args[1])],
+                #         limit=self.dependencies_limit,
+                #     ))
+                # ) from e
+                raise ConflictError(format_html(
+                    '<span>{message}</span>{dependencies}',
+                    message=gettext(
+                        'This custom field can not be deleted because of its '
+                        'links with other elements:'
+                    ),
+                    dependencies=self.dependencies_to_html(
+                        instance=self, dependencies=e.args[1], user=user,
+                    ),
+                )) from e
         else:
             cfield.is_deleted = True
             cfield.save()
@@ -352,6 +361,7 @@ class CustomEnumDeletion(generic.CremeDeletionMixin, base.ConfigModelEdition):
                 )
 
         # self._check_soft_references(instance=instance, user=user)
+        # TODO: replacement in soft refs instead (only when it's possible?)
         self.check_soft_references(instance=instance, user=user)
 
     def form_valid(self, form):

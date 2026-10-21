@@ -52,7 +52,8 @@ class Segments(generic.BricksView):
     brick_classes = [bricks.SegmentsBrick]
 
 
-class SegmentDeletion(generic.CremeModelEditionPopup):
+# class SegmentDeletion(generic.CremeModelEditionPopup):
+class SegmentDeletion(generic.CremeDeletionMixin, generic.CremeModelEditionPopup):
     # model = MarketSegment
     queryset = MarketSegment.objects.exclude(property_type=None)
     form_class = segment_forms.SegmentReplacementForm
@@ -67,6 +68,11 @@ class SegmentDeletion(generic.CremeModelEditionPopup):
 
         if MarketSegment.objects.count() < 2:
             raise ConflictError(gettext("You can't delete the last segment."))
+
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        # TODO: manage replacement in soft refrenec system instead
+        self.check_soft_references(instance=instance.property_type, user=user)
 
     def post(self, *args, **kwargs):
         try:

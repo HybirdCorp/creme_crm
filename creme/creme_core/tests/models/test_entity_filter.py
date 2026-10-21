@@ -2744,7 +2744,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka'))
 
     def test_property_type_deletion(self):
-        "Delete CremePropertyType => delete related conditions."
+        """Delete CremePropertyType => delete related conditions."""
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Pretty')
         ptype2 = create_ptype(text='Beautiful')
@@ -2766,7 +2766,8 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             ],
         )
 
-        ptype1.delete()
+        # ptype1.delete()
+        CremePropertyType.objects.filter(id=ptype1.id).delete()
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
@@ -2901,7 +2902,8 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             ],
         )
 
-        loves.delete()
+        # loves.delete()
+        RelationType.objects.filter(id=loves.id).delete()
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
@@ -3035,7 +3037,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
 
         build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 
-        sub_efilter01 = EntityFilter.objects.smart_update_or_create(
+        sub_efilter1 = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Rei', model=FakeContact,
             conditions=[
                 build_4_field(
@@ -3043,8 +3045,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
                 ),
             ],
         )
-
-        sub_efilter02 = EntityFilter.objects.smart_update_or_create(
+        sub_efilter2 = EntityFilter.objects.smart_update_or_create(
             pk='test-filter02', name='Filter Rei', model=FakeContact,
             conditions=[
                 build_4_field(
@@ -3059,11 +3060,12 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         )
         build = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
         efilter.set_conditions([
-            build(rtype=loves, has=True, subfilter=sub_efilter01),
-            build(rtype=hates, has=True, subfilter=sub_efilter02),
+            build(rtype=loves, has=True, subfilter=sub_efilter1),
+            build(rtype=hates, has=True, subfilter=sub_efilter2),
         ])
 
-        loves.delete()
+        # loves.delete()
+        RelationType.objects.filter(id=loves.id).delete()
         self.assertListEqual(
             [hates.id], [cond.name for cond in efilter.conditions.all()]
         )
@@ -3757,12 +3759,12 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             CustomField.objects.create,
             content_type=self.contact_ct, field_type=CustomField.INT,
         )
-        custom_field01 = create_cf(name='Size (cm)')
-        custom_field02 = create_cf(name='IQ')
+        custom_field1 = create_cf(name='Size (cm)')
+        custom_field2 = create_cf(name='IQ')
 
         # We want a condition with the same name as the one for custom_field01
         subfilter = EntityFilter.objects.create(
-            id=str(custom_field01.uuid),
+            id=str(custom_field1.uuid),
             name='Do not delete me please',
             entity_type=FakeContact,
         )
@@ -3774,17 +3776,18 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Small', model=FakeContact, is_custom=True,
             conditions=[
-                build(custom_field=custom_field01),
-                build(custom_field=custom_field02),
+                build(custom_field=custom_field1),
+                build(custom_field=custom_field2),
                 SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
             ],
         )
 
-        custom_field01.delete()
+        # custom_field1.delete()
+        CustomField.objects.filter(id=custom_field1.id).delete()
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id,   str(subfilter.id)),
-                (CustomFieldConditionHandler.type_id, str(custom_field02.uuid)),
+                (CustomFieldConditionHandler.type_id, str(custom_field2.uuid)),
             ],
             efilter.conditions.values_list('type', 'name'),
         )
@@ -3795,8 +3798,8 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             CustomField.objects.create,
             content_type=self.contact_ct, field_type=CustomField.DATETIME,
         )
-        custom_field01 = create_cf(name='Holidays')
-        custom_field02 = create_cf(name='Favorite day')
+        custom_field1 = create_cf(name='Holidays')
+        custom_field2 = create_cf(name='Favorite day')
 
         build = partial(
             DateCustomFieldConditionHandler.build_condition,
@@ -3807,14 +3810,15 @@ class EntityFilterFilteringTestCase(CremeTestCase):
             'test-filter01',
             name='Break', model=FakeContact, is_custom=True,
             conditions=[
-                build(custom_field=custom_field01),
-                build(custom_field=custom_field02),
+                build(custom_field=custom_field1),
+                build(custom_field=custom_field2),
             ],
         )
 
-        custom_field01.delete()
+        # custom_field1.delete()
+        CustomField.objects.filter(id=custom_field1.id).delete()
         self.assertListEqual(
-            [str(custom_field02.uuid)],
+            [str(custom_field2.uuid)],
             [*efilter.conditions.values_list('name', flat=True)],
         )
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 12:17+0200\n"
+"POT-Creation-Date: 2026-10-21 13:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2901,13 +2901,12 @@ msgstr[1] ""
 "Ce champ personnalisé est encore utilisé par {count} fiches, donc il ne peut "
 "pas être supprimé."
 
-#, python-brace-format
 msgid ""
-"The custom field cannot be deleted because of its dependencies: "
-"{dependencies}"
+"This custom field can not be deleted because of its links with other "
+"elements:"
 msgstr ""
-"Le champ personnalisé ne peut pas être supprimé à cause de ses dépendances : "
-"{dependencies}"
+"Ce champ personnalisé ne peut pas être supprimé à cause de ses liens avec "
+"d'autres éléments :"
 
 msgid "Add this new choice"
 msgstr "Ajouter ce nouveau choix"
@@ -3047,13 +3046,12 @@ msgctxt "creme_config-relationship"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#, python-brace-format
 msgid ""
-"The relationship type cannot be deleted because of its dependencies: "
-"{dependencies}"
+"This relationship type can not be deleted because of its links with other "
+"elements:"
 msgstr ""
-"Le type de relation ne peut pas être supprimé à cause de ses dépendances :"
-"{dependencies}"
+"Ce type de relation ne peut pas être supprimé à cause de ses liens avec "
+"d'autres éléments :"
 
 #, python-brace-format
 msgid "New search configuration for «{model}»"
@@ -3184,6 +3182,22 @@ msgstr "Cette action est invalide (rafraîchissez votre page)"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The custom field cannot be deleted because of its dependencies: "
+#~ "{dependencies}"
+#~ msgstr ""
+#~ "Le champ personnalisé ne peut pas être supprimé à cause de ses "
+#~ "dépendances : {dependencies}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The relationship type cannot be deleted because of its dependencies: "
+#~ "{dependencies}"
+#~ msgstr ""
+#~ "Le type de relation ne peut pas être supprimé à cause de ses dépendances :"
+#~ "{dependencies}"
 
 #~ msgid "Staff tools"
 #~ msgstr "Outils administrateur"

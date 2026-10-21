@@ -1,16 +1,23 @@
 from uuid import uuid4
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db.models.deletion import ProtectedError
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import (
+    FakeActivity,
+    FakeActivityType,
     FakeContact,
     FakeCountry,
     FakePosition,
     FakeSector,
     Language,
+    Workflow,
 )
 
 from ..base import CremeTestCase
@@ -262,3 +269,55 @@ class MinionTestCase(CremeTestCase):
         with self.assertRaises(ConflictError) as cm:
             sector.is_enabled_or_die()
         self.assertEqual(sector.message_for_disabled, str(cm.exception))
+
+    def test_delete__referenced__fk(self):
+        create_atype = FakeActivityType.objects.create
+        atype1 = create_atype(name='Party')
+        atype2 = create_atype(name='Mega party')
+
+        act = FakeActivity.objects.create(
+            user=self.get_root_user(), title='Saturday night', type=atype2,
+        )
+
+        # Not referenced ---
+        with self.assertNoException():
+            atype1.delete()
+        self.assertDoesNotExist(atype1)
+
+        # Referenced ---
+        with self.assertRaises(ProtectedError) as cm:
+            atype2.delete()
+        self.assertStillExists(atype2)
+        self.assertCountEqual([act], cm.exception.protected_objects)
+
+    def test_delete__referenced__soft(self):
+        create_atype = FakeActivityType.objects.create
+        atype1 = create_atype(name='Party')
+        atype2 = create_atype(name='Mega party')
+
+        wf = Workflow.objects.create(
+            title='My blocking WF',
+            content_type=FakeActivity,
+            trigger=workflows.EntityCreationTrigger(model=FakeActivity),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=FakeActivity),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeActivity,
+                        operator=operators.EqualsOperator,
+                        field_name='type', values=[str(atype2.uuid)],
+                    ),
+                ],
+            ),
+        )
+
+        # Not referenced ---
+        with self.assertNoException():
+            atype1.delete()
+        self.assertDoesNotExist(atype1)
+
+        # Referenced ---
+        with self.assertRaises(ProtectedError) as cm:
+            atype2.delete()
+        self.assertStillExists(atype2)
+        self.assertCountEqual([wf], cm.exception.protected_objects)

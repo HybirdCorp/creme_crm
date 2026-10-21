@@ -20,7 +20,7 @@ from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-# from django.utils.html import format_html
+from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -30,8 +30,8 @@ from creme.creme_core.core.exceptions import ConflictError
 # from creme.creme_core.models import EntityFilter, Workflow
 from creme.creme_core.models import RelationType, SemiFixedRelationType
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.utils.html import render_limited_list
-from creme.creme_core.utils.translation import verbose_instances_groups
+# from creme.creme_core.utils.html import render_limited_list
+# from creme.creme_core.utils.translation import verbose_instances_groups
 # from creme.creme_core.workflows import RelationAddingAction, RelationAddingTrigger
 from creme.creme_core.views import generic
 
@@ -193,7 +193,6 @@ class RelationTypeDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
         #             workflows=', '.join(f'«{wf}»' for wf in actioned_workflows),
         #         )
         #     )
-        self.check_soft_references(instance=instance, user=user)
 
     def perform_deletion(self, request):
         relation_type = get_object_or_404(
@@ -201,7 +200,8 @@ class RelationTypeDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
             pk=get_from_POST_or_404(request.POST, self.id_arg),
         )
 
-        self.check_instance_permissions(instance=relation_type, user=request.user)
+        user = request.user
+        self.check_instance_permissions(instance=relation_type, user=user)
 
         try:
             relation_type.delete()
@@ -209,15 +209,25 @@ class RelationTypeDeletion(generic.CremeDeletionMixin, base.ConfigDeletion):
             # TODO: factorise with CremeModelDeletion
             # TODO: the count for Relation is x2 (symmetrical relations are
             #       collected too of course) => fix that?
-            raise ConflictError(
-                gettext(
-                    'The relationship type cannot be deleted because of its '
-                    'dependencies: {dependencies}'
-                ).format(dependencies=render_limited_list(
-                    items=[*verbose_instances_groups(e.args[1])],
-                    limit=self.dependencies_limit,
-                ))
-            ) from e
+            # raise ConflictError(
+            #     gettext(
+            #         'The relationship type cannot be deleted because of its '
+            #         'dependencies: {dependencies}'
+            #     ).format(dependencies=render_limited_list(
+            #         items=[*verbose_instances_groups(e.args[1])],
+            #         limit=self.dependencies_limit,
+            #     ))
+            # ) from e
+            raise ConflictError(format_html(
+                '<span>{message}</span>{dependencies}',
+                message=gettext(
+                    'This relationship type can not be deleted because of its '
+                    'links with other elements:'
+                ),
+                dependencies=self.dependencies_to_html(
+                    instance=self, dependencies=e.args[1], user=user,
+                ),
+            )) from e
 
 
 class SemiFixedRelationTypeDeletion(base.ConfigDeletion):

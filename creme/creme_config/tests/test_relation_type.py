@@ -542,15 +542,27 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         )
         self.assertStillExists(rt)
         self.assertStillExists(rel)
-        self.assertEqual(
-            _(
-                'The relationship type cannot be deleted because of its '
-                'dependencies: {dependencies}'
-            ).format(
-                dependencies=_('{count} {model}').format(
-                    count=2,
-                    model=smart_model_verbose_name(model=Relation, count=2),
-                )
+        # self.assertEqual(
+        #     _(
+        #         'The relationship type cannot be deleted because of its '
+        #         'dependencies: {dependencies}'
+        #     ).format(
+        #         dependencies=_('{count} {model}').format(
+        #             count=2,
+        #             model=smart_model_verbose_name(model=Relation, count=2),
+        #         )
+        #     ),
+        #     response.text,
+        # )
+        self.assertHTMLEqual(
+            '<span>{label}</span><ul><li>{item}</li></ul>'.format(
+                label=_(
+                    'This relationship type can not be deleted because of its '
+                    'links with other elements:'
+                ),
+                item=_('{count} {model}').format(
+                    count=2, model=smart_model_verbose_name(model=Relation, count=2),
+                ),
             ),
             response.text,
         )
@@ -616,8 +628,8 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of relationship'))
+            'This relationship type can not be deleted because of its links with other elements:'
+        )
         type_label = _('{model}:').format(model=_('Filter of Entity'))
         self.assertHTMLEqual(
             f'<span>{label}</span>'
@@ -680,8 +692,8 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of relationship'))
+            'This relationship type can not be deleted because of its links with other elements:'
+        )
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
@@ -744,7 +756,7 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
+            'This relationship type can not be deleted because of its links with other elements:'
         ).format(model=_('Type of relationship'))
         type_label = _('{model}:').format(model=_('Workflow'))
         self.assertHTMLEqual(
@@ -829,7 +841,7 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     response.text,
         # )
         label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
+            'This relationship type can not be deleted because of its links with other elements:'
         ).format(model=_('Type of relationship'))
         type_label = _('{model}:').format(model=_('Workflow'))
         self.assertHTMLEqual(
