@@ -2091,7 +2091,10 @@ class GenericDeletionTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf}</li>'
+            f' <li>'
+            f'  {_('{model}:').format(model=_('Workflow'))}&nbsp;'
+            f'  <a href="{wf.get_absolute_url()}" target="_blank">{wf}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )
@@ -2137,8 +2140,13 @@ class GenericDeletionTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{type_label}&nbsp;{wf1}</li>'  # TODO: order by title?
-            f' <li>{type_label}&nbsp;{wf2}</li>'
+            # TODO: order by title?
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
+            f' </li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf2.get_absolute_url()}" target="_blank">{wf2}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )

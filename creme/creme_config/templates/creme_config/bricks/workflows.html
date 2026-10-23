@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load i18n creme_bricks creme_perms creme_widgets creme_workflow %}
 {% load uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-workflows-brick{% endblock %}
@@ -67,7 +67,7 @@
                             {% brick_action id='edit' url='creme_config__edit_workflow_conditions'|url:workflow.id label=_('Edit the conditions') enabled=admin_perm %}
                             {% endif  %}
                         </h4>
-                        {% with rendered_conditions=workflow.rendered_conditions %}
+                        {% with rendered_conditions=workflow|workflow_rendered_conditions:user %}
                          {% if rendered_conditions %}
                           <ul class="workflow-config-conditions-contents">
                             {% for source_conditions in rendered_conditions %}<li>{{source_conditions}}</li>{% endfor %}
@@ -82,15 +82,16 @@
                         {% endif %}{% endwith %}
                     </div>
                     <div class="workflow-config-wf_actions">
+                      {% with rendered_actions=workflow|workflow_rendered_actions:user %}
                         <h4 class="workflow-config-wf_actions-label">
-                            {% blocktranslate count counter=workflow.rendered_actions|length %}{{counter}} Action{% plural %}{{counter}} Actions{% endblocktranslate %}
+                            {% blocktranslate count counter=rendered_actions|length %}{{counter}} Action{% plural %}{{counter}} Actions{% endblocktranslate %}
                             {% if workflow.is_custom %}
                             {% brick_action id='add' url='creme_config__add_workflow_action'|url:workflow.id label=_('Add an action') enabled=admin_perm %}
                             {% endif  %}
                         </h4>
                         <ul class="workflow-config-wf_actions-contents">
                          {% with delete_action_url='creme_config__delete_workflow_action'|url:workflow.id %}
-                          {% for rendered_action in workflow.rendered_actions %}
+                          {% for rendered_action in rendered_actions %}
                             <li class="workflow-config-wf_actions-content">
                                 <div class="workflow-config-wf_actions-description">{{rendered_action}}</div>
                                 {% if workflow.is_custom %}
@@ -104,6 +105,7 @@
                           {% endfor %}
                          {% endwith %}
                         </ul>
+                      {% endwith %}
                     </div>
                 </div>
             </div>

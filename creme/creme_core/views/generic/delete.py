@@ -57,9 +57,7 @@ class CremeDeletionMixin:
     # Models whose instances get a <li> per instance, possibly with a link to
     # their detail-view; the order of this list is kept for the result.
     important_dependencies: list[type[Model]] = [
-        RelationType,
-        EntityFilter,
-        Workflow,  # TODO: detail-view for Workflow?
+        RelationType, EntityFilter, Workflow,
     ]
 
     def dependencies_to_html(self, *,

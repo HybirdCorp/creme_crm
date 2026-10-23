@@ -921,6 +921,11 @@
     color: #f06060;
 }
 
+.brick-kv-list .brick-kv-value > ul {
+    text-align: left;
+    float: right;
+}
+
 .brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-group-title,
 .brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-item {
     border-left: 1px solid #ccc;
