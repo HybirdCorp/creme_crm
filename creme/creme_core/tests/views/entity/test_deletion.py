@@ -238,7 +238,10 @@ class EntityDeletionMixinTestCase(_EntityDeletionViewTestCase):
         )
         self.assertHTMLEqual(
             f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf.title}</li>'
+            f' <li>'
+            f'  {_('{model}:').format(model=_('Workflow'))}&nbsp;'
+            f'  <a href="{wf.get_absolute_url()}" target="_blank">{wf}</a>'
+            f' </li>'
             f'</ul>',
             EntityDeletionMixin().dependencies_to_html(
                 instance=FakeOrganisation.objects.create(user=user, name='Seele'),

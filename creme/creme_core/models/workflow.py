@@ -22,6 +22,7 @@ from collections.abc import Iterable, Iterator
 from uuid import uuid4
 
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ..core.workflow import (
@@ -123,6 +124,9 @@ class Workflow(CremeModel):
             f'json_actions={self.json_actions}'
             f')'
         )
+
+    def get_absolute_url(self):
+        return reverse('creme_core__workflow', args=(self.id,))
 
     @property
     def actions(self) -> tuple[WorkflowAction, ...]:

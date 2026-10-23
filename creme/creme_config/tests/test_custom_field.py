@@ -1482,8 +1482,12 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{type_label}&nbsp;{wf1.title}</li>'
-            f' <li>{type_label}&nbsp;{wf3.title}</li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
+            f' </li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )
@@ -1531,7 +1535,10 @@ class CustomFieldsDeletionTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Workflow'))}&nbsp;{wf.title}</li>'
+            f' <li>'
+            f'  {_('{model}:').format(model=_('Workflow'))}&nbsp;'
+            f'  <a href="{wf.get_absolute_url()}" target="_blank">{wf}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )

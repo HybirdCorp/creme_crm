@@ -21,6 +21,7 @@ from .views import (
     relation,
     search,
     testjs,
+    workflow,
 )
 
 auth_patterns = [
@@ -490,6 +491,19 @@ notification_patterns = [
     ),
 ]
 
+workflow_patterns = [
+    re_path(
+        r'^view/(?P<workflow_id>\d+)[/]?$',
+        workflow.WorkflowDetail.as_view(),
+        name='creme_core__workflow',
+    ),
+    # re_path(
+    #     r'^reload/(?P<efilter_id>.+)[/]?$',
+    #     entity_filter.EntityFilterBricksReloading.as_view(),
+    #     name='creme_core__reload_efilter_bricks',
+    # ),
+]
+
 creme_core_patterns = [
     re_path(r'^auth/',          include(auth_patterns)),
     re_path(r'^entity/',        include(entity_patterns)),
@@ -501,6 +515,7 @@ creme_core_patterns = [
     re_path(r'^enumerable/',    include(enumerable_patterns)),
     re_path(r'^job/',           include(job_patterns)),
     re_path(r'^notification/',  include(notification_patterns)),
+    re_path(r'^workflow/',      include(workflow_patterns)),
 
     re_path(
         r'^list_view/popup[/]?$',
