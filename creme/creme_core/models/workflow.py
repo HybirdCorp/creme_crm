@@ -22,6 +22,7 @@ from collections.abc import Iterable, Iterator
 from uuid import uuid4
 
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ..core.workflow import (
@@ -73,7 +74,7 @@ class Workflow(CremeModel):
     json_conditions = models.JSONField(default=list)
     json_actions = models.JSONField(default=list)
 
-    # Not viewable by users, For administrators currently.
+    # Not viewable by users; for administrators currently.
     created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField(
         _('Last modification'),
@@ -123,6 +124,9 @@ class Workflow(CremeModel):
             f'json_actions={self.json_actions}'
             f')'
         )
+
+    def get_absolute_url(self):
+        return reverse('creme_core__workflow', args=(self.id,))
 
     @property
     def actions(self) -> tuple[WorkflowAction, ...]:

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 12:53+0200\n"
+"POT-Creation-Date: 2026-10-26 12:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3956,6 +3956,27 @@ msgstr "Date de suppression"
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
 
+msgid "Workflow: %(title)s"
+msgstr "Processus automatisé : %(title)s"
+
+msgctxt "creme_core-workflow"
+msgid "Created on"
+msgstr "Créé le"
+
+msgctxt "creme_core-workflow"
+msgid "Modified on"
+msgstr "Modifié le"
+
+msgctxt "creme_core-workflow"
+msgid "Disabled on"
+msgstr "Désactivé le"
+
+msgid "Trigger"
+msgstr "Déclenchement"
+
+msgid "No condition"
+msgstr "Aucune condition"
+
 #, python-format
 msgid "%(counter)s entity has been successfully modified."
 msgid_plural "%(counter)s entities have been successfully modified."
@@ -4002,6 +4023,9 @@ msgstr "Aller à la configuration des filtres"
 
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
+
+msgid "Go to the configuration of workflows"
+msgstr "Aller à la configuration des processus"
 
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""

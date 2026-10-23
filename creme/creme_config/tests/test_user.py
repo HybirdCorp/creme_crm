@@ -2048,8 +2048,12 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{type_label}&nbsp;{wf1}</li>'
-            f' <li>{type_label}&nbsp;{wf3}</li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
+            f' </li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )
@@ -2136,8 +2140,12 @@ class UserDeletionTestCase(BaseUserTestCase):
         self.assertHTMLEqual(
             f'<span>{label}</span>'
             f'<ul>'
-            f' <li>{type_label}&nbsp;{wf1}</li>'
-            f' <li>{type_label}&nbsp;{wf3}</li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
+            f' </li>'
+            f' <li>'
+            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
+            f' </li>'
             f'</ul>',
             response.text,
         )

@@ -1,0 +1,75 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks creme_workflow %} {# creme_widgets #}
+{% load print_field from creme_core_tags %}
+
+{% block brick_extra_class %}brick-kv-list creme_core-workflow-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('General information') %}
+{% endblock %}
+
+{% block brick_content %}
+    <div class="brick-kv-group">
+        <div class="brick-kv-item item-workflow-ctype">
+            <div class="brick-kv-key">{% translate 'Related type of entity' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='content_type' %}</div>
+        </div>
+        <div class="brick-kv-item item-workflow-created">
+            <div class="brick-kv-key">{% translate 'Created on' context 'creme_core-workflow' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='created' %}</div>
+        </div>
+        <div class="brick-kv-item item-workflow-modified">
+            <div class="brick-kv-key">{% translate 'Modified on' context 'creme_core-workflow' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='modified' %}</div>
+        </div>
+        {% if object.disabled %}
+        <div class="brick-kv-item item-workflow-disabled">
+            <div class="brick-kv-key">{% translate 'Disabled on' context 'creme_core-workflow' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='modified' %}</div>
+        </div>
+        {% endif %}
+        <div class="brick-kv-item item-workflow-trigger">
+            <div class="brick-kv-key">{% translate 'Trigger' %}</div>
+            <div class="brick-kv-value">{{object.trigger.description}}</div>
+        </div>
+        <div class="brick-kv-item item-workflow-conditions">
+            <div class="brick-kv-key">{% translate 'Conditions' %}</div>
+            <div class="brick-kv-value">
+             {% with rendered_conditions=object|workflow_rendered_conditions:user %}
+              {% if rendered_conditions %}
+                <ul class="conditions-contents">
+                   {% for source_conditions in rendered_conditions %}<li>{{source_conditions}}</li>{% endfor %}
+                </ul>
+              {% else %}
+                <span class="conditions-content-empty">{% translate 'No condition' %}</span>
+              {% endif %}
+             {% endwith %}
+
+             {% with errors=object.conditions.errors %}
+                {% if errors %}<ul class="errors" title="{% translate 'Errors' %}">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+             {% endwith %}
+            </div>
+        </div>
+        <div class="brick-kv-item item-workflow-actions">
+            <div class="brick-kv-key">{% translate 'Actions' %}</div>
+            <div class="brick-kv-value">
+                <ul class="wf_actions-contents">
+                  {% for rendered_action in workflow|workflow_rendered_actions:user %}
+                    <li>
+                        {{rendered_action}}
+{% comment %}
+                        {% if workflow.is_custom %}
+                        <div class="-wf_actions-buttons">
+                            {% url 'creme_config__edit_workflow_action' workflow.id forloop.counter0 as edit_action_url %}
+                            {% brick_action id='edit'   url=edit_action_url                            label=_('Edit this action')   enabled=admin_perm %}
+                            {% brick_action id='delete' url=delete_action_url __index=forloop.counter0 label=_('Delete this action') enabled=admin_perm %}
+                        </div>
+                        {% endif  %}
+{% endcomment %}
+                    </li>
+                 {% endfor %}
+               </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
