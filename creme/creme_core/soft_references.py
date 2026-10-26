@@ -128,8 +128,6 @@ class EFilterConditionRTypeRefCollector(SoftReferenceCollector):
 class EFilterConditionPortableKeyedRefCollector(SoftReferenceCollector):
     """Collect the EntityFilters which reference instances with a portable key
     (like MinionModel) in their conditions on regular fields.
-
-    Currently, only credentials filters are considered as deletion blockers.
     """
     id = 'creme_core-efilter_condition_rfield-portable_keyed'
     # model = models.Model
@@ -144,7 +142,7 @@ class EFilterConditionPortableKeyedRefCollector(SoftReferenceCollector):
         model = type(instance)
 
         for cond in core_models.EntityFilterCondition.objects.filter(
-            filter__filter_type=EF_CREDENTIALS,
+            # filter__filter_type=EF_CREDENTIALS,
             type=condition_handler.RegularFieldConditionHandler.type_id,
             value__values__regex=f'"{key}"',
         ).order_by(models.F('filter__name')).prefetch_related('filter'):
@@ -154,6 +152,22 @@ class EFilterConditionPortableKeyedRefCollector(SoftReferenceCollector):
                     yield cond.filter
 
                     yielded_ids.add(cond.filter_id)
+
+
+class EFilterConditionEntityRefCollector(SoftReferenceCollector):
+    """Collect the EntityFilters which reference CremeEntities in their
+    conditions on Relations.
+    """
+    id = 'creme_core-efilter_condition_rtype-entity'
+    model = core_models.CremeEntity
+
+    def collect(self, instance):
+        assert isinstance(instance, self.model)
+
+        yield from core_models.EntityFilter.objects.filter(
+            conditions__type=condition_handler.RelationConditionHandler.type_id,
+            conditions__value__entity__regex=f'{instance.uuid}',
+        )
 
 
 # References contained by Workflows (Triggers) ---------------------------------
@@ -360,4 +374,39 @@ class NotificationSendingActionUserRefCollector(SoftReferenceCollector):
                     source = action.user_source
 
                     if isinstance(source, FixedUserSource) and source.user == instance:
+                        yield wf
+
+
+# TODO: manage other types of action
+class FixedEntitySourcedActionEntityRefCollector(SoftReferenceCollector):
+    """Collect some Workflows which reference CremeEntities through their action
+    with fixed source to an entity.
+    """
+    id = 'creme_core-workflow_action_fixed_source-entity'
+    model = core_models.CremeEntity
+
+    def collect(self, instance):
+        assert isinstance(instance, self.model)
+
+        from creme.creme_core.workflows import (
+            FixedEntitySource,
+            PropertyAddingAction,
+            RelationAddingAction,
+        )
+
+        key = instance.portable_key()
+
+        for wf in core_models.Workflow.objects.all_workflows():
+            for action in wf.actions:
+                # TODO: improve Action API to iterate sources => manage other types of action
+                sources = []
+
+                if isinstance(action, PropertyAddingAction):
+                    sources.append(action.entity_source)
+                elif isinstance(action, RelationAddingAction):
+                    sources.append(action.subject_source)
+                    sources.append(action.object_source)
+
+                for src in sources:
+                    if isinstance(src, FixedEntitySource) and src._entity_uuid == key:
                         yield wf

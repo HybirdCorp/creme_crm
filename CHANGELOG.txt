@@ -247,6 +247,8 @@
                     - The method '_post_instance_creation()' has been renamed '_post_instance_save()' ;
                       you have to rename the method in your own inheriting classes, or it won't be called.
         # In 'creme_core.core' :
+            - In the class 'deletion.EntityDeletor', the methods '_check_efilters()' &
+              '_check_workflows()' have been removed.
             - In 'enumerable.EnumerableRegistry' :
                 - The method 'register_related_model()' does not raise an exception when a model
                   is already registered anymore (because of the new 'inheritance' feature).

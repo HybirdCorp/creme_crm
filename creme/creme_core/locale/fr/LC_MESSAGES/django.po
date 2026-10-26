@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 14:09+0100\n"
+"POT-Creation-Date: 2026-10-27 11:50+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -329,15 +329,6 @@ msgstr "Votre rôle vous empêche de supprimer cette fiche"
 
 msgid "Deletion has been disabled by your administrator"
 msgstr "La suppression a été désactivée par votre administrateur."
-
-msgid "This entity is used by some conditions of filter."
-msgstr "Cette fiche est utilisée par des conditions de filtre."
-
-msgid "This entity is used by some conditions of Workflow."
-msgstr "Cette fiche est utilisée par des conditions de Processus automatisé."
-
-msgid "This entity is used by some actions of Workflow."
-msgstr "Cette fiche est utilisée par des actions de Processus automatisé."
 
 msgid "Actions"
 msgstr "Actions"
@@ -3956,6 +3947,7 @@ msgstr "Date de suppression"
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
 
+#, python-format
 msgid "Workflow: %(title)s"
 msgstr "Processus automatisé : %(title)s"
 
@@ -5222,6 +5214,16 @@ msgstr "Sujet : {subject}"
 
 msgid "Body:"
 msgstr "Corps :"
+
+#~ msgid "This entity is used by some conditions of filter."
+#~ msgstr "Cette fiche est utilisée par des conditions de filtre."
+
+#~ msgid "This entity is used by some conditions of Workflow."
+#~ msgstr ""
+#~ "Cette fiche est utilisée par des conditions de Processus automatisé."
+
+#~ msgid "This entity is used by some actions of Workflow."
+#~ msgstr "Cette fiche est utilisée par des actions de Processus automatisé."
 
 #~ msgid ""
 #~ "This deletion cannot be performed because of the links with some entities "

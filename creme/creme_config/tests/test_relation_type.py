@@ -22,6 +22,7 @@ from creme.creme_core.models import (
     Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import DeletionTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
 
@@ -490,7 +491,7 @@ class RelationTypeDisablingTestCase(_RelationTypeBaseTestCase):
         self.assertTrue(rt.symmetric_type.enabled)
 
 
-class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
+class RelationTypeDeletionTestCase(DeletionTestCaseMixin, _RelationTypeBaseTestCase):
     DEL_URL = reverse('creme_config__delete_rtype')
 
     def test_standard(self):
@@ -627,21 +628,13 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     ),
         #     response.text,
         # )
-        label = _(
-            'This relationship type can not be deleted because of its links with other elements:'
-        )
-        type_label = _('{model}:').format(model=_('Filter of Entity'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{type_label}&nbsp;'
-            f'  <a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1}</a>'
-            f' </li>'
-            f' <li>{type_label}&nbsp;'
-            f'  <a href="" target="_blank">{efilter2}</a>'  # TODO: fix href
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This relationship type can not be deleted because of its links '
+                'with other elements:'
+            ),
+            dependencies=[efilter1, efilter2],
         )
 
     def test_used_by_efilter__subfilter(self):
@@ -691,17 +684,13 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     ),
         #     response.text,
         # )
-        label = _(
-            'This relationship type can not be deleted because of its links with other elements:'
-        )
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
-            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This relationship type can not be deleted because of its links '
+                'with other elements:'
+            ),
+            dependencies=[efilter],
         )
 
     def test_used_by_workflow__trigger(self):
@@ -755,21 +744,13 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
         #     response.text,
         # )
-        label = _(
-            'This relationship type can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of relationship'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This relationship type can not be deleted because of its links '
+                'with other elements:'
+            ),
+            dependencies=[wf1, wf3],
         )
 
     def test_used_by_workflow__action(self):
@@ -840,21 +821,13 @@ class RelationTypeDeletionTestCase(_RelationTypeBaseTestCase):
         #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
         #     response.text,
         # )
-        label = _(
-            'This relationship type can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of relationship'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This relationship type can not be deleted because of its '
+                'links with other elements:'
+            ),
+            dependencies=[wf1, wf3],
         )
 
 

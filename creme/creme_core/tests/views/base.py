@@ -299,6 +299,38 @@ class ButtonTestCaseMixin:
                         yield span_node
 
 
+class DeletionTestCaseMixin:
+    def assertBlockingDependenciesMessage(self, *, html, label=None, dependencies):
+        """Check that the message for dependencies which block a deletion is OK."""
+        tree = self.get_html_tree(html)
+        self.assertEqual(label, self.get_html_node_or_fail(tree, 'span').text)
+
+        ul = self.get_html_node_or_fail(tree, 'ul')
+        # NB: dependencies order is not garanteed (set() not always keeps order)
+        displayed_deps = {}
+        for li in ul.find_all('li'):
+            atag = li.find('a')
+            displayed_deps[tuple(li.stripped_strings)] = (
+                None if atag is None else atag.attrs.get('href')
+            )
+
+        for dep in dependencies:
+            try:
+                href = displayed_deps.pop(
+                    (_('{model}:').format(model=type(dep)._meta.verbose_name), str(dep)),
+                )
+            except KeyError:
+                self.fail(f'{dep} has not be found in dependencies: {displayed_deps}')
+
+            get_url = getattr(dep, 'get_absolute_url', None)
+            if get_url is not None:
+                if get_url() != href:
+                    self.fail(f'The link to {dep} is broken')
+
+        if displayed_deps:
+            self.fail(f'There are extra dependencies: {displayed_deps}')
+
+
 class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):
         for r in results:

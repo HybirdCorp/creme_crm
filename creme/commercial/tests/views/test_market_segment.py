@@ -12,13 +12,15 @@ from creme.creme_core.models import (
     EntityFilter,
     RelationType,
 )
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.tests.views import base as views_base
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..base import CommercialBaseTestCase, Contact, Organisation, Strategy
 
 
-class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
+class MarketSegmentViewsTestCase(views_base.BrickTestCaseMixin,
+                                 views_base.DeletionTestCaseMixin,
+                                 CommercialBaseTestCase):
     @staticmethod
     def _build_delete_url(segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
@@ -373,18 +375,12 @@ class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         response = self.assertPOST409(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertStillExists(segment1)
-
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
-            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[efilter],
         )
 
     @skipIfCustomOrganisation

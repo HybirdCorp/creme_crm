@@ -53,14 +53,14 @@ from creme.creme_core.models import (
 from creme.creme_core.models.history import TYPE_EDITION, HistoryLine
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.tests.views import base as views_base
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 from ..registry import config_registry
 
 
-class GenericPortalsTestCase(BrickTestCaseMixin, CremeTestCase):
+class GenericPortalsTestCase(views_base.BrickTestCaseMixin, CremeTestCase):
     def setUp(self):
         super().setUp()
         self.login_as_root()
@@ -535,7 +535,7 @@ class GenericDisablingTestCase(CremeTestCase):
         self.assertPOST409(url, data={'action': 'disable'})
 
 
-class GenericDeletionTestCase(CremeTestCase):
+class GenericDeletionTestCase(views_base.DeletionTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -1680,7 +1680,8 @@ class GenericDeletionTestCase(CremeTestCase):
     def test_efilter_conditions__replace(self):
         create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Bo')
-        sector2 = create_sector(title='Blade')
+        # sector2 = create_sector(title='Blade')
+        create_sector(title='Blade')
         sector3 = create_sector(title='Nunchaku')
         sector_to_del = create_sector(title='Gun')
 
@@ -1696,7 +1697,8 @@ class GenericDeletionTestCase(CremeTestCase):
                 ),
             ],
         )
-        efilter_to_update2 = EntityFilter.objects.smart_update_or_create(
+        # efilter_to_update2 = EntityFilter.objects.smart_update_or_create(
+        EntityFilter.objects.smart_update_or_create(
             pk='test-filter_using_replaced_deep', name='Related is not armed',
             model=FakeResource, is_custom=True,
             conditions=[
@@ -1708,7 +1710,8 @@ class GenericDeletionTestCase(CremeTestCase):
                 ),
             ],
         )
-        efilter_to_ignore = EntityFilter.objects.smart_update_or_create(
+        # efilter_to_ignore = EntityFilter.objects.smart_update_or_create(
+        EntityFilter.objects.smart_update_or_create(
             pk='test-ignored', name='Armed',
             model=FakeOrganisation, is_custom=True,
             conditions=[
@@ -1732,68 +1735,70 @@ class GenericDeletionTestCase(CremeTestCase):
             'creme_config__delete_instance',
             args=('creme_core', 'fake_sector', sector_to_del.pk),
         )
-        response = self.assertGET200(url)
-
-        fname_contact = 'replace_creme_core__fakecontact_sector'
-        fname_orga    = 'replace_creme_core__fakeorganisation_sector'
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            replace_contact_f = fields[fname_contact]
-            contact_choices = [*replace_contact_f.choices]
-
-        self.assertInChoices(value=sector1.id, label=str(sector1), choices=contact_choices)
-        self.assertInChoices(value=sector2.id, label=str(sector2), choices=contact_choices)
-        self.assertNotInChoices(value=sector_to_del.id, choices=contact_choices)
-
-        self.assertIn(fname_orga, fields)
-
-        # POST ---
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                fname_contact: sector1.id,
-                fname_orga: sector2.id,
-            },
-        ))
-        self.assertStillExists(sector_to_del)
-
-        # RUN ---
-        job = self.get_object_or_fail(Job, type_id=deletor_type.id)
-
-        dcom = self.get_object_or_fail(DeletionCommand, job=job)
-        self.assertEqual(2, dcom.total_count)
-        self.assertEqual(0, dcom.updated_count)
-
-        deletor_type.execute(job)
-        self.assertDoesNotExist(sector_to_del)
-        self.assertEqual(2, self.refresh(dcom).updated_count)
-
-        # efilter1 --
-        condition_value1 = self.get_alone_element(
-            self.refresh(efilter_to_update1).get_conditions()
-        ).value
-        self.assertIsDict(condition_value1, length=2)
-        self.assertEqual('equals', condition_value1.get('operator'))
-        self.assertCountEqual(  # NB: order of keys may have changed
-            [str(sector1.uuid), str(sector2.uuid)], condition_value1.get('values'),
-        )
-
-        # efilter2 --
-        condition_value2 = self.get_alone_element(
-            self.refresh(efilter_to_update2).get_conditions()
-        ).value
-        self.assertIsDict(condition_value2, length=2)
-        self.assertEqual('equals', condition_value1.get('operator'))
-        self.assertCountEqual(  # NB: order of keys may have changed
-            [str(sector1.uuid), str(sector3.uuid)], condition_value2.get('values'),
-        )
-
-        # efilter_to_ignore --
-        self.assertListEqual(
-            [{'operator': 'equals', 'values': [str(sector1.uuid)]}],
-            [c.value for c in self.refresh(efilter_to_ignore).get_conditions()],
-        )
+        self.assertGET409(url)
+        # TODO: rework with soft ref replacement
+        # response = self.assertGET200(url)
+        #
+        # fname_contact = 'replace_creme_core__fakecontact_sector'
+        # fname_orga    = 'replace_creme_core__fakeorganisation_sector'
+        #
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     replace_contact_f = fields[fname_contact]
+        #     contact_choices = [*replace_contact_f.choices]
+        #
+        # self.assertInChoices(value=sector1.id, label=str(sector1), choices=contact_choices)
+        # self.assertInChoices(value=sector2.id, label=str(sector2), choices=contact_choices)
+        # self.assertNotInChoices(value=sector_to_del.id, choices=contact_choices)
+        #
+        # self.assertIn(fname_orga, fields)
+        #
+        # # POST ---
+        # self.assertNoFormError(self.client.post(
+        #     url,
+        #     data={
+        #         fname_contact: sector1.id,
+        #         fname_orga: sector2.id,
+        #     },
+        # ))
+        # self.assertStillExists(sector_to_del)
+        #
+        # # RUN ---
+        # job = self.get_object_or_fail(Job, type_id=deletor_type.id)
+        #
+        # dcom = self.get_object_or_fail(DeletionCommand, job=job)
+        # self.assertEqual(2, dcom.total_count)
+        # self.assertEqual(0, dcom.updated_count)
+        #
+        # deletor_type.execute(job)
+        # self.assertDoesNotExist(sector_to_del)
+        # self.assertEqual(2, self.refresh(dcom).updated_count)
+        #
+        # # efilter1 --
+        # condition_value1 = self.get_alone_element(
+        #     self.refresh(efilter_to_update1).get_conditions()
+        # ).value
+        # self.assertIsDict(condition_value1, length=2)
+        # self.assertEqual('equals', condition_value1.get('operator'))
+        # self.assertCountEqual(  # NB: order of keys may have changed
+        #     [str(sector1.uuid), str(sector2.uuid)], condition_value1.get('values'),
+        # )
+        #
+        # # efilter2 --
+        # condition_value2 = self.get_alone_element(
+        #     self.refresh(efilter_to_update2).get_conditions()
+        # ).value
+        # self.assertIsDict(condition_value2, length=2)
+        # self.assertEqual('equals', condition_value1.get('operator'))
+        # self.assertCountEqual(  # NB: order of keys may have changed
+        #     [str(sector1.uuid), str(sector3.uuid)], condition_value2.get('values'),
+        # )
+        #
+        # # efilter_to_ignore --
+        # self.assertListEqual(
+        #     [{'operator': 'equals', 'values': [str(sector1.uuid)]}],
+        #     [c.value for c in self.refresh(efilter_to_ignore).get_conditions()],
+        # )
 
     def test_efilter_conditions__set_null(self):
         """NULL => value is removed from conditions."""
@@ -1805,7 +1810,8 @@ class GenericDeletionTestCase(CremeTestCase):
         pos = FakePosition.objects.create(title='Kunoichi')
         pos_to_del = FakePosition.objects.create(title='Kuno-ichi')
 
-        efilter_to_update = EntityFilter.objects.smart_update_or_create(
+        # efilter_to_update = EntityFilter.objects.smart_update_or_create(
+        EntityFilter.objects.smart_update_or_create(
             pk='test-filter_using_replaced', name='Kunoichis',
             model=FakeContact, is_custom=True,
             conditions=[
@@ -1819,28 +1825,34 @@ class GenericDeletionTestCase(CremeTestCase):
         )
 
         # POST ---
-        self.assertNoFormError(self.client.post(reverse(
+        self.assertPOST409(reverse(
             'creme_config__delete_instance',
             args=('creme_core', 'fake_position', pos_to_del.pk),
-        )))
-        pos_to_del = self.assertStillExists(pos_to_del)
+        ))
 
-        # RUN ---
-        job = self.get_object_or_fail(Job, type_id=deletor_type.id)
-
-        dcom = self.get_deletion_command_or_fail(FakePosition)
-        self.assertEqual(1, dcom.total_count)
-        self.assertEqual(0, dcom.updated_count)
-
-        deletor_type.execute(job)
-        self.assertDoesNotExist(pos_to_del)
-        self.assertEqual(1, self.refresh(dcom).updated_count)
-        self.assertDictEqual(
-            {'operator': 'equals', 'values': [str(pos.uuid)]},
-            self.get_alone_element(
-                self.refresh(efilter_to_update).get_conditions()
-            ).value,
-        )
+        # TODO: rework with future replacement logic
+        # self.assertNoFormError(self.client.post(reverse(
+        #     'creme_config__delete_instance',
+        #     args=('creme_core', 'fake_position', pos_to_del.pk),
+        # )))
+        # pos_to_del = self.assertStillExists(pos_to_del)
+        #
+        # # RUN ---
+        # job = self.get_object_or_fail(Job, type_id=deletor_type.id)
+        #
+        # dcom = self.get_deletion_command_or_fail(FakePosition)
+        # self.assertEqual(1, dcom.total_count)
+        # self.assertEqual(0, dcom.updated_count)
+        #
+        # deletor_type.execute(job)
+        # self.assertDoesNotExist(pos_to_del)
+        # self.assertEqual(1, self.refresh(dcom).updated_count)
+        # self.assertDictEqual(
+        #     {'operator': 'equals', 'values': [str(pos.uuid)]},
+        #     self.get_alone_element(
+        #         self.refresh(efilter_to_update).get_conditions()
+        #     ).value,
+        # )
 
     def test_uniqueness(self):
         self.assertFalse(DeletionCommand.objects.first())
@@ -1927,7 +1939,9 @@ class GenericDeletionTestCase(CremeTestCase):
             )],
             check_cycles=False, check_privacy=False,
         )
-        self.assertGET200(self._build_url(sector_to_del))
+        # TODO: rework with future replacement of soft-refs
+        self.assertGET409(self._build_url(sector_to_del))
+        # self.assertGET200(self._build_url(sector_to_del))
 
     def test_blocking_soft_ref__credential_filter__one_filter(self):
         sector = FakeSector.objects.create(title='Music')
@@ -1959,17 +1973,12 @@ class GenericDeletionTestCase(CremeTestCase):
         response = self.assertGET409(
             self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model='Test sector')
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Filter of Entity'))}&nbsp;'
-            f'  <a href="{efilter.get_absolute_url()}" target="_blank">{efilter}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model='Test sector'),
+            dependencies=[efilter],
         )
 
     def test_blocking_soft_ref__credential_filter__two_filters(self):
@@ -2008,21 +2017,12 @@ class GenericDeletionTestCase(CremeTestCase):
         response = self.assertGET409(
             self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model='Test sector')
-        type_label = _('{model}:').format(model=_('Filter of Entity'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{type_label}&nbsp;'
-            f'  <a href="" target="_blank">{efilter2}</a>'  # TODO {efilter2.get_absolute_url()}
-            f' </li>'
-            f' <li>{type_label}&nbsp;'
-            f'  <a href="" target="_blank">{efilter1}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model='Test sector'),
+            dependencies=[efilter1, efilter2],
         )
 
     def test_blocking_soft_ref__workflow__none(self):
@@ -2085,18 +2085,12 @@ class GenericDeletionTestCase(CremeTestCase):
         response = self.assertGET409(
             self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model='Test sector')
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {_('{model}:').format(model=_('Workflow'))}&nbsp;'
-            f'  <a href="{wf.get_absolute_url()}" target="_blank">{wf}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model='Test sector'),
+            dependencies=[wf],
         )
 
     def test_blocking_soft_ref__workflow__two_workflows(self):
@@ -2133,22 +2127,12 @@ class GenericDeletionTestCase(CremeTestCase):
         response = self.assertGET409(
             self._build_url(sector), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model='Test sector')
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            # TODO: order by title?
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf2.get_absolute_url()}" target="_blank">{wf2}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model='Test sector'),
+            dependencies=[wf1, wf2],
         )
 
     def test_customisation__disabled(self):

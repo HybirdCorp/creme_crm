@@ -121,16 +121,22 @@ class SoftReferenceRegistryTestCase(CremeTestCase):
     def test_global_regsitry(self):
         classes = {*soft_reference_registry.collector_classes}
         self.assertIn(soft_references.RelationTypeConstraintPTypeRefCollector, classes)
+
         self.assertIn(soft_references.EFilterConditionCFieldRefCollector, classes)
         self.assertIn(soft_references.EFilterConditionCFieldEnumValueRefCollector, classes)
         self.assertIn(soft_references.EFilterConditionPTypeRefCollector, classes)
         self.assertIn(soft_references.EFilterConditionRTypeRefCollector, classes)
         self.assertIn(soft_references.EFilterConditionPortableKeyedRefCollector, classes)
+        self.assertIn(soft_references.EFilterConditionEntityRefCollector, classes)
+
         self.assertIn(soft_references.PropertyAddingTriggerPTypeRefCollector, classes)
         self.assertIn(soft_references.RelationAddingTriggerRTypeRefCollector, classes)
+
         self.assertIn(soft_references.WorkflowConditionCFieldRefCollector, classes)
         self.assertIn(soft_references.WorkflowConditionCFieldEnumValueRefCollector, classes)
         self.assertIn(soft_references.WorkflowConditionPortableKeyedRefCollector, classes)
+
         self.assertIn(soft_references.PropertyAddingActionPTypeRefCollector, classes)
         self.assertIn(soft_references.RelationAddingActionRTypeRefCollector, classes)
         self.assertIn(soft_references.NotificationSendingActionUserRefCollector, classes)
+        self.assertIn(soft_references.FixedEntitySourcedActionEntityRefCollector, classes)

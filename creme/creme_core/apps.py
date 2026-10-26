@@ -806,6 +806,7 @@ class CremeCoreConfig(CremeAppConfig):
             soft_references.EFilterConditionPTypeRefCollector,
             soft_references.EFilterConditionRTypeRefCollector,
             soft_references.EFilterConditionPortableKeyedRefCollector,
+            soft_references.EFilterConditionEntityRefCollector,
 
             soft_references.PropertyAddingTriggerPTypeRefCollector,
             soft_references.RelationAddingTriggerRTypeRefCollector,
@@ -817,6 +818,7 @@ class CremeCoreConfig(CremeAppConfig):
             soft_references.PropertyAddingActionPTypeRefCollector,
             soft_references.RelationAddingActionRTypeRefCollector,
             soft_references.NotificationSendingActionUserRefCollector,
+            soft_references.FixedEntitySourcedActionEntityRefCollector,
         )
 
     @override
