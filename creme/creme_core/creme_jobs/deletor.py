@@ -84,6 +84,9 @@ class _DeletorType(JobType):
 
                     dcom_mngr.filter(pk=dcom.pk).update(updated_count=F('updated_count') + 1)
 
+            # NB: this part of code may not be still used with soft-reference system
+            # which stops deletion
+            #  => TODO: rework with soft-reference system which manages replacement
             # TODO: factorise with <ReplacingHandler._count_related_instances>?
             if hasattr(instance_2_del, 'portable_key'):  # TODO: unit test <false> case
                 key_2_del = instance_2_del.portable_key()

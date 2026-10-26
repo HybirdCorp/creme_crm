@@ -5157,8 +5157,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             ],
         )
 
-        sector.delete()
-        self.clear_global_info()  # Flush the minion ccache
+        # sector.delete()
+        FakeSector.objects.filter(id=sector.id).delete()
+        self.clear_global_info()  # Flush the minion cache
 
         rtype = RelationType.objects.builder(
             id='test-subject_love', predicate='is loving',

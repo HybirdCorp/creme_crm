@@ -2774,7 +2774,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertDictEqual({'has': False, 'entity': str(naru.uuid)}, condition.value)
 
     def test_ok__deleted_entity(self):
-        "Fixed entity is deleted."
+        """Fixed entity is deleted."""
         rtype = self._create_rtype()
         user = self.get_root_user()
 
@@ -2802,10 +2802,11 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
             json_load(field.prepare_value([*efilter.conditions.all()])),
         )
 
-        try:
-            naru.delete()
-        except Exception as e:
-            self.fail(f'Problem with entity deletion: {e}')  # pragma: no cover
+        # try:
+        #     naru.delete()
+        # except Exception as e:
+        #     self.fail(f'Problem with entity deletion: {e}')  # pragma: no cover
+        FakeContact.objects.filter(id=naru.id).delete()
 
         jsondict['entity'] = None
         jsondict['ctype'] = 0

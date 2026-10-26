@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Self
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.db.models import ProtectedError, Q
+# from django.db.models import ProtectedError, Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -234,106 +234,102 @@ class EntityDeletor:
                 _('Deletion has been disabled by your administrator')
             )
 
-    def _check_efilters(self, entity: CremeEntity) -> None:
-        """Error if some EntityFilters reference the entity."""
-        from creme.creme_core.core.entity_filter import condition_handler
-        from creme.creme_core.models import EntityFilterCondition
-
-        conditions = []
-        regular_rtype_id  = condition_handler.RegularFieldConditionHandler.type_id
-        uid = str(entity.uuid)
-
-        for cond in EntityFilterCondition.objects.filter(
-            # NB: <value__values__contains=uid> does not work with SQLite
-            Q(type=regular_rtype_id, value__values__regex=uid)
-            | Q(
-                type=condition_handler.RelationConditionHandler.type_id,
-                value__entity=uid,
-            )
-        ).select_related('filter'):
-            # NB: we have regrouped the queries, so we have to test again the
-            #     type of condition.
-            if cond.type == regular_rtype_id:
-                last_field = cond.handler.field_info[-1]
-                if last_field.is_relation and isinstance(entity, last_field.related_model):
-                    conditions.append(cond)
-            else:
-                conditions.append(cond)
-
-        if conditions:
-            raise ProtectedError(
-                msg=_('This entity is used by some conditions of filter.'),
-                protected_objects={c.filter for c in conditions},
-            )
-
-    def _check_workflows(self, entity: CremeEntity) -> None:
-        """Error if some Workflows reference the entity."""
-        from creme.creme_core.core.entity_filter import condition_handler
-        from creme.creme_core.models import CremeEntity, Workflow
-        from creme.creme_core.workflows import (
-            FixedEntitySource,
-            PropertyAddingAction,
-            RelationAddingAction,
-        )
-
-        key = entity.portable_key()
-
-        # Conditions ---
-        # TODO: RelationConditionHandler too, when managed by Workflows
-        regular_type_id = condition_handler.RegularFieldConditionHandler.type_id
-
-        def is_referencing_by_condition(workflow):
-            # TODO: public API for '_conditions_per_source' ?
-            for source_conditions in workflow.conditions._conditions_per_source:
-                for cond in source_conditions['conditions']:
-                    if cond.type == regular_type_id:
-                        last_field = cond.handler.field_info[-1]
-                        if (
-                            last_field.is_relation
-                            and issubclass(last_field.related_model, CremeEntity)
-                            and key in cond.value['values']
-                        ):
-                            return True
-
-            return False
-
-        if conditioned_workflows := {
-            wf
-            for wf in Workflow.objects.all_workflows()
-            if is_referencing_by_condition(wf)
-        }:
-            raise ProtectedError(
-                msg=_('This entity is used by some conditions of Workflow.'),
-                protected_objects=conditioned_workflows,
-            )
-
-        # Actions ---
-        def is_referencing_by_action(workflow):
-            for action in workflow.actions:
-                # TODO: improve Action API to iterate sources => manage other types of action
-                sources = []
-
-                if isinstance(action, PropertyAddingAction):
-                    sources.append(action.entity_source)
-                elif isinstance(action, RelationAddingAction):
-                    sources.append(action.subject_source)
-                    sources.append(action.object_source)
-
-                for src in sources:
-                    if isinstance(src, FixedEntitySource) and src._entity_uuid == key:
-                        return True
-
-            return False
-
-        if actioned_workflows := {
-            wf
-            for wf in Workflow.objects.all_workflows()
-            if is_referencing_by_action(wf)
-        }:
-            raise ProtectedError(
-                msg=_('This entity is used by some actions of Workflow.'),
-                protected_objects=actioned_workflows,
-            )
+    # def _check_efilters(self, entity: CremeEntity) -> None:
+    #     """Error if some EntityFilters reference the entity."""
+    #     from creme.creme_core.core.entity_filter import condition_handler
+    #     from creme.creme_core.models import EntityFilterCondition
+    #
+    #     conditions = []
+    #     regular_rtype_id  = condition_handler.RegularFieldConditionHandler.type_id
+    #     uid = str(entity.uuid)
+    #
+    #     for cond in EntityFilterCondition.objects.filter(
+    #         # NB: <value__values__contains=uid> does not work with SQLite
+    #         Q(type=regular_rtype_id, value__values__regex=uid)
+    #         | Q(
+    #             type=condition_handler.RelationConditionHandler.type_id,
+    #             value__entity=uid,
+    #         )
+    #     ).select_related('filter'):
+    #         # NB: we have regrouped the queries, so we have to test again the
+    #         #     type of condition.
+    #         if cond.type == regular_rtype_id:
+    #             last_field = cond.handler.field_info[-1]
+    #             if last_field.is_relation and isinstance(entity, last_field.related_model):
+    #                 conditions.append(cond)
+    #         else:
+    #             conditions.append(cond)
+    #
+    #     if conditions:
+    #         raise ProtectedError(
+    #             msg=_('This entity is used by some conditions of filter.'),
+    #             protected_objects={c.filter for c in conditions},
+    #         )
+    #
+    # def _check_workflows(self, entity: CremeEntity) -> None:
+    #     """Error if some Workflows reference the entity."""
+    #     from creme.creme_core.core.entity_filter import condition_handler
+    #     from creme.creme_core.models import CremeEntity, Workflow
+    #     from creme.creme_core.workflows import (
+    #         FixedEntitySource,
+    #         PropertyAddingAction,
+    #         RelationAddingAction,
+    #     )
+    #
+    #     key = entity.portable_key()
+    #
+    #     # Conditions ---
+    #     regular_type_id = condition_handler.RegularFieldConditionHandler.type_id
+    #
+    #     def is_referencing_by_condition(workflow):
+    #         for source_conditions in workflow.conditions._conditions_per_source:
+    #             for cond in source_conditions['conditions']:
+    #                 if cond.type == regular_type_id:
+    #                     last_field = cond.handler.field_info[-1]
+    #                     if (
+    #                         last_field.is_relation
+    #                         and issubclass(last_field.related_model, CremeEntity)
+    #                         and key in cond.value['values']
+    #                     ):
+    #                         return True
+    #
+    #         return False
+    #
+    #     if conditioned_workflows := {
+    #         wf
+    #         for wf in Workflow.objects.all_workflows()
+    #         if is_referencing_by_condition(wf)
+    #     }:
+    #         raise ProtectedError(
+    #             msg=_('This entity is used by some conditions of Workflow.'),
+    #             protected_objects=conditioned_workflows,
+    #         )
+    #
+    #     def is_referencing_by_action(workflow):
+    #         for action in workflow.actions:
+    #             sources = []
+    #
+    #             if isinstance(action, PropertyAddingAction):
+    #                 sources.append(action.entity_source)
+    #             elif isinstance(action, RelationAddingAction):
+    #                 sources.append(action.subject_source)
+    #                 sources.append(action.object_source)
+    #
+    #             for src in sources:
+    #                 if isinstance(src, FixedEntitySource) and src._entity_uuid == key:
+    #                     return True
+    #
+    #         return False
+    #
+    #     if actioned_workflows := {
+    #         wf
+    #         for wf in Workflow.objects.all_workflows()
+    #         if is_referencing_by_action(wf)
+    #     }:
+    #         raise ProtectedError(
+    #             msg=_('This entity is used by some actions of Workflow.'),
+    #             protected_objects=actioned_workflows,
+    #         )
 
     # NB: separated method which can be overridden by child classes
     def _trash(self, user: CremeUser, entity: CremeEntity) -> None:
@@ -341,12 +337,8 @@ class EntityDeletor:
 
     # NB: separated method which can be overridden by child classes
     def _delete(self, user: CremeUser, entity: CremeEntity) -> None:
-        # TODO: we need a SoftReference system which manages this kind of
-        #       links/constraints that we cannot describe to the SQL server
-        #  - convert this code, move it to CremeModel.delete()
-        #  - remove _check_efilters() & _check_workflows()
-        self._check_efilters(entity)
-        self._check_workflows(entity)
+        # self._check_efilters(entity)
+        # self._check_workflows(entity)
 
         entity.delete()
 

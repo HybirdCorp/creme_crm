@@ -174,7 +174,7 @@ class CremeModel(Model):
 
     def _check_soft_references(self) -> None:
         """@raise django.db.models.deletion.ProtectedError."""
-        refs = [*soft_reference_registry.collect(instance=self)]
+        refs = {*soft_reference_registry.collect(instance=self)}
         if refs:
             raise ProtectedError(
                 msg='This instance is soft referenced',

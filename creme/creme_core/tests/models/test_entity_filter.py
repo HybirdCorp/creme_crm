@@ -2857,7 +2857,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
         )
 
     def test_relations__fixed_entity__deleted(self):
-        "Wanted entity is deleted."
+        """Wanted entity is deleted."""
         loves = self._aux_test_relations()
         rei = self.contacts['rei']
 
@@ -2872,7 +2872,8 @@ class EntityFilterFilteringTestCase(CremeTestCase):
 
         with self.assertNoException():
             Relation.objects.filter(object_entity=rei.id).delete()
-            rei.delete()
+            # rei.delete()
+            FakeContact.objects.filter(id=rei.id).delete()
 
         self.assertExpectedFiltered(efilter, FakeContact, [])
 

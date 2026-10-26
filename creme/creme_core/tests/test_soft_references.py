@@ -12,6 +12,7 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.core.notification import OUTPUT_WEB
 from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import (
+    CremeEntity,
     CremePropertyType,
     CremeUser,
     CustomField,
@@ -341,7 +342,7 @@ class EntityFilterSoftReferencesTestCase(CremeTestCase):
             ],
             check_cycles=False, check_privacy=False,
         )
-        EntityFilter.objects.smart_update_or_create(
+        efilter2 = EntityFilter.objects.smart_update_or_create(
             'creme_core-tests_ref_collector2',
             name='Musicians', model=FakeOrganisation,
             is_custom=True,
@@ -382,7 +383,8 @@ class EntityFilterSoftReferencesTestCase(CremeTestCase):
             ],
             check_cycles=False, check_privacy=False,
         )
-        self.assertListEqual([efilter1], [*collector.collect(sector1)])
+        # self.assertListEqual([efilter1], [*collector.collect(sector1)])
+        self.assertCountEqual([efilter1, efilter2], [*collector.collect(sector1)])
         self.assertListEqual([efilter4], [*collector.collect(sector2)])
 
         # ----
@@ -480,6 +482,38 @@ class EntityFilterSoftReferencesTestCase(CremeTestCase):
             check_cycles=False, check_privacy=False,
         )
         self.assertListEqual([efilter1, efilter3], [*collector.collect(user_to_ref)])
+
+    def test_entity__related(self):
+        collector = soft_references.EFilterConditionEntityRefCollector()
+        self.assertEqual(CremeEntity, collector.model)
+        self.assertEqual('creme_core-efilter_condition_rtype-entity', collector.id)
+
+        create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
+        orga1 = create_orga(name='Acme')
+        orga2 = create_orga(name='Nerv')
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
+
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_softref_related_entity1',
+            name='Related to Acme', model=FakeContact,
+            is_custom=True,
+            conditions=[condition_handler.RelationConditionHandler.build_condition(
+                model=FakeContact, rtype=rtype, has=True, entity=orga1,
+            )],
+        )
+        efilter2 = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_softref_related_entity2',
+            name='Related to Nerv', model=FakeContact,
+            is_custom=True,
+            conditions=[condition_handler.RelationConditionHandler.build_condition(
+                model=FakeContact, rtype=rtype, has=True, entity=orga2,
+            )],
+        )
+        self.assertCountEqual([efilter1], collector.collect(orga1))
+        self.assertCountEqual([efilter2], collector.collect(orga2))
 
 
 class WorkflowSoftReferencesTestCase(CremeTestCase):
@@ -1009,3 +1043,87 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
         self.clear_global_info()
         self.assertCountEqual([wf1, wf3], collector.collect(user_to_ref))
         self.assertCountEqual([wf2],      collector.collect(user))
+
+    def test_action__fixed_entity_source(self):
+        collector = soft_references.FixedEntitySourcedActionEntityRefCollector()
+        self.assertEqual('creme_core-workflow_action_fixed_source-entity', collector.id)
+        self.assertEqual(CremeEntity, collector.model)
+
+        user = self.get_root_user()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Acme', is_deleted=True)
+
+        create_ptype = CremePropertyType.objects.create
+        ptype = create_ptype(text='is cool')
+        other_ptype = create_ptype(text='has same uuid', uuid=orga.uuid)
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate #1', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate #1').get_or_create()[0]
+
+        channel = NotificationChannel.objects.create(
+            name='Workflow', default_outputs=[OUTPUT_WEB],
+            description='Notification for Workflow',
+        )
+
+        wf1 = Workflow.objects.create(
+            title='Blocking Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.FixedEntitySource(entity=orga),
+                    ptype=ptype,
+                ),
+            ],
+        )
+        Workflow.objects.create(
+            title='Not blocking WF #1',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                    ptype=other_ptype,  # <=== UUID collision
+                ),
+                # Other kind of action => no crash
+                workflows.NotificationSendingAction(
+                    channel=channel,
+                    user_source=workflows.FixedUserSource(user=user),
+                    entity_source=workflows.CreatedEntitySource(model=FakeContact),
+                    subject='subject',
+                    body='body',
+                ),
+            ],
+        )
+        wf3 = Workflow.objects.create(
+            title='Blocking Flow #2',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.FixedEntitySource(entity=orga),
+                    rtype=rtype,
+                    object_source=workflows.CreatedEntitySource(model=FakeContact),
+                ),
+            ],
+        )
+        wf4 = Workflow.objects.create(
+            title='Blocking Flow #3',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            # conditions=...,
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeContact),
+                    rtype=rtype,
+                    object_source=workflows.FixedEntitySource(entity=orga),
+                ),
+            ],
+        )
+
+        self.clear_global_info()
+        self.assertCountEqual([wf1, wf3, wf4], collector.collect(orga))

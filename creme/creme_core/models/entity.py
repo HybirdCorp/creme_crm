@@ -22,7 +22,7 @@ import logging
 import uuid
 from collections import defaultdict
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, DefaultDict, Literal
+from typing import TYPE_CHECKING, Any, DefaultDict, Literal, override
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -135,6 +135,7 @@ class CremeEntity(CremeModel):
         self._properties = None
         self._cvalues_map = {}
 
+    @override
     def clean(self):
         # Forbid new references to disabled Minions; ManyTomanyFields cannot be managed here
         from ..core.snapshot import Snapshot
@@ -157,9 +158,12 @@ class CremeEntity(CremeModel):
                     })
 
     # TODO: move this in _pre_delete? (beware sub classes MUST call super()._pre_delete())
+    @override
     @atomic
     def delete(self, using=None, keep_parents=False):
         from .history import _get_deleted_entity_ids
+
+        self._check_soft_references()
 
         # Pre-delete signal is sent to auxiliary _before_, then sent to the entity,
         # so it causes problem with aux_deletion line that reference the entity

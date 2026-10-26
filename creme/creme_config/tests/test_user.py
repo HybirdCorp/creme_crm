@@ -39,7 +39,7 @@ from creme.creme_core.models import (
     Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.tests.views import base as views_base
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Contact, Organisation
 from creme.persons.tests.base import (
@@ -68,7 +68,7 @@ def skipIfNotCremeUser(test_func):
 
 @skipIfCustomOrganisation
 @override_settings(AUTH_PASSWORD_VALIDATORS=[])
-class BaseUserTestCase(CremeTestCase, BrickTestCaseMixin):
+class BaseUserTestCase(views_base.BrickTestCaseMixin, CremeTestCase):
     @staticmethod
     def _build_delete_url(user):
         return reverse('creme_config__delete_user', args=(user.id,))
@@ -1733,7 +1733,7 @@ class TeamTestCase(BaseUserTestCase):
 
 
 @skipIfNotCremeUser
-class UserDeletionTestCase(BaseUserTestCase):
+class UserDeletionTestCase(views_base.DeletionTestCaseMixin, BaseUserTestCase):
     def test_superuser(self):
         """Delete view can delete a superuser if at least one remains."""
         # user = self.login_as_super()
@@ -1947,17 +1947,12 @@ class UserDeletionTestCase(BaseUserTestCase):
         response = self.assertGET409(
             self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('User'))
-        type_label = _('{model}:').format(model=_('Filter of Entity'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{type_label}&nbsp;<a href="" target="_blank">{efilter1}</a></li>'
-            f' <li>{type_label}&nbsp;<a href="" target="_blank">{efilter3}</a></li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('User')),
+            dependencies=[efilter1, efilter3],
         )
 
     def test_soft_referenced__workflow__conditions(self):
@@ -2041,21 +2036,12 @@ class UserDeletionTestCase(BaseUserTestCase):
         response = self.assertGET409(
             self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('User'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('User')),
+            dependencies=[wf1, wf3],
         )
 
     def test_soft_referenced__workflow__actions(self):
@@ -2133,25 +2119,16 @@ class UserDeletionTestCase(BaseUserTestCase):
         response = self.assertGET409(
             self._build_delete_url(user_to_del), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('User'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('User')),
+            dependencies=[wf1, wf3],
         )
 
 
-class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
+class UserSettingsTestCase(views_base.BrickTestCaseMixin, CremeTestCase):
     def setUp(self):
         super().setUp()
         self._registered_skey = []

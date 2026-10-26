@@ -24,6 +24,7 @@ from creme.creme_core.models import (
     Workflow,
     history,
 )
+from creme.creme_core.tests.views.base import DeletionTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.creme_property import (
     PropertyTypeBarHatBrick,
@@ -167,7 +168,7 @@ class PropertyTypeEditionTestCase(CremeTestCase):
         self.assertGET404(ptype.get_edit_absolute_url())
 
 
-class PropertyTypeDeletionTestCase(CremeTestCase):
+class PropertyTypeDeletionTestCase(DeletionTestCaseMixin, CremeTestCase):
     def test_simple(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
@@ -257,17 +258,12 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         #     ).format(rtypes=f'«{rtype.predicate}»'),
         #     response.text,
         # )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Type of relationship'))}&nbsp;'
-            f'  <a href="{rtype.get_absolute_url()}" target="_blank">{rtype}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[rtype],
         )
 
     def test_used_by__relation_type__forbidden(self):
@@ -295,17 +291,12 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         #     ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
         #     response.text,
         # )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>{_('{model}:').format(model=_('Type of relationship'))}&nbsp;'
-            f'  <a href="{rtype.get_absolute_url()}" target="_blank">{rtype}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[rtype],
         )
 
     def test_used_by__entity_filter(self):
@@ -363,20 +354,12 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         #     )),
         #     response.text,
         # )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        type_label = _('{model}:').format(model=_('Filter of Entity'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f'<li>{type_label}&nbsp;'
-            f' <a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
-            f'</li>'
-            # TODO: fix URL? remove <a>?
-            f'<li>{type_label}&nbsp;<a href="" target="_blank">{efilter2.name}</a></li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[efilter1, efilter2],
         )
 
     def test_used_by__workflow__trigger(self):
@@ -426,21 +409,12 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
         #     response.text,
         # )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'  # TODO: class="limited-list"?
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[wf1, wf3],
         )
 
     # TODO: when conditions on property types are managed
@@ -560,21 +534,12 @@ class PropertyTypeDeletionTestCase(CremeTestCase):
         #     ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
         #     response.text,
         # )
-        label = _(
-            'This «{model}» can not be deleted because of its links with other elements:'
-        ).format(model=_('Type of property'))
-        type_label = _('{model}:').format(model=_('Workflow'))
-        self.assertHTMLEqual(
-            f'<span>{label}</span>'
-            f'<ul>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf1.get_absolute_url()}" target="_blank">{wf1}</a>'
-            f' </li>'
-            f' <li>'
-            f'  {type_label}&nbsp;<a href="{wf3.get_absolute_url()}" target="_blank">{wf3}</a>'
-            f' </li>'
-            f'</ul>',
-            response.text,
+        self.assertBlockingDependenciesMessage(
+            html=response.text,
+            label=_(
+                'This «{model}» can not be deleted because of its links with other elements:'
+            ).format(model=_('Type of property')),
+            dependencies=[wf1, wf3],
         )
 
 
