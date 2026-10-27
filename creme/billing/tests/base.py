@@ -306,6 +306,12 @@ class _BillingTestCaseMixin:
         doc = self.assertStillExists(doc)
         self.assertEqual(new_status, doc.status)
 
+    def assertDeleteStatus409(self, *, status2del, short_name):
+        self.assertGET409(reverse(
+            'creme_config__delete_instance',
+            args=('billing', short_name, status2del.id),
+        ))
+
     def _set_managed(self, orga, managed=True):
         orga.is_managed = managed
         orga.save()

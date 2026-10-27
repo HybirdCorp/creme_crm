@@ -380,6 +380,8 @@
                   the field 'discount_value' has been replaced by the field 'discount'.
                 - The URL named "billing__reorder_line" has been modified to take include the line ContentType's ID;
                   the related class 'views.line.ReorderLines' has been modfied to use this new information.
+                - In 'signals', the variable 'STATUSES_REPLACEMENTS' & the function 'handle_replace_statuses()'
+                  have been removed.
             * Commercial :
                 - The attribute 'views.strategy.MatrixBricksReloading.allowed_bricks' has been replaced by 'brick_classes'.
             * Emails :
