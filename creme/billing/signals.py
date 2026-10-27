@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,15 @@
 
 from collections import defaultdict
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.db.models import signals
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.dispatch import receiver
 
 import creme.creme_core.signals as core_signals
 from creme import billing, persons
 from creme.creme_core.core.snapshot import Snapshot
-from creme.creme_core.core.workflow import WorkflowEngine
+# from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
 
@@ -130,35 +130,34 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
         NumberGeneratorItem.objects.filter(id__in=ids_2_del).delete()
 
 
-STATUSES_REPLACEMENTS = {
-    billing.get_credit_note_model(): 'status',
-    Invoice:                         'status',
-    Quote:                           'status',
-    billing.get_sales_order_model(): 'status',
-}
-
-
-@receiver(core_signals.pre_replace_and_delete, dispatch_uid='billing-replace_template_status')
-def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
-    model = model_field.model
-
-    if STATUSES_REPLACEMENTS.get(model) == model_field.name:
-        tpl_mngr = billing.get_template_base_model().objects
-        wf_engine = WorkflowEngine.get_current()
-
-        for pk in tpl_mngr.filter(
-            status_uuid=sender.uuid,
-            ct=ContentType.objects.get_for_model(model),
-        ).values_list('pk', flat=True):
-            # NB1: we perform a .save(), not an .update() in order to:
-            #       - let the model compute it's business logic (if there is one).
-            #       - get a HistoryLine for entities.
-            # NB2: as in edition view, we perform a select_for_update() to avoid
-            #      overriding other fields (if there are concurrent accesses)
-            with atomic(), wf_engine.run(user=None):
-                tpl = tpl_mngr.select_for_update().filter(pk=pk).first()
-                tpl.status_uuid = replacing_instance.uuid
-                tpl.save()
+# STATUSES_REPLACEMENTS = {
+#     billing.get_credit_note_model(): 'status',
+#     Invoice:                         'status',
+#     Quote:                           'status',
+#     billing.get_sales_order_model(): 'status',
+# }
+#
+# @receiver(core_signals.pre_replace_and_delete, dispatch_uid='billing-replace_template_status')
+# def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
+#     model = model_field.model
+#
+#     if STATUSES_REPLACEMENTS.get(model) == model_field.name:
+#         tpl_mngr = billing.get_template_base_model().objects
+#         wf_engine = WorkflowEngine.get_current()
+#
+#         for pk in tpl_mngr.filter(
+#             status_uuid=sender.uuid,
+#             ct=ContentType.objects.get_for_model(model),
+#         ).values_list('pk', flat=True):
+#             # NB1: we perform a .save(), not an .update() in order to:
+#             #       - let the model compute it's business logic (if there is one).
+#             #       - get a HistoryLine for entities.
+#             # NB2: as in edition view, we perform a select_for_update() to avoid
+#             #      overriding other fields (if there are concurrent accesses)
+#             with atomic(), wf_engine.run(user=None):
+#                 tpl = tpl_mngr.select_for_update().filter(pk=pk).first()
+#                 tpl.status_uuid = replacing_instance.uuid
+#                 tpl.save()
 
 
 @receiver(

@@ -380,29 +380,34 @@ class TemplateBaseTestCase(_BillingTestCase):
         new_status, other_status = InvoiceStatus.objects.all()[:2]
         status2del = InvoiceStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
-        tpl2 = self._create_templatebase(Invoice, status_uuid=other_status.uuid)
-        tpl3 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
+        # tpl1 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
+        # tpl2 = self._create_templatebase(Invoice, status_uuid=other_status.uuid)
+        # tpl3 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
+        self._create_templatebase(Invoice, status_uuid=status2del.uuid)
+        self._create_templatebase(Invoice, status_uuid=other_status.uuid)
+        self._create_templatebase(Quote,   status_uuid=status2del.uuid)
 
-        invoice = self.create_invoice_n_orgas(user=self.user, name='Nerv')[0]
-        invoice.status = status2del
-        invoice.save()
+        # invoice = self.create_invoice_n_orgas(user=self.user, name='Nerv')[0]
+        # invoice.status = status2del
+        # invoice.save()
 
-        self.assertDeleteStatusOK(
-            status2del=status2del,
-            short_name='invoice_status',
-            new_status=new_status,
-            doc=invoice,
-        )
-
-        tpl1 = self.assertStillExists(tpl1)
-        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
-
-        tpl2 = self.refresh(tpl2)
-        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
-
-        tpl3 = self.refresh(tpl3)
-        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
+        # TODO: rework when replacement is managed
+        self.assertDeleteStatus409(status2del=status2del, short_name='invoice_status')
+        # self.assertDeleteStatusOK(
+        #     status2del=status2del,
+        #     short_name='invoice_status',
+        #     new_status=new_status,
+        #     doc=invoice,
+        # )
+        #
+        # tpl1 = self.assertStillExists(tpl1)
+        # self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
+        #
+        # tpl2 = self.refresh(tpl2)
+        # self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
+        #
+        # tpl3 = self.refresh(tpl3)
+        # self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_status__quote(self):
         self.login_as_root()
@@ -410,54 +415,63 @@ class TemplateBaseTestCase(_BillingTestCase):
         new_status, other_status = QuoteStatus.objects.all()[:2]
         status2del = QuoteStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
-        tpl2 = self._create_templatebase(Quote,   status_uuid=other_status.uuid)
-        tpl3 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
+        # tpl1 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
+        # tpl2 = self._create_templatebase(Quote,   status_uuid=other_status.uuid)
+        # tpl3 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
+        self._create_templatebase(Quote,   status_uuid=status2del.uuid)
+        self._create_templatebase(Quote,   status_uuid=other_status.uuid)
+        self._create_templatebase(Invoice, status_uuid=status2del.uuid)
 
-        quote = self.create_quote_n_orgas(user=self.user, name='Nerv', status=status2del)[0]
+        # quote = self.create_quote_n_orgas(user=self.user, name='Nerv', status=status2del)[0]
 
-        self.assertDeleteStatusOK(
-            status2del=status2del,
-            short_name='quote_status',
-            new_status=new_status,
-            doc=quote,
-        )
-
-        tpl1 = self.assertStillExists(tpl1)
-        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
-
-        tpl2 = self.refresh(tpl2)
-        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
-
-        tpl3 = self.refresh(tpl3)
-        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
+        self.assertDeleteStatus409(status2del=status2del, short_name='quote_status')
+        # self.assertDeleteStatusOK(
+        #     status2del=status2del,
+        #     short_name='quote_status',
+        #     new_status=new_status,
+        #     doc=quote,
+        # )
+        #
+        # tpl1 = self.assertStillExists(tpl1)
+        # self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
+        #
+        # tpl2 = self.refresh(tpl2)
+        # self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
+        #
+        # tpl3 = self.refresh(tpl3)
+        # self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_status__salesorder(self):
         self.login_as_root()
         new_status, other_status = SalesOrderStatus.objects.all()[:2]
         status2del = SalesOrderStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(SalesOrder, status_uuid=status2del.uuid)
-        tpl2 = self._create_templatebase(SalesOrder, status_uuid=other_status.uuid)
-        tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
+        # tpl1 = self._create_templatebase(SalesOrder, status_uuid=status2del.uuid)
+        # tpl2 = self._create_templatebase(SalesOrder, status_uuid=other_status.uuid)
+        # tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
+        self._create_templatebase(SalesOrder, status_uuid=status2del.uuid)
+        self._create_templatebase(SalesOrder, status_uuid=other_status.uuid)
+        self._create_templatebase(Invoice, status_uuid=status2del.uuid)
 
-        order = self.create_salesorder_n_orgas(user=self.user, name='Order', status=status2del)[0]
+        # order = self.create_salesorder_n_orgas(
+        #    user=self.user, name='Order', status=status2del)[0]
 
-        self.assertDeleteStatusOK(
-            status2del=status2del,
-            short_name='sales_order_status',
-            new_status=new_status,
-            doc=order,
-        )
-
-        tpl1 = self.assertStillExists(tpl1)
-        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
-
-        tpl2 = self.refresh(tpl2)
-        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
-
-        tpl3 = self.refresh(tpl3)
-        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
+        self.assertDeleteStatus409(status2del=status2del, short_name='sales_order_status')
+        # self.assertDeleteStatusOK(
+        #     status2del=status2del,
+        #     short_name='sales_order_status',
+        #     new_status=new_status,
+        #     doc=order,
+        # )
+        #
+        # tpl1 = self.assertStillExists(tpl1)
+        # self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
+        #
+        # tpl2 = self.refresh(tpl2)
+        # self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
+        #
+        # tpl3 = self.refresh(tpl3)
+        # self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_status__credit_note(self):
         self.login_as_root()
@@ -465,26 +479,30 @@ class TemplateBaseTestCase(_BillingTestCase):
         new_status, other_status = CreditNoteStatus.objects.all()[:2]
         status2del = CreditNoteStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(CreditNote, status_uuid=status2del.uuid)
-        tpl2 = self._create_templatebase(CreditNote, status_uuid=other_status.uuid)
-        tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
+        # tpl1 = self._create_templatebase(CreditNote, status_uuid=status2del.uuid)
+        # tpl2 = self._create_templatebase(CreditNote, status_uuid=other_status.uuid)
+        # tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
+        self._create_templatebase(CreditNote, status_uuid=status2del.uuid)
+        self._create_templatebase(CreditNote, status_uuid=other_status.uuid)
+        self._create_templatebase(Invoice, status_uuid=status2del.uuid)
 
-        credit_note = self.create_credit_note_n_orgas(
-            user=self.user, name='Credit Note', status=status2del,
-        )[0]
+        # credit_note = self.create_credit_note_n_orgas(
+        #     user=self.user, name='Credit Note', status=status2del,
+        # )[0]
 
-        self.assertDeleteStatusOK(
-            status2del=status2del,
-            short_name='credit_note_status',
-            new_status=new_status,
-            doc=credit_note,
-        )
-
-        tpl1 = self.assertStillExists(tpl1)
-        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
-
-        tpl2 = self.refresh(tpl2)
-        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
-
-        tpl3 = self.refresh(tpl3)
-        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
+        self.assertDeleteStatus409(status2del=status2del, short_name='credit_note_status')
+        # self.assertDeleteStatusOK(
+        #     status2del=status2del,
+        #     short_name='credit_note_status',
+        #     new_status=new_status,
+        #     doc=credit_note,
+        # )
+        #
+        # tpl1 = self.assertStillExists(tpl1)
+        # self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
+        #
+        # tpl2 = self.refresh(tpl2)
+        # self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
+        #
+        # tpl3 = self.refresh(tpl3)
+        # self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)

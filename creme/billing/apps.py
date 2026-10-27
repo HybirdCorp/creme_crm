@@ -486,6 +486,14 @@ class BillingConfig(CremeConfigConfigMixin, CremeAppConfig):
             ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
     @override
+    def register_soft_collectors(self, soft_reference_registry):
+        from . import soft_references
+
+        soft_reference_registry.register(
+            soft_references.TemplateBaseStatusRefCollector,
+        )
+
+    @override
     def register_statistics(self, statistic_registry):
         Invoice = self.Invoice
         Quote = self.Quote
