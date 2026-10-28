@@ -98,9 +98,9 @@
          {% if user.role %}
           {% with roles=user.roles.all %}
            {% if roles|length == 1 %}
-            {{user.role}}
+            {% widget_hyperlink user.role %}
            {% else %}
-            <ul>{% for role in roles %}<li class="{% if role == user.role %}active-role {% endif %}{% if role.deactivated_on %}disabled-role {% endif %}">{{role}}</li>{% endfor %}</ul>
+            <ul>{% for role in roles %}<li class="{% if role == user.role %}active-role {% endif %}{% if role.deactivated_on %}disabled-role {% endif %}">{% widget_hyperlink role %}</li>{% endfor %}</ul>
            {% endif %}
           {% endwith %}
          {% else %}

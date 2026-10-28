@@ -28,11 +28,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.auth import role_config_perm
 from creme.creme_core import get_world_settings_model
 
 from ..core.exceptions import ConflictError
+from ..gui import bricks
 from ..models import UserRole
 from . import generic
+from .bricks import StaticBricksReloading
 
 
 # User -------------------------------------------------------------------------
@@ -154,5 +157,58 @@ class OwnPasswordChangeDone(auth_views.PasswordChangeDoneView):
         context['information_messages'] = [
             gettext('Use your new password the next time you want to login.'),
         ]
+
+        return context
+
+
+# Role -------------------------------------------------------------------------
+class RoleBarHatBrick(bricks.Brick):
+    id = 'role_hat_bar'
+    template_name = 'creme_core/bricks/role/hat-bar.html'
+
+
+class RoleInfoBrick(bricks.Brick):
+    id = 'role_info'
+    template_name = 'creme_core/bricks/role/info.html'
+
+
+class RoleUsersBrick(bricks.QuerysetBrick):
+    id = 'role_users'
+    dependencies = [get_user_model()]
+    template_name = 'creme_core/bricks/role/users.html'
+
+    def render(self, context):
+        return self._render(self.get_template_context(
+            context,
+            get_user_model().objects.filter(roles=context['object']),
+        ))
+
+
+# TODO: manage "super-user" too?
+class RoleDetail(generic.CremeModelDetail):
+    model = UserRole
+    template_name = 'creme_core/detail/role.html'
+    pk_url_kwarg = 'role_id'
+    permissions = role_config_perm.as_perm
+    bricks_reload_url_name = 'creme_core__reload_role_bricks'
+    brick_classes = {
+        'hat': [RoleBarHatBrick],
+        'main': [
+            RoleInfoBrick,
+            RoleUsersBrick,
+        ],
+    }
+
+
+class RoleBricksReloading(StaticBricksReloading):
+    permissions = RoleDetail.permissions
+    role_id_url_kwarg = 'role_id'
+    brick_classes = RoleDetail.brick_classes
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['object'] = get_object_or_404(
+            UserRole, id=self.kwargs[self.role_id_url_kwarg],
+        )
 
         return context

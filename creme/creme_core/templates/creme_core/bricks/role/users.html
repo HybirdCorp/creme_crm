@@ -1,0 +1,24 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-role-users-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} User gets this role') plural=_('{count} Users get this role') icon='contact' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+  {% for user in page.object_list %}
+    <tr>{# TODO: other info? indicate if role is current role? #}
+        <td {% brick_table_data_status primary %}>{{user}}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No User uses this role' %}
+{% endblock %}

@@ -28,7 +28,7 @@
 {% with admin_perm=user|has_special_perm:role_config_perm %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
   {% for role in page.object_list %}
     <tr{% if role.deactivated_on %} class="role-disabled"{% endif %}>
-        <td class="role-name">{{role.name}}</td>
+        <td class="role-name">{% widget_hyperlink role %}</td>
         <td class="role-apps">{% widget_enumerator role.get_allowed_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No allowed application') %}</td>
         <td class="role-admin-apps">{% widget_enumerator role.get_admin_4_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No administrated application') %}</td>
         <td class="role-creation-creds">{% widget_enumerator role.creatable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No creation credential') %}</td>

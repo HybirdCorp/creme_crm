@@ -1,0 +1,83 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
+{% load print_field uca_sort from creme_core_tags %}
+
+{% block brick_extra_class %}brick-kv-list creme_core-role-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('General information') %}
+{% endblock %}
+
+{% block brick_content %}
+<div class="brick-kv-group">
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Created on' context 'creme_core-role' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='created' %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Modified on' context 'creme_core-role' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='modified' %}</div>
+    </div>
+    {% if object.deactivated_on %}
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Deactivated on' context 'creme_core-role' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='deactivated_on' %}</div>
+    </div>
+    {% endif %}
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Allowed applications' %}</div>
+        <div class="brick-kv-value">
+            {% widget_enumerator object.get_allowed_apps_verbose threshold=15 summary=_('{count} applications') empty=_('No allowed application') %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Administrated applications' %}</div>
+        <div class="brick-kv-value">
+            {% widget_enumerator object.get_admin_4_apps_verbose threshold=15 summary=_('{count} applications') empty=_('No administrated application') %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Creation credentials' %}</div>
+        <div class="brick-kv-value">
+            {% widget_enumerator object.creatable_ctypes.all|uca_sort threshold=15 summary=_('{count} types of entity') empty=_('No creation credential') %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'List credentials' %}</div>
+        <div class="brick-kv-value">
+            {% widget_enumerator object.listable_ctypes.all|uca_sort threshold=15 summary=_('{count} types of entity') empty=_('No list credential') %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Export credentials' %}</div>
+        <div class="brick-kv-value">{% widget_enumerator object.exportable_ctypes.all|uca_sort threshold=15 summary=_('{count} types of entity') empty=_('No export credential') %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Special permissions' %}</div>
+        <div class="brick-kv-value">{% widget_enumerator object.special_permissions.values|uca_sort threshold=15 summary=_('{count} permissions') empty=_('No special permission') %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Entities credentials' %}</div>
+        <div class="brick-kv-value">
+            <ul>
+              {% for sc in object.credentials.all %}
+                <li {# class="{% if sc.forbidden %}role-creds-forbidden{% else %}role-creds-allowed{% endif %}" #}>
+                    {{sc}}
+{#                    {% brick_action id='edit'   url='creme_config__edit_role_credentials'|url:sc.id label=_('Edit these credentials')   enabled=admin_perm %} #}
+{#                    {% brick_action id='delete' url=rm_creds_url __id=sc.id                         label=_('Delete these credentials') enabled=admin_perm %} #}
+                    {% with efilter=sc.efilter %}
+                     {% if efilter %}
+                      <br>&nbsp;{% blocktranslate %}Filter «{{efilter}}»{% endblocktranslate %}
+                      <a data-action="popover" data-title="{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}">
+                          {% widget_icon name='info' label=_('Information on the current filter') size='brick-action' %}
+                          <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with efilter=efilter user=user %}</script>
+                      </a>
+                     {% endif %}
+                    {% endwith %}
+                </li>
+              {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

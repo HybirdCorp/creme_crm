@@ -1,0 +1,28 @@
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_bricks creme_widgets %}{#  creme_perms  #}
+
+{# {% block page_title %}«{{object}}» - {% endblock %} #}
+
+{# {% block body_classes %}{% if not object.deactivated_on %}is_deleted{% endif %}{% endblock %} #}
+
+{% block global_buttons %}
+    <li>
+        <a class="menu_button menu-button-icon" href="{% url 'creme_config__roles' %}">{% translate 'Go to the configuration of roles' as list_label %}
+            {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
+        </a>
+    </li>
+{% endblock %}
+
+{% block view_title %}
+    {% brick_declare bricks.hat %}
+    {% brick_declare bricks.main %}
+
+    {% brick_display bricks.hat %}
+{% endblock %}
+
+{% block instance_buttons_container %}{% endblock %}
+
+{% block main_content %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}
