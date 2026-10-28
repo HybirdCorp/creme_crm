@@ -31,6 +31,18 @@ auth_patterns = [
         name='creme_core__switch_role',
     ),
 
+    # Role detailview
+    re_path(
+        r'^role/(?P<role_id>\d+)[/]?$',
+        auth.RoleDetail.as_view(),
+        name='creme_core__role',
+    ),
+    re_path(
+        r'^role/(?P<role_id>\d+)/reload_bricks[/]?$',
+        auth.RoleBricksReloading.as_view(),
+        name='creme_core__reload_role_bricks',
+    ),
+
     # Lost password
     re_path(
         r'^password/reset[/]?$',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 11:50+0100\n"
+"POT-Creation-Date: 2026-10-29 13:56+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3876,6 +3876,95 @@ msgid "No relationship for the moment"
 msgstr "Aucune relation pour le moment"
 
 #, python-format
+msgid "Role: %(name)s"
+msgstr "Rôle : %(name)s"
+
+msgctxt "creme_core-role"
+msgid "Created on"
+msgstr "Créé le"
+
+msgctxt "creme_core-role"
+msgid "Modified on"
+msgstr "Modifié le"
+
+msgctxt "creme_core-role"
+msgid "Deactivated on"
+msgstr "Désactivé le"
+
+msgid "Allowed applications"
+msgstr "Applications autorisées"
+
+#, python-brace-format
+msgid "{count} applications"
+msgstr "{count} applications"
+
+msgid "No allowed application"
+msgstr "Pas d'application autorisée"
+
+msgid "Administrated applications"
+msgstr "Applications administrées"
+
+msgid "No administrated application"
+msgstr "Pas d'application administrée"
+
+msgid "Creation credentials"
+msgstr "Droits de création"
+
+#, python-brace-format
+msgid "{count} types of entity"
+msgstr "{count} types de fiche"
+
+msgid "No creation credential"
+msgstr "Pas de droit de création"
+
+msgid "List credentials"
+msgstr "Droits de lister"
+
+msgid "No list credential"
+msgstr "Pas de droit de liste"
+
+msgid "Export credentials"
+msgstr "Droits d'export"
+
+msgid "No export credential"
+msgstr "Pas de droit d'export"
+
+msgid "Special permissions"
+msgstr "Permissions spéciales"
+
+#, python-brace-format
+msgid "{count} permissions"
+msgstr "{count} permissions"
+
+msgid "No special permission"
+msgstr "Pas de permission spéciale"
+
+msgid "Entities credentials"
+msgstr "Droits des fiches"
+
+#, python-format
+msgid "Filter «%(efilter)s»"
+msgstr "Filtre «%(efilter)s»"
+
+#, python-format
+msgid "Conditions of «%(efilter)s»"
+msgstr "Conditions de «%(efilter)s»"
+
+msgid "Information on the current filter"
+msgstr "Informations sur le filtre courant"
+
+#, python-brace-format
+msgid "{count} User gets this role"
+msgstr "{count} Utilisateur possède ce rôle"
+
+#, python-brace-format
+msgid "{count} Users get this role"
+msgstr "{count} Utilisateurs possèdent ce rôle"
+
+msgid "No User uses this role"
+msgstr "Aucun utilisateur ne possède ce rôle"
+
+#, python-format
 msgid "Configure the fields for «%(ctype)s»'"
 msgstr "Configurer les champs pour «%(ctype)s»"
 
@@ -4015,6 +4104,9 @@ msgstr "Aller à la configuration des filtres"
 
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
+
+msgid "Go to the configuration of roles"
+msgstr "Aller à la configuration des rôles"
 
 msgid "Go to the configuration of workflows"
 msgstr "Aller à la configuration des processus"
@@ -4476,13 +4568,6 @@ msgstr "Mes filtres"
 #, python-format
 msgid "Filters of %(user)s"
 msgstr "Filtres de %(user)s"
-
-#, python-format
-msgid "Conditions of «%(efilter)s»"
-msgstr "Conditions de «%(efilter)s»"
-
-msgid "Information on the current filter"
-msgstr "Informations sur le filtre courant"
 
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"

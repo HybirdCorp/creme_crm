@@ -38,6 +38,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.db.models import Q, QuerySet
+from django.urls import reverse
 from django.utils.functional import partition
 from django.utils.timezone import now, zoneinfo
 from django.utils.translation import gettext
@@ -174,6 +175,9 @@ class UserRole(models.Model):
 
     def __repr__(self):
         return f'UserRole(name="{self.name}")'
+
+    def get_absolute_url(self):
+        return reverse('creme_core__role', args=(self.id,))
 
     @property
     def admin_4_apps(self) -> set[str]:

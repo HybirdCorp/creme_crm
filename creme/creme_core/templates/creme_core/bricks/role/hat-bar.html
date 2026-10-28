@@ -1,0 +1,26 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+
+{% block brick_extra_class %}brick-hat brick-hat-bar creme_core-role-hat-bar{% endblock %}
+
+{% block brick_header %}{% endblock %}
+
+{% block brick_content %}
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon name='contact' size='brick-hat-bar' label=_('Role') %}</div>
+        <div class="bar-title">
+            <h1>{% blocktranslate with name=object|capfirst %}Role: {{name}}{% endblocktranslate %}</h1>
+        </div>
+        <div class="bar-actions">
+         {% block buttons %}
+{% comment %} TODO?
+          {% block edit_button %}
+          {% endblock %}
+
+          {% block delete_button %}
+          {% endblock %}
+{% endcomment %}
+         {% endblock buttons %}
+        </div>
+    </div>
+{% endblock %}
