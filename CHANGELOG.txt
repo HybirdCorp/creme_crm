@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # Beware, the minimal version of Python is now '3.11' (Python 3.10 has reached its end of life).
     # Apps :
         * Opportunities :
             - An inconsistent display of checkboxes in the related Quotes has been fixed (FireFox).
