@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from creme import __version__
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -53,6 +54,7 @@ from creme.creme_core.models import (
     Language,
     Relation,
     RelationType,
+    SetCredentials,
     SettingValue,
 )
 from creme.creme_core.models.entity_filter import EntityFilterList
@@ -1239,15 +1241,32 @@ class EntityFilterTestCase(CremeTestCase):
             got_efilter = EntityFilter.objects.get_by_portable_key(key)
         self.assertEqual(efilter, got_efilter)
 
-    def test_absolute_urls__not_regular(self):
+    def test_absolute_urls__credentials(self):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_filter_absolute_urls',
             name='Agencies',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        self.assertEqual('', efilter.get_absolute_url())
+
+        with self.assertLogs(level='CRITICAL'):
+            self.assertEqual('', efilter.get_absolute_url())
+
         self.assertEqual('', efilter.get_edit_absolute_url())
+        self.assertEqual('', efilter.get_delete_absolute_url())
+
+        # ---
+        role = self.create_role()
+        SetCredentials.objects.create(
+            role=role,
+            set_type=SetCredentials.ESET_FILTER,
+            value=EntityCredentials.VIEW,
+            ctype=efilter.entity_type,
+            efilter=efilter,
+        )
+
+        with self.assertNoLogs():
+            self.assertEqual(role.get_absolute_url(), efilter.get_absolute_url())
 
     def test_ct_cache(self):
         efilter = EntityFilter.objects.smart_update_or_create(
