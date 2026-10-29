@@ -51,7 +51,7 @@ You can ask your questions in our forum: https://www.cremecrm.com/forum/index.ph
 ### Recommendations:
 
 It's recommended to use a database engine which supports transactions :
- - PostGreSQL is probably the best choice for databases with 100,000+ entities.
+ - PostgreSQL is probably the best choice for databases with 100,000+ entities.
  - SQLite support is principally done for developers, but it remains a solution
    for small databases (e.g. a use as mono-user app with the server running of your computer).
 
@@ -63,7 +63,7 @@ you should create a new virtual env, in order to keep the old one working).
 
  - Python 3.12+
  - MySQL 8.4+ (or MariaDB 10.11+ but we do not advise you to use MariaDB because it regularly causes strange issues)
-   or PostGreSQL 15+
+   or PostgreSQL 15+
    or SQLite (which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
@@ -103,14 +103,14 @@ Installation with 'pip':
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
      'pip install creme-crm[mysql]==2.X' (or 'pip install -e .[mysql]' with the source).
-   - For PostGreSQL, you must add the 'pgsql' flag :
+   - For PostgreSQL, you must add the 'pgsql' flag :
      'pip install creme-crm[pgsql]==2.X' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before
    (you could need a C compilator, like 'gcc'):
    - python-dev
-   - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
+   - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostgreSQL)
    - redis-server
    - libjpeg-dev, libpng-dev, libtiff-dev, libgif-dev (to manage these different formats)
    - libcairo-dev
@@ -167,7 +167,7 @@ If you have an existing instance of Creme & you upgrade your MariaDB server to 1
 you have to convert all the UUID fields (which were just CharFields before MariaDB 10.7)
 to real UUID fields.
 See "creme/creme_core/migrations/migrate_uuid.sql"; copy it & remove the lines
-related to app which are not installed) before importing it.
+related to app which are not installed before importing it.
 
 ### Launch
 
@@ -215,7 +215,7 @@ Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
 >> ln -s ../../.githooks/pre-push .git/hooks/pre-push
 ```
 
-In order to run the JavaScript linter locally, you can install a NodeJS
+In order to run the JavaScript linter locally, you can install a Node.js
 environment within your virtualenv thanks to the Python package nodeenv.
 In your virtualenv (named "mycremeenv"):
 ```sh
