@@ -21,10 +21,12 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.models import UserRole
 
 if TYPE_CHECKING:
     from creme.creme_core.models import CremeEntity
@@ -306,8 +308,25 @@ class EntityFilterSuperRegistry:
                 ) from e
 
 
+# NB: we add a absolute URL to system filters, because the dependencies lists
+#     displayed by deletion error panel try to redirect to the detail views of
+#     the blocking instances (some efilters had a detail-view, some not, it was
+#     annoying).
+class _CredentialsEntityFilterRegistry(EntityFilterRegistry):
+    @override
+    def detail_url(self, efilter):
+        # TODO: cache?
+        role = UserRole.objects.filter(credentials__efilter=efilter).first()
+        if role is None:
+            logger.critical('The system filter %s has no related role.')
+            return ''
+
+        return role.get_absolute_url()
+
+
 entity_filter_registries = EntityFilterSuperRegistry().register(
-    EntityFilterRegistry(
+    # EntityFilterRegistry(
+    _CredentialsEntityFilterRegistry(
         id=EF_CREDENTIALS,
         verbose_name=_('Credentials filter'),
     ),
