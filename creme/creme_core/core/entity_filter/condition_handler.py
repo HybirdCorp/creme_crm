@@ -177,6 +177,7 @@ class FilterConditionHandler:
     def model(self) -> type[CremeEntity]:
         return self._model
 
+    # NB: still useful?
     @classmethod
     def query_for_related_conditions(cls, instance: Model) -> Q:
         """Get a Q instance to retrieve EntityFilterConditions which are

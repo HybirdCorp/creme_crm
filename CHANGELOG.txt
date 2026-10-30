@@ -421,6 +421,7 @@
                - The constructor of 'FlowPage' is now keyword only, & its arguments
                  'key_field_info'/'attr_name' have been removed.
         # In the class 'creme_core.gui.bricks.BrickRegistry', some internal attributes have changed.
+        # The function 'creme_core.models.entity_filter._delete_related_efc()' has been removed.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
         # Apps :
             * Creme_config :

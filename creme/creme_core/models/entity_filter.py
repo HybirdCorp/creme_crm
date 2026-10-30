@@ -31,8 +31,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q, QuerySet
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
+# from django.db.models.signals import pre_delete
+# from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext, pgettext_lazy
@@ -1281,20 +1281,13 @@ class EntityFilterCondition(models.Model):
         return changed
 
 
-# TODO: rework now that the deletion views for RelationType/CremePropertyType/CustomFields
-#       abort if a Condition is referencing them.
-#        => just display error in filter configuration
-#        => move checking system out of the view to be available everywhere + be extensible?
-# TODO: manage also deletion of:
-#  - instance linked with FK (Minion, User?...).
-#  - instance of CremeEntity used by Relation handlers.
-@receiver(pre_delete, dispatch_uid='creme_core-remove_related_filter_conditions')
-def _delete_related_efc(sender, instance, **kwargs):
-    from ..core.entity_filter.condition_handler import all_handlers
-
-    q = Q()
-    for handler_cls in all_handlers:
-        q |= handler_cls.query_for_related_conditions(instance)
-
-    if q:
-        EntityFilterCondition.objects.filter(q).delete()
+# @receiver(pre_delete, dispatch_uid='creme_core-remove_related_filter_conditions')
+# def _delete_related_efc(sender, instance, **kwargs):
+#     from ..core.entity_filter.condition_handler import all_handlers
+#
+#     q = Q()
+#     for handler_cls in all_handlers:
+#         q |= handler_cls.query_for_related_conditions(instance)
+#
+#     if q:
+#         EntityFilterCondition.objects.filter(q).delete()
