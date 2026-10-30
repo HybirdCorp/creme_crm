@@ -25,13 +25,7 @@ from creme.creme_core.models import MinionModel
 
 
 class TemplateBaseStatusRefCollector(SoftReferenceCollector):
-    # TODO
-    # """Collect the RelationTypes which reference a CremePropertyType through their
-    # constraints to allowed & forbidden Property types.
-    #
-    # Notice that these references are stored in ManyToManyFields, & this type of
-    # fields has no attribute 'on_delete' like ForeignKeys.
-    # """
+    """Collect the TemplateBases which reference a status by its UUID."""
     id = 'billing-template-status'
     model = MinionModel
 

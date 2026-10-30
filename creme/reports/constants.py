@@ -7,6 +7,7 @@ DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
 
 EF_REPORTS = 'reports-report'
 
+# TODO: strings instead of integers
 # models.report.Field.type values
 RFT_FIELD      = 1
 RFT_RELATION   = 2
@@ -18,6 +19,7 @@ RFT_AGG_CUSTOM = 6
 RFT_RELATED    = 7  # Related entities (only allowed by the model)
 
 
+# TODO: strings instead of integers
 class AbscissaGroup(models.IntegerChoices):
     DAY          = 1,  _('By days')
     MONTH        = 2,  _('By months')

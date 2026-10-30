@@ -1298,7 +1298,7 @@ class FetchTestCase(BaseReportsTestCase):
         )
 
     def test_relation__sub_report__expanded__several(self):
-        "Several expanded sub-reports."
+        """Several expanded sub-reports."""
         user = self.login_as_root_and_get()
         self._aux_fetch_persons(user=user)
 

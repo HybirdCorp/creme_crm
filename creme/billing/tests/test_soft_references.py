@@ -18,7 +18,8 @@ from .base import Organisation
 
 
 class TemplateBaseStatusRefCollectorTestCase(CremeTestCase):
-    def _create_templatebase(self, *, user, model, index, status, emitter, receiver):
+    @staticmethod
+    def _create_templatebase(*, user, model, index, status, emitter, receiver):
         return TemplateBase.objects.create(
             user=user, ct=model, name=f'Template #{index}',
             status_uuid=status.uuid,
@@ -60,9 +61,9 @@ class TemplateBaseStatusRefCollectorTestCase(CremeTestCase):
         # Not billing model ---
         sector = FakeSector.objects.create(title='Ignore me')
         with self.assertNoException():
-            [*collector.collect(sector)]
+            [*collector.collect(sector)]  # NOQA
 
-    def test_global_regsitry(self):
+    def test_global_registry(self):
         self.assertIn(
             TemplateBaseStatusRefCollector,
             soft_reference_registry.collector_classes,

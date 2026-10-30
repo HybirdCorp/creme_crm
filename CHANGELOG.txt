@@ -31,7 +31,9 @@
       # The detail-view of relationship type now displays :
         - the filters which use this type.
         - the worklows which use this type (in trigger or actions).
-      # Add french language support for the WYSWYG editor 'TinyMCE'.
+      # Some checking have been added to avoid some deletion which will break things;
+        e.g. a 'RelationType' cannot be deleted if it's used by a 'Report'.
+      # The French language is now supported for the WYSWYG HTML editor (based on 'TinyMCE').
       # Apps :
         * Creme_config :
             - Many Minions (the small models like "Sector" or "Activity status") can now be disabled;

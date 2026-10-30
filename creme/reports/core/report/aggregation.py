@@ -23,12 +23,13 @@ from typing import Self
 
 from django.db import models
 from django.db.models.aggregates import Aggregate
+from django.utils.functional import Promise
 
 from creme.creme_core.models import CustomField
 
 
 class FieldAggregation:
-    def __init__(self, name: str, func: type[Aggregate], pattern: str, title: str):
+    def __init__(self, name: str, func: type[Aggregate], pattern: str, title: Promise):
         self.name = name
         self.func = func
         self.pattern = pattern
