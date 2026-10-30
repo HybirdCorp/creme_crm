@@ -392,7 +392,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         self.assertListEqual([AbscissaGroup.FK], [*registry.chart_types])
 
     def test_cell_constraints__several(self):
-        "Several constraints."
+        """Several constraints."""
         registry = ChartHandConstraintsRegistry(
         ).register_cell_constraint(
             constraint_class=CHCCRegularFK,
@@ -416,7 +416,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         )
 
     def test_cell_constraints__several_types(self):
-        "Several constraints (several types at once)."
+        """Several constraints (several types at once)."""
         registry = ChartHandConstraintsRegistry().register_cell_constraint(
             constraint_class=CHCCRegularDate,
             chart_types=[AbscissaGroup.MONTH, AbscissaGroup.YEAR],
@@ -426,7 +426,7 @@ class ChartHandConstraintsRegistryTestCase(CremeTestCase):
         self.assertIsInstance(constraint, CHCCRegularDate)
 
     def test_cell_constraints__duplicated(self):
-        "Duplicated constraints."
+        """Duplicated constraints."""
         registry = ChartHandConstraintsRegistry().register_cell_constraint(
             constraint_class=CHCCRegularFK,
             chart_types=[AbscissaGroup.FK],
