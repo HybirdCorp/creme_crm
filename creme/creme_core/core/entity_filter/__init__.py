@@ -24,6 +24,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, Self, override
 
 from django.urls import reverse
+from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import UserRole
@@ -68,11 +69,12 @@ class EntityFilterRegistry:
     tag: str
 
     def __init__(self, *,
-                 id: str, verbose_name: str,
+                 id: str,
+                 verbose_name: Promise,
                  detail_url_name: str = '',
                  edition_url_name: str = '',
                  deletion_url_name: str = '',
-                 tag: str = '',
+                 tag: str | Promise = '',
                  ):
         """Constructor.
         @param id: A string used to retrieve the registry in the super registry;

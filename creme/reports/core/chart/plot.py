@@ -21,10 +21,12 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Self
 
+from django.utils.functional import Promise
+
 
 # TODO dataclass?
 class Plot:
-    def __init__(self, name: str, label: str, template: str | None = None):
+    def __init__(self, name: str, label: Promise, template: str | None = None):
         self.name = name
         self.label = label
         self.template: str = template or f'reports/plot/{name}.json'

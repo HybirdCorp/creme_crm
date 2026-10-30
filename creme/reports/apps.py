@@ -163,6 +163,15 @@ class ReportsConfig(CremeConfigConfigMixin, CremeAppConfig):
             'reports-create_report', self.Report, priority=20,
         )
 
+    @override
+    def register_soft_collectors(self, soft_reference_registry):
+        from . import soft_references
+
+        soft_reference_registry.register(
+            soft_references.ReportRelationTypeRefCollector,
+            soft_references.ReportCustomFieldTypeRefCollector,
+        )
+
     def register_reports_aggregations(self):
         from django.db.models import aggregates
 
@@ -171,15 +180,15 @@ class ReportsConfig(CremeConfigConfigMixin, CremeAppConfig):
             field_aggregation_registry as registry,
         )
 
-        registry.register(
-            FieldAggregation('avg', aggregates.Avg, '{}__avg', _('Average'))
-        ).register(
-            FieldAggregation('min', aggregates.Min, '{}__min', _('Minimum'))
-        ).register(
-            FieldAggregation('max', aggregates.Max, '{}__max', _('Maximum'))
-        ).register(
-            FieldAggregation('sum', aggregates.Sum, '{}__sum', _('Sum'))
-        )
+        registry.register(FieldAggregation(
+            name='avg', func=aggregates.Avg, pattern='{}__avg', title=_('Average'),
+        )).register(FieldAggregation(
+            name='min', func=aggregates.Min, pattern='{}__min', title=_('Minimum'),
+        )).register(FieldAggregation(
+            name='max', func=aggregates.Max, pattern='{}__max', title=_('Maximum'),
+        )).register(FieldAggregation(
+            name='sum', func=aggregates.Sum, pattern='{}__sum', title=_('Sum'),
+        ))
 
     def register_reports_plots(self):
         from .core.chart import plot

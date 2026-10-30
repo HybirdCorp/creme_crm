@@ -1378,7 +1378,7 @@ class ExportTestCase(BaseReportsTestCase):
         )
 
     def test_empty(self):
-        "Empty report."
+        """Empty report."""
         user = self.login_as_root_and_get()
         self.assertFalse(FakeInvoice.objects.all())
 
