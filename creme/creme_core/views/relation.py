@@ -882,8 +882,8 @@ class RelationTypeDetail(generic.CremeModelDetail):
 
         return type_bricks
 
-    def get_bricks_reload_url(self):
-        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
+    # def get_bricks_reload_url(self):
+    #     return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
 class RelationTypeBricksReloading(StaticBricksReloading):
