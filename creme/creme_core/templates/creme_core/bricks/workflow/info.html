@@ -24,8 +24,11 @@
         </div>
         {% if object.disabled %}
         <div class="brick-kv-item item-workflow-disabled">
-            <div class="brick-kv-key">{% translate 'Disabled on' context 'creme_core-workflow' %}</div>
-            <div class="brick-kv-value">{% print_field object=object field='modified' %}</div>
+            <div class="brick-kv-key">{% translate 'Disabling' %}</div>
+            <div class="brick-kv-value">
+                {% blocktranslate with date=object.disabled %}On {{date}}{% endblocktranslate %}
+                <br>{{object.disabling_reason|linebreaksbr}}
+            </div>
         </div>
         {% endif %}
         <div class="brick-kv-item item-workflow-trigger">
