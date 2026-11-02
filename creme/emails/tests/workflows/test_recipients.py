@@ -51,6 +51,8 @@ class LiteralRecipientTestCase(_EmailsTestCase):
         )
         self.assertTupleEqual((email1, None), recipient1.extract({}))
 
+        self.assertListEqual([], [*recipient1.soft_references(model=type(user))])
+
     def test_other_values(self):
         user = self.get_root_user()
 
@@ -118,6 +120,9 @@ class FixedUserRecipientTestCase(_EmailsTestCase):
             recipient.render(user=user),
         )
         self.assertTupleEqual((user.email, None), recipient.extract({}))
+
+        self.assertListEqual([user], [*recipient.soft_references(model=type(user))])
+        self.assertFalse([*recipient.soft_references(model=Contact)])
 
     def test_user_instance__serialization(self):
         user = self.get_root_user()
@@ -225,10 +230,12 @@ class FixedUserRecipientTestCase(_EmailsTestCase):
             recipient.render(user=self.get_root_user()),
         )
 
+        self.assertFalse([*recipient.soft_references(model=type(self.get_root_user()))])
+
 
 class UserFKRecipientTestCase(_EmailsTestCase):
     def test_field_user(self):
-        user1 = self.get_root_user()
+        user = self.get_root_user()
 
         type_id = 'user_fk'
         source = CreatedEntitySource(model=Organisation)
@@ -240,10 +247,13 @@ class UserFKRecipientTestCase(_EmailsTestCase):
         self.assertEqual(
             _('To: user «{field}» of: {source}').format(
                 field=_('Owner user'),
-                source=source.render(user=user1, mode=source.RenderMode.HTML),
+                source=source.render(user=user, mode=source.RenderMode.HTML),
             ),
-            recipient.render(user=user1),
+            recipient.render(user=user),
         )
+
+        self.assertFalse([*recipient.soft_references(model=type(user))])
+        self.assertFalse([*recipient.soft_references(model=Contact)])
 
     def test_field_user__extraction(self):
         recipient = UserFKRecipient(
@@ -456,6 +466,9 @@ class RegularEmailFieldRecipientTestCase(_EmailsTestCase):
             recipient.render(user=user),
         )
         self.assertTupleEqual((orga.email, orga), recipient.extract({}))
+
+        self.assertFalse([*recipient.soft_references(model=type(user))])
+        self.assertListEqual([orga], [*recipient.soft_references(model=Organisation)])
 
     def test_serialization(self):
         source = CreatedEntitySource(model=Organisation)

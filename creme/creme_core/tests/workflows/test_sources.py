@@ -57,6 +57,8 @@ class FromContextEntitySourceTestCase(CremeTestCase):
             entity1, source.extract({source.type_id: entity1, 'other': entity2}),
         )
 
+        self.assertFalse([*source.soft_references(model=FakeOrganisation)])
+
         # Deserialization ---
         deserialized = CreatedEntitySource.from_dict(
             data={'model': 'creme_core.fakecontact'},
@@ -309,6 +311,18 @@ class FixedEntitySourceTestCase(CremeTestCase):
             source1, FixedEntitySource(entity=str(uuid4()), model=FakeContact),
         )
         self.assertNotEqual(source1, None)
+
+    def test_soft_referenced(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        source1 = FixedEntitySource(model=FakeOrganisation, entity=str(orga.uuid))
+        self.assertCountEqual([orga], source1.soft_references(FakeOrganisation))
+        self.assertFalse([*source1.soft_references(model=FakeContact)])
+
+        # ---
+        source2 = FixedEntitySource(model=FakeOrganisation, entity=str(uuid4()))
+        self.assertFalse([*source2.soft_references(FakeOrganisation)])
 
     def test_render__entity_instance(self):
         user = self.get_root_user()

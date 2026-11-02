@@ -421,6 +421,10 @@ class WorkflowSource:
         """
         raise NotImplementedError
 
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """Yield the fixed instances of a given model used by this source."""
+        yield from ()
+
     @property
     def sub_source(self) -> WorkflowSource | None:
         """Some source classes extract their entities from another source.
@@ -723,6 +727,15 @@ class WorkflowAction:
         the users.
         """
         raise NotImplementedError
+
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """Instances which are referenced from data stored in JSON."""
+        # NB: something like that has been tried, but the semantic of "sources"
+        #     is not so clear/useful (what about sub-sources of other components
+        #     like UserRecipient etc…)
+        #   for source in self.sources:
+        #       yield from source.soft_references(model=model)
+        yield from ()
 
 
 class BrokenAction(WorkflowAction):

@@ -342,7 +342,7 @@ class CremeAppConfig(AppConfig):
             self.register_sandboxes(sandbox.sandbox_type_registry)
             self.register_search_fields(listview.search_field_registry)
             self.register_setting_keys(setting_key.setting_key_registry)
-            self.register_soft_collectors(soft_reference.soft_reference_registry)
+            self.register_soft_ref_collectors(soft_reference.soft_reference_registry)
             self.register_statistics(statistics.statistic_registry)
             self.register_smart_columns(listview.smart_columns_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
@@ -443,7 +443,9 @@ class CremeAppConfig(AppConfig):
     def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry') -> None:
         pass
 
-    def register_soft_collectors(self, soft_reference_registry: 'SoftReferenceRegistry') -> None:
+    def register_soft_ref_collectors(self,
+                                     soft_reference_registry: 'SoftReferenceRegistry',
+                                     ) -> None:
         pass
 
     def register_statistics(self, statistic_registry: 'StatisticRegistry') -> None:
@@ -795,7 +797,7 @@ class CremeCoreConfig(CremeAppConfig):
         )
 
     @override
-    def register_soft_collectors(self, soft_reference_registry):
+    def register_soft_ref_collectors(self, soft_reference_registry):
         from . import soft_references
 
         soft_reference_registry.register(
@@ -815,10 +817,7 @@ class CremeCoreConfig(CremeAppConfig):
             soft_references.WorkflowConditionCFieldEnumValueRefCollector,
             soft_references.WorkflowConditionPortableKeyedRefCollector,
 
-            soft_references.PropertyAddingActionPTypeRefCollector,
-            soft_references.RelationAddingActionRTypeRefCollector,
-            soft_references.NotificationSendingActionUserRefCollector,
-            soft_references.FixedEntitySourcedActionEntityRefCollector,
+            soft_references.WorkflowActionModelRefCollector,
         )
 
     @override

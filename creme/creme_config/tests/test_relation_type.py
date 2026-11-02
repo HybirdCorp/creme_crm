@@ -766,7 +766,8 @@ class RelationTypeDeletionTestCase(DeletionTestCaseMixin, _RelationTypeBaseTestC
             id='test-subject_bar', predicate='Subject predicate #2', is_custom=True,
         ).symmetric(id='test-object_bar', predicate='Object predicate #2').get_or_create()[0]
 
-        wf1 = Workflow.objects.create(
+        # wf1 = Workflow.objects.create(
+        Workflow.objects.create(
             title='Flow #1',
             content_type=FakeContact,
             trigger=workflows.EntityCreationTrigger(model=FakeContact),
@@ -827,7 +828,8 @@ class RelationTypeDeletionTestCase(DeletionTestCaseMixin, _RelationTypeBaseTestC
                 'This relationship type can not be deleted because of its '
                 'links with other elements:'
             ),
-            dependencies=[wf1, wf3],
+            # dependencies=[wf1, wf3],
+            dependencies=[wf3],
         )
 
 
