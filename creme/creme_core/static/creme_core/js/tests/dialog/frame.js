@@ -863,11 +863,12 @@ QUnit.parameterize('creme.dialog.Frame.submit (fail)', [
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit(url, {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    var content = $(MOCK_FRAME_CONTENT_FORM);
+    frame.submit(url, {sync: true}, content);
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: url, sync: true}]
+        ['before-submit', content, {action: url, sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([
         ['submit-fail', expectedResponse]
@@ -910,11 +911,12 @@ QUnit.parameterize('creme.dialog.Frame.submit (fail, fillOnError)', [
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit(url, {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    var content = $(MOCK_FRAME_CONTENT_FORM);
+    frame.submit(url, {sync: true}, content);
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: url, sync: true}]
+        ['before-submit', content, {action: url, sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([
         ['submit-fail', expectedResponse]
@@ -942,11 +944,12 @@ QUnit.test('creme.dialog.Frame.submit (empty url)', function(assert) {
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit('', {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    var content = $(MOCK_FRAME_CONTENT_FORM);
+    frame.submit('', {sync: true}, content);
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: undefined, sync: true}]
+        ['before-submit', content, {action: undefined, sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([
         ['submit-fail', '']
@@ -968,11 +971,12 @@ QUnit.test('creme.dialog.Frame.submit (ok, plain/text)', function(assert) {
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit('mock/submit', {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    var content = $(MOCK_FRAME_CONTENT_FORM);
+    frame.submit('mock/submit', {sync: true}, content);
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: 'mock/submit', sync: true}]
+        ['before-submit', content, {action: 'mock/submit', sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([], this.mockListenerCalls('submit-fail'));
     deepEqual([
@@ -997,11 +1001,12 @@ QUnit.test('creme.dialog.Frame.submit (ok, json)', function(assert) {
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit('mock/submit/json', {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    var content = $(MOCK_FRAME_CONTENT_FORM);
+    frame.submit('mock/submit/json', {sync: true}, content);
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: 'mock/submit/json', sync: true}]
+        ['before-submit', content, {action: 'mock/submit/json', sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([], this.mockListenerCalls('submit-fail'));
     deepEqual([
@@ -1058,4 +1063,5 @@ QUnit.test('creme.dialog.Frame (activate content, manually)', function(assert) {
     equal(true, frame.isContentReady());
     this.assertActive(frame.delegate().find('input'));
 });
+
 }(jQuery));
