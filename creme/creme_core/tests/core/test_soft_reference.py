@@ -140,3 +140,4 @@ class SoftReferenceRegistryTestCase(CremeTestCase):
         self.assertIn(soft_references.RelationAddingActionRTypeRefCollector, classes)
         self.assertIn(soft_references.NotificationSendingActionUserRefCollector, classes)
         self.assertIn(soft_references.FixedEntitySourcedActionEntityRefCollector, classes)
+        self.assertIn(soft_references.WorkflowActionModelRefCollector, classes)

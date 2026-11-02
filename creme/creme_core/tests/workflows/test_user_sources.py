@@ -48,6 +48,9 @@ class FixedUserSourceTestCase(CremeTestCase):
             'FixedUserSource(user=CremeUser(username="root"))', repr(user_src),
         )
 
+        self.assertListEqual([user], [*user_src.soft_references(model=type(user))])
+        self.assertFalse([*user_src.soft_references(model=FakeContact)])
+
     def test_user_instance__serialization(self):
         user = self.get_root_user()
         user_src = FixedUserSource(user=user)
@@ -134,12 +137,14 @@ class FixedUserSourceTestCase(CremeTestCase):
 
         self.assertIsNone(user_src.extract({}))
 
+        user = self.get_root_user()
+        self.assertFalse([*user_src.soft_references(model=type(user))])
         self.assertEqual(
             '{}<p class="errorlist">{}</p>'.format(
                 escape(_('Notify a fixed user')),
                 escape(_('The user does not exist anymore')),
             ),
-            user_src.render(user=self.get_root_user()),
+            user_src.render(user=user),
         )
 
     def test_config_formfield(self):
@@ -181,6 +186,7 @@ class UserFKSourceTestCase(CremeTestCase):
             ')',
             repr(user_src),
         )
+        self.assertFalse([*user_src.soft_references(model=FakeOrganisation)])
 
     def test_eq(self):
         source1 = CreatedEntitySource(model=FakeContact)

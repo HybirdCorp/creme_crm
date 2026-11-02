@@ -8,7 +8,11 @@ from creme.creme_core.core.workflow import (
     WorkflowBrokenData,
     workflow_registry,
 )
-from creme.creme_core.workflows import CreatedEntitySource, EditedEntitySource
+from creme.creme_core.workflows import (
+    CreatedEntitySource,
+    EditedEntitySource,
+    FixedEntitySource,
+)
 from creme.documents.tests.base import DocumentsTestCaseMixin
 from creme.emails.constants import REL_SUB_MAIL_RECEIVED
 from creme.emails.forms.workflows import (
@@ -39,7 +43,7 @@ test_sender = 'creme@mydomain.org'
 @override_settings(EMAIL_SENDER=test_sender)
 class EmailSendingActionTestCase(_EmailsTestCase):
     def test_simple(self):
-        "Literal recipient, no template for subject/body."
+        """Literal recipient, no template for subject/body."""
         user = self.get_root_user()
         type_id = 'emails-email_sending'
         self.assertEqual(type_id, EmailSendingAction.type_id)
@@ -320,6 +324,36 @@ class EmailSendingActionTestCase(_EmailsTestCase):
         e_email = EntityEmail.objects.order_by('-id')[0]
         self.assertEqual(user, e_email.user)
 
+    def test_soft_references__empty(self):
+        user = self.get_root_user()
+
+        source = CreatedEntitySource(model=Contact)
+        action = EmailSendingAction(
+            recipient=LiteralRecipient(email_address='spike.spiegel@bebop.mrs'),
+            entity_source=source,
+            subject='This is important', body='A Contact has been created.',
+        )
+        self.assertCountEqual([source], action.sources)
+        self.assertFalse([*action.soft_references(model=Contact)])
+        self.assertFalse([*action.soft_references(model=type(user))])
+
+    def test_soft_references(self):
+        user = self.get_root_user()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        source = FixedEntitySource(entity=orga)
+        action = EmailSendingAction(
+            recipient=FixedUserRecipient(user=user),
+            entity_source=source,
+            subject='This is important', body='A Contact has been created.',
+        )
+
+        self.assertCountEqual([source], action.sources)
+
+        self.assertFalse([*action.soft_references(model=Contact)])
+        self.assertCountEqual([orga], action.soft_references(model=Organisation))
+        self.assertCountEqual([user], action.soft_references(model=type(user)))
+
     def test_registry__global(self):
         self.assertIn(EmailSendingAction, workflow_registry.action_classes)
 
@@ -327,7 +361,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
 @override_settings(EMAIL_SENDER=test_sender)
 class TemplateSendingActionTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
     def test_simple(self):
-        "Literal sender, no template variable."
+        """Literal sender, no template variable."""
         user = self.get_root_user()
         type_id = 'emails-template_sending'
         self.assertEqual(type_id, TemplateSendingAction.type_id)
@@ -657,6 +691,46 @@ class TemplateSendingActionTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
             self.get_alone_element(log_cm.output),
         )
         self.assertEqual(e_email_count, EntityEmail.objects.count())
+
+        self.assertFalse([*action.soft_references(model=EmailTemplate)])
+
+    def test_soft_references(self):
+        user = self.get_root_user()
+
+        source = CreatedEntitySource(model=Contact)
+        template = EmailTemplate.objects.create(
+            user=user, subject='A New Contact!',
+            body='This is {{last_name}}',
+            body_html='This is <b>{{last_name}}</b>',
+        )
+        action = TemplateSendingAction(
+            recipient=RegularEmailFieldRecipient(
+                entity_source=source, field_name='email',
+            ),
+            entity_source=source, template=template,
+        )
+        self.assertCountEqual([source], action.sources)
+
+        self.assertListEqual([template], [*action.soft_references(model=EmailTemplate)])
+        self.assertFalse([*action.soft_references(model=Contact)])
+        self.assertFalse([*action.soft_references(model=type(user))])
+
+    def test_soft_references__user(self):
+        user = self.get_root_user()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        source = FixedEntitySource(entity=orga)
+        template = EmailTemplate.objects.create(
+            user=user, subject='An Organisation!',
+            body='This is {{name}}',
+            body_html='This is <b>{{name}}</b>',
+        )
+        action = TemplateSendingAction(
+            recipient=FixedUserRecipient(user=user),
+            entity_source=source, template=template,
+        )
+        self.assertCountEqual([orga], action.soft_references(model=Organisation))
+        self.assertCountEqual([user], action.soft_references(model=type(user)))
 
     def test_registry__global(self):
         self.assertIn(TemplateSendingAction, workflow_registry.action_classes)

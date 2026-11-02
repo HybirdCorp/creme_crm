@@ -139,6 +139,22 @@ class PropertyAddingActionTestCase(CremeTestCase):
             PropertyAddingActionForm, PropertyAddingAction.config_form_class(),
         )
 
+    def test_soft_references(self):
+        ptype = CremePropertyType.objects.create(text='Is swag')
+        entity = FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
+        source = FixedEntitySource(entity=entity)
+        action = PropertyAddingAction(entity_source=source, ptype=str(ptype.uuid))
+
+        self.assertCountEqual([source], action.sources)
+
+        with self.assertNumQueries(0):
+            self.assertFalse([*action.soft_references(model=FakeContact)])
+
+        with self.assertNumQueries(1):
+            self.assertCountEqual([ptype], action.soft_references(model=CremePropertyType))
+
+        self.assertCountEqual([entity], action.soft_references(model=type(entity)))
+
     def test_eq(self):
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is kawaiiii')
@@ -370,6 +386,27 @@ class RelationAddingActionTestCase(CremeTestCase):
         self.assertIs(
             RelationAddingActionForm, RelationAddingAction.config_form_class(),
         )
+
+    def test_soft_references(self):
+        rtype = RelationType.objects.builder(
+            id='test-subject_lead', predicate='leads', models=[FakeContact],
+        ).symmetric(
+            id='test-object_lead', predicate='is lead by', models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
+
+        source1 = CreatedEntitySource(model=FakeContact)
+        source2 = FixedEntitySource(entity=orga)
+        action = RelationAddingAction(
+            subject_source=source1, rtype=rtype, object_source=source2,
+        )
+
+        self.assertCountEqual([source1, source2], action.sources)
+
+        self.assertFalse([*action.soft_references(model=FakeContact)])
+        self.assertCountEqual([orga], action.soft_references(model=FakeOrganisation))
+        self.assertCountEqual([rtype], action.soft_references(model=RelationType))
 
     def test_eq(self):
         rtype = RelationType.objects.get(id=REL_OBJ_HAS)
@@ -641,7 +678,7 @@ class NotificationSendingActionTestCase(CremeTestCase):
         )
 
     def test_fixed_user(self):
-        "One user, no template for subject/body."
+        """One user, no template for subject/body."""
         user = self.get_root_user()
 
         type_id = 'creme_core-notification_sending'
@@ -802,6 +839,23 @@ class NotificationSendingActionTestCase(CremeTestCase):
 
         action.execute(context={EditedEntitySource.type_id: None})
         self.assertFalse(Notification.objects.all())
+
+    def test_soft_references(self):
+        user = self.get_root_user()
+
+        channel = self.channel
+        user_source = FixedUserSource(user=user)
+        source = CreatedEntitySource(model=FakeContact)
+        action = NotificationSendingAction(
+            channel=channel,
+            user_source=user_source,
+            entity_source=source,
+            subject='This is important',
+            body='A Contact has been created.',
+        )
+        self.assertCountEqual([source], action.sources)
+        self.assertFalse([*action.soft_references(model=FakeContact)])
+        self.assertCountEqual([user], action.soft_references(model=type(user)))
 
     def test_eq(self):
         user = self.get_root_user()

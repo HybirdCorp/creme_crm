@@ -1,7 +1,7 @@
 from datetime import date
 from functools import partial
 
-from django.db.models import Model
+from django.db.models import Model, ProtectedError
 
 from creme.creme_core import soft_references, workflows
 from creme.creme_core.core.entity_filter import (
@@ -14,7 +14,6 @@ from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
-    CremeUser,
     CustomField,
     CustomFieldEnumValue,
     EntityFilter,
@@ -852,10 +851,9 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
         self.assertCountEqual([wf2],      collector.collect(user))
 
     def test_action__property_type(self):
-        collector = soft_references.PropertyAddingActionPTypeRefCollector()
-        self.assertEqual('creme_core-workflow_prop_action-ptype', collector.id)
-        self.assertEqual(CremePropertyType, collector.model)
-        # self.assertEqual(_('Action of Workflow'), collector.get_label())
+        collector = soft_references.WorkflowActionModelRefCollector()
+        self.assertEqual('creme_core-workflow_action-model', collector.id)
+        self.assertEqual(Model, collector.model)
 
         create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
         ptype1 = create_ptype(text='is a fighter')
@@ -909,9 +907,7 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
         self.assertCountEqual([wf2],      collector.collect(ptype2))
 
     def test_action__relation_type(self):
-        collector = soft_references.RelationAddingActionRTypeRefCollector()
-        self.assertEqual('creme_core-workflow_relation_action-rtype', collector.id)
-        self.assertEqual(RelationType, collector.model)
+        collector = soft_references.WorkflowActionModelRefCollector()
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
         ptype = CremePropertyType.objects.create(text='is cool')
@@ -961,7 +957,8 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
             actions=[
                 workflows.RelationAddingAction(
                     subject_source=workflows.EditedEntitySource(model=FakeOrganisation),
-                    rtype=rtype1.symmetric_type_id,
+                    # rtype=rtype1.symmetric_type_id,
+                    rtype=rtype1.id,
                     object_source=workflows.FixedEntitySource(entity=orga),
                 ),
             ],
@@ -971,10 +968,11 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
         self.assertCountEqual([wf1, wf3], collector.collect(rtype1))
         self.assertCountEqual([wf2],      collector.collect(rtype2))
 
+        with self.assertRaises(ProtectedError):
+            rtype1.symmetric_type.delete()
+
     def test_action__notification_sending(self):
-        collector = soft_references.NotificationSendingActionUserRefCollector()
-        self.assertEqual('creme_core-workflow_notification_action-user', collector.id)
-        self.assertEqual(CremeUser, collector.model)
+        collector = soft_references.WorkflowActionModelRefCollector()
 
         user = self.get_root_user()
         user_to_ref = self.create_user()
@@ -1045,12 +1043,9 @@ class WorkflowSoftReferencesTestCase(CremeTestCase):
         self.assertCountEqual([wf2],      collector.collect(user))
 
     def test_action__fixed_entity_source(self):
-        collector = soft_references.FixedEntitySourcedActionEntityRefCollector()
-        self.assertEqual('creme_core-workflow_action_fixed_source-entity', collector.id)
-        self.assertEqual(CremeEntity, collector.model)
+        collector = soft_references.WorkflowActionModelRefCollector()
 
         user = self.get_root_user()
-
         orga = FakeOrganisation.objects.create(user=user, name='Acme', is_deleted=True)
 
         create_ptype = CremePropertyType.objects.create

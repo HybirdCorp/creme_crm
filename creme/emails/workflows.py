@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING, Literal, override
 from uuid import UUID
 
 from django.conf import settings
@@ -49,6 +49,10 @@ from creme.emails.models import WorkflowEmail
 from creme.emails.models.template import body_validator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import Self
+
+    from django.db.models import Model
     from django.forms import Field as FormField
 
     from creme.creme_core.models import CremeEntity
@@ -131,6 +135,13 @@ class ActionRecipient:
         @return: The sub-source, or 'None' if no sub-source is used.
         """
         return None
+
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """TODO !!!!!!!!!!!!!!!!"""
+        # raise NotImplementedError
+        # for source in self.sources:
+        #     yield from source.soft_references(model=model)
+        yield from ()
 
 
 class LiteralRecipient(ActionRecipient):
@@ -277,6 +288,14 @@ class FixedUserRecipient(ActionRecipient):
             user=recipient, email=recipient.email,
         )
 
+    @override
+    def soft_references(self, model):
+        if issubclass(model, User):
+            try:
+                yield self.user
+            except WorkflowBrokenData:
+                pass
+
 
 # TODO: factorise with EntityFKSource?
 class _BaseFKRecipient(ActionRecipient):
@@ -347,6 +366,9 @@ class _BaseFKRecipient(ActionRecipient):
         d['field'] = self._field_name
 
         return d
+
+    def soft_references(self, model):
+        yield from self.sub_source.soft_references(model=model)
 
 
 class UserFKRecipient(_BaseFKRecipient):
@@ -701,6 +723,14 @@ class EmailSendingAction(WorkflowAction):
             body=self._body,
         )
 
+    @property
+    def sources(self):
+        yield self._entity_source
+
+    def soft_references(self, model):
+        yield from super().soft_references(model=model)
+        yield from self._recipient.soft_references(model=model)
+
 
 # TODO: factorise with EmailSendingAction
 class TemplateSendingAction(WorkflowAction):
@@ -711,6 +741,8 @@ class TemplateSendingAction(WorkflowAction):
     """
     type_id = 'emails-template_sending'
     verbose_name = _('Sending an email (from a template)')
+
+    _template: AbstractEmailTemplate | None | Literal[False]
 
     def __init__(self, *,
                  recipient: ActionRecipient,
@@ -853,3 +885,17 @@ class TemplateSendingAction(WorkflowAction):
             template_label=gettext('Use template:'),
             link=widget_entity_hyperlink(entity=template, user=user),
         )
+
+    @property
+    def sources(self):
+        yield self._entity_source
+
+    def soft_references(self, model):
+        if issubclass(model, EmailTemplate):
+            try:
+                yield self.template
+            except WorkflowBrokenData:
+                pass
+
+        yield from super().soft_references(model=model)
+        yield from self._recipient.soft_references(model=model)

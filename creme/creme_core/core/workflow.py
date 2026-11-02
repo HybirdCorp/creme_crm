@@ -421,6 +421,10 @@ class WorkflowSource:
         """
         raise NotImplementedError
 
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """TODO !!!!!!!!!!!!!!!!"""
+        yield from ()
+
     @property
     def sub_source(self) -> WorkflowSource | None:
         """Some source classes extract their entities from another source.
@@ -722,6 +726,17 @@ class WorkflowAction:
         """Render as an HTML string which can be used to describe the source to
         the users.
         """
+        raise NotImplementedError
+
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """TODO !!!!!!!!!!!!!!!!"""
+        # raise NotImplementedError
+        for source in self.sources:
+            yield from source.soft_references(model=model)
+
+    @property
+    def sources(self) -> Iterator[WorkflowSource]:
+        """TODO !!!!!!!!!!!!!!!!"""
         raise NotImplementedError
 
 

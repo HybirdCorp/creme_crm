@@ -19,11 +19,14 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Literal, Self, override
 from uuid import UUID
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.exceptions import FieldDoesNotExist, ValidationError
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, Model
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
@@ -50,7 +53,6 @@ from .models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
-    CremeUser,
     Notification,
     NotificationChannel,
     Relation,
@@ -64,6 +66,7 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 # Triggers ---------------------------------------------------------------------
@@ -643,6 +646,15 @@ class FixedEntitySource(WorkflowSource):
             case _:
                 raise ValueError()
 
+    def soft_references(self, model):
+        try:
+            entity = self.entity
+        except WorkflowBrokenData:
+            pass
+        else:
+            if isinstance(entity, model):
+                yield entity
+
 
 # TODO: manage hidden field? (extract, render)
 class EntityFKSource(WorkflowSource):
@@ -919,7 +931,7 @@ class FirstRelatedEntitySource(WorkflowSource):
         return self._subject_source
 
 
-# User Sources------------------------------------------------------------------
+# User Sources -----------------------------------------------------------------
 
 class UserSource:
     """Base class to represent a user which can be used by an action.
@@ -931,7 +943,7 @@ class UserSource:
 
     @classmethod
     def config_formfield(cls,
-                         user: CremeUser,
+                         user: AbstractBaseUser,
                          entity_source: WorkflowSource | None = None,
                          ) -> FormField:
         """Returns a form field which can be used in the configuration form of a
@@ -969,15 +981,19 @@ class UserSource:
         """
         return {'type': self.type_id}
 
-    def render(self, user: CremeUser) -> str:
+    def render(self, user: AbstractBaseUser) -> str:
         """Render as HTML to describe in the configuration UI."""
         raise NotImplementedError
 
-    def extract(self, context: dict) -> CremeUser | None:
+    def extract(self, context: dict) -> AbstractBaseUser | None:
         """Extract the user instance from the Workflow's context.
         @return None if the source did not manage to extract a user.
         """
         raise NotImplementedError
+
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        """TODO !!!!!!!!!!!!!!!!"""
+        yield from ()
 
     @property
     def wf_source(self) -> WorkflowSource | None:
@@ -1000,7 +1016,7 @@ class FixedUserSource(UserSource):
             self._user_uuid = UUID(user)
             self._user = None
         else:
-            assert isinstance(user, CremeUser)
+            assert isinstance(user, AbstractBaseUser)
             self._user_uuid = user.uuid
             self._user = user
 
@@ -1035,7 +1051,7 @@ class FixedUserSource(UserSource):
     def user(self):
         user = self._user
         if user is None:
-            self._user = user = CremeUser.objects.filter(uuid=self._user_uuid).first() or False
+            self._user = user = User.objects.filter(uuid=self._user_uuid).first() or False
 
         if user is False:
             raise WorkflowBrokenData(
@@ -1078,6 +1094,13 @@ class FixedUserSource(UserSource):
         # TODO: link <a> to user/contact?
         return gettext('Notify: {user}').format(user=user)
 
+    def soft_references(self, model: type[Model]) -> Iterator[Model]:
+        if issubclass(model, User):
+            try:
+                yield self.user
+            except WorkflowBrokenData:
+                pass
+
 
 # TODO: factorise with EntityFKSource?
 class UserFKSource(UserSource):
@@ -1098,7 +1121,7 @@ class UserFKSource(UserSource):
 
         if not isinstance(field, ForeignKey):
             raise WorkflowBrokenData(f'The field "{field_name}" is not a ForeignKey')
-        if not issubclass(field.related_model, CremeUser):
+        if not issubclass(field.related_model, AbstractBaseUser):
             raise WorkflowBrokenData(
                 f'The field "{field_name}" is not a ForeignKey to User'
             )
@@ -1421,6 +1444,16 @@ class PropertyAddingAction(WorkflowAction):
 
         return label
 
+    def soft_references(self, model):
+        yield from super().soft_references(model=model)
+
+        if model == CremePropertyType:
+            yield self.property_type
+
+    @property
+    def sources(self):
+        yield self._entity_source
+
 
 class RelationAddingAction(WorkflowAction):
     """Action which creates a Relation between 2 chosen sources."""
@@ -1582,6 +1615,17 @@ class RelationAddingAction(WorkflowAction):
             ),
         )
 
+    def soft_references(self, model):
+        yield from super().soft_references(model=model)
+
+        if model == RelationType:
+            yield self.relation_type
+
+    @property
+    def sources(self):
+        yield self._subject_source
+        yield self._object_source
+
 
 class NotificationSendingAction(WorkflowAction):
     """Action which sends a Notification from given subject/body
@@ -1713,3 +1757,12 @@ class NotificationSendingAction(WorkflowAction):
             body_label=gettext('Body:'),
             body=self._body,
         )
+
+    def soft_references(self, model):
+        yield from super().soft_references(model=model)
+        yield from self._user_source.soft_references(model=model)
+
+    @property
+    def sources(self):
+        yield self._entity_source
+        # TODO: self._user_source.source?  => remove property?
