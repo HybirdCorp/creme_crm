@@ -113,7 +113,7 @@ class GraphsConfig(CremeAppConfig):
         )
 
     @override
-    def register_soft_collectors(self, soft_reference_registry):
+    def register_soft_ref_collectors(self, soft_reference_registry):
         from . import soft_references
 
         soft_reference_registry.register(

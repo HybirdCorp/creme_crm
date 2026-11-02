@@ -49,7 +49,7 @@ class SoftReferenceCollector:
 class SoftReferenceRegistry:
     """Registry of SoftReferenceCollector classes.
 
-    See CremeAppConfig.register_soft_collectors().
+    See CremeAppConfig.register_soft_ref_collectors().
     """
     class RegistrationError(Exception):
         pass

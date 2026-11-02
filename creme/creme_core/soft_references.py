@@ -18,7 +18,6 @@
 
 from typing import override
 
-from django.contrib.auth import get_user_model
 from django.db import models
 
 from creme.creme_core import models as core_models
@@ -28,10 +27,6 @@ from creme.creme_core.core.entity_filter import (
     condition_handler,
 )
 from creme.creme_core.core.soft_reference import SoftReferenceCollector
-from creme.creme_core.workflows import (
-    FixedUserSource,
-    NotificationSendingAction,
-)
 
 
 # References contained by RelationTypes ----------------------------------------
@@ -327,105 +322,20 @@ class WorkflowConditionPortableKeyedRefCollector(SoftReferenceCollector):
 
 
 # References contained by Workflows (Actions) ----------------------------------
-class PropertyAddingActionPTypeRefCollector(SoftReferenceCollector):
-    """Collect the Workflows which reference CremePropertyTypes through their
-    action to add a property.
-    """
-    id = 'creme_core-workflow_prop_action-ptype'
-    model = core_models.CremePropertyType
-
-    @override
-    def collect(self, instance):
-        assert isinstance(instance, self.model)
-        ptype_uuid = instance.uuid
-        action_cls = workflows.PropertyAddingAction
-
-        for workflow in core_models.Workflow.objects.all_workflows():
-            for action in workflow.actions:
-                # TODO: public method for _ptype_uuid?
-                if (
-                    isinstance(action, action_cls)
-                    and action._ptype_uuid == ptype_uuid
-                ):
-                    yield workflow
-
-
-class RelationAddingActionRTypeRefCollector(SoftReferenceCollector):
-    """Collect the Workflows which reference RelationTypes through their
-    action to add a relationship.
-    """
-    id = 'creme_core-workflow_relation_action-rtype'
-    model = core_models.RelationType
+class WorkflowActionModelRefCollector(SoftReferenceCollector):
+    """Collect the Workflows which collect references contained in their actions."""
+    id = 'creme_core-workflow_action-model'
 
     @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
-        action_cls = workflows.RelationAddingAction
-
-        for workflow in core_models.Workflow.objects.all_workflows():
-            for action in workflow.actions:
-                # TODO: public method for type's id?
-                if (
-                    isinstance(action, action_cls)
-                    and action._rtype_id in (instance.id, instance.symmetric_type_id)
-                ):
-                    yield workflow
-
-
-# TODO: manage other types of action
-class NotificationSendingActionUserRefCollector(SoftReferenceCollector):
-    """Collect the Workflows which reference Users through their action to send
-    a notification.
-    """
-    id = 'creme_core-workflow_notification_action-user'
-    model = get_user_model()
-
-    @override
-    def collect(self, instance):
-        assert isinstance(instance, self.model)
+        model = type(instance)
 
         for wf in core_models.Workflow.objects.all_workflows():
-            for action in wf.actions:
-                # TODO: improve Action API to iterate sources => manage other types of action
-                if isinstance(action, NotificationSendingAction):
-                    source = action.user_source
-
-                    if isinstance(source, FixedUserSource) and source.user == instance:
-                        yield wf
-
-
-# TODO: manage other types of action
-class FixedEntitySourcedActionEntityRefCollector(SoftReferenceCollector):
-    """Collect some Workflows which reference CremeEntities through their action
-    with fixed source to an entity.
-    """
-    id = 'creme_core-workflow_action_fixed_source-entity'
-    model = core_models.CremeEntity
-
-    @override
-    def collect(self, instance):
-        assert isinstance(instance, self.model)
-
-        from creme.creme_core.workflows import (
-            FixedEntitySource,
-            PropertyAddingAction,
-            RelationAddingAction,
-        )
-
-        key = instance.portable_key()
-
-        for wf in core_models.Workflow.objects.all_workflows():
-            for action in wf.actions:
-                # TODO: improve Action API to iterate sources => manage other types of action
-                sources = []
-
-                if isinstance(action, PropertyAddingAction):
-                    sources.append(action.entity_source)
-                elif isinstance(action, RelationAddingAction):
-                    sources.append(action.subject_source)
-                    sources.append(action.object_source)
-
-                for src in sources:
-                    if isinstance(src, FixedEntitySource) and src._entity_uuid == key:
-                        yield wf
+            if any(
+                instance == ref
+                for action in wf.actions
+                for ref in action.soft_references(model=model)
+            ):
+                yield wf

@@ -486,7 +486,7 @@ class BillingConfig(CremeConfigConfigMixin, CremeAppConfig):
             ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
     @override
-    def register_soft_collectors(self, soft_reference_registry):
+    def register_soft_ref_collectors(self, soft_reference_registry):
         from . import soft_references
 
         soft_reference_registry.register(
