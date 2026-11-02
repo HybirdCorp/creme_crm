@@ -158,7 +158,7 @@ QUnit.test('creme.TinyMCEditor (empty menubar)', function(assert) {
 });
 
 QUnit.parameterize('creme.TinyMCEditor (upload)', [
-   [{uploadURL: ''}, {uploadButtonEnabled: false, uploadCalls: 0}],
+   [{uploadURL: ''}, {uploadButtonEnabled: true, uploadCalls: 0}],
    [{uploadURL: 'mock/upload'}, {uploadButtonEnabled: true, uploadCalls: 1}],
    [{uploadURL: 'mock/upload', uploadOnChange: false}, {uploadButtonEnabled: true, uploadCalls: 0}]
 ], function(options, expected, assert) {

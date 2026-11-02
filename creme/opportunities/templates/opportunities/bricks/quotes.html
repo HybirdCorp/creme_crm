@@ -50,15 +50,15 @@
         <td {% brick_table_data_status primary %}>{% if quote_view_perm %}{{quote.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>{% widget_entity_hyperlink quote user %}</td>
         <td>{% if quote_view_perm %}{% print_field object=quote field='status' %}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
-        <td>
+        <td>{# NB: 'autocomplete' does not with checkboxes, excepted on FireFox which persits their state ; it can lead to inconsistent state (e.g. <checked> + "No") https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox#checked #}
           {% if quote_is_current %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"
                    {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}
-                   checked />
+                   checked autocomplete="off"/>
             {% translate 'Yes' %}
           {% else %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'set_current' %}"
-                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %} />
+                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %} autocomplete="off"/>
             {% translate 'No' %}
           {% endif %}
         </td>

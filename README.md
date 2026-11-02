@@ -36,7 +36,7 @@ some cool features (teams, allow/forbid entities from a filter on fields/relatio
 If you have very specific needs, Creme can also be used as a CRM framework to code your own CRM.
 
 Creme is coded in Python, and uses the Django web framework (http://www.djangoproject.com/) and
-the JQuery javascript library (http://jquery.com/).
+the JQuery JavaScript library (http://jquery.com/).
 
 You can find more information on Creme on its official website: http://cremecrm.com/
 You can ask your questions in our forum: https://www.cremecrm.com/forum/index.php
@@ -51,7 +51,7 @@ You can ask your questions in our forum: https://www.cremecrm.com/forum/index.ph
 ### Recommendations:
 
 It's recommended to use a database engine which supports transactions :
- - PostGreSQL is probably the best choice for databases with 100,000+ entities.
+ - PostgreSQL is probably the best choice for databases with 100,000+ entities.
  - SQLite support is principally done for developers, but it remains a solution
    for small databases (e.g. a use as mono-user app with the server running of your computer).
 
@@ -61,9 +61,9 @@ you should create a new virtual env, in order to keep the old one working).
 
 ### Dependencies
 
- - Python 3.10+
+ - Python 3.11+
  - MySQL 8.0.11+ (or MariaDB 10.5+ but we do not advise you to use MariaDB because it regularly causes strange issues)
-   or PostGreSQL 14+
+   or PostgreSQL 14+
    or SQLite (which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
@@ -100,14 +100,14 @@ Installation with 'pip':
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
      'pip install creme-crm[mysql]==2.X' (or 'pip install -e .[mysql]' with the source).
-   - For PostGreSQL,  you must add the 'pgsql' flag :
+   - For PostgreSQL,  you must add the 'pgsql' flag :
      'pip install creme-crm[pgsql]==2.X' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before
    (you could need a C compilator, like 'gcc'):
    - python-dev
-   - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
+   - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostgreSQL)
    - redis-server
    - libjpeg-dev, libpng-dev, libtiff-dev, libgif-dev (to manage these different formats)
    - libcairo-dev

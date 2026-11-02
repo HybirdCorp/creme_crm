@@ -146,10 +146,10 @@ var EDITOR_TOOLBARS = {
             'numlist', 'bullist', '|',
             'outdent', 'indent', '|',
             'backcolor', 'forecolor', 'fontfamily', 'fontsize', '|',
-            'link', 'unlink', '|', 'blockquote', 'table', 'image' //, '|', 'placeholder'
+            'image', 'link', 'unlink', '|', 'blockquote', 'table' //, '|', 'placeholder'
         ],
         insert_quickbars: [
-            'quickimage', 'quicktable'
+            /* 'quickimage', */ 'quicktable'
         ]
     },
     full: {
@@ -162,12 +162,12 @@ var EDITOR_TOOLBARS = {
             'numlist', 'bullist', '|',
             'outdent', 'indent', '|',
             'backcolor', 'forecolor', 'fontfamily', 'fontsize', '|',
-            'link', 'unlink', '|', 'blockquote', 'hr', 'tables', 'image'
+            'image', 'link', 'unlink', '|', 'blockquote', 'hr', 'tables'
         ],
         toolbar_groups: {
             heading: {
                 icon: 'title',
-                tooltip: gettext('Heading'),
+                tooltip: gettext('Headings'),
                 items: 'h1 h2 h3 h4 h5'
             },
             tables: {
@@ -181,7 +181,7 @@ var EDITOR_TOOLBARS = {
             }
         },
         insert_quickbars: [
-            'quickimage', 'quicktable'
+            /* 'quickimage', */ 'quicktable'
         ]
     }
 };
@@ -252,7 +252,7 @@ creme.TinyMCEditor = creme.component.Component.sub({
             uploadOnChange: true,
             csrftoken: null,
             toolbar: element.data('toolbar') || 'full',
-            placeholder: element.data('placeholder') || element.attr('placeholder') || gettext('Type here...'),
+            placeholder: element.data('placeholder') || element.attr('placeholder') || gettext('Type here…'),
             width: element.data('editorWidth'),
             minWidth: element.data('editorMinWidth'),
             maxWidth: element.data('editorMaxWidth'),
@@ -263,7 +263,8 @@ creme.TinyMCEditor = creme.component.Component.sub({
             isReadOnly: element.prop('readonly'),
             baseURL: element.data('baseUrl') || '/tiny_mce/8.3.2/',
             allowCrossOrigin: false,
-            allowResize: element.data('resize') || 'no'
+            allowResize: element.data('resize') || 'no',
+            language: element.data('lang') || _.djangoLanguageCode()
         }, options || {});
 
         Assert.not(element.is('.creme-tinymce-hidden'), 'TinyMCE instance is already active');
@@ -393,7 +394,8 @@ creme.TinyMCEditor = creme.component.Component.sub({
             readonly: options.isReadOnly,
             disabled: options.isDisabled,
             placeholder: options.placeholder,
-            icons: 'creme'
+            icons: 'creme',
+            language: options.language
         };
 
         if (_.isFunction(options.allowCrossOrigin)) {
@@ -411,9 +413,6 @@ creme.TinyMCEditor = creme.component.Component.sub({
         if (options.uploadURL) {
             editorOptions.images_upload_handler = this._editorUploadHandler(options);
             editorOptions.automatic_uploads = !!options.uploadOnChange;
-        } else {
-            toolbarItems.toolbar = _.without(toolbarItems.toolbar, 'image');
-            plugins = _.without(plugins, 'image');
         }
 
         editorOptions.width = parseWidth(options.width, element);
