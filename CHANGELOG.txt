@@ -1,17 +1,19 @@
-== Version 2.8.7 Work in progress (not released -- this is a draft) ==
+== Version 2.8.7 ==
 
   Users side :
   ------------
     # Beware, the minimal version of Python is now '3.11' (Python 3.10 has reached its end of life).
+    # The library 'Pillow' has been upgraded to the version '13.0'.
     # Apps :
         * Opportunities :
             - An inconsistent display of checkboxes in the related Quotes has been fixed (FireFox).
         * Crudity :
             - Two bricks always considered you use a sandbox.
         * Emails :
-            - Unfocusable text input issue in "link" dialog of TinyMCE editor has been fixed.
-            - Remove image upload in quickmenu.
-            - Add external image selection & position in main menu.
+            - Several issues with the HTML editor have been fixed :
+                - Some text inputs in the "link" dialog were unfocusable.
+                - The entry to upload an image (in quickmenu) has been removed.
+                - An external image tool (selection & position) has been added (in main menu).
 
   Developers side :
   -----------------
@@ -19,8 +21,8 @@
     Non breaking changes :
     ----------------------
         # In Javascript :
-          - Add language support for the WYSWYG editor 'TinyMCE'.
-          - Add i18n tools :
+          - A language support for the WYSWYG editor 'TinyMCE' has been added.
+          - Some i18n tools have been added :
              - A function '_.getBrowserLanguageCode()' has been added; it returns the browser language.
              - A function '_.getDjangoLanguageCode()' has been added; it returns the user language from the server
                through the global variable 'LANGUAGE_CODE'. If empty or invalid, the browser language is returned.
