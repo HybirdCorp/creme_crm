@@ -39,7 +39,7 @@ test_sender = 'creme@mydomain.org'
 @override_settings(EMAIL_SENDER=test_sender)
 class EmailSendingActionTestCase(_EmailsTestCase):
     def test_simple(self):
-        "Literal recipient, no template for subject/body."
+        """Literal recipient, no template for subject/body."""
         user = self.get_root_user()
         type_id = 'emails-email_sending'
         self.assertEqual(type_id, EmailSendingAction.type_id)
@@ -319,6 +319,23 @@ class EmailSendingActionTestCase(_EmailsTestCase):
 
         e_email = EntityEmail.objects.order_by('-id')[0]
         self.assertEqual(user, e_email.user)
+
+    def test_soft_references(self):
+        self.fail('TODO')
+        # user = self.get_root_user()
+        # type_id = 'emails-email_sending'
+        # self.assertEqual(type_id, EmailSendingAction.type_id)
+        # self.assertEqual(_('Sending an email'), EmailSendingAction.verbose_name)
+        #
+        # # Instance ---
+        # address = 'spike.spiegel@bebop.mrs'
+        # recipient = LiteralRecipient(email_address=address)
+        # subject = 'This is important'
+        # body = 'A Contact has been created.'
+        # source = CreatedEntitySource(model=Contact)
+        # action = EmailSendingAction(
+        #     recipient=recipient, entity_source=source, subject=subject, body=body,
+        # )
 
     def test_registry__global(self):
         self.assertIn(EmailSendingAction, workflow_registry.action_classes)
