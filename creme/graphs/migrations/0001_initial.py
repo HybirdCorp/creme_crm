@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import migrations, models
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
@@ -59,7 +59,8 @@ class Migration(migrations.Migration):
                 (
                     'entity',
                     models.ForeignKey(
-                        editable=False, to='creme_core.CremeEntity', on_delete=CASCADE,
+                        # editable=False, to='creme_core.CremeEntity', on_delete=CASCADE,
+                        editable=False, to='creme_core.CremeEntity', on_delete=PROTECT,
                     )
                 ),
                 (

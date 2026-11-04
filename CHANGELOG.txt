@@ -66,6 +66,7 @@
         * Graphs :
             - It's now possible to create a block type related to an instance of Graph;
               this new kind of blocks can be displayed on Home & "My Page".
+            - If an entity is used as root node by a Graph, the deletion of this entity is now blocked.
 
   Developers side :
   -----------------
