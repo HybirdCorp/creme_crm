@@ -27,6 +27,7 @@ from typing import DefaultDict, Literal, Self
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model
+from django.utils.functional import Promise
 
 from ..core.exceptions import ConflictError
 from ..models import CremeEntity
@@ -48,11 +49,11 @@ class Button:
 
     # Label used in the configuration GUI to display the button (see models.ButtonMenuItem)
     # Tips: use gettext_lazy()
-    verbose_name: str = 'BUTTON'
+    verbose_name: str | Promise = 'BUTTON'
 
     # Description used as tool-tips
     # Tips: use gettext_lazy()
-    description: str = ''
+    description: str | Promise = ''
 
     # List of the models on which the button depends (i.e. generally the button
     # is designed to create/modify instances of these models); it also can be

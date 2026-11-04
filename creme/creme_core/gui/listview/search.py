@@ -70,8 +70,8 @@ class AbstractListViewSearchFieldRegistry:
 
     @staticmethod
     def _instantiate_builder(sfield_builder):
-        """Helper method which instantiates a builder if it's needed (
-        because it's a registry class).
+        """Helper method which instantiates a builder if it's needed (because
+        it's a registry class).
         Useful to implement methods which accept either field class or registry class as argument.
 
         @param sfield_builder: A class inheriting <ListViewSearchField> or

@@ -34,7 +34,7 @@ class SoftReferenceCollector:
     like an attribute <on_delete=PROTECT> on a ForeigKey field.
     """
     # Unique string to identify the class inside the registry (see SoftReferenceRegistry).
-    # As usual you should prefix this id by "my_app-".
+    # As usual, you should prefix this id by "my_app-".
     id: str = ''
     # Model of the instances which are collected by the class; the argument
     # 'instance' passed to the method 'collect()' should be an instance of this model.

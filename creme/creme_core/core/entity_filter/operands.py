@@ -20,6 +20,7 @@ from typing import override
 
 from django.contrib.auth import get_user_model
 from django.db.models import ForeignKey, Model
+from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
@@ -28,8 +29,8 @@ User = get_user_model()
 class ConditionDynamicOperand:
     """Represent special value for right operand in conditions."""
     type_id: str  # = None
-    verbose_name = ''
-    model = Model  # OVERRIDE THIS -- model class related to the operand.
+    verbose_name: str | Promise = ''
+    model: type[Model] = Model  # OVERRIDE THIS -- model class related to the operand.
 
     def __init__(self, user):
         self.user = user

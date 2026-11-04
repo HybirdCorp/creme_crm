@@ -27,7 +27,7 @@ from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models import Field, Model
-from django.utils.functional import cached_property
+from django.utils.functional import Promise, cached_property
 from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -88,7 +88,7 @@ class EntityCell:
      - ...
     """
     type_id: str  # Used for register ; overload in child classes (string type)
-    verbose_name = '??'
+    verbose_name: str | Promise = '??'
 
     _listview_css_class = None
     _header_listview_css_class = None

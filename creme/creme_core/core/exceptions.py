@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2013-2020 Hybird
+# Copyright (c) 2013-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,20 +21,20 @@
 # SOFTWARE.
 ################################################################################
 
-from django.db.models import ProtectedError
+from django.db import models
 
 
 class BadRequestError(Exception):
-    "Corresponds to HTTP error 400."
+    """Corresponds to HTTP error 400."""
     pass
 
 
 class ConflictError(Exception):
-    "Corresponds to HTTP error 409."
+    """Corresponds to HTTP error 409."""
     pass
 
 
-class SpecificProtectedError(ProtectedError):
+class SpecificProtectedError(models.ProtectedError):
     """A ProtectedError corresponding to a business logic protection (and not
     a simple dependency problem).
     The message should be localized.
