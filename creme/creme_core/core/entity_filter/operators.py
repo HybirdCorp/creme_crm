@@ -410,9 +410,9 @@ class StringOperatorBase(ConditionOperator):
 
 class IEqualsOperator(StringOperatorBase):
     type_id = IEQUALS
-    verbose_name = _('Equals (case insensitive)')
+    verbose_name = _('Equals (case-insensitive)')
     accept_subpart = False
-    description_pattern = _('«{field}» is equal to {values} (case insensitive)')
+    description_pattern = _('«{field}» is equal to {values} (case-insensitive)')
     key_pattern = '{}__iexact'
     case_sensitive = False
 
@@ -425,8 +425,8 @@ class IEqualsOperator(StringOperatorBase):
 
 class IEqualsNotOperator(IEqualsOperator):
     type_id = IEQUALS_NOT
-    verbose_name = _('Does not equal (case insensitive)')
-    description_pattern = _('«{field}» is different from {values} (case insensitive)')
+    verbose_name = _('Does not equal (case-insensitive)')
+    description_pattern = _('«{field}» is different from {values} (case-insensitive)')
     exclude = True
 
 
@@ -449,16 +449,16 @@ class ContainsNotOperator(ContainsOperator):
 
 class IContainsOperator(ContainsOperator):
     type_id = ICONTAINS
-    verbose_name = _('Contains (case insensitive)')
-    description_pattern = _('«{field}» contains {values} (case insensitive)')
+    verbose_name = _('Contains (case-insensitive)')
+    description_pattern = _('«{field}» contains {values} (case-insensitive)')
     key_pattern = '{}__icontains'
     case_sensitive = False
 
 
 class IContainsNotOperator(IContainsOperator):
     type_id = ICONTAINS_NOT
-    verbose_name = _('Does not contain (case insensitive)')
-    description_pattern = _('«{field}» does not contain {values} (case insensitive)')
+    verbose_name = _('Does not contain (case-insensitive)')
+    description_pattern = _('«{field}» does not contain {values} (case-insensitive)')
     exclude = True
 
 
@@ -481,16 +481,16 @@ class StartswithNotOperator(StartsWithOperator):
 
 class IStartsWithOperator(StartsWithOperator):
     type_id = ISTARTSWITH
-    verbose_name = _('Starts with (case insensitive)')
-    description_pattern = _('«{field}» starts with {values} (case insensitive)')
+    verbose_name = _('Starts with (case-insensitive)')
+    description_pattern = _('«{field}» starts with {values} (case-insensitive)')
     key_pattern = '{}__istartswith'
     case_sensitive = False
 
 
 class IStartswithNotOperator(IStartsWithOperator):
     type_id = ISTARTSWITH_NOT
-    verbose_name = _('Does not start with (case insensitive)')
-    description_pattern = _('«{field}» does not start with {values} (case insensitive)')
+    verbose_name = _('Does not start with (case-insensitive)')
+    description_pattern = _('«{field}» does not start with {values} (case-insensitive)')
     exclude = True
 
 
@@ -513,16 +513,16 @@ class EndsWithNotOperator(EndsWithOperator):
 
 class IEndsWithOperator(EndsWithOperator):
     type_id = IENDSWITH
-    verbose_name = _('Ends with (case insensitive)')
-    description_pattern = _('«{field}» ends with {values} (case insensitive)')
+    verbose_name = _('Ends with (case-insensitive)')
+    description_pattern = _('«{field}» ends with {values} (case-insensitive)')
     key_pattern = '{}__iendswith'
     case_sensitive = False
 
 
 class IEndsWithNotOperator(IEndsWithOperator):
     type_id = IENDSWITH_NOT
-    verbose_name = _('Does not end with (case insensitive)')
-    description_pattern = _('«{field}» does not end with {values} (case insensitive)')
+    verbose_name = _('Does not end with (case-insensitive)')
+    description_pattern = _('«{field}» does not end with {values} (case-insensitive)')
     exclude = True
 
 

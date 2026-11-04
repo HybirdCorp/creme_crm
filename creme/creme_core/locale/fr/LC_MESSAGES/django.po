@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 14:37+0100\n"
+"POT-Creation-Date: 2026-11-04 15:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -552,18 +552,18 @@ msgstr "≤"
 msgid "«{field}» is less than or equal to {values}"
 msgstr "«{field}» est plus petit ou égal à {values}"
 
-msgid "Equals (case insensitive)"
+msgid "Equals (case-insensitive)"
 msgstr "Est égal à (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» is equal to {values} (case insensitive)"
+msgid "«{field}» is equal to {values} (case-insensitive)"
 msgstr "«{field}» est égal à {values} (insensible à la casse)"
 
-msgid "Does not equal (case insensitive)"
+msgid "Does not equal (case-insensitive)"
 msgstr "N'est pas égal à (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» is different from {values} (case insensitive)"
+msgid "«{field}» is different from {values} (case-insensitive)"
 msgstr "«{field}» n'est pas égal à {values} (insensible à la casse)"
 
 msgid "Contains"
@@ -580,18 +580,18 @@ msgstr "Ne contient pas"
 msgid "«{field}» does not contain {values}"
 msgstr "«{field}» ne contient pas {values}"
 
-msgid "Contains (case insensitive)"
+msgid "Contains (case-insensitive)"
 msgstr "Contient (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» contains {values} (case insensitive)"
+msgid "«{field}» contains {values} (case-insensitive)"
 msgstr "«{field}» contient {values} (insensible à la casse)"
 
-msgid "Does not contain (case insensitive)"
+msgid "Does not contain (case-insensitive)"
 msgstr "Ne contient pas (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» does not contain {values} (case insensitive)"
+msgid "«{field}» does not contain {values} (case-insensitive)"
 msgstr "«{field}» ne contient pas {values} (insensible à la casse)"
 
 msgid "Starts with"
@@ -608,18 +608,18 @@ msgstr "Ne commence pas par"
 msgid "«{field}» does not start with {values}"
 msgstr "«{field}» ne commence pas par {values}"
 
-msgid "Starts with (case insensitive)"
+msgid "Starts with (case-insensitive)"
 msgstr "Commence par (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» starts with {values} (case insensitive)"
+msgid "«{field}» starts with {values} (case-insensitive)"
 msgstr "«{field}» commence par {values} (insensible à la casse)"
 
-msgid "Does not start with (case insensitive)"
+msgid "Does not start with (case-insensitive)"
 msgstr "Ne commence pas par (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» does not start with {values} (case insensitive)"
+msgid "«{field}» does not start with {values} (case-insensitive)"
 msgstr "«{field}» ne commence pas par {values} (insensible à la casse)"
 
 msgid "Ends with"
@@ -636,18 +636,18 @@ msgstr "Ne se termine pas par"
 msgid "«{field}» does not end with {values}"
 msgstr "«{field}» ne finit pas par {values}"
 
-msgid "Ends with (case insensitive)"
+msgid "Ends with (case-insensitive)"
 msgstr "Se termine par (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» ends with {values} (case insensitive)"
+msgid "«{field}» ends with {values} (case-insensitive)"
 msgstr "«{field}» finit par {values} (insensible à la casse)"
 
-msgid "Does not end with (case insensitive)"
+msgid "Does not end with (case-insensitive)"
 msgstr "Ne se termine pas par (Ne respecte pas la casse)"
 
 #, python-brace-format
-msgid "«{field}» does not end with {values} (case insensitive)"
+msgid "«{field}» does not end with {values} (case-insensitive)"
 msgstr "«{field}» ne finit pas par {values} (insensible à la casse)"
 
 msgid "Is empty"

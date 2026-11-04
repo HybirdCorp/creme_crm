@@ -694,7 +694,7 @@ class OperatorTestCase(CremeTestCase):
     def test_iequals(self):
         op = self.get_operator(operators.IEQUALS)
         self.assertIsInstance(op, operators.IEqualsOperator)
-        self.assertEqual(_('Equals (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Equals (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__iexact',                   op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -705,7 +705,7 @@ class OperatorTestCase(CremeTestCase):
 
         value = 'Spike'
         self.assertEqual(
-            _('«{field}» is equal to {values} (case insensitive)').format(
+            _('«{field}» is equal to {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -724,7 +724,7 @@ class OperatorTestCase(CremeTestCase):
     def test_iequals_not(self):
         op = self.get_operator(operators.IEQUALS_NOT)
         self.assertIsInstance(op, operators.IEqualsNotOperator)
-        self.assertEqual(_('Does not equal (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Does not equal (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__iexact',                           op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -733,7 +733,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'first_name'
         value = 'Spike'
         self.assertEqual(
-            _('«{field}» is different from {values} (case insensitive)').format(
+            _('«{field}» is different from {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -827,7 +827,7 @@ class OperatorTestCase(CremeTestCase):
     def test_icontains(self):
         op = self.get_operator(operators.ICONTAINS)
         self.assertIsInstance(op, operators.IContainsOperator)
-        self.assertEqual(_('Contains (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Contains (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -836,7 +836,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Information'
         value = 'IMPORTANT'
         self.assertEqual(
-            _('«{field}» contains {values} (case insensitive)').format(
+            _('«{field}» contains {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -855,7 +855,7 @@ class OperatorTestCase(CremeTestCase):
     def test_icontains_not(self):
         op = self.get_operator(operators.ICONTAINS_NOT)
         self.assertIsInstance(op, operators.IContainsNotOperator)
-        self.assertEqual(_('Does not contain (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Does not contain (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -864,7 +864,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Information'
         value = 'IgNoRe'
         self.assertEqual(
-            _('«{field}» does not contain {values} (case insensitive)').format(
+            _('«{field}» does not contain {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -954,7 +954,7 @@ class OperatorTestCase(CremeTestCase):
     def test_istartswith(self):
         op = self.get_operator(operators.ISTARTSWITH)
         self.assertIsInstance(op, operators.IStartsWithOperator)
-        self.assertEqual(_('Starts with (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Starts with (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -963,7 +963,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Last_name'
         value = 'sire'
         self.assertEqual(
-            _('«{field}» starts with {values} (case insensitive)').format(
+            _('«{field}» starts with {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -982,7 +982,7 @@ class OperatorTestCase(CremeTestCase):
     def test_istartswith_not(self):
         op = self.get_operator(operators.ISTARTSWITH_NOT)
         self.assertIsInstance(op, operators.IStartswithNotOperator)
-        self.assertEqual(_('Does not start with (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Does not start with (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -991,7 +991,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Last_name'
         value = 'sire'
         self.assertEqual(
-            _('«{field}» does not start with {values} (case insensitive)').format(
+            _('«{field}» does not start with {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -1076,7 +1076,7 @@ class OperatorTestCase(CremeTestCase):
     def test_iendswith(self):
         op = self.get_operator(operators.IENDSWITH)
         self.assertIsInstance(op, operators.IEndsWithOperator)
-        self.assertEqual(_('Ends with (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Ends with (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -1085,7 +1085,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Last_name'
         value = 'sSoN'
         self.assertEqual(
-            _('«{field}» ends with {values} (case insensitive)').format(
+            _('«{field}» ends with {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
@@ -1105,7 +1105,7 @@ class OperatorTestCase(CremeTestCase):
     def test_iendswith_not(self):
         op = self.get_operator(operators.IENDSWITH_NOT)
         self.assertIsInstance(op, operators.IEndsWithNotOperator)
-        self.assertEqual(_('Does not end with (case insensitive)'), op.verbose_name)
+        self.assertEqual(_('Does not end with (case-insensitive)'), op.verbose_name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -1114,7 +1114,7 @@ class OperatorTestCase(CremeTestCase):
         field = 'Last_name'
         value = 'sSoN'
         self.assertEqual(
-            _('«{field}» does not end with {values} (case insensitive)').format(
+            _('«{field}» does not end with {values} (case-insensitive)').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),

@@ -1978,7 +1978,7 @@ class EntityFilterFilteringTestCase(CremeTestCase):
 
     def test_regular_field__not_iequals(self):
         pk = 'test-filter01'
-        name = 'Not Ikari (case insensitive)'
+        name = 'Not Ikari (case-insensitive)'
         efilter = EntityFilter.objects.smart_update_or_create(
             pk, name, FakeContact, is_custom=True,
         )
