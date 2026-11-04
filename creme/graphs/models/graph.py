@@ -240,7 +240,8 @@ class RootNode(CremeModel):
 
     entity_ctype = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
-        CremeEntity, editable=False, on_delete=models.CASCADE,
+        # CremeEntity, editable=False, on_delete=models.CASCADE,
+        CremeEntity, editable=False, on_delete=models.PROTECT,
     )
     real_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_ctype', fk_field='entity',
