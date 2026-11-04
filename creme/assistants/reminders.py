@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from datetime import timedelta
+from typing import override
 
 from django.conf import settings
 from django.db.models import Q
@@ -45,15 +46,18 @@ class ReminderAlert(AssistantReminder):
     def _get_delta(self):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
+    @override
     def get_notification_content(self, instance):
         return AlertReminderContent(instance)
 
+    @override
     def get_Q_filter(self):
         return Q(
             trigger_date__lte=now() + self._get_delta(),
             is_validated=False,
         )
 
+    @override
     def next_wakeup(self, now_value):
         alert = Alert.objects.filter(
             is_validated=False, reminded=False, trigger_date__isnull=False,
@@ -72,16 +76,20 @@ class ReminderTodo(AssistantReminder):
     def _get_min_hour(self):
         return SettingValue.objects.get_4_key(key=todo_reminder_key, default=9).value
 
+    @override
     def get_notification_content(self, instance):
         return TodoReminderContent(instance)
 
+    @override
     def get_Q_filter(self):
         # TODO: exclude Todos related to deleted entities?
         return Q(deadline__lte=now() + self._get_delta(), is_ok=False)
 
+    @override
     def ok_for_continue(self):
         return localtime(now()).hour >= self._get_min_hour()
 
+    @override
     def next_wakeup(self, now_value):
         wakeup = None
         todo = ToDo.objects.filter(

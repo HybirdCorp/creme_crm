@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 import logging
 from datetime import date
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class CommonRegularFieldsCopier(copying.FieldsCopierMixin, copying.PreSaveCopier):
+    @override
     def copy_to(self, target):
         source = self.source
 
@@ -42,6 +44,7 @@ class CommonRegularFieldsCopier(copying.FieldsCopierMixin, copying.PreSaveCopier
 
 
 class CommonManyToManyFieldsCopier(copying.FieldsCopierMixin, copying.PostSaveCopier):
+    @override
     def copy_to(self, target):
         source = self._source
 
@@ -54,11 +57,13 @@ class CommonManyToManyFieldsCopier(copying.FieldsCopierMixin, copying.PostSaveCo
 class TitleCopier(copying.PreSaveCopier):
     name_format = _('{src} (converted into {dest._meta.verbose_name})')
 
+    @override
     def copy_to(self, target):
         target.name = self.name_format.format(src=self._source, dest=target)
 
 
 class DatesCopier(copying.PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.issuing_date = target.expiration_date = date.today()
 
@@ -92,6 +97,7 @@ class BillingBaseConverter(Converter):
         # CustomFieldsCopier,
     ]
 
+    @override
     def _pre_save(self, *, user, source, target):
         super()._pre_save(user=user, source=source, target=target)
 

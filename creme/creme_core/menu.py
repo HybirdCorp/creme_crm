@@ -18,6 +18,7 @@
 
 import logging
 import math
+from typing import override
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -79,6 +80,7 @@ class TrashEntry(menu.MenuEntry):
     id = 'creme_core-trash'
     label = _('Trash')
 
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         ctxt['entity_count'] = CremeEntity.objects.filter(is_deleted=True).count()
@@ -91,6 +93,7 @@ class PasswordChangeEntry(menu.FixedURLEntry):
     label = _('Change password')
     url_name = 'creme_core__change_own_password'
 
+    @override
     def check_permissions(self, user):
         # NB: notice that even when superusers cannot change their password here,
         #     they still can use the creme_config's view.
@@ -112,6 +115,7 @@ class RoleSwitchEntry(menu.MenuEntry):
     id = 'creme_core-role_switch'
     label = _('Available roles')
 
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         # user = context['user']
@@ -175,10 +179,12 @@ class QuickFormsEntries(menu.MenuEntrySequence):
             super().__init__(**kwargs)
             self.model = self.data['model']
 
+        @override
         def check_permissions(self, user):
             super().check_permissions(user=user)
             user.has_perm_to_create_or_die(self.model)
 
+        @override
         @property
         def url(self):
             return reverse(
@@ -194,6 +200,7 @@ class QuickFormsEntries(menu.MenuEntrySequence):
         #         '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
         #         self.label,
         #     )
+        @override
         def get_context(self, context):
             ctxt = super().get_context(context=context)
             ctxt['url'] = self.url
@@ -280,6 +287,7 @@ class EntitiesCreationEntry(menu.MenuEntry):
     #         links=json_encode(self.as_grid(context['user'])),
     #         label=self.render_label(context),
     #     )
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         ctxt['links'] = self.as_grid(context['user'])
@@ -317,6 +325,7 @@ class QuickAccessEntry(menu.ContainerEntry):
             #         '</a>',
             #         url=self.url, label=self.label, ctype=self.ctype,
             #     )
+            @override
             def get_context(self, context):
                 ctxt = super().get_context(context=context)
                 ctxt['url'] = self.url
@@ -364,6 +373,7 @@ class QuickAccessEntry(menu.ContainerEntry):
             #         url=self.url, label=self.label, ctype=self.ctype,
             #         cls='is_deleted' if self.is_deleted else '',
             #     )
+            @override
             def get_context(self, context):
                 ctxt = super().get_context(context=context)
                 ctxt['url'] = self.url
@@ -396,6 +406,7 @@ class QuickAccessEntry(menu.ContainerEntry):
     #     ]
     #
     #     return super().render(context)
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         user = context['user']

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 import logging
 from os import remove as delete_file
 from os.path import exists
+from typing import override
 
 from django.db.models import ProtectedError
 from django.utils.timezone import now
@@ -37,6 +38,7 @@ class _TempFilesCleanerType(JobType):
     verbose_name = gettext_lazy('Temporary files cleaner')
     periodic     = JobType.PERIODIC
 
+    @override
     def _execute(self, job):
         delay = self.get_delay(job)
 
@@ -116,9 +118,11 @@ class _TempFilesCleanerType(JobType):
         except Exception:  # TODO: better exception
             logger.exception('Error in _TempFilesCleanerType.get_delay()')
 
+    @override
     def get_description(self, job):
         return [_('Remove old temporary files')]  # TODO: + delay ?
 
+    @override
     def get_config_form_class(self, job):
         from ..forms.temp_files_cleaner import TempFilesCleanerJobForm
 

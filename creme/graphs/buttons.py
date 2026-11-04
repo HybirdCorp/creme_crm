@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -37,6 +39,7 @@ class CreateInstanceBrickButton(InstanceBrickMixin, Button):
     template_name = 'graphs/buttons/create-instance-brick.html'
     permissions = 'graphs.can_admin'
 
+    @override
     def get_context(self, *, entity, request):
         ctxt = super().get_context(entity=entity, request=request)
 
@@ -47,5 +50,6 @@ class CreateInstanceBrickButton(InstanceBrickMixin, Button):
 
         return ctxt
 
+    @override
     def get_ctypes(self):
         return self.dependencies

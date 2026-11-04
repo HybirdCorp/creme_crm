@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -44,6 +46,7 @@ class _ExportAction(actions.UIAction):
     def url(self):
         return reverse('billing__export', args=(self.instance.id,))
 
+    # @override an attribute
     @property
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)
@@ -72,6 +75,7 @@ class _BulkExportAction(actions.BulkEntityAction):
 
     bulk_max_count = settings.BILLING_BULK_EXPORT_LIMIT
 
+    @override
     @property
     def url(self):
         return reverse(
@@ -101,6 +105,7 @@ class _GenerateNumberAction(actions.UIAction):
 
     generator_registry = number_generator_registry
 
+    @override
     @property
     def url(self):
         return reverse('billing__generate_number', args=(self.instance.id,))
@@ -125,6 +130,7 @@ class _GenerateNumberAction(actions.UIAction):
                 self.is_enabled = False
                 self.help_text = e.args[0]
 
+    @override
     def _get_options(self):
         return {
             'confirm': gettext('Do you really want to generate a number?'),

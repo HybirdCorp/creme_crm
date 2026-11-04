@@ -1,3 +1,5 @@
+from typing import override
+
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -28,6 +30,7 @@ class _BaseCustomFormDefault(CustomFormDefault):
         'additional_info', 'payment_terms', 'payment_type',
     ]
 
+    @override
     def groups_desc(self):
         descriptor = self.descriptor
         model = descriptor.model

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 from django.conf import settings
 from django.db.models import Model
@@ -51,6 +51,7 @@ class FunctionFieldResult:
 
 
 class FunctionFieldDecimal(FunctionFieldResult):
+    @override
     def render(self, tag):
         return (
             number_format(self._data)
@@ -68,6 +69,7 @@ class FunctionFieldLink(FunctionFieldResult):
         self._is_deleted = is_deleted
         self._help_text = help_text
 
+    @override
     def render(self, tag):
         if tag == ViewTag.TEXT_PLAIN:
             return self._data
@@ -99,6 +101,7 @@ class FunctionFieldColorAndLabel(FunctionFieldResult):
         super().__init__(label)
         self._color = color
 
+    @override
     def render(self, tag):
         if tag == ViewTag.TEXT_PLAIN:
             return self._data
@@ -146,13 +149,13 @@ class FunctionField:
     sorter_class: type[AbstractCellSorter] | None = None
 
     def __call__(self, entity, user) -> FunctionFieldResult:
-        """"@return An instance of FunctionFieldResult object
+        """@return An instance of FunctionFieldResult object
         (so you can call render() on the result).
         """
         return self.result_type(getattr(entity, self.name)())
 
     def populate_entities(self, entities, user):
-        """Optimisation used for list-views ; see HeaderFilter."""
+        """Optimisation used for list-views; see HeaderFilter."""
         pass
 
 
@@ -160,6 +163,7 @@ class FunctionFieldResultsList(FunctionFieldResult):
     def __init__(self, iterable: Iterable[FunctionFieldResult]):
         self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
+    @override
     def render(self, tag):
         if tag == ViewTag.TEXT_PLAIN:
             return '/'.join(e.render(tag) for e in self._data)

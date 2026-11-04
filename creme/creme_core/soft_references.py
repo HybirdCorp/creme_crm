@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -43,6 +45,7 @@ class RelationTypeConstraintPTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-rtype_constraints-ptype'
     model = core_models.CremePropertyType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -56,6 +59,7 @@ class EFilterConditionCFieldRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_cfield-cfield'
     model = core_models.CustomField
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -77,6 +81,7 @@ class EFilterConditionCFieldEnumValueRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_cfield-evalue'
     model = core_models.CustomFieldEnumValue
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -97,6 +102,7 @@ class EFilterConditionPTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_ptype-ptype'
     model = core_models.CremePropertyType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -113,6 +119,7 @@ class EFilterConditionRTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_rtypes-rtype'
     model = core_models.RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -132,6 +139,7 @@ class EFilterConditionPortableKeyedRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_rfield-portable_keyed'
     # model = models.Model
 
+    @override
     def collect(self, instance):
         get_key = getattr(instance, 'portable_key', None)
         if get_key is None:
@@ -161,6 +169,7 @@ class EFilterConditionEntityRefCollector(SoftReferenceCollector):
     id = 'creme_core-efilter_condition_rtype-entity'
     model = core_models.CremeEntity
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -178,6 +187,7 @@ class PropertyAddingTriggerPTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_prop_added-ptype'
     model = core_models.CremePropertyType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -198,6 +208,7 @@ class RelationAddingTriggerRTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_relation_added-rtype'
     model = core_models.RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -218,6 +229,7 @@ class RelationAddingTriggerRTypeRefCollector(SoftReferenceCollector):
 #     id = 'creme_core-workflow_prop_cond-ptype'
 #     model = core_models.CremePropertyType
 #
+#     @override
 #     def collect(self, instance):
 #         assert isinstance(instance, self.model)
 #
@@ -238,6 +250,7 @@ class WorkflowConditionCFieldRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_condition_cfield-cfield'
     model = core_models.CustomField
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -262,6 +275,7 @@ class WorkflowConditionCFieldEnumValueRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_condition_cfield-evalue'
     model = core_models.CustomFieldEnumValue
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -288,6 +302,7 @@ class WorkflowConditionPortableKeyedRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_condition_rfield-portable_keyed'
     # model = models.Model
 
+    @override
     def collect(self, instance):
         get_key = getattr(instance, 'portable_key', None)
         if get_key is None:
@@ -319,6 +334,7 @@ class PropertyAddingActionPTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_prop_action-ptype'
     model = core_models.CremePropertyType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
         ptype_uuid = instance.uuid
@@ -341,6 +357,7 @@ class RelationAddingActionRTypeRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_relation_action-rtype'
     model = core_models.RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -364,6 +381,7 @@ class NotificationSendingActionUserRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_notification_action-user'
     model = get_user_model()
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -385,6 +403,7 @@ class FixedEntitySourcedActionEntityRefCollector(SoftReferenceCollector):
     id = 'creme_core-workflow_action_fixed_source-entity'
     model = core_models.CremeEntity
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 

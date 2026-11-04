@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from datetime import timedelta
+from typing import override
 
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -34,6 +35,7 @@ class _WorkflowEmailsSendType(JobType):
     RETRY_DELAY_MINUTES = 15
     REMOVE_SENT_DAYS = 15
 
+    @override
     def _execute(self, job):
         Status = WorkflowEmail.Status
 
@@ -48,6 +50,7 @@ class _WorkflowEmailsSendType(JobType):
         ).delete()
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    @override
     def next_wakeup(self, job, now_value):
         Status = WorkflowEmail.Status
         filter_mail = WorkflowEmail.objects.filter

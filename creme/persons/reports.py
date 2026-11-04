@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -37,6 +39,7 @@ class OwnedChartFetcher(ChartFetcher):
         if self.value:
             self.error = _('No value is needed.')
 
+    @override
     def _aux_fetch_4_entity(self, entity, order, user):
         if not isinstance(entity, Contact):
             raise self.IncompatibleContentType(gettext(
@@ -54,10 +57,12 @@ class OwnedChartFetcher(ChartFetcher):
 
         return self.chart.fetch(extra_q=Q(user=owner), order=order, user=user)
 
+    @override
     @classmethod
     def choices(cls, model):
         yield '', _('Belongs to the Contact/User')
 
+    @override
     @property
     def linked_models(self):
         return [Contact]

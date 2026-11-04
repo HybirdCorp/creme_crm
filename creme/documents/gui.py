@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from typing import override
 
 from django.conf import settings
 from django.urls import reverse
@@ -39,6 +40,7 @@ class ParentFolderButton(listview.ListViewButton):
 class FolderCreationButton(listview.CreationButton):
     label_subfolder = _('Create a sub-folder for «{entity}»')
 
+    @override
     def get_label(self, request, model):
         parent = self.context['parent_folder']
 
@@ -48,6 +50,7 @@ class FolderCreationButton(listview.CreationButton):
             super().get_label(request=request, model=model)
         )
 
+    @override
     def get_url(self, request, model):
         parent = self.context['parent_folder']
 
@@ -57,6 +60,7 @@ class FolderCreationButton(listview.CreationButton):
             super().get_url(request=request, model=model)
         )
 
+    @override
     def is_allowed(self, request, model):
         allowed = super().is_allowed(request=request, model=model)
 

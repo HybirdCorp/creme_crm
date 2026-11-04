@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -46,15 +48,18 @@ class EntityEmailLinkButton(Button):
     template_name = 'emails/buttons/entityemail-link.html'
     permissions = build_link_perm(EntityEmail)
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
         request.user.has_perm_to_link_or_die(entity)
 
+    @override
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         context['rtypes'] = self.relation_type_deps
 
         return context
 
+    @override
     def get_ctypes(self):
         return (EntityEmail,)

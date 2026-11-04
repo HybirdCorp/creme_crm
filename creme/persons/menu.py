@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 # from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -47,6 +49,7 @@ class UserContactEntry(menu.MenuEntry):
     #             user=user,
     #         )
     #     )
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         ctxt['user'] = context['user']

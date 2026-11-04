@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
@@ -30,6 +32,7 @@ from .utils.unicode_collation import collator
 
 
 class PropertiesSearchField(BaseChoiceField):
+    @override
     def _build_choices(self, null_label=_('* no property *')):
         choices = super()._build_choices(null_label=null_label)
         choices.extend(
@@ -41,9 +44,11 @@ class PropertiesSearchField(BaseChoiceField):
 
         return choices
 
+    @override
     def _get_q_for_choice(self, choice_value):
         return Q(properties__type=choice_value)
 
+    @override
     def _get_q_for_null_choice(self):
         return Q(properties__isnull=True)
 
@@ -69,6 +74,7 @@ class PropertiesField(FunctionField):
             )
         )
 
+    @override
     @classmethod
     def populate_entities(cls, entities, user):
         CremeEntity.populate_properties(entities)

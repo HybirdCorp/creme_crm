@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
@@ -100,6 +102,7 @@ class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
     def __init__(self, event, value='invitation_management', **kwargs):
         super().__init__(event=event, value=value, **kwargs)
 
+    @override
     def render(self, entity, user, tag):
         has_relation = self.has_relation
 
@@ -124,6 +127,7 @@ class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
             current_status=current_status,
         )
 
+    @override
     @property
     def title(self):
         return _('Invitation')
@@ -133,6 +137,7 @@ class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
     def __init__(self, event, value='presence_management', **kwargs):
         super().__init__(event=event, value=value, **kwargs)
 
+    @override
     def render(self, entity, user, tag):
         has_relation = self.has_relation
 
@@ -154,6 +159,7 @@ class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
             current_status=current_status,
         )
 
+    @override
     @property
     def title(self):
         return _('Presence')

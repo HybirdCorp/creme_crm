@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db.models.query_utils import Q
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +35,7 @@ class _CampaignEmailsSendType(JobType):
     verbose_name = _('Send emails from campaigns')
     periodic = JobType.PSEUDO_PERIODIC
 
+    @override
     def _execute(self, job):
         # TODO: exclude config_item=None ?
         for sending in EmailSending.objects.exclude(
@@ -60,6 +63,7 @@ class _CampaignEmailsSendType(JobType):
                 )
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    @override
     def next_wakeup(self, job, now_value):
         qs = EmailSending.objects.exclude(
             campaign__is_deleted=True,

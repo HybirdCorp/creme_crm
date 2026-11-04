@@ -1,3 +1,5 @@
+from typing import override
+
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -26,6 +28,7 @@ class ContactFormDefault(CustomFormDefault):
     ]
     details_fields = ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']
 
+    @override
     def groups_desc(self):
         return [
             # LAYOUT_DUAL_FIRST
@@ -80,6 +83,7 @@ class OrganisationFormDefault(CustomFormDefault):
         'image',
     ]
 
+    @override
     def groups_desc(self):
         return [
             # LAYOUT_DUAL_FIRST

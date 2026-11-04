@@ -966,7 +966,7 @@ class CustomFormDefault:
 
 
 class CustomFormDescriptor:
-    """The descriptor contains the meta-data for a Custom form.
+    """The descriptor contains the metadata for a Custom form.
     Each instance is related to a CustomFormConfigItem instance which stores
     the custom-form data (groups of fields).
     """

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -48,11 +50,13 @@ class GenerateNumberButton(Button):
 
     generator_registry = number_generator_registry
 
+    @override
     def get_ctypes(self):
         return [
             model for model in BILLING_MODELS if not model.generate_number_in_create
         ]
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
 
@@ -67,6 +71,7 @@ class GenerateNumberButton(Button):
             user=request.user, entity=entity,
         )
 
+    @override
     def is_displayed(self, *, entity, request):
         return not entity.generate_number_in_create
 
@@ -78,6 +83,7 @@ class _AddBillingDocumentButton(Button):
 
     url_name = 'OVERRIDE_ME'
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
 
@@ -85,6 +91,7 @@ class _AddBillingDocumentButton(Button):
         user.has_perm_to_create_or_die(self.model_to_create)
         user.has_perm_to_link_or_die(entity)
 
+    @override
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         context['url_name'] = self.url_name
@@ -103,6 +110,7 @@ class _AddBillingDocumentButton(Button):
 
         return context
 
+    @override
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
 
@@ -158,6 +166,7 @@ class _ConvertToButton(Button):
 
         return 'INVALID'
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
 
@@ -171,6 +180,7 @@ class _ConvertToButton(Button):
 
         converter.check_permissions()
 
+    @override
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         context['convert_to'] = self._target_name()
@@ -178,6 +188,7 @@ class _ConvertToButton(Button):
 
         return context
 
+    @override
     def get_ctypes(self):
         current_target = self.target_model
 

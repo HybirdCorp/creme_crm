@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -50,6 +51,7 @@ class _TrashCleanerType(JobType):
 
     deletor_registry = entity_deletor_registry
 
+    @override
     def _execute(self, job):
         # NB 1: we try to delete the remaining entities (which could not be deleted
         #       because of relationships) when there are errors, while the previous
@@ -162,6 +164,7 @@ class _TrashCleanerType(JobType):
             if not errors or not progress:
                 break
 
+    @override
     def progress(self, job):
         count = TrashCleaningCommand.objects.get(job=job).deleted_count
 
@@ -175,6 +178,7 @@ class _TrashCleanerType(JobType):
         )
 
     # TODO: factorise
+    @override
     def get_stats(self, job):
         count = TrashCleaningCommand.objects.get(job=job).deleted_count
 
@@ -186,6 +190,7 @@ class _TrashCleanerType(JobType):
             ).format(count=count),
         ] if count else []
 
+    @override
     @property
     def results_bricks(self):
         return [TrashCleanerJobErrorsBrick()]

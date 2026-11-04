@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.conf import settings
 # from django.core.mail import EmailMultiAlternatives, get_connection
@@ -47,6 +48,7 @@ class _NotificationEmailsSenderType(JobType):
         )
 
     # TODO: use chunks?
+    @override
     def _execute(self, job):
         # TODO: <sleep(10)> to be sure the transaction which trigger the refreshing is finished?
         notifications = self._get_notifications()
@@ -95,6 +97,7 @@ class _NotificationEmailsSenderType(JobType):
         notifications.update(extra_data={'sent': dt_to_ISO8601(now())})
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    @override
     def next_wakeup(self, job, now_value):
         if self._get_notifications().exists():
             return now_value

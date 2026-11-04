@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from typing import override
 
 from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
@@ -47,6 +48,7 @@ class EditAction(EntityAction):
             self.is_enabled = False
             self.help_text = str(e)
 
+    @override
     @property
     def url(self):
         return self._url
@@ -75,6 +77,7 @@ class DeleteAction(EntityAction):
                 self.is_enabled = False
                 self.help_text = e.args[0]
 
+    @override
     @property
     def url(self):
         return self.instance.get_delete_absolute_url()
@@ -89,6 +92,7 @@ class ViewAction(EntityAction):
 
     is_default = True
 
+    @override
     @property
     def url(self):
         return self.instance.get_absolute_url()
@@ -126,10 +130,12 @@ class CloneAction(EntityAction):
                 self.is_enabled = False
                 self.help_text = e.args[0]
 
+    @override
     @property
     def url(self):
         return self.instance.get_clone_absolute_url() if self.is_visible else ''
 
+    @override
     def _get_data(self):
         return {
             'id': self.instance.id,
@@ -144,6 +150,7 @@ class BulkEditAction(BulkEntityAction):
     label = _('Multiple update')
     icon = 'edit'
 
+    @override
     @property
     def url(self):
         return reverse(self.url_name, args=(self.ctype.id,))
@@ -174,6 +181,7 @@ class BulkAddPropertyAction(BulkEntityAction):
     label = _('Multiple property adding')
     icon = 'property'
 
+    @override
     @property
     def url(self):
         return reverse(self.url_name, args=(self.ctype.id,))
@@ -188,6 +196,7 @@ class BulkAddRelationAction(BulkEntityAction):
     label = _('Multiple relationship adding')
     icon = 'relations'
 
+    @override
     @property
     def url(self):
         return reverse(self.url_name, args=(self.ctype.id,))
@@ -210,10 +219,12 @@ class MergeAction(BulkEntityAction):
     def _model_can_be_merged(self) -> bool:
         return self.model in self.merge_form_registry
 
+    # @override an attribute
     @property
     def is_enabled(self):
         return self._model_can_be_merged()
 
+    # @override an attribute
     @property
     def is_visible(self):
         return self._model_can_be_merged()

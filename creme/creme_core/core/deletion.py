@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable, Iterator
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -133,6 +133,7 @@ class FixedValueReplacer(Replacer):
             field=rel_field.verbose_name,
         )
 
+    @override
     def as_dict(self):
         d = super().as_dict()
 
@@ -142,6 +143,7 @@ class FixedValueReplacer(Replacer):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, d):
         ctype = ContentType.objects.get_by_natural_key(*d['ctype'])
@@ -160,6 +162,7 @@ class FixedValueReplacer(Replacer):
 
         return cls(model_field=fk, value=value)
 
+    @override
     def get_value(self):
         return self._fixed_value
 
@@ -176,6 +179,7 @@ class SETReplacer(Replacer):
             field=fk.verbose_name,
         )
 
+    @override
     @classmethod
     def from_dict(cls, d):
         # TODO: factorise
@@ -184,6 +188,7 @@ class SETReplacer(Replacer):
 
         return cls(model_field=fk)
 
+    @override
     def get_value(self):
         captured_value = None
 

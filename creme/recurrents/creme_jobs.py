@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.db.models import Q
 from django.db.transaction import atomic
@@ -44,6 +46,7 @@ class _GenerateDocsType(JobType):
             ) | Q(last_generation__isnull=False)
         )
 
+    @override
     def _execute(self, job):
         wf_engine = WorkflowEngine.get_current()
 
@@ -77,6 +80,7 @@ class _GenerateDocsType(JobType):
     #            ]
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    @override
     def next_wakeup(self, job, now_value):
         wakeup = None
 

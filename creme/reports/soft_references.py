@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db import models
 
 from creme.creme_core import models as core_models
@@ -29,6 +31,7 @@ class ReportRelationTypeRefCollector(SoftReferenceCollector):
     id = 'reports-report-rtype'
     model = core_models.RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -48,6 +51,7 @@ class ReportCustomFieldTypeRefCollector(SoftReferenceCollector):
     id = 'reports-report-cfield'
     model = core_models.CustomField
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -70,6 +74,7 @@ class ChartRelationTypeRefCollector(SoftReferenceCollector):
     id = 'reports-chart-rtype'
     model = core_models.RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
@@ -84,6 +89,7 @@ class ChartCustomFieldTypeRefCollector(SoftReferenceCollector):
     id = 'reports-chart-cfield'
     model = core_models.CustomField
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 

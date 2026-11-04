@@ -1,3 +1,5 @@
+from typing import override
+
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -73,6 +75,7 @@ class ActivityCreationFormDefault(_ActivityCustomFormDefault):
             ],
         }
 
+    @override
     def groups_desc(self):
         return [
             self.group_desc_for_main_fields(),
@@ -106,6 +109,7 @@ class ActivityFromCalendarFormDefault(ActivityCreationFormDefault):
     ]
 
     # NB: <remaining=False> we do not want 'minutes' in the default form
+    @override
     def group_desc_for_main_fields(self, remaining=False, **kwargs):
         return super().group_desc_for_main_fields(remaining=remaining, **kwargs)
 
@@ -114,6 +118,7 @@ class UnavailabilityCreationFormDefault(ActivityCreationFormDefault):
     sub_cells = {'sub_type': activity_forms.UnavailabilityTypeSubCell}
     main_fields = ['user', 'title', 'sub_type']
 
+    @override
     def groups_desc(self):
         model = self.descriptor.model
 
@@ -141,6 +146,7 @@ class ActivityEditionFormDefault(_ActivityCustomFormDefault):
         'sub_type',
     ]
 
+    @override
     def groups_desc(self):
         return [
             self.group_desc_for_main_fields(),

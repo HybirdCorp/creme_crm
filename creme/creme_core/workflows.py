@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Literal, Self
+from typing import TYPE_CHECKING, Literal, Self, override
 from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -88,6 +88,7 @@ class _EntityTrigger(WorkflowTrigger):
     def source_class(self):
         raise NotImplementedError
 
+    @override
     def _activate(self, event):
         assert isinstance(event, _EntityEvent)
 
@@ -102,6 +103,7 @@ class _EntityTrigger(WorkflowTrigger):
             None
         )
 
+    @override
     @property
     def description(self):
         return self.description_format.format(model=self._model._meta.verbose_name)
@@ -110,16 +112,19 @@ class _EntityTrigger(WorkflowTrigger):
     def model(self):
         return self._model
 
+    @override
     @classmethod
     def from_dict(cls, data):
         return cls(model=model_from_key(data['model']))
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['model'] = model_as_key(self._model)
 
         return d
 
+    @override
     def root_sources(self):
         return [self.source_class(model=self._model)]
 
@@ -135,6 +140,7 @@ class EntityCreationTrigger(_EntityTrigger):
     def source_class(self):
         return CreatedEntitySource
 
+    @override
     @classmethod
     def config_formfield(cls, model):
         from .forms.workflows import EntityCreationTriggerField
@@ -155,6 +161,7 @@ class EntityEditionTrigger(_EntityTrigger):
     def source_class(self):
         return EditedEntitySource
 
+    @override
     @classmethod
     def config_formfield(cls, model):
         from .forms.workflows import EntityEditionTriggerField
@@ -202,6 +209,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
             f')'
         )
 
+    @override
     def _activate(self, event):
         assert isinstance(event, PropertyAdded)
 
@@ -224,6 +232,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
 
         return None
 
+    @override
     @property
     def description(self):
         try:
@@ -257,6 +266,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
 
         return ptype
 
+    @override
     @classmethod
     def config_formfield(cls, model):
         from .forms.workflows import PropertyAddingTriggerField
@@ -265,6 +275,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
             model=model, label=cls.verbose_name,
         )
 
+    @override
     @classmethod
     def from_dict(cls, data) -> PropertyAddingTrigger:
         return cls(
@@ -273,6 +284,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
             ptype=data['ptype'],
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['ptype'] = str(self._ptype_uuid)
@@ -280,6 +292,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
 
         return d
 
+    @override
     def root_sources(self):
         return [TaggedEntitySource(model=self._entity_model)]
 
@@ -329,6 +342,7 @@ class RelationAddingTrigger(WorkflowTrigger):
             f')'
         )
 
+    @override
     def _activate(self, event):
         assert isinstance(event, RelationAdded)
 
@@ -353,6 +367,7 @@ class RelationAddingTrigger(WorkflowTrigger):
 
         return None
 
+    @override
     @property
     def description(self):
         try:
@@ -391,12 +406,14 @@ class RelationAddingTrigger(WorkflowTrigger):
     def subject_model(self) -> type[CremeEntity]:
         return self._subject_model
 
+    @override
     @classmethod
     def config_formfield(cls, model):
         from .forms.workflows import RelationAddingTriggerField
 
         return RelationAddingTriggerField(model=model, label=cls.verbose_name)
 
+    @override
     @classmethod
     def from_dict(cls, data):
         return cls(
@@ -405,6 +422,7 @@ class RelationAddingTrigger(WorkflowTrigger):
             object_model=model_from_key(data['object_model']),
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['rtype'] = self._rtype_id
@@ -413,6 +431,7 @@ class RelationAddingTrigger(WorkflowTrigger):
 
         return d
 
+    @override
     def root_sources(self):
         return [
             SubjectEntitySource(model=self._subject_model),
@@ -429,6 +448,7 @@ class CreatedEntitySource(FromContextSource):
     verbose_name = _('Created entity')
     description_format = _('Created entity ({type})')
 
+    @override
     def config_formfield(self, user):
         from .forms.workflows import CreatedEntitySourceField
 
@@ -443,6 +463,7 @@ class EditedEntitySource(FromContextSource):
     verbose_name = _('Modified entity')
     description_format = _('Modified entity ({type})')
 
+    @override
     def config_formfield(self, user):
         from .forms.workflows import EditedEntitySourceField
 
@@ -457,6 +478,7 @@ class TaggedEntitySource(FromContextSource):
     verbose_name = _('Received a new property')
     description_format = _('Received a new property ({type})')
 
+    @override
     def config_formfield(self, user):
         from .forms.workflows import TaggedEntitySourceField
 
@@ -471,6 +493,7 @@ class SubjectEntitySource(FromContextSource):
     verbose_name = _('Subject of the created relationship')
     description_format = _('Subject of the created relationship ({type})')
 
+    @override
     def config_formfield(self, user):
         from .forms.workflows import SubjectEntitySourceField
 
@@ -485,6 +508,7 @@ class ObjectEntitySource(FromContextSource):
     verbose_name = _('Object of the created relationship')
     description_format = _('Object of the created relationship ({type})')
 
+    @override
     def config_formfield(self, user):
         from .forms.workflows import ObjectEntitySourceField
 
@@ -545,26 +569,31 @@ class FixedEntitySource(WorkflowSource):
 
         return entity
 
+    @override
     @property
     def model(self) -> type[CremeEntity]:
         return self._model
 
+    @override
     @classmethod
     def standalone_config_formfield(cls, user):
         from .forms.workflows import FixedEntitySourceField
 
         return FixedEntitySourceField(label=_('Fixed entity'), user=user)
 
+    @override
     def extract(self, context):
         try:
             return self.entity
         except WorkflowBrokenData:
             return None
 
+    @override
     @classmethod
     def from_dict(cls, data, registry) -> FixedEntitySource:
         return cls(model=model_from_key(data['model']), entity=data['uuid'])
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['uuid'] = self._entity_uuid
@@ -572,6 +601,7 @@ class FixedEntitySource(WorkflowSource):
 
         return d
 
+    @override
     def render(self, user, mode):
         try:
             entity = self.entity
@@ -664,6 +694,7 @@ class EntityFKSource(WorkflowSource):
             f')'
         )
 
+    @override
     @property
     def model(self):
         return self._field.related_model
@@ -672,6 +703,7 @@ class EntityFKSource(WorkflowSource):
     def field_name(self):
         return self._field_name
 
+    @override
     @classmethod
     def composed_config_formfield(cls, sub_source, user):
         from .forms.workflows import EntityFKSourceField
@@ -685,10 +717,12 @@ class EntityFKSource(WorkflowSource):
 
         return field if field.choices else None
 
+    @override
     def extract(self, context):
         instance = self._entity_source.extract(context=context)
         return None if instance is None else getattr(instance, self._field_name)
 
+    @override
     @classmethod
     def from_dict(cls, data, registry) -> EntityFKSource:
         return cls(
@@ -696,6 +730,7 @@ class EntityFKSource(WorkflowSource):
             field_name=data['field'],
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['entity'] = self._entity_source.to_dict()
@@ -703,6 +738,7 @@ class EntityFKSource(WorkflowSource):
 
         return d
 
+    @override
     def render(self, user, mode):
         source = self._entity_source
         result = gettext('Field «{field}» of: {source}').format(
@@ -720,6 +756,7 @@ class EntityFKSource(WorkflowSource):
             case _:
                 raise ValueError()
 
+    @override
     @property
     def sub_source(self):
         return self._entity_source
@@ -771,6 +808,7 @@ class FirstRelatedEntitySource(WorkflowSource):
             f')'
         )
 
+    @override
     @property
     def model(self):
         return self._object_model
@@ -793,6 +831,7 @@ class FirstRelatedEntitySource(WorkflowSource):
 
         return rtype
 
+    @override
     @classmethod
     def composed_config_formfield(cls, sub_source, user):
         from .forms.workflows import FirstRelatedEntitySourceField
@@ -804,6 +843,7 @@ class FirstRelatedEntitySource(WorkflowSource):
             subject_source=sub_source,
         )
 
+    @override
     def extract(self, context: dict):
         subject = self._subject_source.extract(context=context)
 
@@ -818,6 +858,7 @@ class FirstRelatedEntitySource(WorkflowSource):
 
         return None
 
+    @override
     @classmethod
     def from_dict(cls, data: dict, registry) -> FirstRelatedEntitySource:
         return cls(
@@ -826,6 +867,7 @@ class FirstRelatedEntitySource(WorkflowSource):
             object_model=model_from_key(data['object_model']),
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['subject'] = self._subject_source.to_dict()
@@ -834,6 +876,7 @@ class FirstRelatedEntitySource(WorkflowSource):
 
         return d
 
+    @override
     def render(self, user, mode):
         try:
             predicate = self.relation_type.predicate
@@ -870,6 +913,7 @@ class FirstRelatedEntitySource(WorkflowSource):
             case _:
                 raise ValueError()
 
+    @override
     @property
     def sub_source(self):
         return self._subject_source
@@ -969,6 +1013,7 @@ class FixedUserSource(UserSource):
     def __repr__(self):
         return f'{type(self).__name__}(user={self.user!r})'
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import FixedUserSourceField
@@ -977,6 +1022,7 @@ class FixedUserSource(UserSource):
             label=cls.verbose_name,
         )  if entity_source is None else None
 
+    @override
     def extract(self, context):
         try:
             user = self.user
@@ -998,16 +1044,19 @@ class FixedUserSource(UserSource):
 
         return user
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(user=data['user'])
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['user'] = str(self._user_uuid)
 
         return d
 
+    @override
     def render(self, user):
         try:
             user = self.user
@@ -1075,6 +1124,7 @@ class UserFKSource(UserSource):
             f')'
         )
 
+    @override
     @property
     def wf_source(self):
         return self._entity_source
@@ -1083,6 +1133,7 @@ class UserFKSource(UserSource):
     def field_name(self):
         return self._field_name
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import UserFKSourceField
@@ -1094,6 +1145,7 @@ class UserFKSource(UserSource):
             entity_source=entity_source,
         )
 
+    @override
     def extract(self, context):
         # TODO: errors
         instance = self._entity_source.extract(context=context)
@@ -1101,6 +1153,7 @@ class UserFKSource(UserSource):
 
         return user if user and user.is_active else None
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(
@@ -1108,6 +1161,7 @@ class UserFKSource(UserSource):
             field_name=data['field'],
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['entity'] = self._entity_source.to_dict()
@@ -1115,6 +1169,7 @@ class UserFKSource(UserSource):
 
         return d
 
+    @override
     def render(self, user):
         source = self._entity_source
 
@@ -1135,12 +1190,14 @@ class BrokenUserSource(UserSource):
     def message(self):
         return self._message
 
+    @override
     def render(self, user):
         return format_html(
             '<p class="errorlist">{message}</p>',
             message=self._message,
         )
 
+    @override
     def extract(self, context):
         return None
 
@@ -1272,6 +1329,7 @@ class PropertyAddingAction(WorkflowAction):
             f')'
         )
 
+    @override
     @classmethod
     def config_form_class(cls):
         from creme.creme_core.forms.workflows import PropertyAddingActionForm
@@ -1297,6 +1355,7 @@ class PropertyAddingAction(WorkflowAction):
 
         return ptype
 
+    @override
     def execute(self, context, user=None):
         entity = self._entity_source.extract(context)
         if entity is not None:
@@ -1318,6 +1377,7 @@ class PropertyAddingAction(WorkflowAction):
                         ptype, entity,
                     )
 
+    @override
     def to_dict(self) -> dict:
         d = super().to_dict()
         d['entity'] = self._entity_source.to_dict()
@@ -1325,6 +1385,7 @@ class PropertyAddingAction(WorkflowAction):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data: dict, registry) -> PropertyAddingAction:
         return cls(
@@ -1332,6 +1393,7 @@ class PropertyAddingAction(WorkflowAction):
             ptype=data['ptype'],
         )
 
+    @override
     def render(self, user):
         source = self._entity_source
 
@@ -1400,11 +1462,13 @@ class RelationAddingAction(WorkflowAction):
             f')'
         )
 
+    @override
     @classmethod
     def config_form_class(cls):
         from creme.creme_core.forms.workflows import RelationAddingActionForm
         return RelationAddingActionForm
 
+    @override
     def execute(self, context, user=None):
         subject_entity = self._subject_source.extract(context)
         object_entity = self._object_source.extract(context)
@@ -1456,6 +1520,7 @@ class RelationAddingAction(WorkflowAction):
     def subject_source(self) -> WorkflowSource:
         return self._subject_source
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['subject'] = self._subject_source.to_dict()
@@ -1464,6 +1529,7 @@ class RelationAddingAction(WorkflowAction):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data: dict, registry) -> RelationAddingAction:
         return cls(
@@ -1472,6 +1538,7 @@ class RelationAddingAction(WorkflowAction):
             object_source=registry.build_source(data['object']),
         )
 
+    @override
     def render(self, user):
         try:
             rtype = self.relation_type
@@ -1560,6 +1627,7 @@ class NotificationSendingAction(WorkflowAction):
             f')'
         )
 
+    @override
     @classmethod
     def config_form_class(cls):
         from .forms.workflows import NotificationSendingActionForm
@@ -1585,6 +1653,7 @@ class NotificationSendingAction(WorkflowAction):
     def subject(self) -> str:
         return self._subject
 
+    @override
     def execute(self, context, user=None):
         user = self._user_source.extract(context)
         if not user:
@@ -1602,6 +1671,7 @@ class NotificationSendingAction(WorkflowAction):
             ),
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['channel'] = str(self._channel.uuid)
@@ -1612,6 +1682,7 @@ class NotificationSendingAction(WorkflowAction):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(
@@ -1623,6 +1694,7 @@ class NotificationSendingAction(WorkflowAction):
             body=data['body'],
         )
 
+    @override
     def render(self, user):
         return format_html(
             '<div>'
