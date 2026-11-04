@@ -37,7 +37,7 @@ class AbstractGraph(CremeEntity):
         pgettext_lazy('graphs', 'Name of the graph'), max_length=100,
     )
     orbital_relation_types = models.ManyToManyField(
-        RelationType, verbose_name=_('Types of the peripheral relations'),
+        RelationType, verbose_name=_('Types of the peripheral relationships'),
         editable=False,
     )
 

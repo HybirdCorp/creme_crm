@@ -111,3 +111,11 @@ class GraphsConfig(CremeAppConfig):
         ).add_link(
             'graphs-create_graph', self.Graph, priority=50,
         )
+
+    @override
+    def register_soft_collectors(self, soft_reference_registry):
+        from . import soft_references
+
+        soft_reference_registry.register(
+            soft_references.GraphRelationTypeRefCollector,
+        )

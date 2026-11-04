@@ -118,7 +118,7 @@ class SoftReferenceRegistryTestCase(CremeTestCase):
         )
         self.assertCountEqual([efilter1, wf], [*registry.collect(ptype1)])
 
-    def test_global_regsitry(self):
+    def test_global_registry(self):
         classes = {*soft_reference_registry.collector_classes}
         self.assertIn(soft_references.RelationTypeConstraintPTypeRefCollector, classes)
 
