@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from datetime import timedelta
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -34,6 +35,7 @@ class _EntityEmailsSendType(JobType):
     verbose_name = _('Send entity emails')
     periodic = JobType.PSEUDO_PERIODIC
 
+    @override
     def _execute(self, job):
         wf_engine = WorkflowEngine.get_current()
         Status = EntityEmail.Status
@@ -45,6 +47,7 @@ class _EntityEmailsSendType(JobType):
                 email.send()
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    @override
     def next_wakeup(self, job, now_value):
         Status = EntityEmail.Status
         filter_mail = EntityEmail.objects.exclude(is_deleted=True).filter

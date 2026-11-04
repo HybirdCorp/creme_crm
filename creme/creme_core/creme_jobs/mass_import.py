@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
@@ -44,6 +45,7 @@ class MassImportJobErrorsBrick(JobErrorsBrick):
     dependencies = (MassImportJobResult,)
     template_name = 'creme_core/bricks/massimport-errors.html'
 
+    @override
     def _build_queryset(self, job):
         return super()._build_queryset(job).prefetch_related('real_entity')
 
@@ -61,6 +63,7 @@ class _MassImportType(JobType):
     def _get_ctype(self, job_data):
         return ContentType.objects.get_fresh_for_id(job_data['ctype'])
 
+    @override
     def _execute(self, job):
         job_data = job.data
         POST = self._build_POST(job_data)
@@ -83,6 +86,7 @@ class _MassImportType(JobType):
             content=MassImportDoneContent(instance=doc),
         )
 
+    @override
     def progress(self, job):
         count = MassImportJobResult.objects.filter(job=job).count()
         return JobProgress(
@@ -94,10 +98,12 @@ class _MassImportType(JobType):
             ).format(count=count)
         )
 
+    @override
     @property
     def results_bricks(self):
         return [MassImportJobErrorsBrick()]
 
+    @override
     def get_description(self, job):
         try:
             job_data = job.data
@@ -113,6 +119,7 @@ class _MassImportType(JobType):
 
         return desc
 
+    @override
     def get_stats(self, job):
         stats = []
 

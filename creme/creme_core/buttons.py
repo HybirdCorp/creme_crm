@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -36,6 +38,7 @@ class Restrict2SuperusersButton(Button):
     dependencies = (Button.CURRENT,)
     template_name = 'creme_core/buttons/restrict-to-superusers.html'
 
+    @override
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         sandbox = entity.sandbox
@@ -44,5 +47,6 @@ class Restrict2SuperusersButton(Button):
 
         return context
 
+    @override
     def is_displayed(self, *, entity, request):
         return request.user.is_superuser

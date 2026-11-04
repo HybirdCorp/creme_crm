@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025 Hybird
+#    Copyright (C) 2024-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 import logging
 from datetime import date, timedelta
+from typing import override
 
 from django.utils.translation import gettext
 
@@ -31,11 +32,13 @@ logger = logging.getLogger(__name__)
 
 
 class NumberCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.number = self._source.number
 
 
 class StatusCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         status_model = type(target)._meta.get_field('status').remote_field.model
         target.status = (
@@ -46,6 +49,7 @@ class StatusCopier(PreSaveCopier):
 
 # TODO: the code would be more simpler if we had one not custom status...
 class QuoteStatusCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         status_model = type(target)._meta.get_field('status').remote_field.model
         source = self._source
@@ -64,17 +68,20 @@ class QuoteStatusCopier(PreSaveCopier):
 
 # TODO: do not mark 'Base.additional_info' as <clonable=False> (just exclude in cloner)?
 class AdditionalInfoCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.additional_info = self._source.additional_info
 
 
 # TODO: same remark
 class PaymentTermsCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.payment_terms = self._source.payment_terms
 
 
 class DatesCopier(PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.issuing_date = date.today()
         # TODO: user configurable rules?
@@ -98,6 +105,7 @@ class BillingBaseSpawner(Spawner):
         billing_cloners.LinesCopier,
     ]
 
+    @override
     def _pre_save(self, *, user, source, target):
         super()._pre_save(user=user, source=source, target=target)
         target.generate_number_in_create = True

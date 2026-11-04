@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025 Hybird
+#    Copyright (C) 2024-2026 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.core.exceptions import ValidationError
 from django.db.models import Field, Q
@@ -83,6 +84,7 @@ class RegularFieldsCopier(FieldsCopierMixin, PreSaveCopier):
     Notice that ManyToManyFields are NOT copied (so this copier can be used
     before saving the cloned entity).
     """
+    @override
     def copy_to(self, target):
         source = self.source
 
@@ -94,6 +96,7 @@ class RegularFieldsCopier(FieldsCopierMixin, PreSaveCopier):
 
 class ManyToManyFieldsCopier(FieldsCopierMixin, PostSaveCopier):
     """Specialized copier for Many-To-Many fields."""
+    @override
     def copy_to(self, target):
         source = self._source
 
@@ -105,6 +108,7 @@ class ManyToManyFieldsCopier(FieldsCopierMixin, PostSaveCopier):
 
 class CustomFieldsCopier(PostSaveCopier):
     """Specialized copier for Custom-Fields."""
+    @override
     def copy_to(self, target):
         source = self._source
 
@@ -131,6 +135,7 @@ class PropertiesCopier(PostSaveCopier):
     def _properties_qs(self):
         return self._source.properties.filter(type__is_copiable=True)
 
+    @override
     def copy_to(self, target):
         property_create = CremeProperty.objects.safe_create
 
@@ -145,6 +150,7 @@ class StrongPropertiesCopier(PropertiesCopier):
     but you should use this class when the types are mixed, because the
     ContentType constraints of the CremePropertyTypes are respected.
     """
+    @override
     def copy_to(self, target):
         property_create = CremeProperty.objects.safe_create
 
@@ -172,6 +178,7 @@ class RelationsCopier(PostSaveCopier):
 
         return self._source.relations.filter(query)
 
+    @override
     def copy_to(self, target):
         relation_create = Relation.objects.safe_create
 
@@ -201,6 +208,7 @@ class StrongRelationsCopier(RelationsCopier):
     # duplicates (we assume that "target" is a freshly created instance with no Relation).
     check_existing = False
 
+    @override
     def copy_to(self, target):
         relations = []
         for relation in self._relations_qs().select_related('type', 'user').prefetch_related(
@@ -235,6 +243,7 @@ class RelationAdder(PostSaveCopier):
     """Add a Relation with a fixed type between the source & the target."""
     rtype_id = ''
 
+    @override
     def copy_to(self, target):
         rtype_id = self.rtype_id
 

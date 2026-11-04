@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 
@@ -36,15 +37,18 @@ class ExploreFolderAction(UIAction):
 
     help_format = _('List sub-folders of «{}»')
 
+    @override
     @property
     def url(self):
         instance = self.instance
         return f'{instance.get_lv_absolute_url()}?parent_id={instance.id}'
 
+    # @override an attribute
     @property
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)
 
+    # @override an attribute
     @property
     def help_text(self):
         return self.help_format.format(self.instance)
@@ -61,10 +65,12 @@ class DownloadAction(UIAction):
 
     help_text = _('Download the file')
 
+    @override
     @property
     def url(self):
         return self.instance.get_download_absolute_url()
 
+    # @override an attribute
     @property
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)

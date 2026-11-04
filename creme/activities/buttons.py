@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
@@ -148,6 +150,7 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
         sub_type.is_enabled_or_die()
         status.is_enabled_or_die()
 
+    @override
     def get_ctypes(self):
         from creme.persons import get_contact_model
 

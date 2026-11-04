@@ -22,7 +22,7 @@ import logging
 import warnings
 from collections import defaultdict
 from collections.abc import Collection, Iterable, Iterator
-from typing import Self
+from typing import Self, override
 
 from django.core.exceptions import PermissionDenied, ValidationError
 # from django.template.loader import get_template
@@ -185,6 +185,7 @@ class MenuEntrySequence(MenuEntry):
     # def render(self, context):
     #     raise TypeError('You should not call this method on entry sequence')
 
+    @override
     def get_context(self, context):
         raise TypeError('You should not call this method on entry sequence')
 
@@ -225,6 +226,7 @@ class FixedURLEntry(MenuEntry):
     #     return format_html(
     #         '<a href="{url}">{label}</a>', url=self.url, label=label,
     #     )
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         ctxt['url'] = self.url
@@ -244,6 +246,7 @@ class CreationEntry(FixedURLEntry):
         self.label = model.creation_label
         self.permissions = auth.build_creation_perm(model)
 
+    @override
     @property
     def url(self):
         url = self.model.get_create_absolute_url()
@@ -268,6 +271,7 @@ class ListviewEntry(FixedURLEntry):
         self.label = model._meta.verbose_name_plural
         self.permissions = auth.build_list_perm(model)
 
+    @override
     @property
     def url(self):
         get_url = getattr(self.model, 'get_lv_absolute_url', None)
@@ -298,6 +302,7 @@ class TemplateEntry(MenuEntry):
     #         'permission_error': permission_error,
     #         'template_name': self.template_name
     #     }
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         warnings.warn(
@@ -428,6 +433,7 @@ class ActionEntry(MenuEntry):
         """
         return {}
 
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context)
         ctxt['action'] = self.get_action_context(ctxt, user=context['user'])
@@ -461,6 +467,7 @@ class UpdateActionEntry(ActionEntry):
         """
         return self.confirm_message
 
+    @override
     def get_action_props(self, context) -> dict:
         confirm_message = self.get_confirm_message(context)
         redirect_url = self.redirect_url
@@ -502,6 +509,7 @@ class CustomURLEntry(MenuEntry):
     #         url=url,
     #         label=label,
     #     )
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
 
@@ -537,6 +545,7 @@ class ContainerEntry(MenuEntry):
         super().__init__(**kwargs)
         self._children = []
 
+    @override
     @property
     def children(self):
         yield from self._children
@@ -597,6 +606,7 @@ class ContainerEntry(MenuEntry):
     def _get_children(self, context) -> Iterator[MenuEntry]:
         yield from self._children
 
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         ctxt['sub_entries'] = [*self._build_sub_contexts(
@@ -698,7 +708,7 @@ class MenuRegistry:
 
     def get_entries(self, config_items: Iterable[MenuConfigItem]) -> list[MenuEntry]:
         """Get instances corresponding some MenuConfigItems.
-        Parenting is managed ; and attributes 'config_item_id' are filled.
+        Parenting is managed; and attributes 'config_item_id' are filled.
         """
         # NB: 2 lists for 2 levels   TODO: generalise with deeper levels?
         entry_info: list[list[tuple[type[MenuEntry], MenuConfigItem]]] = [[], []]

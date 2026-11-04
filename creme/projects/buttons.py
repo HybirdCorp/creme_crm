@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme.creme_core.gui.button_menu import Button
 
 from . import get_project_model
@@ -34,8 +36,10 @@ class CloseProjectButton(Button):
     template_name = 'projects/buttons/close-project.html'
     permissions = 'projects'
 
+    @override
     def get_ctypes(self):
         return (Project,)
 
+    @override
     def is_displayed(self, *, entity, request):
         return not entity.is_closed

@@ -17,6 +17,7 @@
 ################################################################################
 
 from random import randint
+from typing import override
 
 from django.utils.translation import gettext as _
 
@@ -29,6 +30,7 @@ from creme.creme_core.utils.string import suffixed_truncate
 class TitleCopier(PreSaveCopier):
     MAXINT = 100000
 
+    @override
     def copy_to(self, target):
         model = type(target)
         max_length = model._meta.get_field('title').max_length or 50

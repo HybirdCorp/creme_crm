@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from datetime import datetime
+from typing import override
 
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -69,6 +70,7 @@ class UpgradeAnnouncement(TemplateBaseContent):
         self.start = start
         self.message = message
 
+    @override
     def as_dict(self):
         d = {'start': dates.dt_to_ISO8601(self.start)}
 
@@ -78,6 +80,7 @@ class UpgradeAnnouncement(TemplateBaseContent):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data):
         try:
@@ -95,6 +98,7 @@ class UpgradeAnnouncement(TemplateBaseContent):
 
         return cls(start=start, message=message)
 
+    @override
     def get_context(self, user):
         ctxt = super().get_context(user)
         ctxt['start'] = self.start

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -35,11 +37,13 @@ class CrmButton(Button):
     __managed_orga = False
     template_name = 'persons/buttons/become.html'
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
 
         request.user.has_perm_to_link_or_die(entity)
 
+    @override
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         # TODO: plural (managed_organisationS, self.__managed_orgaS)
@@ -48,6 +52,7 @@ class CrmButton(Button):
 
         return context
 
+    @override
     def is_displayed(self, *, entity, request):
         # TODO: only one query ??
         already_linked_pk = Relation.objects.filter(
@@ -63,6 +68,7 @@ class CrmButton(Button):
 
         return bool(self.__managed_orga)
 
+    @override
     def get_ctypes(self):
         return Contact, Organisation
 
@@ -138,10 +144,12 @@ class AddLinkedContactButton(Button):
         auth.build_link_perm(Contact),
     ]
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
         request.user.has_perm_to_link_or_die(entity)
 
+    @override
     def get_ctypes(self):
         return (Organisation,)
 
@@ -162,8 +170,10 @@ class TransformIntoUserButton(Button):
     permissions = auth.SUPERUSER_PERM
 
     # def ok_4_display(self, entity):
+    @override
     def is_displayed(self, *, entity, request):
         return entity.is_user_id is None
 
+    @override
     def get_ctypes(self):
         return (Contact,)

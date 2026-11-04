@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Self
+from typing import Self, override
 
 from django.db import models
 
@@ -141,6 +141,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def default_builder(self):
         return self._default_builder
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         assert isinstance(cell, entity_cell.EntityCellRegularField)
 
@@ -154,6 +155,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = '{indent}{name}:\n{indent}  Default:\n{default}\n{indent}  Models:'.format(
@@ -263,6 +265,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def choice_builder(self):
         return self._choice_builder
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         assert isinstance(cell, entity_cell.EntityCellRegularField)
 
@@ -281,6 +284,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = '{indent}{name}:\n{indent}  Choice:\n{choice}\n{indent}  Field types:'.format(
@@ -382,6 +386,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def builder(self, type):
         return self._builders.get(type)
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         assert isinstance(cell, entity_cell.EntityCellCustomField)
 
@@ -391,6 +396,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = f'{indent_str}{type(self).__name__}:'
@@ -425,6 +431,7 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def builder(self, ffield: FunctionField):
         return self._builders.get(ffield.name)
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         assert isinstance(cell, entity_cell.EntityCellFunctionField)
 
@@ -439,6 +446,7 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = f'{indent_str}{type(self).__name__}:'
@@ -486,6 +494,7 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
     def default_builder(self):
         return self._default_builder
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         assert isinstance(cell, entity_cell.EntityCellRelation)
 
@@ -495,6 +504,7 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = '{indent}{name}:\n{indent}  Default:\n{default}'.format(
@@ -545,6 +555,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
     def __getitem__(self, cell_type_id: str):
         return self._registries[cell_type_id]
 
+    @override
     def pretty(self, indent=0):
         indent_str = ' ' * indent
         res = f'{indent_str}{type(self).__name__}:'
@@ -567,6 +578,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
+    @override
     def get_field(self, *, cell, user, **kwargs):
         registry = self._registries.get(cell.type_id)
 

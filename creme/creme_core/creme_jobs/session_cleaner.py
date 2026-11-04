@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 import logging
 from importlib import import_module
+from typing import override
 
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -34,6 +35,7 @@ class _SessionsCleanerType(JobType):
     verbose_name = gettext_lazy('Sessions cleaner')
     periodic     = JobType.PERIODIC
 
+    @override
     def _execute(self, job):
         engine_path = settings.SESSION_ENGINE
         engine = import_module(engine_path)
@@ -55,6 +57,7 @@ class _SessionsCleanerType(JobType):
                 ],
             )
 
+    @override
     def get_description(self, job):
         return [_("Remove expired user sessions")]
 

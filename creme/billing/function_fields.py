@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ import datetime
 import logging
 from collections import defaultdict
 from decimal import Decimal
+from typing import override
 
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -54,6 +55,7 @@ class TemplateBaseVerboseStatusField(FunctionField):
         # e.g. of item: Invoice: {UUID('123...'): InvoiceStatus(name='OK'), UUID(...): ...}
         self._statuses_per_model = defaultdict(dict)
 
+    @override
     def __call__(self, entity, user):
         statuses_per_model = self._statuses_per_model
         statuses = statuses_per_model[entity.ct.model_class()]
@@ -75,6 +77,7 @@ class TemplateBaseVerboseStatusField(FunctionField):
 
         return self.result_type(label=status.name, color=status.color)
 
+    @override
     def populate_entities(self, entities, user):
         statuses_per_model = self._statuses_per_model
         uuids_per_model = defaultdict(set)
@@ -217,6 +220,7 @@ class _BaseTotalFunctionField(FunctionField):
         super().__init__(*args, **kwargs)
         self._cache = defaultdict(dict)
 
+    @override
     def __call__(self, entity, user):
         e_cache = self._cache[entity.id]
         total = e_cache.get(user.id)
@@ -230,6 +234,7 @@ class _BaseTotalFunctionField(FunctionField):
             FunctionFieldResult(total)
         )
 
+    @override
     def populate_entities(self, entities, user):
         cache = self._cache
         user_id = user.id
@@ -253,10 +258,12 @@ class _TotalPendingPayment(_BaseTotalFunctionField):
     name = 'total_pending_payment'
     verbose_name = _('Total pending payment')
 
+    @override
     @classmethod
     def single_func(cls):
         return get_total_pending
 
+    @override
     @classmethod
     def multi_func(cls):
         return get_total_pending_multi
@@ -266,10 +273,12 @@ class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
     name = 'total_won_quote_this_year'
     verbose_name = _('Total won quotes this year')
 
+    @override
     @classmethod
     def single_func(cls):
         return get_total_won_quote_this_year
 
+    @override
     @classmethod
     def multi_func(cls):
         return get_total_won_quote_this_year_multi
@@ -279,10 +288,12 @@ class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
     name = 'total_won_quote_last_year'
     verbose_name = _('Total won Quotes last Year')
 
+    @override
     @classmethod
     def single_func(cls):
         return get_total_won_quote_last_year
 
+    @override
     @classmethod
     def multi_func(cls):
         return get_total_won_quote_last_year_multi

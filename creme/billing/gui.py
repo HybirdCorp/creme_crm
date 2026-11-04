@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme import recurrents
 from creme.creme_core.gui.listview import CreationButton
 
 
 # TODO: limit generator to billing models ?
 class GeneratorCreationButton(CreationButton):
+    @override
     def get_model(self, lv_context):
         return recurrents.get_rgenerator_model()

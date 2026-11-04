@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.contrib.contenttypes.models import ContentType
 
 from creme import billing
@@ -36,6 +38,7 @@ class TemplateBaseStatusRefCollector(SoftReferenceCollector):
         billing_models.SalesOrderStatus:    billing.get_sales_order_model(),
     }
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2025  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.urls.base import reverse
 from django.utils.translation import pgettext, pgettext_lazy
@@ -33,10 +35,12 @@ class ExportReportAction(UIAction):
     label = pgettext_lazy('reports-report', 'Export')
     icon = 'document_csv'
 
+    # @override an attribute
     @property
     def help_text(self):
         return pgettext('reports-report', 'Export «{object}»').format(object=self.instance)
 
+    @override
     @property
     def url(self):
         return reverse('reports__export_report_filter', args=(self.instance.id,))

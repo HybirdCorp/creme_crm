@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.cloning import EntityCloner
@@ -24,6 +26,7 @@ from creme.creme_core.core.exceptions import ConflictError
 
 
 class AddressesCopier(PostSaveCopier):
+    @override
     def copy_to(self, target):
         source = self._source
         save = False
@@ -56,6 +59,7 @@ class OrganisationCloner(EntityCloner):
         AddressesCopier,
     ]
 
+    @override
     def check_permissions(self, *, user, entity):
         super().check_permissions(user=user, entity=entity)
 

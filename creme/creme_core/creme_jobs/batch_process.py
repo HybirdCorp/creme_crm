@@ -18,6 +18,7 @@
 
 import logging
 from functools import partial
+from typing import override
 
 # TODO: move in function to do lazy loading ?
 from django.contrib.contenttypes.models import ContentType
@@ -79,6 +80,7 @@ class _BatchProcessType(JobType):
 
         return humanized
 
+    @override
     def _execute(self, job):
         job_data = job.data
         model = self._get_model(job_data)
@@ -133,6 +135,7 @@ class _BatchProcessType(JobType):
                             final_entity.save()
                             create_result(real_entity=final_entity)
 
+    @override
     def progress(self, job):
         count = EntityJobResult.objects.filter(job=job).count()
         return JobProgress(
@@ -144,10 +147,12 @@ class _BatchProcessType(JobType):
             ).format(count=count),
         )
 
+    @override
     @property
     def results_bricks(self):
         return [EntityJobErrorsBrick()]
 
+    @override
     def get_description(self, job):
         try:
             job_data = job.data
@@ -165,6 +170,7 @@ class _BatchProcessType(JobType):
 
         return desc
 
+    @override
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, messages__isnull=True).count()
 

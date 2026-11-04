@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import NewType, Self
+from typing import NewType, Self, override
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -135,6 +135,7 @@ class SimpleNotifContent(NotificationContent):
         self.body = body
         self.html_body = html_body
 
+    @override
     def as_dict(self) -> dict:
         d = {
             'subject': self.subject,
@@ -147,12 +148,15 @@ class SimpleNotifContent(NotificationContent):
 
         return d
 
+    @override
     def get_subject(self, user):
         return self.subject
 
+    @override
     def get_body(self, user):
         return self.body
 
+    @override
     def get_html_body(self, user):
         return self.html_body
 
@@ -168,13 +172,16 @@ class StringBaseContent(NotificationContent):
     body: str | Promise = '*BODY*'
     html_body: str | Promise = '*HTML BODY*'
 
+    @override
     def get_subject(self, user):
         # NB: str() to cast gettext_lazy objects
         return str(self.subject)
 
+    @override
     def get_body(self, user):
         return str(self.body)
 
+    @override
     def get_html_body(self, user):
         return str(self.html_body)
 
@@ -190,12 +197,15 @@ class TemplateBaseContent(NotificationContent):
     def get_context(self, user):
         return {'user': user}
 
+    @override
     def get_subject(self, user):
         return get_template(self.subject_template_name).render(self.get_context(user))
 
+    @override
     def get_body(self, user):
         return get_template(self.body_template_name).render(self.get_context(user))
 
+    @override
     def get_html_body(self, user):
         return get_template(self.html_body_template_name).render(self.get_context(user))
 
@@ -246,9 +256,11 @@ class RelatedToModelBaseContent(TemplateBaseContent):
     def __init__(self, instance: Model | int):
         self.ref = _LazyModelRef(model=self.model, instance=instance)
 
+    @override
     def as_dict(self):
         return {'instance': self.ref.instance_id}
 
+    @override
     def get_context(self, user):
         ctxt = super().get_context(user)
         ctxt['object'] = self.ref.instance
@@ -276,6 +288,7 @@ class OneEntityTemplateStringContent(SimpleNotifContent):
         super().__init__(subject=subject, body=body)
         self.ref = _LazyModelRef(model=model, instance=entity)
 
+    @override
     def as_dict(self):
         d = super().as_dict()
 
@@ -285,6 +298,7 @@ class OneEntityTemplateStringContent(SimpleNotifContent):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data):
         try:
@@ -333,9 +347,11 @@ class OneEntityTemplateStringContent(SimpleNotifContent):
             ) if entity else gettext('«deleted entity»'),
         }
 
+    @override
     def get_body(self, user):
         return Template(self.body).render(Context(self._body_context(user=user)))
 
+    @override
     def get_html_body(self, user):
         return Template(self.body).render(Context(self._body_html_context(user=user)))
 

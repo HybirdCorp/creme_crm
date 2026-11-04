@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
 from django.utils.translation import gettext
@@ -42,6 +44,7 @@ class _DeletorType(JobType):
     id = JobType.generate_id('creme_core', 'deletor')
     verbose_name = _('Replace & delete')
 
+    @override
     def _execute(self, job):
         dcom_mngr = DeletionCommand.objects
         dcom = dcom_mngr.get(job=job)
@@ -145,6 +148,7 @@ class _DeletorType(JobType):
                 ],
             )
 
+    @override
     def progress(self, job):
         dcom = DeletionCommand.objects.get(job=job)
         total = dcom.total_count
@@ -163,6 +167,7 @@ class _DeletorType(JobType):
             )
         )
 
+    @override
     def get_description(self, job):
         dcom = DeletionCommand.objects.get(job=job)
         model = dcom.content_type.model_class()
@@ -189,6 +194,7 @@ class _DeletorType(JobType):
 
         return description
 
+    @override
     def get_stats(self, job):
         count = DeletionCommand.objects.get(job=job).updated_count
 

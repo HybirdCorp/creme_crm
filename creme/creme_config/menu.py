@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.core.exceptions import PermissionDenied
 # from django.utils.html import format_html
 # from django.utils.safestring import mark_safe
@@ -36,6 +38,7 @@ class TimezoneEntry(menu.FixedURLEntry):
     label = _("*User's timezone*")
     url_name = 'creme_config__user_settings'
 
+    @override
     def render_label(self, context):
         return gettext('Time zone: {}').format(context['TIME_ZONE'])
 
@@ -104,6 +107,7 @@ class CurrentAppConfigEntry(menu.MenuEntry):
     #         url=app_config.portal_url,
     #         label=label,
     #     )
+    @override
     def get_context(self, context):
         ctxt = super().get_context(context=context)
         app_config = self.guess_current_app_config(context)
@@ -326,6 +330,7 @@ class CremeConfigEntry(menu.ContainerEntry):
         self._children[:] = (cls() for cls in self.children_classes)
         self._staff_children = [cls() for cls in self.staff_children_classes]
 
+    @override
     def _get_children(self, context):
         yield from super()._get_children(context=context)
 

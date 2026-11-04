@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
@@ -39,10 +41,12 @@ class LinkedOpportunityButton(Button):
     template_name = 'opportunities/buttons/linked-opp.html'
     permissions = build_creation_perm(Opportunity)
 
+    @override
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
         request.user.has_perm_to_link_or_die(entity)
 
+    @override
     def get_ctypes(self):
         from creme import persons
         return (
@@ -87,6 +91,7 @@ if apps.is_installed('creme.activities'):
         #     super().check_permissions(entity=entity, request=request)
         #     request.user.has_perm_to_link_or_die(entity)
 
+        @override
         def get_ctypes(self):
             return [Opportunity]
 

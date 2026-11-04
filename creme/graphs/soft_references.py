@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme.creme_core.core.soft_reference import SoftReferenceCollector
 from creme.creme_core.models import RelationType
 
@@ -31,6 +33,7 @@ class GraphRelationTypeRefCollector(SoftReferenceCollector):
     id = 'graphs-graph-rtype'
     model = RelationType
 
+    @override
     def collect(self, instance):
         assert isinstance(instance, self.model)
 

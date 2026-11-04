@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from decimal import Decimal, DecimalException
-from typing import Self
+from typing import Self, override
 
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime, now
@@ -74,10 +74,12 @@ class ValueMaker:
 
 
 class NoneMaker(ValueMaker):
+    @override
     @classmethod
     def from_dict(cls, /, data):
         return cls()
 
+    @override
     def make(self):
         return None
 
@@ -99,16 +101,20 @@ class IntegerMaker(ValueMaker):
 
         return self._value == other._value
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         return cls(data['value'])
 
+    @override
     def make(self):
         return self._value
 
+    @override
     def render(self):
         return number_format(self._value, force_grouping=True)
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['value'] = self._value
@@ -130,16 +136,20 @@ class BooleanMaker(ValueMaker):
 
         return self._value == other._value
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         return cls(data['value'])
 
+    @override
     def make(self):
         return self._value
 
+    @override
     def render(self):
         return _('Yes') if self._value else _('No')
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['value'] = self._value
@@ -165,16 +175,20 @@ class DecimalMaker(ValueMaker):
 
         return self._value == other._value
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         return cls(data['value'])
 
+    @override
     def make(self):
         return self._value
 
+    @override
     def render(self):
         return number_format(self._value, force_grouping=True)
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['value'] = str(self._value)
@@ -195,16 +209,20 @@ class StringMaker(ValueMaker):
 
         return self._str == other._str
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         return cls(data['value'])
 
+    @override
     def make(self):
         return self._str
 
+    @override
     def render(self):
         return self._str
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['value'] = str(self._str)
@@ -243,6 +261,7 @@ class DateMaker(ValueMaker):
 
         return maker
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         str_date = data.get('value')
@@ -264,14 +283,17 @@ class DateMaker(ValueMaker):
 
         return cls.from_date(date_obj)
 
+    @override
     def make(self):
         value = self._date
         return date.today() if value is None else value
 
+    @override
     def render(self):
         date_obj = self._date
         return _('Today') if date_obj is None else date_format(date_obj, 'DATE_FORMAT')
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         date_obj = self._date
@@ -315,6 +337,7 @@ class DateTimeMaker(ValueMaker):
 
         return maker
 
+    @override
     @classmethod
     def from_dict(cls, /, data):
         str_dt = data.get('value')
@@ -336,14 +359,17 @@ class DateTimeMaker(ValueMaker):
 
         return cls.from_datetime(dt)
 
+    @override
     def make(self):
         dt = self._dt
         return now() if dt is None else dt
 
+    @override
     def render(self):
         dt = self._dt
         return _('Now') if dt is None else date_format(localtime(self._dt), 'DATETIME_FORMAT')
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         dt = self._dt

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 from uuid import UUID
 
 from django.conf import settings
@@ -154,6 +154,7 @@ class LiteralRecipient(ActionRecipient):
     def email_address(self):
         return self._email_address
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import LiteralRecipientField
@@ -162,19 +163,23 @@ class LiteralRecipient(ActionRecipient):
             label=_('Fixed email address'),
         ) if entity_source is None else None
 
+    @override
     def extract(self, context):
         return (self._email_address, None)
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(email_address=data['email'])
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['email'] = self.email_address
 
         return d
 
+    @override
     def render(self, user):
         return _('To: {recipient}').format(recipient=self.email_address)
 
@@ -205,6 +210,7 @@ class FixedUserRecipient(ActionRecipient):
     def __repr__(self):
         return f'{type(self).__name__}(user={self._user})'
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import FixedUserRecipientField
@@ -213,6 +219,7 @@ class FixedUserRecipient(ActionRecipient):
             label=cls.verbose_name,
         ) if entity_source is None else None
 
+    @override
     def extract(self, context):
         try:
             user = self.user
@@ -234,16 +241,19 @@ class FixedUserRecipient(ActionRecipient):
 
         return user
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(user=data['user'])
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['user'] = str(self._user_uuid)
 
         return d
 
+    @override
     def render(self, user):
         try:
             recipient = self.user
@@ -302,6 +312,7 @@ class _BaseFKRecipient(ActionRecipient):
             f')'
         )
 
+    @override
     @property
     def sub_source(self):
         return self._entity_source
@@ -313,6 +324,7 @@ class _BaseFKRecipient(ActionRecipient):
     def _extract_from_instance(self, instance):
         raise NotImplementedError
 
+    @override
     def extract(self, context):
         # TODO: errors
         instance = self._entity_source.extract(context=context)
@@ -320,6 +332,7 @@ class _BaseFKRecipient(ActionRecipient):
         # TODO: disabled user => '' + log
         return ('', None) if instance is None else self._extract_from_instance(instance)
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(
@@ -327,6 +340,7 @@ class _BaseFKRecipient(ActionRecipient):
             field_name=data['field'],
         )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['entity'] = self._entity_source.to_dict()
@@ -355,6 +369,7 @@ class UserFKRecipient(_BaseFKRecipient):
                 f'The field "{self._field_name}" is not a ForeignKey to User'
             )
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import UserFKRecipientField
@@ -366,6 +381,7 @@ class UserFKRecipient(_BaseFKRecipient):
             entity_source=entity_source,
         )
 
+    @override
     def _extract_from_instance(self, instance):
         user = getattr(instance, self._field_name)
         # NB: even if we could return the instance as concerned entity,
@@ -373,6 +389,7 @@ class UserFKRecipient(_BaseFKRecipient):
         # TODO: log? warn in config that no mail will be sent when user is inactive?
         return (user.email if user and user.is_active else '', None)
 
+    @override
     def render(self, user):
         source = self._entity_source
 
@@ -396,6 +413,7 @@ class RegularEmailFieldRecipient(_BaseFKRecipient):
                 f'The field "{self._field_name}" is not an EmailField'
             )
 
+    @override
     @classmethod
     def config_formfield(cls, user, entity_source=None):
         from .forms.workflows import RegularEmailFieldRecipientField
@@ -412,9 +430,14 @@ class RegularEmailFieldRecipient(_BaseFKRecipient):
 
         return field if field.choices else None
 
+    @override
     def _extract_from_instance(self, instance):
-        return (getattr(instance, self._field_name), instance)
+        return (
+            getattr(instance, self._field_name),
+            instance,
+        )
 
+    @override
     def render(self, user):
         source = self._entity_source
 
@@ -432,12 +455,14 @@ class BrokenActionRecipient(ActionRecipient):
     def message(self):
         return self._message
 
+    @override
     def render(self, user):
         return format_html(
             '<p class="errorlist">{message}</p>',
             message=self._message,
         )
 
+    @override
     def extract(self, context):
         return '', None
 
@@ -560,6 +585,7 @@ class EmailSendingAction(WorkflowAction):
         self._subject = subject
         self._body = body
 
+    @override
     @classmethod
     def config_form_class(cls):
         from .forms.workflows import EmailSendingActionForm
@@ -594,6 +620,7 @@ class EmailSendingAction(WorkflowAction):
             ),
         }
 
+    @override
     def execute(self, context, user=None):
         recipient, entity_to_link = self._recipient.extract(context)
         if not recipient:
@@ -636,6 +663,7 @@ class EmailSendingAction(WorkflowAction):
                 body_html=body_html,
             )
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['recipient'] = self._recipient.to_dict()
@@ -645,6 +673,7 @@ class EmailSendingAction(WorkflowAction):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(
@@ -654,6 +683,7 @@ class EmailSendingAction(WorkflowAction):
             body=data['body'],
         )
 
+    @override
     def render(self, user):
         return format_html(
             '<div>'
@@ -697,6 +727,7 @@ class TemplateSendingAction(WorkflowAction):
             self._template_uuid = str(template.uuid)
             self._template = template
 
+    @override
     @classmethod
     def config_form_class(cls):
         from .forms.workflows import TemplateSendingActionForm
@@ -723,6 +754,7 @@ class TemplateSendingAction(WorkflowAction):
 
         return template
 
+    @override
     def execute(self, context, user=None):
         recipient, concerned_entity = self._recipient.extract(context)
         if not recipient:
@@ -780,6 +812,7 @@ class TemplateSendingAction(WorkflowAction):
                 )
                 wf_email.attachments.set(e_template.attachments.all())
 
+    @override
     def to_dict(self):
         d = super().to_dict()
         d['recipient'] = self._recipient.to_dict()
@@ -788,6 +821,7 @@ class TemplateSendingAction(WorkflowAction):
 
         return d
 
+    @override
     @classmethod
     def from_dict(cls, data, registry):
         return cls(
@@ -796,6 +830,7 @@ class TemplateSendingAction(WorkflowAction):
             template=data['template'],
         )
 
+    @override
     def render(self, user):
         try:
             template = self.template

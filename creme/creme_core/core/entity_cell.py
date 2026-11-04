@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Collection, Iterable
-from typing import DefaultDict, Iterator, Self
+from typing import DefaultDict, Iterator, Self, override
 
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
@@ -80,7 +80,7 @@ FIELDS_DATA_TYPES = ClassKeyedMap([
 class EntityCell:
     """Represents a value accessor; it's a kind of super field. It can
     retrieve a value stored in entities (of the same type).
-    This values can be (see child classes) :
+    This values can be (see child classes):
      - regular fields (in the django model way).
      - custom field (see models.CustomField).
      - function fields (see core.FunctionField).
@@ -178,7 +178,7 @@ class EntityCell:
 
     @property
     def key(self) -> str:
-        "Return an ID that should be unique in a EntityCell set."
+        """Return an ID that should be unique in a EntityCell set."""
         return f'{self.type_id}-{self.value}'
 
     @property
@@ -449,9 +449,11 @@ class EntityCellActions(EntityCell):
             if action.is_visible
         ])
 
+    @override
     def render(self, entity: CremeEntity, user, tag):
         return ''
 
+    @override
     @cached_property
     def title(self):
         return gettext('Actions')
@@ -463,7 +465,7 @@ class EntityCellRegularField(EntityCell):
     verbose_name = _('Fields')
 
     def __init__(self, model, name, field_info: FieldInfo, is_hidden=False):
-        "Use build() instead of using this constructor directly."
+        """Use build() instead of using this constructor directly."""
         self._field_info = field_info
         self._printers = {}
 
@@ -477,6 +479,7 @@ class EntityCellRegularField(EntityCell):
             ),
         )
 
+    @override
     @classmethod
     def build(cls,
               model: type[Model],
@@ -510,17 +513,21 @@ class EntityCellRegularField(EntityCell):
         """
         return self._field_info
 
+    @override
     @property
     def is_multiline(self):
         return any(isinstance(f, MULTILINE_FIELDS) for f in self._field_info)
 
+    @override
     def _get_field_class(self):
         return self._field_info[-1].__class__
 
+    @override
     @staticmethod
     def populate_entities(cells, entities, user):
         populate_related(entities, [cell.value for cell in cells])
 
+    @override
     def render(self, entity, user, tag):
         printer = self._printers.get(tag)
 
@@ -537,10 +544,12 @@ class EntityCellRegularField(EntityCell):
 
         return printer(entity, user)
 
+    @override
     @property
     def description(self):
         return str(self._field_info[-1].help_text)
 
+    @override
     @cached_property
     def title(self):
         return (
@@ -597,6 +606,7 @@ class EntityCellCustomField(EntityCell):
 
         self._printers = {}
 
+    @override
     @classmethod
     def build(cls, model: type[Model], name: str) -> EntityCellCustomField | None:
         """Helper method to build an EntityCellCustomField instance.
@@ -631,13 +641,16 @@ class EntityCellCustomField(EntityCell):
     def custom_field(self) -> CustomField:
         return self._customfield
 
+    @override
     def _get_field_class(self):
         return type(self._customfield.value_class._meta.get_field('value'))
 
+    @override
     @property
     def portable_value(self):
         return str(self._customfield.uuid)
 
+    @override
     def render(self, entity, user, tag):
         printer = self._printers.get(tag)
 
@@ -673,6 +686,7 @@ class EntityCellCustomField(EntityCell):
 
         return printer(entity, user)
 
+    @override
     @staticmethod
     def populate_entities(cells, entities, user):
         CremeEntity.populate_custom_values(
@@ -680,10 +694,12 @@ class EntityCellCustomField(EntityCell):
             [cell.custom_field for cell in cells],
         )  # NB: not itervalues()
 
+    @override
     @property
     def description(self):
         return self._customfield.description
 
+    @override
     @cached_property
     def title(self):
         return (
@@ -713,6 +729,7 @@ class EntityCellFunctionField(EntityCell):
             is_hidden=func_field.is_hidden,
         )
 
+    @override
     @classmethod
     def build(cls,
               model: type[Model],
@@ -739,21 +756,26 @@ class EntityCellFunctionField(EntityCell):
     def function_field(self) -> FunctionField:
         return self._functionfield
 
+    @override
     def _get_field_class(self):
         return self._FUNFIELD_CSS.get(self._functionfield.result_type, Field)
 
+    @override
     @property
     def is_multiline(self):
         return issubclass(self._functionfield.result_type, FunctionFieldResultsList)
 
+    @override
     @staticmethod
     def populate_entities(cells, entities, user):
         for cell in cells:
             cell.function_field.populate_entities(entities, user)
 
+    @override
     def render(self, entity, user, tag):
         return self.function_field(entity, user).render(tag)
 
+    @override
     @cached_property
     def title(self):
         return str(self._functionfield.verbose_name)
@@ -777,6 +799,7 @@ class EntityCellRelation(EntityCell):
             is_excluded=(not rtype.enabled),
         )
 
+    @override
     @classmethod
     def build(cls,
               model: type[Model],
@@ -802,6 +825,7 @@ class EntityCellRelation(EntityCell):
 
         return cls(model=model, rtype=rtype, is_hidden=is_hidden)
 
+    @override
     @property
     def is_multiline(self):
         return True
@@ -810,6 +834,7 @@ class EntityCellRelation(EntityCell):
     def relation_type(self) -> RelationType:
         return self._rtype
 
+    @override
     @staticmethod
     def populate_entities(cells, entities, user):
         CremeEntity.populate_relations(
@@ -817,6 +842,7 @@ class EntityCellRelation(EntityCell):
             [cell.relation_type.id for cell in cells]
         )
 
+    @override
     def render(self, entity, user, tag):
         if tag in {ViewTag.HTML_DETAIL, ViewTag.HTML_LIST, ViewTag.HTML_FORM}:
             from ..templatetags.creme_widgets import widget_entity_hyperlink
@@ -852,6 +878,7 @@ class EntityCellRelation(EntityCell):
                 key=collator.sort_key,
             ))
 
+    @override
     @property
     def title(self):
         return (

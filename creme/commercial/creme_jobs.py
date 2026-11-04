@@ -17,6 +17,7 @@
 ################################################################################
 
 from datetime import timedelta
+from typing import override
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +44,7 @@ class _ComApproachesEmailsSendType(JobType):
     # TODO: add a config form which stores the rules in job.data
     list_target_orga = [(REL_SUB_CUSTOMER_SUPPLIER, 30)]
 
+    @override
     def _execute(self, job):
         from creme import persons
         from creme.opportunities import get_opportunity_model
@@ -137,6 +139,7 @@ class _ComApproachesEmailsSendType(JobType):
                     ],
                 )
 
+    @override
     def get_description(self, job):
         return [
             gettext(

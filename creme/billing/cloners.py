@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,13 @@
 from __future__ import annotations
 
 import logging
-import typing
+from typing import TYPE_CHECKING, override
 
 from creme.creme_core.core import copying
 from creme.creme_core.core.cloning import EntityCloner
 from creme.creme_core.utils.collections import FluentList
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .models import Line
 
 logger = logging.getLogger(__name__)
@@ -34,11 +34,13 @@ logger = logging.getLogger(__name__)
 # NB: the cloning & the billing systems both use the words "source" & "target"...
 # TODO: rename properties to "emitter" & "receiver"
 class EmitterCopier(copying.PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.source = self._source.source
 
 
 class ReceiverCopier(copying.PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.target = self._source.target
 
@@ -47,6 +49,7 @@ class ReceiverCopier(copying.PreSaveCopier):
 class AddressesCopier(copying.PostSaveCopier):
     address_fields = ['billing_address', 'shipping_address']
 
+    @override
     def copy_to(self, target):
         save = False
         source = self._source
@@ -62,6 +65,7 @@ class AddressesCopier(copying.PostSaveCopier):
 
 
 class RelatedItemCopier(copying.PreSaveCopier):
+    @override
     def copy_to(self, target):
         target.related_item = self.source.related_item
 
@@ -83,6 +87,7 @@ class ReassignedLineCloner(EntityCloner):
         super().__init__()
         self.related_document = related_document
 
+    @override
     def _pre_save(self, *, user, source, target):
         super()._pre_save(user=user, source=source, target=target)
         target.related_document = self.related_document
@@ -92,6 +97,7 @@ class LinesCopier(copying.PostSaveCopier):
     line_cloner_classes: dict[type[Line], type[ReassignedLineCloner]] = {}
     default_line_cloner_class = ReassignedLineCloner
 
+    @override
     def copy_to(self, target):
         get_cloner_cls = self.line_cloner_classes.get
         default_cloner_class = self.default_line_cloner_class

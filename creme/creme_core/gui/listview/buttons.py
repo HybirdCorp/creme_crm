@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any, Self
+from typing import Any, Self, override
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -71,6 +71,7 @@ class ListViewButton:
 class CreationButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/creation.html'
 
+    @override
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
 
@@ -100,6 +101,7 @@ class MassExportButton(ListViewButton):
     # TODO: try to extract it from the context ?
     export_backend_registry = backends.export_backend_registry
 
+    @override
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
         context['backend_choices'] = [
@@ -121,6 +123,7 @@ class MassImportButton(ListViewButton):
     import_backend_registry = backends.import_backend_registry
     import_form_registry = import_form_registry
 
+    @override
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
 
@@ -138,6 +141,7 @@ class MassImportButton(ListViewButton):
 class BatchProcessButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/batch-process.html'
 
+    @override
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
 
@@ -153,6 +157,7 @@ class BatchProcessButton(ListViewButton):
 class VisitorModeButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/visitor-mode.html'
 
+    @override
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
         visitor = None

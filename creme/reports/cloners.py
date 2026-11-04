@@ -16,17 +16,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme.creme_core.core.cloning import EntityCloner
 from creme.creme_core.core.copying import PostSaveCopier, RegularFieldsCopier
 
 
 class ReportFieldsCopier(PostSaveCopier):
+    @override
     def copy_to(self, target):
         for rfield in self._source.fields.all():
             rfield.clone(report=target)
 
 
 class ReportChartsCopier(PostSaveCopier):
+    @override
     def copy_to(self, target):
         source = self._source
 

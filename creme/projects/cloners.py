@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme.creme_core.core import copying
 from creme.creme_core.core.cloning import EntityCloner
 from creme.creme_core.utils.collections import FluentList
@@ -28,6 +30,7 @@ class ChildTaskClonerM2MCopier(copying.ManyToManyFieldsCopier):
 
 
 class ChildTaskResourcesCopier(copying.PostSaveCopier):
+    @override
     def copy_to(self, target):
         for resource in self._source.get_resources():
             # TODO: remove method & move its code here?
@@ -45,6 +48,7 @@ class ChildTaskCloner(EntityCloner):
         super().__init__()
         self.project = project
 
+    @override
     def _pre_save(self, *, user, source, target):
         super()._pre_save(user=user, source=source, target=target)
         target.linked_project = self.project
@@ -53,6 +57,7 @@ class ChildTaskCloner(EntityCloner):
 class TasksCopier(copying.PostSaveCopier):
     task_cloner_class = ChildTaskCloner
 
+    @override
     def copy_to(self, target):
         from creme.projects.models.task import ProjectTask
 

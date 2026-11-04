@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from creme.creme_core.core.enumerable import QSEnumerator
 from creme.creme_core.enumerators import UserEnumerator
 
@@ -23,6 +25,7 @@ from creme.creme_core.enumerators import UserEnumerator
 class ActivitySubTypeEnumerator(QSEnumerator):
     search_fields = ('name', 'type__name')
 
+    @override
     @classmethod
     def instance_as_dict(cls, instance):
         atype = instance.type
@@ -33,11 +36,13 @@ class ActivitySubTypeEnumerator(QSEnumerator):
             'group': atype.get_enabled_label(),
         }
 
+    @override
     def _queryset(self, user):
         return super()._queryset(user=user).order_by('type__order', 'order')
 
 
 class CalendarOwnerEnumerator(UserEnumerator):
+    @override
     def _queryset(self, user):
         return super()._queryset(
             user=user,

@@ -20,6 +20,7 @@ import logging
 from collections import defaultdict
 from email.message import EmailMessage
 from os.path import basename, join
+from typing import override
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -235,6 +236,7 @@ class _EntityEmailsSyncType(JobType):
 
         return e2s
 
+    @override
     def _execute(self, job):
         cache = _EmailAsKeyDict()
 
@@ -313,6 +315,7 @@ class _EntityEmailsSyncType(JobType):
 
             JobResult.objects.create(job=job, messages=messages)
 
+    @override
     @property
     def results_bricks(self):
         from creme.creme_core.gui.job import JobResultsBrick
