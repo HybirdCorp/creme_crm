@@ -163,7 +163,7 @@ class WorkflowConditionsTestCase(CremeTestCase):
                 source=source.render(user=user, mode=source.RenderMode.HTML),
             ),
             condition1=_(
-                '«{field}» starts with {values} (case insensitive)'
+                '«{field}» starts with {values} (case-insensitive)'
             ).format(
                 field=_('Name'),
                 values=_('«{enum_value}»').format(enum_value=value1),
