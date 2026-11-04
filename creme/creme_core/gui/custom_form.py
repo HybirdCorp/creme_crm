@@ -30,6 +30,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Model
 from django.forms.models import modelform_factory
+from django.utils.functional import Promise
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -112,16 +113,16 @@ class CustomFormExtraSubCell:
     """
     # Unique ID (within a EntityCellCustomFormExtra).
     # Override this in child classes.
-    sub_type_id = ''
+    sub_type_id: str = ''
     # Label used in configuration UI.
     # Tips: you can use it in your formfield() method as label's value.
-    verbose_name = '??'
+    verbose_name: str | Promise = '??'
 
     # Is the related form-field required
     # (e.g. for the config to warn about missing required field).
     # NB: we do not use <formfield(...).required> to avoid potential heavy
     #     computing (SQL query to initialize) for a field which could be dropped.
-    is_required = True
+    is_required: bool = True
 
     def __init__(self, model: type[Model]):
         self.model = model
@@ -139,7 +140,7 @@ class CustomFormExtraSubCell:
         raise NotImplementedError
 
     def into_cell(self) -> EntityCell:
-        "Helper method for 'populate.py' scripts when creating CustomFormConfigItem."
+        """Helper method for 'populate.py' scripts when creating CustomFormConfigItem."""
         return EntityCellCustomFormExtra(sub_cell=self)
 
     def post_clean_instance(self, *,
@@ -917,7 +918,7 @@ class CustomFormDefault:
 
     def group_desc_for_relations(self, **kwargs) -> dict:
         """Helper to build a "Relationships" group.
-        @param kwargs: extra options ; often used to set the layout.
+        @param kwargs: extra options; often used to set the layout.
         @return A dictionary which can be used in the method <groups_desc()>.
         """
         return {
@@ -984,7 +985,7 @@ class CustomFormDescriptor:
     def __init__(self, *,
                  id: str,
                  model: type[Model],
-                 verbose_name: str,
+                 verbose_name: str | Promise,
                  form_type: int = CREATION_FORM,
                  base_form_class=CremeEntityForm,
                  excluded_fields: Iterable[str] = (),

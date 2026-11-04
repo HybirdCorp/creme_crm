@@ -228,7 +228,7 @@ class ListViewAggregatorRegistry:
         return sub_registry
 
     def clear_model(self, model: type[CremeEntity]) -> None:
-        """Remove the sub-registry related to a madel (& so all related aggregators)."""
+        """Remove the sub-registry related to a model (& so all related aggregators)."""
         del self._model_registries[model]
 
     def aggregation_for_cells(self, *,

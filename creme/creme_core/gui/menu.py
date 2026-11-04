@@ -27,6 +27,7 @@ from typing import Self
 from django.core.exceptions import PermissionDenied, ValidationError
 # from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
+from django.utils.functional import Promise
 # from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -67,7 +68,7 @@ class MenuEntry:
     # The label of the class is used by 'creme_config' to provide its UI.
     # An instance of entry can override the label using the data given by the
     # related instance of MenuConfigItem (see __init__()).
-    label: str = ''
+    label: str | Promise = ''
 
     # 0 is for root entries ; level-1 entries correspond to a level-0 entry.
     # It's a class attribute ; instances should not override it.

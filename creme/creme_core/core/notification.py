@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from django.template import Context, Template
 from django.template.loader import get_template
-from django.utils.functional import cached_property
+from django.utils.functional import Promise, cached_property
 from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -54,8 +54,8 @@ class NotificationChannelType:
           are given by the users & store in these channels.
     """
     id: str = ''   # Override in child classes; use generate_id()
-    verbose_name: str = 'CHAN'  # Override with a gettext_lazy object
-    description: str = '...'  # Override with a gettext_lazy object
+    verbose_name: str | Promise = 'CHAN'  # Override with a gettext_lazy object
+    description: str | Promise = '...'  # Override with a gettext_lazy object
 
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
@@ -164,9 +164,9 @@ class StringBaseContent(NotificationContent):
     id = NotificationContent.generate_id('creme_core', 'upgrade')
     # Override these attributes in child classes.
     # Hint: use gettext_lazy()
-    subject = '*SUBJECT*'
-    body = '*BODY*'
-    html_body = '*HTML BODY*'
+    subject: str | Promise = '*SUBJECT*'
+    body: str | Promise = '*BODY*'
+    html_body: str | Promise = '*HTML BODY*'
 
     def get_subject(self, user):
         # NB: str() to cast gettext_lazy objects

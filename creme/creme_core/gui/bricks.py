@@ -31,7 +31,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.db.models import Model
 from django.template.loader import get_template
-from django.utils.functional import cached_property
+from django.utils.functional import Promise, cached_property
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -113,11 +113,11 @@ class Brick:
 
     # Human-readable name used as default title, or in the configuration GUI.
     # Tips: use gettext_lazy()
-    verbose_name: str = 'BLOCK'
+    verbose_name: str | Promise = 'BLOCK'
 
     # Description used as tool-tips, and in the configuration GUI.
     # Tips: use gettext_lazy()
-    description: str = ''
+    description: str | Promise = ''
 
     # List of the models on which the brick depends (i.e. generally the brick
     # displays instances of these models) ; it also can be the '*' string,

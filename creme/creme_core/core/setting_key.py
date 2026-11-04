@@ -27,8 +27,9 @@ from typing import Any, Self
 from django import forms
 from django.db.models import Model, TextField
 from django.utils.formats import number_format
+from django.utils.functional import Promise
 from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext as _
 
 from ..utils import bool_as_html
@@ -80,7 +81,7 @@ class _SettingKey:
 
     def __init__(self, *,
                  id: str,
-                 description: str,
+                 description: str | Promise,
                  app_label: str,
                  type: int = STRING,
                  hidden: bool = False,
@@ -101,7 +102,7 @@ class _SettingKey:
                it must take one argument (the string value).
         """
         self.id: str = id
-        self.description: str = description
+        self.description: str | Promise = description
         self.app_label: str = app_label
         self.type: int = type
         self.hidden: bool = hidden
@@ -129,7 +130,7 @@ class _SettingKey:
         return self._castor(value)
 
     @property
-    def description_html(self):
+    def description_html(self) -> SafeString:
         return mark_safe('<br/>'.join(
             escape(d) for d in self.description.split('\n')
         ))
@@ -240,7 +241,7 @@ class UserSettingValueManager:
         return True
 
     def __getitem__(self, key: UserSettingKey):
-        "@raise KeyError."
+        """@raise KeyError."""
         return key.cast(self._values[key.id])
 
     # TODO: accept key or key_id ??

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from itertools import chain
 from typing import Any
 
 from django.db import models
+from django.utils.functional import Promise
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -53,7 +54,7 @@ class BatchOperator:
 
     def __init__(self,
                  id_: str,
-                 name: str,
+                 name: str | Promise,  # TODO: Promise[str] would be great…
                  function: Callable,
                  cast_function: Callable[[Any], Any] = cast_2_str):
         self.id = id_
@@ -172,7 +173,7 @@ class BatchOperatorManager:
 
     @property
     def managed_fields(self):
-        """@return Iterator on all classes of modelfield that have BatchOperator."""
+        """@return Iterator on all classes of model-field that have BatchOperator."""
         return self._OPERATOR_FIELD_MATRIX.keys()
 
     def operators(self, model_field_type=None):

@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Self
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, signals  # QuerySet
 from django.dispatch import receiver
+from django.utils.functional import Promise
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 
@@ -124,7 +125,6 @@ class _EntityEvent(WorkflowEvent):
 
 class EntityCreated(_EntityEvent):
     """Event representing the creation of a CremeEntity instance."""
-
     def inhibits(self, /, other):
         # If the entity just has been created, we prevent other calls to save()
         # to trigger the edition
@@ -219,8 +219,8 @@ class WorkflowTrigger:
     triggers this workflow (e.g. the workflow is triggered when a Contact is created).
     """
     # Must be unique by class; used by the registry for deserialize from the database.
-    type_id = ''
-    verbose_name = '??'
+    type_id: str = ''
+    verbose_name: str | Promise = '??'
 
     # NB: override in child classes
     event_class: type[WorkflowEvent] = WorkflowEvent
@@ -235,7 +235,7 @@ class WorkflowTrigger:
 
     def activate(self, event: WorkflowEvent) -> dict | None:
         """Indicates if the workflow is triggered and build the context to be
-        used by other partys of the workflows.
+        used by other parts of the workflows.
         @return <None> if the workflow is not triggered.
                 The context (a dictionary) if the workflow is triggered; it
                 contains WorkflowSource instance(s).
@@ -322,10 +322,10 @@ class WorkflowSource:
            ForeignKey referencing another CremeEntity instance.
     """
     # Must be unique by class; used by the registry for deserialize from the database.
-    type_id = ''
+    type_id: str = ''
     # Description of the type (used for error).
     # Hint: use 'render()' to get a description of an instance.
-    verbose_name = '??'
+    verbose_name: str | Promise = '??'
 
     class RenderMode(enum.Enum):
         TEXT_PLAIN = enum.auto()
@@ -688,8 +688,8 @@ class WorkflowAction:
     sends emails etc...).
     """
     # Must be unique by class; used by the registry for deserialize from the database.
-    type_id = ''
-    verbose_name = '??'
+    type_id: str = ''
+    verbose_name: str | Promise = '??'
 
     def __str__(self):
         return str(self.verbose_name)

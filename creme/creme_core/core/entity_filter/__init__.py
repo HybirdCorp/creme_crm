@@ -70,7 +70,7 @@ class EntityFilterRegistry:
 
     def __init__(self, *,
                  id: str,
-                 verbose_name: Promise,
+                 verbose_name: str | Promise,
                  detail_url_name: str = '',
                  edition_url_name: str = '',
                  deletion_url_name: str = '',

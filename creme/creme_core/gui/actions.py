@@ -19,11 +19,12 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Self
+from typing import Self, Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
 from django.urls.base import reverse
+from django.utils.functional import Promise
 
 from creme.creme_core.models import CremeEntity, CremeUser
 from creme.creme_core.utils.collections import InheritedDataChain
@@ -53,14 +54,14 @@ class UIAction:
           the user (not allowed, some business logic not OK…).
     """
     id: str = ''
-    model: type[Model] = Model
+    model: Type[Model] = Model
 
     type: str = ''
     url_name: str | None = None
 
-    label = ''
+    label: str | Promise = ''
     icon: str = ''
-    help_text = ''
+    help_text: str | Promise = ''
 
     is_default: bool = False
     is_visible: bool = True
@@ -71,7 +72,7 @@ class UIAction:
         return f'{app_label}-{name}'
 
     def __init__(self, user,
-                 model: type[Model] | None = None,
+                 model: Type[Model] | None = None,
                  instance: CremeEntity | None = None,
                  **kwargs):
         self.user = user

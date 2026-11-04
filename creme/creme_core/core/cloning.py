@@ -51,7 +51,7 @@ class EntityCloner:
     def check_permissions(self, *, user: CremeUser, entity: CremeEntity) -> None:
         """Checks if the given instance can be cloned.
         If an exception is raised, the cloning is forbidden (the exception
-        should contain the reason -- a translated human readable one).
+        should contain the reason -- a translated human-readable one).
         @raise PermissionDenied, ConflictError.
         """
         if entity.is_deleted:

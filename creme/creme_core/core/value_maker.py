@@ -56,18 +56,18 @@ class ValueMaker:
 
     @classmethod
     def from_dict(cls, /, data: dict) -> ValueMaker:
-        "Builds an instance from a dictionary (produced by the method 'to_dict()')."
+        """Builds an instance from a dictionary (produced by the method 'to_dict()')."""
         raise NotImplementedError
 
     def make(self):
         raise NotImplementedError
 
     def render(self) -> str:
-        "Returns a human-friendly string which can be use by the configuration UI."
+        """Returns a human-friendly string which can be used by the configuration UI."""
         return ''
 
     def to_dict(self) -> dict:
-        "Returns a JSON-friendly dictionary use to serialize the instance."
+        """Returns a JSON-friendly dictionary use to serialize the instance."""
         # The key "type" is used by the registry to build an instance of the
         # correct class. Child classes MUST KEEP this key.
         return {'type': self.type_id}

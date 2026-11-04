@@ -17,6 +17,9 @@
 ################################################################################
 
 import logging
+from typing import Self
+
+from django.utils.functional import Promise
 
 from creme.creme_core.models import Sandbox
 
@@ -25,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class SandboxType:
     id: str = ''  # Override with generate_id()
-    verbose_name: str = 'SANDBOX'  # Override or create a property (see below)
+    verbose_name: str | Promise = 'SANDBOX'  # Override or create a property (see below)
 
     @staticmethod
     def generate_id(app_label: str, name: str) -> str:
@@ -48,7 +51,7 @@ class SandboxTypeRegistry:
     def __init__(self) -> None:
         self._sandbox_types: dict[str, type[SandboxType]] = {}
 
-    def register(self, sandbox_type: type[SandboxType]):
+    def register(self, sandbox_type: type[SandboxType]) -> Self:
         sandbox_id = sandbox_type.id
 
         if not sandbox_id:
@@ -56,6 +59,8 @@ class SandboxTypeRegistry:
 
         if self._sandbox_types.setdefault(sandbox_id, sandbox_type) is not sandbox_type:
             raise self.Error(f'Duplicated sandbox type id: {sandbox_id}')
+
+        return self
 
     def get(self, sandbox: Sandbox) -> SandboxType | None:
         try:

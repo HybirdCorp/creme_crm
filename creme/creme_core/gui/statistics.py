@@ -22,6 +22,8 @@ import logging
 from collections.abc import Callable
 from typing import Self
 
+from django.utils.functional import Promise
+
 StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class StatisticRegistry:
 
         def __init__(self,
                      id: str,
-                     label: str,
+                     label: str | Promise,
                      func: StatisticsFunc,
                      perm: str,
                      ):
@@ -96,7 +98,7 @@ class StatisticRegistry:
 
     def register(self,
                  id: str,
-                 label: str,
+                 label: str | Promise,
                  func: StatisticsFunc,
                  perm: str = '',
                  priority: int | None = None,

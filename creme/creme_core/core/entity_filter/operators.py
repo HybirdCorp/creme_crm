@@ -24,6 +24,7 @@ from functools import partial
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query_utils import Q
+from django.utils.functional import Promise
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -143,7 +144,7 @@ class ConditionOperator:
     type_id: str
 
     # Used in forms to configure the condition (see creme_core/forms/forms.py)
-    verbose_name = ''
+    verbose_name: str | Promise = ''
 
     # Sequence of strings used by the form fields/widgets to know which
     # operators to propose for a given model-field (see creme_core/forms/forms.py).
@@ -156,17 +157,17 @@ class ConditionOperator:
     accept_subpart: bool = True
 
     # Format string used by <description()>.
-    description_pattern = '«{field}» OP {values}'
+    description_pattern: str | Promise = '«{field}» OP {values}'
 
     # Format string used to build the Q instance ("{}" is interpolated with the field name).
     key_pattern: str = '{}__exact'
     # (Boolean) Are the filtered objects included or excluded?
     exclude: bool = False
 
-    def _accept_value(self, *, field_value, value):
+    def _accept_value(self, *, field_value, value) -> bool:
         raise NotImplementedError
 
-    def accept(self, *, field_value, values):
+    def accept(self, *, field_value, values) -> bool:
         """Check if when applying N times the operator to a value
         (e.g. corresponding to a field of an instance) and a value from a list
         of N values, one result at least is True.

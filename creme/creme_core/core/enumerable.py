@@ -66,8 +66,8 @@ class Enumerator:
         and available for the user.
 
         @param user: Instance of User.
-        @param values: List of ids
-        @return: List of model instances
+        @param values: List of ids.
+        @return: List of model instances.
         """
         raise NotImplementedError
 

@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.apps import apps
 from django.template.loader import get_template
+from django.utils.functional import Promise
 from django.utils.timezone import now
 
 from ..apps import CremeAppConfig
@@ -41,11 +42,11 @@ logger = logging.getLogger(__name__)
 class JobProgress:
     template_name: str = 'creme_core/job/progress.html'
 
-    def __init__(self, percentage: int | None, label: str = ''):
+    def __init__(self, percentage: int | None, label: str | Promise = ''):
         """Constructor.
 
         @param percentage: percentage of the progress (e.g. 53 for '53%').
-               None means that we cannot precise a percentage
+               None means that we cannot clarify a percentage
                (so an 'infinite' loop should be displayed).
         @param label: string corresponding to the progress
                (e.g. "53 entities have been processed").
@@ -70,7 +71,7 @@ class JobProgress:
 
 class JobType:
     """Each Job (see creme_core.models.Job) has a type, which contains the real
-    code to execute, & some meta-data:
+    code to execute, & some metadata:
         - verbose_name: is used in the Job views, in order to have a user-friendly display.
         - periodic: must be in {NOT_PERIODIC, PSEUDO_PERIODIC, PERIODIC}
         - configurable: can the related job be configured (enable/disable, period...).
@@ -86,7 +87,7 @@ class JobType:
     PERIODIC        = 2
 
     id: str = ''   # Override in child classes; use generate_id()
-    verbose_name: str = 'JOB'  # Override with a gettext_lazy object
+    verbose_name: str | Promise = 'JOB'  # Override with a gettext_lazy object
     periodic: int = NOT_PERIODIC
     # NB: only used for PERIODIC/PSEUDO_PERIODIC jobs of course
     configurable: bool = True
@@ -98,7 +99,7 @@ class JobType:
         return str(self.verbose_name)
 
     def _execute(self, job: Job):
-        "TO BE OVERRIDDEN BY CHILD CLASSES"
+        """TO BE OVERRIDDEN BY CHILD CLASSES"""
         raise NotImplementedError
 
     @property
@@ -178,7 +179,7 @@ class JobType:
         return None
 
     def get_stats(self, job: Job) -> list[str]:
-        "Get stats as a list of strings. To be overridden by child classes."
+        """Get stats as a list of strings. To be overridden by child classes."""
         return []
 
     def next_wakeup(self, job: Job, now_value: datetime) -> datetime | None:
