@@ -17,7 +17,8 @@
 ################################################################################
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from typing import Self
 
 from django.db.models import Model, Q, QuerySet
 
@@ -65,6 +66,7 @@ def _q_for_customfield(cell, word):
             )
 
 
+# TODO: unit test
 class Searcher:
     """Build QuerySets to search strings contained in instances of some given models.
 
@@ -151,3 +153,29 @@ class Searcher:
         return model.objects.filter(
             self._build_query(strings, cells)
         ).distinct() if cells else None
+
+
+# TODO: typing
+class SearchRegistry:
+    """"TODO"""
+    def __init__(self):
+        self._models = set()
+
+    @property
+    def models(self) -> Iterator[type[Model]]:
+        yield from self._models
+
+    def register(self, *models: type[Model]) -> Self:
+        # TODO: error
+        self._models.update(models)
+
+        return self
+
+    def unregister(self, model: type[Model]) -> Self:
+        # TODO: error
+        self._models.discard(model)
+
+        return self
+
+
+search_registry = SearchRegistry()

@@ -32,10 +32,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..utils.meta import ModelFieldEnumerator
+from . import fields as core_fields
 from .auth import UserRole
+# from .entity import CremeEntity
 from .base import CremeModel
-from .entity import CremeEntity
-from .fields import DatePeriodField, EntityCTypeForeignKey
 
 if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
@@ -58,13 +58,15 @@ class SearchConfigItemBuilder:
     Hint: use SearchConfigItem.objects.builder().
     """
     def __init__(self, *,
-                 model: type[CremeEntity],
+                 # model: type[CremeEntity],
+                 model: type[models.Model],
                  fields: Iterable[str],
                  role: UserRole | str | None = None,
                  disabled: bool = False,
                  ):
         """ Constructor.
-        @param model: CremeEntity type we want to search on.
+        # @param model: CremeEntity type we want to search on.
+        @param model: Model class we want to search on.
         @param fields: Name of the regular fields used bt the search.
         @param role: Role related to the configuration we build.
                - None: default configuration (no role, not superuser).
@@ -148,13 +150,15 @@ class SearchConfigItemBuilder:
 
 class SearchConfigItemManager(models.Manager):
     def builder(self, *,
-                model: type[CremeEntity],
+                # model: type[CremeEntity],
+                model: type[models.Model],
                 fields: Iterable[str] = (),
                 role: UserRole | str | None = None,
                 disabled: bool = False,
                 ) -> SearchConfigItemBuilder:
         """ Get a builder for SearchConfigItem.
-        @param model: CremeEntity type we want to search on.
+        # @param model: CremeEntity type we want to search on.
+        @param model: Model class we want to search on.
         @param fields: Name of the regular fields used bt the search.
         @param role: Role related to the configuration we build.
                - None: default configuration (no role, not superuser).
@@ -212,10 +216,11 @@ class SearchConfigItemManager(models.Manager):
     # create_if_needed.alters_data = True
 
     def iter_for_models(self,
-                        models: Iterable[type[CremeEntity]],
+                        # models: Iterable[type[CremeEntity]],
+                        models: Iterable[type[models.Model]],
                         user,
                         ) -> Iterator[SearchConfigItem]:
-        "Get the SearchConfigItem instances corresponding to the given models (generator)."
+        """Get the SearchConfigItem instances corresponding to the given models (generator)."""
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]
 
@@ -243,7 +248,6 @@ class SearchConfigItemManager(models.Manager):
 #                                       # than the default one
 #                                       .order_by('user')
 #        }
-#
 #        for ctype in ctypes:
 #            yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
         sc_items_per_ctid: DefaultDict[int, list] = defaultdict(list)
@@ -258,7 +262,8 @@ class SearchConfigItemManager(models.Manager):
 
 
 class SearchConfigItem(CremeModel):
-    content_type = EntityCTypeForeignKey(verbose_name=_('Related resource'))
+    # content_type = core_fields.EntityCTypeForeignKey(verbose_name=_('Related resource'))
+    content_type = core_fields.CTypeForeignKey(verbose_name=_('Related resource'))
     role = models.ForeignKey(
         UserRole, verbose_name=_('Related role'),
         null=True, default=None, on_delete=models.CASCADE,
@@ -286,7 +291,7 @@ class SearchConfigItem(CremeModel):
         models.DateTimeField, models.DateField,
         models.FileField, models.ImageField,
         models.BooleanField, models.NullBooleanField,
-        DatePeriodField,  # TODO: JSONField?
+        core_fields.DatePeriodField,  # TODO: JSONField?
     ]
 
     class Meta:
@@ -320,12 +325,12 @@ class SearchConfigItem(CremeModel):
 
     @property
     def is_default(self) -> bool:
-        "Is default configuration?"
+        """Is default configuration?"""
         return self.role_id is None and not self.superuser
 
     @property
     def cells(self) -> Iterator[EntityCell]:
-        "Return the stored EntityCell instance."
+        """Return the stored EntityCell instance."""
         cells = self._cells
 
         if cells is None:

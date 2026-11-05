@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from .core.notification import NotificationRegistry
     from .core.reminder import ReminderRegistry
     from .core.sandbox import SandboxTypeRegistry
+    from .core.search import SearchRegistry
     from .core.setting_key import SettingKeyRegistry
     from .core.soft_reference import SoftReferenceRegistry
     from .core.sorter import CellSorterRegistry
@@ -284,6 +285,7 @@ class CremeAppConfig(AppConfig):
                 notification,
                 reminder,
                 sandbox,
+                search,
                 setting_key,
                 soft_reference,
                 sorter,
@@ -340,6 +342,7 @@ class CremeAppConfig(AppConfig):
             self.register_quickforms(quick_forms.quickform_registry)
             self.register_reminders(reminder.reminder_registry)
             self.register_sandboxes(sandbox.sandbox_type_registry)
+            self.register_search(search.search_registry)
             self.register_search_fields(listview.search_field_registry)
             self.register_setting_keys(setting_key.setting_key_registry)
             self.register_soft_collectors(soft_reference.soft_reference_registry)
@@ -425,6 +428,7 @@ class CremeAppConfig(AppConfig):
     def register_notification(self, notification_registry: 'NotificationRegistry') -> None:
         pass
 
+    # TODO: rename method?
     def register_quickforms(self, quickform_registry: 'QuickFormRegistry') -> None:
         pass
 
@@ -434,6 +438,10 @@ class CremeAppConfig(AppConfig):
     def register_sandboxes(self, sandbox_type_registry: 'SandboxTypeRegistry') -> None:
         pass
 
+    def register_search(self, search_registry: 'SearchRegistry') -> None:
+        pass
+
+    # TODO: rename method?
     def register_search_fields(self, search_field_registry: 'ListViewSearchFieldRegistry') -> None:
         pass
 
@@ -782,6 +790,12 @@ class CremeCoreConfig(CremeAppConfig):
         from . import sandboxes
 
         sandbox_type_registry.register(sandboxes.OnlySuperusersType)
+
+    @override
+    def register_search(self, search_registry):
+        from . import models
+
+        search_registry.register(models.CremePropertyType)
 
     @override
     def register_setting_keys(self, setting_key_registry):

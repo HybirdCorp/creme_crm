@@ -17,6 +17,7 @@ def ready():
     from ..core.exceptions import ConflictError
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
+    from ..core.search import search_registry
     from ..gui.bricks import brick_registry
     from ..gui.bulk_update import bulk_update_registry
     from ..gui.custom_form import customform_descriptor_registry
@@ -211,4 +212,9 @@ def ready():
 
     filefield_download_registry.register(
         model=fake_models.FakeDocument, field_name='filedata',
+    )
+
+    search_registry.register(
+        fake_models.FakeContact,
+        fake_models.FakeOrganisation,
     )

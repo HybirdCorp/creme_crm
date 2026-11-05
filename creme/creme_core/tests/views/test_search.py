@@ -10,6 +10,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
 )
+from creme.creme_core.core.search import search_registry
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import (
     CustomField,
@@ -17,6 +18,8 @@ from creme.creme_core.models import (
     CustomFieldEnumValue,
     CustomFieldMultiEnum,
     FakeContact,
+    FakeDocument,
+    FakeFolder,
     FakeOrganisation,
     FakeSector,
     FieldsConfig,
@@ -295,6 +298,24 @@ class SearchTestCase(BrickTestCaseMixin, SearchViewTestCaseMixin, CremeTestCase)
             [FakeOrganisation._meta.verbose_name],
             context['verbose_names'],
         )
+
+    def test_not_registered(self):
+        self.assertNotIn(FakeDocument, search_registry.models)
+
+        user = self.login_as_root_and_get()
+
+        SearchConfigItem.objects.builder(
+            model=FakeDocument, fields=['title'],  # disabled=False,
+        ).get_or_create()
+
+        folder = FakeFolder.objects.create(user=user, title='Sources')
+        FakeDocument.objects.create(
+            user=user, title='Linux archive', linked_folder=folder,
+        )
+
+        response = self._search('Linux')
+        tree = self.get_html_tree(response.content)
+        self.assertNoSearchBrick(tree, brick_id_prefix='found-creme_core-fakedocument-')
 
     def test_for_role(self):
         """Use Role's config if it exists."""

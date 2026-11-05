@@ -30,7 +30,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..core.exceptions import ConflictError
-from ..core.search import Searcher
+from ..core.search import Searcher, search_registry
 from ..gui.bricks import QuerysetBrick
 from ..http import CremeJsonResponse
 from ..models import CremeEntity, EntityCredentials, FieldsConfig
@@ -118,7 +118,8 @@ class FoundEntitiesBrick(QuerysetBrick):
 
 class SearcherMixin:
     searcher_class = Searcher
-    searchable_models_registry = creme_registry
+    # searchable_models_registry = creme_registry
+    search_registry = search_registry
 
     def get_raw_models(self):
         role = self.request.user.role
@@ -134,6 +135,7 @@ class SearcherMixin:
         searcher = getattr(self, 'searcher', None)
 
         if searcher is None:
+            # TODO: move to registry??
             self.searcher = searcher = self.searcher_class(
                 models=self.get_raw_models(), user=self.request.user,
             )
