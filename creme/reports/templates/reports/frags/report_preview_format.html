@@ -6,10 +6,8 @@
 
     <div class="form-block-fields">
         {% if form.non_field_errors %}
-            <label class="report-preview-errors-label">{% translate 'Global errors' %}</label>
-            <div class="report-preview-errors">
-                {{form.non_field_errors}}
-            </div>
+         <label class="report-preview-errors-label">{% translate 'Global errors' %}</label>
+         <div class="report-preview-errors">{{form.non_field_errors}}</div>
         {% endif %}
 
         <label for="{{form.doc_type.auto_id}}">{{form.doc_type.label}}</label>
