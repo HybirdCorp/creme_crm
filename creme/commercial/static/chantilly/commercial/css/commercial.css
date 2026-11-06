@@ -149,7 +149,7 @@
 .charm-matrix tbody > tr.charm-score-total > td.strategy-cat,
 .asset-matrix tbody > tr.asset-score-total > td.strategy-cat {
     text-align: center;
-    padding-left: 0px;
+    padding-left: 0;
 }
 
 .commercial-approaches-brick .approaches-title {
