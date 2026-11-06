@@ -308,6 +308,8 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 .ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
     cursor: not-allowed;
+    text-decoration: line-through;
+    color: #929ba9;
 }
 .ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-empty {
     display: none;
@@ -316,10 +318,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     border-top: 1px solid #a29d9d;
     margin-top: 5px;
     padding-top: 10px;
-}
-.ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
-    text-decoration: line-through;
-    color: 1px solid #929ba9;
 }
 .ui-creme-navigation div.marker-selected,
 .ui-creme-navigation div.marker-not-selected {
