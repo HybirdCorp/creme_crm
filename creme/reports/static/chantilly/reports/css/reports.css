@@ -86,8 +86,8 @@
 .reports-chart-brick .brick-chart-header .chart-action:before {
     content: "";
     position: absolute;
-    bottom: 0px;
-    left: 0px;
+    bottom: 0;
+    left: 0;
     top: -1px;
     width: 1px;
 
@@ -114,7 +114,7 @@
 .reports-chart-brick .chart-action .brick-table-action {
     font-weight: 600;
     font-size: 1em;
-    padding: 0px;
+    padding: 0;
 }
 
 /* .reports-graph-brick .graph-action .brick-table-action:hover { */
@@ -129,7 +129,7 @@
     display: inline-block;
     white-space: nowrap;
     max-height: 16px;
-    padding: 0px;
+    padding: 0;
 }
 
 /* .reports-graph-brick .brick-graph-header .graph-volatile { */

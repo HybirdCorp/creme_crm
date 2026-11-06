@@ -1377,7 +1377,7 @@ a.ui-button:active,
     border-color: #ccc;
     border-radius: 0;
     margin: 6px 8px 0 6px;
-    padding-right: 0px;
+    padding-right: 0;
 }
 
 .ui-dialog .ui-dialog-buttonpane .ui-button {

@@ -113,14 +113,13 @@ ul.bline-error-list > li {
 .billing-item .billing-select-account {
     opacity: 0;
     visibility: hidden;
-    padding: 0px 7px 0px 5px;
+    padding: 0 7px 0 5px;
     background: #fafafa;
     margin-left: 5px;
     outline: 1px solid #ccc;
     text-decoration: none;
     display: inline-block;
     transition: all 0.1s ease-in;
-    white-space: nowrap;
 
     text-transform: uppercase;
     white-space: nowrap;
@@ -424,7 +423,7 @@ ul.bline-error-list > li {
 
 .billing-cnotes-brick.brick-table .brick-table-content .brick-table-action {
     width: initial;
-    padding: 0px 0px 0px 5px;
+    padding: 0 0 0 5px;
 }
 
 .billing-cnotes-brick td.cnotes-comment div p {

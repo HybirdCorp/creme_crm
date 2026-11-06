@@ -203,7 +203,7 @@
 
 .sketch-chart-brick .brick-d3-content {
     min-height: 300px;
-    border: 0px;
+    border: 0;
 }
 
 .sketch-chart-brick .brick-content.is-empty {

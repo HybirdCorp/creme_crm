@@ -11,14 +11,14 @@
 .content-form-view .column,
 .inner-popup-content .column {
     float: left;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .content-detail-view .column.last,
 .content-form-view .column.last,
 .inner-popup-content .column.last {
     float: right;
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .content-detail-view .north,
@@ -120,7 +120,7 @@
 .content-detail-view .listviews-breadcrumbs {
     padding-top: 10px;
     padding-left: 10px;
-    padding-bottom: 0px;
+    padding-bottom: 0;
 
     color: #888;
 }
@@ -139,7 +139,7 @@
 /* Bar brick */
 
 .brick.brick-hat-bar {
-    padding-bottom: 0px;
+    padding-bottom: 0;
 
     box-shadow: none;
     background: none;
@@ -406,7 +406,7 @@
 
 .brick-hat-card .brick-card-action {
     max-height: 19px;
-    padding: 0px 7px 0px 5px;
+    padding: 0 7px 0 5px;
     margin-left: 5px;
 
     opacity: 0;

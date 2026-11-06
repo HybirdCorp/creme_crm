@@ -48,7 +48,7 @@ ul.ui-layout.hbox li {
 }
 ul.ui-layout.hbox li input,
 ul.ui-layout.hbox li button {
-    margin: 0px 2px;
+    margin: 0 2px;
 }
 
 ul.ui-layout.vbox li { position:relative; display:block; }
@@ -69,24 +69,24 @@ ul.ui-creme-widget.is-readonly li {
     color: hsla(197, 15%, 55%, 1);
 }
 
-.ui-creme-selectorlist img.delete { border: 0; vertical-align: middle; margin-left: 2px; }
+.ui-creme-selectorlist img.delete { border:0; vertical-align:middle; margin-left:2px; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
 
-.ui-creme-selectorlist .selectors { margin-bottom: 2;}
+.ui-creme-selectorlist .selectors { margin-bottom:2px;}
 
-.ui-creme-selectorlist[disabled] img.delete { display: none; }
+.ui-creme-selectorlist[disabled] img.delete { display:none; }
 
 .ui-creme-selectorlist.is-disabled button[type="button"].ui-creme-actionbutton,
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
     opacity: .50;
     filter: Alpha(Opacity=50);
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton:hover {
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -123,8 +123,8 @@ ul.ui-creme-widget.is-readonly li {
 /*----------------------------------*/
 .ui-creme-overlay {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-repeat: no-repeat;
@@ -199,7 +199,7 @@ ul.ui-creme-widget.is-readonly li {
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist {
     display: inline;
-    padding: 0px 4px 0px 0px;
+    padding: 0 4px 0 0;
 }
 
 button[type="button"].ui-creme-actionbutton,
@@ -213,7 +213,7 @@ button[type="button"].ui-creme-actionbutton,
 
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -273,7 +273,7 @@ span.ui-creme-datepicker-trigger {
     border-bottom: 1px solid #9db2bb;
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -449,7 +449,7 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect .checklist-content .checkbox-field input[type=checkbox] {
     margin-left: 4px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     margin-top: 2px;
     align-self: flex-start;
 }
@@ -559,7 +559,7 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-content.ie-checkbox-fallback .checkbox-field input[type=checkbox] {
-    margin-top: 0px;
+    margin-top: 0;
     vertical-align: middle;
 }
 

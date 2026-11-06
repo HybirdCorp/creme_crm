@@ -59,7 +59,7 @@ html.ios .form-title {
 
 .form-field .field-modifier {
   text-transform: none;
-  margin-left: 0px;
+  margin-left: 0;
   color: #888;
 }
 

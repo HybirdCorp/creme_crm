@@ -7,7 +7,7 @@
 
 .brick-geoaddress-item input[type="checkbox"] {
     margin-left: 4px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     margin-top: 2px;
     align-self: flex-start;
 }
@@ -72,7 +72,7 @@
 }
 
 .brick-geoaddress-canvas {
-    padding: 0px;
+    padding: 0;
     margin: 1px;
     height: 300px;
 }

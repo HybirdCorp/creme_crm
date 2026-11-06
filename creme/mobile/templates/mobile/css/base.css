@@ -45,7 +45,7 @@ footer {
   text-decoration: none;
   color: #356A94;
   border-radius: 3px;
-  box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+  box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 white;
   background: linear-gradient(#ffffff, #f3f3f3);
   text-transform: uppercase;
   font-size: 14px;
@@ -80,16 +80,15 @@ footer .button {
   margin-bottom: 5px;
 }
 
-/* avoir la nav fixed ? */
+/* get nav fixed? */
 nav {
-  font-size: 0px;
+  font-size: 0;
   margin-bottom: 10px;
-
 /*
   position: fixed;
   width: 100%;
   top: 0;
-*/
+ */
 }
 
 nav .tab {

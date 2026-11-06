@@ -87,8 +87,8 @@ a.is_deleted {
 }
 
 td p {
-    padding: 0px;
-    margin: 3px 0px;
+    padding: 0;
+    margin: 3px 0;
 }
 
 img {
@@ -173,7 +173,7 @@ button {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -484,7 +484,7 @@ div.hat-bar {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 6px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);
 }

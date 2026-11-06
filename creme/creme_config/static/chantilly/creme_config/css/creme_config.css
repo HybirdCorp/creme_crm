@@ -169,8 +169,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-roles-brick .role-creds > ul {
     list-style: none;
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 .creme_config-roles-brick .role-creds > ul span,
@@ -190,7 +190,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 /* Search brick */
 
 .creme_config-search-brick .brick-footer {
-    padding: 5px 0px;
+    padding: 5px 0;
 }
 
 .creme_config-search-brick td.search-config-ctype-label {
@@ -214,7 +214,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-search-brick .search-config-item + .search-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -245,8 +245,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-search-brick .search-config-group.brick-table {
     display: block;
-    padding: 0px;
-    margin-top: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .creme_config-search-brick .brick-table thead tr {
@@ -284,7 +284,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 /* Custom-forms brick */
 
 .creme_config-customforms-brick .customform-config-ctype + .customform-config-ctype {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -551,8 +551,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-menu-brick .menu-config-entry0-content ul {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 
     list-style: none;
 }
@@ -637,7 +637,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-buttonmenu-brick .buttonmenu-config-item + .buttonmenu-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -728,8 +728,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-fields-brick .fieldconf-fields-flags {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 
     list-style: none;
 }
@@ -737,7 +737,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 /* BricksDetailViewConfig brick */
 
 .creme_config-brickloc-detail-brick .brick-footer {
-    padding: 5px 0px;
+    padding: 5px 0;
 }
 
 .creme_config-brickloc-detail-brick div.brickloc-config-item-default {
@@ -765,7 +765,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-brickloc-detail-brick .brickloc-config-item + .brickloc-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -796,8 +796,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-brickloc-detail-brick .brickloc-config-group.brick-table {
     display: block;
-    padding: 0px;
-    margin-top: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .creme_config-brickloc-detail-brick .brick-table thead tr {
@@ -848,7 +848,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-rtypebricks-brick .brick-footer {
-    padding: 5px 0px;
+    padding: 5px 0;
 }
 
 .creme_config-rtypebricks-brick td.rtypebrick-config-relation-label {
@@ -857,7 +857,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-rtypebricks-brick .brick-content .brick-list-item:last-child {
-    padding-bottom: 0px;
+    padding-bottom: 0;
 }
 
 .creme_config-rtypebricks-brick .rtypebrick-config-item {
@@ -865,7 +865,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-rtypebricks-brick .rtypebrick-config-item + .rtypebrick-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -911,8 +911,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-rtypebricks-brick .rtypebrick-config-group.brick-table {
     display: block;
-    padding: 0px;
-    margin-top: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .creme_config-rtypebricks-brick .brick-table thead tr {
@@ -1003,7 +1003,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-customfields-brick .cfields-config-item + .cfields-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
@@ -1034,8 +1034,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-customfields-brick .cfields-config-group.brick-table {
     display: block;
-    padding: 0px;
-    margin-top: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .creme_config-customfields-brick .brick-table thead tr {
@@ -1239,8 +1239,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-workflows-brick .workflow-config-content .workflow-config-conditions-contents,
 .creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 
     list-style: none;
 }
@@ -1287,7 +1287,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-user-settings-brick .setting-values-config-item + .setting-values-config-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 2px solid #bdd3dc;
 }
 
