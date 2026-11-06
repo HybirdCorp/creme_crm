@@ -263,7 +263,7 @@
 }
 
 .fc-creme .fc-month-view .fc-daygrid-day.fc-day-today {
-    box-shadow: inset 0px 4px 0px #74a6db;
+    box-shadow: inset 0 4px 0 #74a6db;
 }
 
 .fc-creme.fc-ltr .fc-time-grid .fc-event-container {
@@ -340,7 +340,7 @@
     text-transform: uppercase;
     width: fit-content;
     border-radius: 4px;
-    padding: 0px 4px;
+    padding: 0 4px;
     margin-left: 20px;
     position: relative;
     top: -2px;

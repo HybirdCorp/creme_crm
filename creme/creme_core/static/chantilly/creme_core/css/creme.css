@@ -53,7 +53,7 @@ input {
 
 body {
     margin: 0;
-    padding: 0px;
+    padding: 0;
     background-color: #f6fcff;
 }
 
@@ -62,7 +62,7 @@ body.is_deleted {
 }
 
 td p {
-    padding: 0px;
+    padding: 0;
     margin: 5px;
 }
 
@@ -94,7 +94,7 @@ td p {
 
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;

@@ -56,7 +56,7 @@
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -94,10 +94,10 @@
 .ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block; }
 .ui-creme-timepicker li input {
     width: 3em !important;
-    margin: 0px 2px;
+    margin: 0 2px;
     text-align: right;
 }
-.ui-creme-timepicker li button[type="button"] { padding:0px 6px; }
+.ui-creme-timepicker li button[type="button"] { padding:0 6px; }
 
 /*----------------------------------*/
 .ui-creme-datetimepicker { margin:0; padding:0; list-style:none; }
@@ -105,10 +105,10 @@
 .ui-creme-datetimepicker li input {
     width: 3em;
     text-align: right;
-    margin: 0px 2px;
+    margin: 0 2px;
 }
 .ui-creme-datetimepicker li.date input { width: 8em; }
-.ui-creme-datetimepicker li button[type="button"] { padding: 0px 6px; }
+.ui-creme-datetimepicker li button[type="button"] { padding: 0 6px; }
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
 
 .ui-creme-daterange-selector .hidden {
@@ -131,7 +131,7 @@ ul.ui-layout.hbox li {
 }
 ul.ui-layout.hbox li input,
 ul.ui-layout.hbox li button {
-    margin: 0px 2px;
+    margin: 0 2px;
 }
 
 ul.ui-layout.vbox li {
@@ -170,12 +170,12 @@ ul.ui-creme-widget.is-readonly li {
     opacity: .50;
     filter: Alpha(Opacity=50);
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton:hover {
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -212,8 +212,8 @@ ul.ui-creme-widget.is-readonly li {
 /*----------------------------------*/
 .ui-creme-overlay {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-repeat: no-repeat;
@@ -291,7 +291,7 @@ ul.ui-creme-widget.is-readonly li {
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist {
     display: inline;
-    padding: 0px 4px 0px 0px;
+    padding: 0 4px 0 0;
 }
 
 button[type="button"].ui-creme-actionbutton,
@@ -304,7 +304,7 @@ button[type="button"].ui-creme-actionbutton,
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -326,7 +326,7 @@ button[type="button"].ui-creme-actionbutton[disabled],
 
     box-shadow: none;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -368,7 +368,7 @@ span.ui-creme-datepicker-trigger {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -546,7 +546,7 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect .checklist-content .checkbox-field input[type=checkbox] {
     margin-left: 4px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     margin-top: 2px;
     align-self: flex-start;
 }
@@ -652,7 +652,7 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-content.ie-checkbox-fallback .checkbox-field input[type=checkbox] {
-    margin-top: 0px;
+    margin-top: 0;
     vertical-align: middle;
 }
 

@@ -96,7 +96,7 @@
 
 .brick.brick-hat-bar .brick-content {
     padding-top: 2px;
-    padding-bottom: 0px;
+    padding-bottom: 0;
 }
 
 /* brick menu */
@@ -112,7 +112,7 @@
     display: inline-flex;
     align-items: center;
 
-    padding: 3px 0px;
+    padding: 3px 0;
 
     color: hsla(197, 42%, 20%, 1);
     font-size: 11px;
@@ -220,8 +220,8 @@
     position: absolute;
     width: 1px;
 
-    bottom: 0px;
-    left: 0px;
+    bottom: 0;
+    left: 0;
     top: -1px;
 
     background: linear-gradient(transparent, #aaa);
@@ -475,7 +475,7 @@
 }
 
 .brick-table .brick-table-content > thead .brick-table-nowrap {
-    whitespace: no-wrap;
+    white-space: nowrap;
 }
 
 .brick-table .brick-table-content tbody .brick-table-data-valid {
@@ -668,17 +668,17 @@
     display: none;
 
     font-weight: 700;
-    padding: 0px 0px;
+    padding: 0 0;
     width: 40px;
     color: black;
     text-align: center;
     background-color: transparent;
     margin: -1px 0 0 0;
-    border: 0px;
+    border: 0;
 
     border-radius: 0;
 
-    outline: 0px;
+    outline: 0;
 }
 
 .brick .brick-pagination .pager-link-choose.active span {
@@ -732,8 +732,8 @@
 }
 
 .brick-tiles.brick-full-width .brick-tile:not(.brick-tile-multiline-value) {
-    width: 14.28%; /* 100% ÷ 7 */
-    width: 16.66%; /* 100% ÷ 6 */
+    /*width: 14.28%; !* 100% ÷ 7 *!*/
+    /*width: 16.66%; !* 100% ÷ 6 *!*/
     width: calc(100% / 6);
 }
 
@@ -765,7 +765,7 @@
 }
 
 .brick-tiles .brick-tile-value ul {
-    padding-left: 0px;
+    padding-left: 0;
     list-style-position: inside;
 }
 
@@ -773,7 +773,7 @@
     display: inline-block;
 
     max-height: 16px;
-    padding: 0px 7px 0px 5px;
+    padding: 0 7px 0 5px;
     margin-left: 5px;
 
     opacity: 0;
@@ -1059,7 +1059,7 @@
 }
 
 .brick-list .brick-footer {
-    padding: 0px 0px 5px 0px;
+    padding: 0 0 5px 0;
 }
 
 /* brick types - list type - end */
@@ -1216,7 +1216,7 @@ svg.icon {
 /* generic icons experiments - end */
 
 .brick td p {
-    margin: 0px;
+    margin: 0;
 }
 
 .brick hr {
@@ -1255,7 +1255,7 @@ svg.icon {
 /* Buttons bar brick */
 
 .brick:not(.is-empty) ~ .brick.creme_core-buttons-brick:not(.is-empty) {
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 .creme_core-buttons-brick {
@@ -1272,7 +1272,7 @@ svg.icon {
 
 /* TODO: remove the base rule we override? */
 .creme_core-buttons-brick .brick-content.buttons-list.instance-buttons .menu_button img {
-    padding-right: 0px;
+    padding-right: 0;
 }
 
 /* Relationships brick */
@@ -1388,7 +1388,7 @@ svg.icon {
 
 .popover-content .history-line-field-change-text-old_value h4,
 .popover-content .history-line-field-change-text-new_value h4 {
-    margin: 0px;
+    margin: 0;
 }
 
 /* Specific relation brick */
@@ -1402,7 +1402,7 @@ svg.icon {
 }
 
 .creme_core-specific-relations-brick .relation-item + .relation-item {
-    margin-top: 0px;
+    margin-top: 0;
     border-top: 1px solid #ccc;
 }
 
@@ -1426,8 +1426,8 @@ svg.icon {
 
 .creme_core-specific-relations-brick .relation-group.brick-table {
     display: block;
-    padding: 0px;
-    margin-top: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .creme_core-specific-relations-brick .brick-table thead tr {
@@ -1451,7 +1451,7 @@ svg.icon {
 }
 
 .creme_core-specific-relations-brick .brick-table .brick-table-content .brick-table-action {
-    padding: 0px;
+    padding: 0;
 }
 
 /* Specific relation brick - end */

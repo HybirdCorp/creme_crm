@@ -1,7 +1,7 @@
 .listview {
     width: 100%;
-    padding: 0px 4px 0px 0px;
-    margin: 12px 5px 15px 0px;
+    padding: 0 4px 0 0;
+    margin: 12px 5px 15px 0;
 
     border-top:    none;
     border-left:   1px solid #e1e9ec;
@@ -78,7 +78,7 @@
 .list-control-group a.is-disabled {
     opacity: 0.6;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -138,7 +138,7 @@
 
     border-radius: 3px;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 
     text-align: center;
     text-decoration: none;
@@ -191,7 +191,7 @@
 .list-header-buttons button:disabled {
     opacity: 0.5;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -200,7 +200,7 @@
 /* Listview - header columns */
 
 .listview thead {
-    padding: 0px;
+    padding: 0;
 }
 
 .listview thead tr.lv-columns-header th {
@@ -579,7 +579,7 @@
 .listview-action a.is-disabled {
     opacity: 0.6;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -760,7 +760,7 @@
 }
 
 .listview.listview-standalone tbody .lv-cell-content {
-    border-right: 0px;
+    border-right: 0;
 }
 
 /* hack for this theme */ 
@@ -769,7 +769,7 @@
     max-width: 22px;
     min-width: 22px;
     width: 22px;
-    padding: 0px;
+    padding: 0;
 }
 
 .listview tbody .lv-cell-action a {
@@ -797,14 +797,14 @@
 
 .listview .left_align.lv-cell-content {
     text-align: left;
-    margin-left: 0px;
+    margin-left: 0;
     padding-left: 5px;
 }
 
 .listview .text_area.lv-cell-content {
     text-align: left;
     white-space: normal;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .listview .right_align.lv-cell-content {
@@ -985,7 +985,7 @@
     justify-content: center;
     align-items: center;
 
-    border-top: 1px solid hsl(197, 25%, 80%);
+    /*border-top: 1px solid hsl(197, 25%, 80%);*/
     padding-bottom: 2px;
 
     /* -- */
@@ -1049,16 +1049,16 @@
 
     width: 40px;
     margin: -1px 0 0 0;
-    padding: 0px 0px;
+    padding: 0 0;
 
     font-weight: 700;
     color: black;
     text-align: center;
     background-color: transparent;
-    border: 0px;
+    border: 0;
     border-radius: 0;
 
-    outline: 0px;
+    outline: 0;
 }
 
 .listview .list-footer-container .listview-pagination .pager-link-choose.active span {

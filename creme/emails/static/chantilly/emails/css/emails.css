@@ -49,8 +49,8 @@ ul.emails-sending_config {
 
 .emails-emails_to_sync-brick .emails-sync-recipients,
 .emails-emails_to_sync-brick .emails-sync-attachments {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 
     list-style: none;
 }
