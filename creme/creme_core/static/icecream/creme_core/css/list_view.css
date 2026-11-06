@@ -1,7 +1,7 @@
 .listview {
     width: 100%;
-    padding: 0px 4px 4px 0px;
-    margin: 15px 5px 15px 0px;
+    padding: 0 4px 4px 0;
+    margin: 15px 5px 15px 0;
 
     border: none;
 }
@@ -72,7 +72,7 @@
     display: inline-block;
     border: 0;
     padding: 0;
-    font-size: 0px;
+    font-size: 0;
 }
 
 .list-control-group fieldset.invalid-selected {
@@ -104,7 +104,7 @@
 .list-control-group a.is-disabled {
     opacity: 0.6;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -119,7 +119,7 @@
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
-    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 }
 
 .ui-creme-listview-standalone .list-header-container {
@@ -201,7 +201,7 @@
     font-size: 11px !important;
     font-weight: 600;
 
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
 }
 
 .list-header-buttons a.with-icon,
@@ -245,7 +245,7 @@
 .list-header-buttons button:disabled {
     opacity: 0.5;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -254,7 +254,7 @@
 /* Listview - header columns */
 
 .listview thead {
-    padding: 0px;
+    padding: 0;
 
     color: #2C596C;
 }
@@ -365,7 +365,7 @@
 }
 
 .listview .lv-columns-header .lv-column button[disabled] {
-    border: 0px;
+    border: 0;
     color: #22439f;
     opacity: 1;
     background: none;
@@ -392,7 +392,7 @@
 }
 
 .listview .lv-columns-header th {
-    padding: 0px 2px;
+    padding: 0 2px;
 
     border-top:  1px solid rgba(84, 130, 149, 0.3);
     border-left: 1px solid rgba(84, 130, 149, 0.3);
@@ -411,7 +411,7 @@
 }
 
 .listview .lv-search-header th {
-    padding: 0px 2px 2px 2px;
+    padding: 0 2px 2px 2px;
 
     border-bottom: 1px solid rgba(84, 130, 149, 0.3);
     border-left:   1px solid rgba(84, 130, 149, 0.3);
@@ -709,7 +709,7 @@
 .listview-action a.is-disabled {
     opacity: 0.6;
 
-    cursor: default;
+    /*cursor: default;*/
     cursor: not-allowed;
 }
 
@@ -915,7 +915,7 @@
 
 /* add a bit of space to the input search fields, as navIt now has zero margin */
 .listview thead .lv-search-header th:not(.actions) {
-    padding: 0px 2px;
+    padding: 0 2px;
 }
 
 .listview .cl_lv {
@@ -962,9 +962,9 @@
     max-width: 22px;
     min-width: 22px;
 
-    padding: 0px;
+    padding: 0;
 
-    border-left: 0px;
+    border-left: 0;
 }
 
 /* TODO: remove these "lv-cell-action" classes (see inner edition section instead) */
@@ -989,18 +989,18 @@
 
 .listview .left_align.lv-cell-content {
     text-align: left;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .listview .text_area.lv-cell-content {
     text-align: left;
     white-space: normal;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .listview .right_align.lv-cell-content {
     text-align: right;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 /* Special content */
@@ -1191,7 +1191,7 @@
     padding-bottom: 2px;
     padding-top: 2px;
 
-    border-top: 1px solid #dedede;
+    /*border-top: 1px solid #dedede;*/
     border: 0;
 }
 
@@ -1251,17 +1251,17 @@
 
     width: 40px;
     margin: -1px 0 0 0;
-    padding: 0px 0px;
+    padding: 0 0;
 
     font-weight: 700;
     color: black;
     text-align: center;
     background-color: transparent;
 
-    border: 0px;
+    border: 0;
     border-radius: 0;
 
-    outline: 0px;
+    outline: 0;
 }
 
 .listview .list-footer-container .listview-pagination .pager-link-choose.active span {

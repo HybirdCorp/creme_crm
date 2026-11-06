@@ -204,7 +204,7 @@
 }
 
 .popover .popover-list-item {
-    padding: 3px 0px;
+    padding: 3px 0;
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
@@ -219,18 +219,18 @@
 .popover.popover-picture {
     max-height: calc(100vh - 16px);
     max-width: calc(100vw - 16px);
-    padding: 0px;
+    padding: 0;
     border-top: 32px;
 }
 
 .popover.popover-picture .popover-content {
-    padding: 0px;
+    padding: 0;
 }
 
 .popover.popover-picture img {
     max-height: calc(100vh - 50px);
     max-width: calc(100vw - 50px);
-    padding: 0px;
+    padding: 0;
 }
 
 .popover.popover-picture img.no-title {

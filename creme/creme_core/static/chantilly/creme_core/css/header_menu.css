@@ -239,7 +239,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
     margin-right: 2px;
     margin-left: 2px;
-    padding: 0px;
+    padding: 0;
 
     border-left: 1px solid #bbb;
 
@@ -437,7 +437,7 @@ span.create-group-entry {
     height: 20px;
     border-radius: 9px;
 
-    box-shadow: 4px 2px 5px 0px rgba(0, 0, 0, 0.2), inset 1px 1px 2px 1px white;
+    box-shadow: 4px 2px 5px 0 rgba(0, 0, 0, 0.2), inset 1px 1px 2px 1px white;
 
     background: #06fbb1;
     border: 2px solid #0ab984;
@@ -649,10 +649,11 @@ span.create-group-entry {
     margin-right: 15px;
 }
 .search-box input[type="text"] {
-    height: auto;
-    padding-left: 5px;
+    /*height: auto;*/
     width: 150px;
     height: 100%;
+
+    padding-left: 5px;
 
     border: 0;
     border-radius: 0;
