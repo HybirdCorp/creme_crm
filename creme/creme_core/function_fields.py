@@ -75,6 +75,5 @@ class PropertiesField(FunctionField):
         )
 
     @override
-    @classmethod
-    def populate_entities(cls, entities, user):
+    def populate_entities(self, entities, user):
         CremeEntity.populate_properties(entities)
