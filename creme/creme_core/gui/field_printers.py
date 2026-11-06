@@ -306,6 +306,19 @@ class FKPrinter:
                 str(value),
             ) if value.disabled else str(value)
 
+        # return format_html(
+        #     '<div class="ui-creme-colored_status">'
+        #     ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
+        #     ' <span class="minion-is_disabled">{label}</span>'
+        #     '</div>' if value.disabled else
+        #     '<div class="ui-creme-colored_status">'
+        #     ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
+        #     ' <span>{label}</span>'
+        #     '</div>',
+        #     color=color, label=str(value),
+        # )
+        # TODO: compute text color
+        # TODO: disabled style too
         return format_html(
             '<div class="ui-creme-colored_status">'
             ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
