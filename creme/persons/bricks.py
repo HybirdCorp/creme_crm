@@ -620,12 +620,19 @@ class ManagedOrganisationsBrick(PaginatedBrick):
     template_name = 'persons/bricks/managed-organisations.html'
     configurable = False
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            Organisation.objects.filter_managed_by_creme(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Organisation.objects.filter_managed_by_creme(),
+    #     ))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            objects = Organisation.objects.filter_managed_by_creme()
+
+        return super().get_template_context(
+            context=context, objects=objects, **extra_kwargs
+        )
 
 
 # brick_classes: list[type[Brick]] = [
@@ -732,14 +739,21 @@ if apps.is_installed('creme.activities'):
 
             return neglected_orgas
 
-        # def home_display(self, context):
-        def render(self, context):
+        # # def home_display(self, context):
+        # def render(self, context):
+        #     return self._render(self.get_template_context(
+        #         context,
+        #         self._get_neglected(context['today']),
+        #     ))
+        def get_template_context(self, context, objects=None, **extra_kwargs):
             # We do not check the 'persons' permission, because it's only
             # statistics for people who cannot see Organisations.
-            return self._render(self.get_template_context(
-                context,
-                self._get_neglected(context['today']),
-            ))
+            if objects is None:
+                objects = self._get_neglected(context['today'])
+
+            return super().get_template_context(
+                context=context, objects=objects, **extra_kwargs
+            )
 
     # brick_classes.append(NeglectedOrganisationsBrick)
     home_brick_classes.append(NeglectedOrganisationsBrick)

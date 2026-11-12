@@ -663,7 +663,7 @@ class SpecificRelationsBrick(QuerysetBrick):
         ).format(predicate=rtype.predicate)
 
     # def detailview_display(self, context) -> str:
-    def render(self, context) -> str:
+    def render(self, context):
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
         #       & display a message in the brick (and disable the creation button)
         #       if constraints are broken ? (beware: add CremePropertyType in dependencies)

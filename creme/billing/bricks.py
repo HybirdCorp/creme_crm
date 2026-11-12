@@ -375,13 +375,22 @@ class CreditNotesBrick(PaginatedBrick):
     target_ctypes = (Invoice, SalesOrder, Quote)
     permissions = 'billing'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            context['object'].get_credit_notes(),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         context['object'].get_credit_notes(),
+    #         rtype_id=self.relation_type_deps[0],
+    #     ))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            objects = context['object'].get_credit_notes()
+
+        return super().get_template_context(
+            context=context, objects=objects,
             rtype_id=self.relation_type_deps[0],
-        ))
+            **extra_kwargs
+        )
 
 
 # class TotalBrick(SimpleBrick):
@@ -428,15 +437,25 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     permissions = 'billing'
     order_by = '-expiration_date'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            Invoice.objects.filter(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Invoice.objects.filter(
+    #             relations__object_entity=context['object'].id,  # Contact/Organisation
+    #             relations__type=constants.REL_SUB_BILL_RECEIVED,
+    #         ).select_related('status', 'currency'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = Invoice.objects.filter(
                 relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
-            ).select_related('status', 'currency'),
-        ))
+            ).select_related('status', 'currency')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class _ReceivedBillingDocumentsBrick(QuerysetBrick):
@@ -455,21 +474,36 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     _empty_title = _('Received billing documents')  # OVERRIDE ME
     _empty_msg   = _('No received billing document for the moment')  # OVERRIDE ME
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        model = self._billing_model
-
-        return self._render(self.get_template_context(
-            context,
-            model.objects.filter(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     model = self._billing_model
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         model.objects.filter(
+    #             relations__object_entity=context['object'].id,  # Contact/Organisation
+    #             relations__type=constants.REL_SUB_BILL_RECEIVED,
+    #         ),
+    #         title=self._title,
+    #         title_plural=self._title_plural,
+    #         empty_title=self._empty_title,
+    #         empty_msg=self._empty_msg,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = self._billing_model.objects.filter(
                 relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
-            ),
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             title=self._title,
             title_plural=self._title_plural,
             empty_title=self._empty_title,
             empty_msg=self._empty_msg,
-        ))
+            **extra_kwargs
+        )
 
 
 class ReceivedQuotesBrick(_ReceivedBillingDocumentsBrick):
@@ -566,23 +600,42 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     )
     order_by = 'name'
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     billing_doc = context['object']
+    #     pi_qs = PaymentInformation.objects.none()
+    #     hidden = context['fields_configs'].get_for_model(
+    #         type(billing_doc)
+    #     ).is_fieldname_hidden('payment_info')
+    #     organisation = billing_doc.source
+    #
+    #     if not hidden and organisation is not None:
+    #         pi_qs = PaymentInformation.objects.filter(organisation=organisation)
+    #
+    #     return self._render(self.get_template_context(
+    #         context, pi_qs,
+    #         organisation=organisation,
+    #         field_hidden=hidden,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         billing_doc = context['object']
-        pi_qs = PaymentInformation.objects.none()
         hidden = context['fields_configs'].get_for_model(
             type(billing_doc)
         ).is_fieldname_hidden('payment_info')
         organisation = billing_doc.source
 
-        if not hidden and organisation is not None:
-            pi_qs = PaymentInformation.objects.filter(organisation=organisation)
+        if queryset is None:
+            queryset = PaymentInformation.objects.none()
 
-        return self._render(self.get_template_context(
-            context, pi_qs,
+            if not hidden and organisation is not None:
+                queryset = PaymentInformation.objects.filter(organisation=organisation)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             organisation=organisation,
             field_hidden=hidden,
-        ))
+            **extra_kwargs
+        )
 
 
 class BillingDetailedAddressBrick(persons_bricks.DetailedAddressesBrick):

@@ -253,13 +253,20 @@ class OrbitalRelationTypesBrick(core_bricks.QuerysetBrick):
     target_ctypes = (get_graph_model(),)
     permissions = 'graphs'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        graph = context['object']
-        return self._render(self.get_template_context(
-            context,
-            graph.orbital_relation_types.select_related('symmetric_type'),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     graph = context['object']
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         graph.orbital_relation_types.select_related('symmetric_type'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].orbital_relation_types.select_related('symmetric_type')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class GraphInstanceBrick(RelationsChartBrickMixin, core_bricks.InstanceBrick):
@@ -274,13 +281,10 @@ class GraphInstanceBrick(RelationsChartBrickMixin, core_bricks.InstanceBrick):
         self.graph = graph = instance_brick_config_item.real_entity
         self.verbose_name = gettext('Relationship graph — {graph}').format(graph=graph)
 
-    def render(self, context):
-        return self._render(
-            self.get_template_context(
-                context,
-                data=[
-                    *self.get_relations_chart_data(graph=self.graph, user=context['user'])
-                ],
-                props=self.get_relations_chart_props(context),
-            )
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context,
+            data=[*self.get_relations_chart_data(graph=self.graph, user=context['user'])],
+            props=self.get_relations_chart_props(context),
+            **extra_kwargs
         )

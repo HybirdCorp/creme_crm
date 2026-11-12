@@ -63,7 +63,6 @@ class ApproachesBrick(QuerysetBrick):
     #
     #     if isinstance(entity, get_organisation_model()) and \
     #        not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value:
-    #         # TODO: regroup the queries
     #         managers_ids  = entity.get_managers().values_list('id', flat=True)
     #         employees_ids = entity.get_employees().values_list('id', flat=True)
     #         opportunities_ids = Opportunity.objects.filter(
@@ -83,31 +82,35 @@ class ApproachesBrick(QuerysetBrick):
     #         context,
     #         CommercialApproach.get_approaches().prefetch_related('creme_entity'),
     #     ))
-    def render(self, context):
-        entity = context.get('object')
-        if entity is None:  # HOME
-            approaches = CommercialApproach.get_approaches().prefetch_related('creme_entity')
-        else:  # DETAIL
-            pk = entity.pk
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            entity = context.get('object')
 
-            if (
-                isinstance(entity, get_organisation_model())
-                and not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value
-            ):
-                # TODO: regroup the queries
-                managers_ids  = entity.get_managers().values_list('id', flat=True)
-                employees_ids = entity.get_employees().values_list('id', flat=True)
-                opportunities_ids = Opportunity.objects.filter(
-                    relations__type=REL_SUB_TARGETS, relations__object_entity=entity,
-                ).values_list('id', flat=True)
+            if entity is None:  # HOME
+                queryset = CommercialApproach.get_approaches().prefetch_related('creme_entity')
+            else:  # DETAIL
+                pk = entity.pk
 
-                approaches = CommercialApproach.objects.filter(
-                    entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
-                )
-            else:
-                approaches = CommercialApproach.get_approaches(pk)
+                if (
+                    isinstance(entity, get_organisation_model())
+                    and not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value
+                ):
+                    # TODO: regroup the queries
+                    managers_ids  = entity.get_managers().values_list('id', flat=True)
+                    employees_ids = entity.get_employees().values_list('id', flat=True)
+                    opportunities_ids = Opportunity.objects.filter(
+                        relations__type=REL_SUB_TARGETS, relations__object_entity=entity,
+                    ).values_list('id', flat=True)
 
-        return self._render(self.get_template_context(context, approaches))
+                    queryset = CommercialApproach.objects.filter(
+                        entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
+                    )
+                else:
+                    queryset = CommercialApproach.get_approaches(pk)
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class SegmentsBrick(QuerysetBrick):
@@ -120,11 +123,18 @@ class SegmentsBrick(QuerysetBrick):
     # NB: used by the view <creme_core.views.bricks.BricksReloading>
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context, MarketSegment.objects.all(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context, MarketSegment.objects.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = MarketSegment.objects.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class SegmentDescriptionsBrick(PaginatedBrick):
@@ -135,12 +145,19 @@ class SegmentDescriptionsBrick(PaginatedBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        strategy = context['object']
-        return self._render(self.get_template_context(
-            context, strategy.get_segment_descriptions_list(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     strategy = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, strategy.get_segment_descriptions_list(),
+    #     ))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            objects = context['object'].get_segment_descriptions_list()
+
+        return super().get_template_context(
+            context=context, objects=objects, **extra_kwargs
+        )
 
 
 class AssetsBrick(QuerysetBrick):
@@ -152,12 +169,19 @@ class AssetsBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        strategy = context['object']
-        return self._render(self.get_template_context(
-            context, strategy.assets.all(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     strategy = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, strategy.assets.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].assets.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class CharmsBrick(QuerysetBrick):
@@ -169,12 +193,19 @@ class CharmsBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        strategy = context['object']
-        return self._render(self.get_template_context(
-            context, strategy.charms.all(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     strategy = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, strategy.charms.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].charms.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class EvaluatedOrgasBrick(QuerysetBrick):
@@ -186,12 +217,19 @@ class EvaluatedOrgasBrick(QuerysetBrick):
     target_ctypes = (Strategy,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        strategy = context['object']
-        return self._render(self.get_template_context(
-            context, strategy.evaluated_orgas.all(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     strategy = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, strategy.evaluated_orgas.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].evaluated_orgas.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 # class AssetsMatrixBrick(SimpleBrick):
@@ -277,15 +315,24 @@ class ActObjectivesBrick(QuerysetBrick):
     target_ctypes = (Act,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        act_id = context['object'].id
-        # TODO: pre-populate EntityFilters ??
-        return self._render(self.get_template_context(
-            context,
-            # NB: "act.objectives.all()" causes a strange additional query...
-            ActObjective.objects.filter(act=act_id),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     act_id = context['object'].id
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         # NB: "act.objectives.all()" causes a strange additional query...
+    #         ActObjective.objects.filter(act=act_id),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            # TODO: pre-populate EntityFilters (& conditions?)?
+            # NB: "act.objectives.all()" causes a strange additional query (TODO: check again)
+            queryset = ActObjective.objects.filter(act=context['object'].id)
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class RelatedOpportunitiesBrick(PaginatedBrick):
@@ -297,13 +344,22 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
     target_ctypes = (Act,)
     permissions = 'commercial'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        act = context['object']
-        return self._render(self.get_template_context(
-            context, act.get_related_opportunities(),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     act = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, act.get_related_opportunities(),
+    #         relation_type=RelationType.objects.get(id=REL_OBJ_COMPLETE_GOAL),
+    #     ))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            objects = context['object'].get_related_opportunities()
+
+        return super().get_template_context(
+            context=context, objects=objects,
             relation_type=RelationType.objects.get(id=REL_OBJ_COMPLETE_GOAL),
-        ))
+            **extra_kwargs
+        )
 
 
 # class PatternComponentsBrick(SimpleBrick):

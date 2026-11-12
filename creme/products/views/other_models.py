@@ -40,14 +40,24 @@ class NarrowedSubCategoriesBrick(QuerysetBrick):
         super().__init__()
         self.category = category
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            SubCategory.objects.filter(category=self.category),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         SubCategory.objects.filter(category=self.category),
+    #         model_config=config_registry.get_app_registry('products')
+    #                                     .get_model_conf(SubCategory),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = SubCategory.objects.filter(category=self.category)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             model_config=config_registry.get_app_registry('products')
                                         .get_model_conf(SubCategory),
-        ))
+            **extra_kwargs
+        )
 
 
 class CategoryRelatedMixin:

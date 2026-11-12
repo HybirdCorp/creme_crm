@@ -97,13 +97,13 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
     # def detailview_display(self, context):
     def render(self, context):
         report = context['object']
-        context = self.get_template_context(
-            context,
-            ReportChart.objects.filter(linked_report=report),
+        btc = self.get_template_context(
+            context=context,
+            queryset=ReportChart.objects.filter(linked_report=report),
             plots=[*plot_registry],
         )
 
-        charts = context['page'].object_list
+        charts = btc['page'].object_list
 
         counter = Counter(
             ibci.get_extra_data(ReportChartInstanceBrick.chart_key)
@@ -113,7 +113,7 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
             )
         )
 
-        context['rows'] = []
+        btc['rows'] = rows = []
 
         user = context['user']
         request_order = context['request'].GET.get('order', None)
@@ -125,7 +125,7 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
             x, y = chart.fetch(user=user, order=request_order or order)
             data = self.merge_chart_data(x, y, colors=chart.fetch_colormap(user))
 
-            context['rows'].append({
+            rows.append({
                 'chart': chart,
                 'data': data,
                 'instance_brick_count': counter[str(chart.uuid)],
@@ -138,7 +138,7 @@ class ReportChartsBrick(ReportChartMixin, core_bricks.QuerysetBrick):
                 },
             })
 
-        return self._render(context)
+        return self._render(btc)
 
 
 class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
@@ -339,17 +339,29 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     target_ctypes = (Report,)  # Security purpose only
     permissions = 'reports'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        chart = context['object']
-        return self._render(self.get_template_context(
-            context,
-            InstanceBrickConfigItem.objects.filter(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     chart = context['object']
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         InstanceBrickConfigItem.objects.filter(
+    #             brick_class_id=ReportChartInstanceBrick.id,
+    #             entity=chart.linked_report_id,
+    #             **{f'json_extra_data__{ReportChartInstanceBrick.chart_key}': str(chart.uuid)},
+    #         ),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            chart = context['object']
+            queryset = InstanceBrickConfigItem.objects.filter(
                 brick_class_id=ReportChartInstanceBrick.id,
                 entity=chart.linked_report_id,
                 **{f'json_extra_data__{ReportChartInstanceBrick.chart_key}': str(chart.uuid)},
-            ),
-        ))
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class ReportEntityFiltersBrick(config_bricks.EntityFiltersBrick):

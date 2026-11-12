@@ -156,13 +156,21 @@ class EmailRecipientsBrick(QuerysetBrick):
     target_ctypes = (MailingList,)
     permissions = 'emails'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        mailing_list = context['object']
-        return self._render(self.get_template_context(
-            context,
-            EmailRecipient.objects.filter(ml=mailing_list.id),  # get_recipients() ???
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     mailing_list = context['object']
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         EmailRecipient.objects.filter(ml=mailing_list.id),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            # TODO: get_recipients()?
+            queryset = EmailRecipient.objects.filter(ml=context['object'].id)
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class ContactsBrick(_RelatedEntitiesBrick):
@@ -234,11 +242,18 @@ class SendingConfigItemsBrick(QuerysetBrick):
     configurable = False
     # permissions = 'emails.can_admin' => auto by creme_config views
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context, EmailSendingConfigItem.objects.all(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context, EmailSendingConfigItem.objects.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = EmailSendingConfigItem.objects.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class SendingsBrick(QuerysetBrick):
@@ -254,15 +269,24 @@ class SendingsBrick(QuerysetBrick):
     target_ctypes = (EmailCampaign,)
     permissions = 'emails'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        campaign = context['object']
-        return self._render(self.get_template_context(
-            context,
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     campaign = context['object']
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         EmailSending.objects.filter(campaign=campaign.id),
+    #         config_available=EmailSendingConfigItem.objects.exists(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
             # TODO: use related_name i.e:campaign.sendings_set.all()
-            EmailSending.objects.filter(campaign=campaign.id),
+            queryset = EmailSending.objects.filter(campaign=context['object'].id)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             config_available=EmailSendingConfigItem.objects.exists(),
-        ))
+            **extra_kwargs
+        )
 
 
 # class SendingBrick(SimpleBrick):
@@ -318,24 +342,42 @@ class MailsHistoryBrick(QuerysetBrick):
     # Important because it can be displayed on entities' detail-views of other apps
     permissions = 'emails'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        pk = context['object'].pk
-        entityemail_ids = Relation.objects.filter(
-            type__symmetric_type_id__in=self.relation_type_deps,
-            object_entity=pk,
-        ).values_list('subject_entity', flat=True).distinct()
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     pk = context['object'].pk
+    #     entityemail_ids = Relation.objects.filter(
+    #         type__symmetric_type_id__in=self.relation_type_deps,
+    #         object_entity=pk,
+    #     ).values_list('subject_entity', flat=True).distinct()
+    #
+    #     relation_types = RelationType.objects.filter(id__in=self.relation_type_deps)
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
+    #         relation_types=relation_types,
+    #         relation_types_all_disabled=not any(
+    #             rtype.enabled for rtype in relation_types
+    #         ),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            entityemail_ids = Relation.objects.filter(
+                type__symmetric_type_id__in=self.relation_type_deps,
+                object_entity=context['object'].pk,
+            ).values_list('subject_entity', flat=True).distinct()
+            queryset = EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids)
 
         relation_types = RelationType.objects.filter(id__in=self.relation_type_deps)
 
-        return self._render(self.get_template_context(
-            context,
-            EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
+        return super().get_template_context(
+            context=context, queryset=queryset,
             relation_types=relation_types,
             relation_types_all_disabled=not any(
                 rtype.enabled for rtype in relation_types
             ),
-        ))
+            **extra_kwargs
+        )
 
 
 # class MailPopupBrick(SimpleBrick):
@@ -372,15 +414,24 @@ class LwMailsHistoryBrick(QuerysetBrick):
     template_name = 'emails/bricks/lw-mails-history.html'
     order_by = '-sending_date'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_template_context(
-            context,
-            LightWeightEmail.objects.filter(
-                recipient_entity=pk,
-            ).select_related('sending').prefetch_related('sending__campaign'),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     pk = context['object'].pk
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         LightWeightEmail.objects.filter(
+    #             recipient_entity=pk,
+    #         ).select_related('sending').prefetch_related('sending__campaign'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = LightWeightEmail.objects.filter(
+                recipient_entity=context['object'].pk,
+            ).select_related('sending').prefetch_related('sending__campaign')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class MySignaturesBrick(QuerysetBrick):
