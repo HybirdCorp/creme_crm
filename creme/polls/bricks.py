@@ -135,16 +135,27 @@ class PollRepliesBrick(QuerysetBrick):
     target_ctypes = (PollForm,)
     permissions = 'polls'
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     pform = context['object']
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         PollReply.objects.filter(pform=pform, is_deleted=False),
+    #         propose_creation=pform.lines.exists(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         pform = context['object']
 
-        return self._render(self.get_template_context(
-            context,
-            PollReply.objects.filter(pform=pform, is_deleted=False),
+        if queryset is None:
+            queryset = PollReply.objects.filter(pform=pform, is_deleted=False)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             # TODO: reuse nodes (PollFormLinesBrick) to avoid a query
             propose_creation=pform.lines.exists(),
-        ))
+            **extra_kwargs
+        )
 
 
 class _RelatedRepliesBrick(QuerysetBrick):

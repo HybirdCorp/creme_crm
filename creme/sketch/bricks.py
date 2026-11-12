@@ -35,9 +35,7 @@ class ChartBrick(Brick):
         return {}
 
     def get_chart_data(self, context):
-        """
-        Raw data for the chart. Must be implemented !
-        """
+        """Raw data for the chart. Must be implemented!"""
         raise NotImplementedError
 
     def _render_chart(self, context):
@@ -45,7 +43,7 @@ class ChartBrick(Brick):
             self.get_template_context(
                 context,
                 data=self.get_chart_data(context),
-                props=self.get_chart_props(context)
+                props=self.get_chart_props(context),
             )
         )
 

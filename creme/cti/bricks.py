@@ -51,45 +51,48 @@ class CallersBrick(PaginatedBrick):
         Organisation,
     )
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    def get_template_context(self, context, objects=None, **extra_kwargs):
         # Ensure that it will crash if we try to load it from a classic load view
         number = context['number']
-
         user = context['user']
-        filter_viewable = EntityCredentials.filter
-        fconfigs = FieldsConfig.objects.get_for_models(self.caller_models)
-        all_fields_hidden = True
-        callers = []
 
-        for model in self.caller_models:
-            is_hidden = fconfigs[model].is_field_hidden
-            queries = [
-                Q(**{field.name: number})
-                for field in model._meta.fields
-                if isinstance(field, PhoneField) and not is_hidden(field)
-            ]
+        if objects is None:
+            objects = []  # Callers
+            filter_viewable = EntityCredentials.filter
+            fconfigs = FieldsConfig.objects.get_for_models(self.caller_models)
+            all_fields_hidden = True
 
-            if queries:
-                all_fields_hidden = False
-                callers.extend(filter_viewable(
-                    user,
-                    model.objects.exclude(is_deleted=True).filter(reduce(or_, queries)),
-                ))
+            for model in self.caller_models:
+                is_hidden = fconfigs[model].is_field_hidden
+                queries = [
+                    Q(**{field.name: number})
+                    for field in model._meta.fields
+                    if isinstance(field, PhoneField) and not is_hidden(field)
+                ]
 
-        if all_fields_hidden:
-            raise ConflictError(
-                gettext('All phone fields are hidden; please contact your administrator.')
-            )
+                if queries:
+                    all_fields_hidden = False
+                    objects.extend(filter_viewable(
+                        user,
+                        model.objects.exclude(is_deleted=True).filter(reduce(or_, queries)),
+                    ))
+
+            if all_fields_hidden:
+                raise ConflictError(
+                    gettext('All phone fields are hidden; please contact your administrator.')
+                )
 
         can_create = user.has_perm_to_create
 
-        return self._render(self.get_template_context(
-            context,
-            objects=callers,
+        return super().get_template_context(
+            context=context,
+            objects=objects,
+
             can_create_contact=can_create(Contact),
             contact_creation_label=Contact.creation_label,
             can_create_orga=can_create(Organisation),
             orga_creation_label=Organisation.creation_label,
             can_create_activity=can_create(Activity),
-        ))
+
+            **extra_kwargs
+        )

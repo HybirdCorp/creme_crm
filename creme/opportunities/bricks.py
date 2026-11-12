@@ -313,21 +313,33 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
     permissions = 'opportunities'
     order_by = 'name'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        entity = context['object']
-
-        return self._render(self.get_template_context(
-            context,
-            # TODO: filter deleted ??
-            Opportunity.objects.filter(
-                relations__object_entity=entity.id,
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     entity = context['object']
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Opportunity.objects.filter(
+    #             relations__object_entity=entity.id,
+    #             relations__type=constants.REL_SUB_TARGETS,
+    #         ),
+    #         predicate_id=self.relation_type_deps[0],
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            # TODO: filter deleted ones?
+            queryset = Opportunity.objects.filter(
+                relations__object_entity=context['object'].id,
                 # TODO: get the relation type id from the dependencies
                 #       (wait for RelationTypes cache)
                 relations__type=constants.REL_SUB_TARGETS,
-            ),
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             predicate_id=self.relation_type_deps[0],
-        ))
+            **extra_kwargs
+        )
 
 
 # class OppTotalBrick(SimpleBrick):

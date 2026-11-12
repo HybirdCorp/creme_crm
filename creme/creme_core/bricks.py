@@ -144,12 +144,19 @@ class PropertiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        entity = context['object']
-        return self._render(self.get_template_context(
-            context, entity.properties.select_related('type'),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     entity = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, entity.properties.select_related('type'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].properties.select_related('type')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class RelationsBrick(QuerysetBrick):
@@ -462,20 +469,25 @@ class ImprintsBrick(QuerysetBrick):
     #         if context['user'].is_superuser else
     #         Imprint.objects.none()
     #     ))
-    def render(self, context):
-        user = context['user']
-        if user.is_superuser:
-            entity = context.get('object')
-            if entity is None:  # HOME
-                # NB: there will still be queries for each different Contacts
-                #     corresponding to users...
-                qs = Imprint.objects.prefetch_related('real_entity', 'user')
-            else:  # DETAIL
-                qs = Imprint.objects.filter(entity=entity.pk)
-        else:
-            qs = Imprint.objects.none()
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            user = context['user']
 
-        return self._render(self.get_template_context(context, qs))
+            if user.is_superuser:
+                entity = context.get('object')
+
+                if entity is None:  # HOME
+                    # NB: there will still be queries for each different Contacts
+                    #     corresponding to users...
+                    queryset = Imprint.objects.prefetch_related('real_entity', 'user')
+                else:  # DETAIL
+                    queryset = Imprint.objects.filter(entity=entity.pk)
+            else:
+                queryset = Imprint.objects.none()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class TrashBrick(QuerysetBrick):
@@ -508,16 +520,27 @@ class RecentEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/recent-entities.html'
     page_size = QuerysetBrick.page_size * 2
 
-    # def home_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
+    # # def home_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
+    #         LastViewedEntity.objects.filter(
+    #             user=context['user'],
+    #             entity__is_deleted=False,
+    #         ).prefetch_related('real_entity'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
             # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
-            LastViewedEntity.objects.filter(
+            queryset = LastViewedEntity.objects.filter(
                 user=context['user'],
                 entity__is_deleted=False,
-            ).prefetch_related('real_entity'),
-        ))
+            ).prefetch_related('real_entity')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class PinnedEntitiesBrick(QuerysetBrick):
@@ -532,15 +555,24 @@ class PinnedEntitiesBrick(QuerysetBrick):
     order_by = '-created'
     template_name = 'creme_core/bricks/pinned-entities.html'
 
-    # def home_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            PinnedEntity.objects.filter(
+    # # def home_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         PinnedEntity.objects.filter(
+    #             user=context['user'],
+    #         ).prefetch_related('real_entity'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = PinnedEntity.objects.filter(
                 user=context['user'],
-            ).prefetch_related('real_entity'),
-            # TODO: message if max pins is reached?
-        ))
+            ).prefetch_related('real_entity')
+
+        # TODO: message if max pins is reached?
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class StatisticsBrick(Brick):
@@ -589,15 +621,27 @@ class JobsBrick(QuerysetBrick):
         #     This ordering regroups jobs per app, it's not bad.
         return Job.objects.order_by('type_id', 'id')
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context, self._jobs_qs(context),
-            not_finished_user_jobs_count=Job.objects.not_finished(context['user']).count(),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context, self._jobs_qs(context),
+    #         not_finished_user_jobs_count=Job.objects.not_finished(context['user']).count(),
+    #         MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
+    #         NOT_PERIODIC=JobType.NOT_PERIODIC,
+    #         PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = self._jobs_qs(context)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
+            not_finished_user_jobs_count=Job.objects.not_finished(user=context['user']).count(),
             MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
             NOT_PERIODIC=JobType.NOT_PERIODIC,
             PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
-        ))
+            **extra_kwargs
+        )
 
 
 class MyJobsBrick(JobsBrick):

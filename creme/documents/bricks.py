@@ -64,17 +64,29 @@ class FolderDocsBrick(QuerysetBrick):
     permissions = 'documents'
     order_by = 'title'
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     folder_id = context['object'].id
+    #     q_dict = {'linked_folder': folder_id}
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Document.objects.filter(**q_dict),
+    #         q_filter=QSerializer().dumps(Q(**q_dict)),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         folder_id = context['object'].id
         q_dict = {'linked_folder': folder_id}
-        return self._render(self.get_template_context(
-            context,
-            Document.objects.filter(**q_dict),
-            # TODO: problem deleted docs avoid folder deletion...
-            # Document.objects.filter(is_deleted=False, **q_dict),
+
+        if queryset is None:
+            queryset = Document.objects.filter(**q_dict)
+            # TODO: problem deleted docs avoid folder deletion:
+            #  > queryset = Document.objects.filter(is_deleted=False, **q_dict)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             q_filter=QSerializer().dumps(Q(**q_dict)),
-        ))
+            **extra_kwargs
+        )
 
 
 class ChildFoldersBrick(QuerysetBrick):
@@ -86,14 +98,21 @@ class ChildFoldersBrick(QuerysetBrick):
     target_ctypes = (Folder,)
     permissions = 'documents'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        folder = context['object']
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     folder = context['object']
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Folder.objects.filter(parent_folder=folder),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = Folder.objects.filter(parent_folder=context['object'])
 
-        return self._render(self.get_template_context(
-            context,
-            Folder.objects.filter(parent_folder=folder),
-        ))
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class LinkedDocsBrick(QuerysetBrick):

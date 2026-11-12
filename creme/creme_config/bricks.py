@@ -141,20 +141,36 @@ class SettingsBrick(QuerysetBrick):
 
     setting_key_registry = setting_key.setting_key_registry
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     app_name = context['app_name']
+    #     skeys_ids = [
+    #         skey.id
+    #         for skey in self.setting_key_registry
+    #         if skey.app_label == app_name and not skey.hidden
+    #     ]
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.SettingValue.objects.filter(key_id__in=skeys_ids),
+    #         app_name=app_name,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         app_name = context['app_name']
-        skeys_ids = [
-            skey.id
-            for skey in self.setting_key_registry
-            if skey.app_label == app_name and not skey.hidden
-        ]
 
-        return self._render(self.get_template_context(
-            context,
-            core_models.SettingValue.objects.filter(key_id__in=skeys_ids),
-            app_name=app_name,
-        ))
+        if queryset is None:
+            queryset = core_models.SettingValue.objects.filter(
+                key_id__in=[
+                    skey.id
+                    for skey in self.setting_key_registry
+                    if skey.app_label == app_name and not skey.hidden
+                ],
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset, app_name=app_name,
+            **extra_kwargs
+        )
 
 
 # class WorldSettingsBrick(SimpleBrick):
@@ -188,15 +204,26 @@ class CustomEntitiesBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/custom-entity-types.html'
 
     # TODO: display some stats (number of related entities)
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.CustomEntityType.objects.filter(enabled=True),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.CustomEntityType.objects.filter(enabled=True),
+    #         available_slots_count=core_models.CustomEntityType.objects.filter(
+    #             enabled=False,
+    #         ).count(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.CustomEntityType.objects.filter(enabled=True)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             available_slots_count=core_models.CustomEntityType.objects.filter(
                 enabled=False,
             ).count(),
-        ))
+            **extra_kwargs
+        )
 
 
 class PropertyTypesBrick(_ConfigAdminBrick):
@@ -206,15 +233,25 @@ class PropertyTypesBrick(_ConfigAdminBrick):
     order_by = 'text'
     template_name = 'creme_config/bricks/property-types.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.CremePropertyType.objects.annotate(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.CremePropertyType.objects.annotate(
+    #             # NB: kind of pre-caching the property CremePropertyType.properties_count
+    #             properties_count=Count('cremeproperty'),
+    #         ).prefetch_related('subject_ctypes'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.CremePropertyType.objects.annotate(
                 # NB: kind of pre-caching the property CremePropertyType.properties_count
                 properties_count=Count('cremeproperty'),
-            ).prefetch_related('subject_ctypes'),
-        ))
+            ).prefetch_related('subject_ctypes')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class _RelationTypesBrick(_ConfigAdminBrick):
@@ -224,13 +261,33 @@ class _RelationTypesBrick(_ConfigAdminBrick):
 
     custom_types = False
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     is_custom = self.custom_types
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.RelationType.objects.filter(
+    #             is_custom=is_custom,
+    #             pk__contains='-subject_',
+    #         ).prefetch_related(
+    #             'symmetric_type',
+    #
+    #             'subject_ctypes',
+    #             'subject_properties',
+    #             'subject_forbidden_properties',
+    #
+    #             'symmetric_type__subject_ctypes',
+    #             'symmetric_type__subject_properties',
+    #             'symmetric_type__subject_forbidden_properties',
+    #         ),
+    #         custom=is_custom,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         is_custom = self.custom_types
 
-        return self._render(self.get_template_context(
-            context,
-            core_models.RelationType.objects.filter(
+        if queryset is None:
+            queryset = core_models.RelationType.objects.filter(
                 is_custom=is_custom,
                 pk__contains='-subject_',
             ).prefetch_related(
@@ -243,9 +300,11 @@ class _RelationTypesBrick(_ConfigAdminBrick):
                 'symmetric_type__subject_ctypes',
                 'symmetric_type__subject_properties',
                 'symmetric_type__subject_forbidden_properties',
-            ),
-            custom=is_custom,
-        ))
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset, custom=is_custom, **extra_kwargs
+        )
 
 
 class RelationTypesBrick(_RelationTypesBrick):
@@ -268,14 +327,23 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
     )
     template_name = 'creme_config/bricks/semi-fixed-relation-types.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.SemiFixedRelationType.objects.select_related(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.SemiFixedRelationType.objects.select_related(
+    #             'relation_type',
+    #         ).prefetch_related('real_object'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.SemiFixedRelationType.objects.select_related(
                 'relation_type',
-            ).prefetch_related('real_object'),
-        ))
+            ).prefetch_related('real_object')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class FieldsConfigsBrick(PaginatedBrick):
@@ -391,14 +459,23 @@ class CustomEnumsBrick(_ConfigAdminBrick):
     order_by = 'id'  # TODO: 'value' ? a new field 'order' ?
     template_name = 'creme_config/bricks/custom-enums.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.CustomFieldEnumValue.objects.filter(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.CustomFieldEnumValue.objects.filter(
+    #             custom_field=context['custom_field'],
+    #         ),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.CustomFieldEnumValue.objects.filter(
                 custom_field=context['custom_field'],
-            ),
-        ))
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class CustomFormsBrick(PaginatedBrick):
@@ -541,28 +618,52 @@ class CustomFormsBrick(PaginatedBrick):
 
         return wrappers
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        user = context['user']
-
-        expanded_info = BrickManager.get(context).get_state(
-            brick_id=self.id, user=user,
-        ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
-
-        return self._render(self.get_template_context(
-            context,
-            self.get_ctype_descriptors(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     user = context['user']
+    #
+    #     expanded_info = BrickManager.get(context).get_state(
+    #         brick_id=self.id, user=user,
+    #     ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self.get_ctype_descriptors(
+    #             user=user,
+    #             expanded_ctype_id=expanded_info.get('ctype'),
+    #             expanded_items_id=expanded_info.get('items', ()),
+    #         ),
+    #         LAYOUT_REGULAR=core_forms.LAYOUT_REGULAR,
+    #         LAYOUT_DUAL_FIRST=core_forms.LAYOUT_DUAL_FIRST,
+    #         LAYOUT_DUAL_SECOND=core_forms.LAYOUT_DUAL_SECOND,
+    #
+    #         # NB: '+ 2' is for default config + super-users config.
+    #         max_conf_count=core_models.UserRole.objects.count() + 2,
+    #     ))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            user = context['user']
+            expanded_info = BrickManager.get(context).get_state(
+                brick_id=self.id, user=user,
+            ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
+            objects = self.get_ctype_descriptors(
                 user=user,
                 expanded_ctype_id=expanded_info.get('ctype'),
                 expanded_items_id=expanded_info.get('items', ()),
-            ),
+            )
+
+        return super().get_template_context(
+            context=context, objects=objects,
+
             LAYOUT_REGULAR=core_forms.LAYOUT_REGULAR,
             LAYOUT_DUAL_FIRST=core_forms.LAYOUT_DUAL_FIRST,
             LAYOUT_DUAL_SECOND=core_forms.LAYOUT_DUAL_SECOND,
 
             # NB: '+ 2' is for default config + super-users config.
             max_conf_count=core_models.UserRole.objects.count() + 2,
-        ))
+
+            **extra_kwargs
+        )
 
 
 class WorkflowsBrick(PaginatedBrick):
@@ -684,12 +785,21 @@ class TeamsBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/teams.html'
     permissions = config_auth.user_config_perm.as_perm
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context, User.objects.filter(is_team=True),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context, User.objects.filter(is_team=True),
+    #         user_config_perm=config_auth.user_config_perm,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = User.objects.filter(is_team=True)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             user_config_perm=config_auth.user_config_perm,
-        ))
+            **extra_kwargs
+        )
 
 
 class BrickDetailviewLocationsBrick(PaginatedBrick):
@@ -836,14 +946,24 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
     dependencies = (core_models.BrickMypageLocation,)
     template_name = 'creme_config/bricks/bricklocations-mypage-default.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.BrickMypageLocation.objects.filter(user=None).exclude(brick_id=''),
-            # TODO: uncomment when the DB is clean (useless empty brick IDs removed)
-            # core_models.BrickMypageLocation.objects.filter(user=None),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.BrickMypageLocation.objects.filter(user=None).exclude(brick_id=''),
+    #         # core_models.BrickMypageLocation.objects.filter(user=None),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.BrickMypageLocation.objects.filter(
+                user=None,
+            ).exclude(brick_id='')
+            # TODO: when the DB is clean (useless empty brick IDs removed)
+            #   >> queryset = core_models.BrickMypageLocation.objects.filter(user=None)
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class BrickMypageLocationsBrick(_ConfigAdminBrick):
@@ -852,17 +972,27 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
     dependencies = (core_models.BrickMypageLocation,)
     template_name = 'creme_config/bricks/bricklocations-mypage-user.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.BrickMypageLocation.objects.filter(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.BrickMypageLocation.objects.filter(
+    #             user=context['user'],
+    #         ).exclude(brick_id=''),
+    #         # core_models.BrickMypageLocation.objects.filter(user=context['user']),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.BrickMypageLocation.objects.filter(
                 user=context['user'],
-            ).exclude(brick_id=''),
+            ).exclude(brick_id='')
             # TODO: see above (should we remove the empty brick ids in DB? It
             #       indicates that the copy of the default configuration has been made :think:)
-            # core_models.BrickMypageLocation.objects.filter(user=context['user']),
-        ))
+            #   >> queryset = core_models.BrickMypageLocation.objects.filter(user=context['user'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class RelationBricksConfigBrick(_ConfigAdminBrick):
@@ -1258,15 +1388,25 @@ class HistoryConfigBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/history-config.html'
     order_by = 'relation_type__predicate'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.HistoryConfigItem.objects.select_related(
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.HistoryConfigItem.objects.select_related(
+    #             'relation_type',
+    #             'relation_type__symmetric_type',  # NB: symmetric predicate is printed too
+    #         ),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.HistoryConfigItem.objects.select_related(
                 'relation_type',
                 'relation_type__symmetric_type',  # NB: symmetric predicate is printed too
-            ),
-        ))
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class UserRolesBrick(_ConfigAdminBrick):
@@ -1276,13 +1416,22 @@ class UserRolesBrick(_ConfigAdminBrick):
     order_by = 'name'
     template_name = 'creme_config/bricks/user-roles.html'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            core_models.UserRole.objects.all(),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         core_models.UserRole.objects.all(),
+    #         role_config_perm=config_auth.role_config_perm,
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.UserRole.objects.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             role_config_perm=config_auth.role_config_perm,
-        ))
+            **extra_kwargs
+        )
 
 
 # class UserSettingValuesBrick(SimpleBrick):
@@ -1502,10 +1651,17 @@ class FileRefsBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/file-refs.html'
     permissions = STAFF_PERM
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         queryset=core_models.FileRef.objects.all(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = core_models.FileRef.objects.all()
+
         # TODO: display files' size?
-        return self._render(self.get_template_context(
-            context,
-            queryset=core_models.FileRef.objects.all(),
-        ))
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )

@@ -42,13 +42,24 @@ class NarrowedSubTypesBrick(QuerysetBrick):
         self.activity_type = activity_type
 
     # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            ActivitySubType.objects.filter(type=self.activity_type),
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         ActivitySubType.objects.filter(type=self.activity_type),
+    #         model_config=config_registry.get_app_registry('activities')
+    #                                     .get_model_conf(ActivitySubType),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = ActivitySubType.objects.filter(type=self.activity_type)
+
+        return super().get_template_context(
+            context=context,
+            queryset=queryset,
             model_config=config_registry.get_app_registry('activities')
                                         .get_model_conf(ActivitySubType),
-        ))
+            **extra_kwargs
+        )
 
 
 class ActivityTypeRelatedMixin:

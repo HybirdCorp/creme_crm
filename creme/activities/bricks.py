@@ -74,6 +74,18 @@ class ActivitySubTypesBrick(GenericModelBrick):
                         .annotate(subtypes_count=Count('activitysubtype')),
             total_count=ActivitySubType.objects.count(),
         ))
+    # TODO
+    # def get_template_context(self, context, queryset=None, **extra_kwargs):
+    #     if queryset is None:
+    #         queryset = ActivityType.objects.order_by('order', 'id').annotate(
+    #             subtypes_count=Count('activitysubtype'),
+    #         )
+    #
+    #     return super().get_template_context(
+    #         context=context,
+    #         queryset=queryset,
+    #         total_count=ActivitySubType.objects.count(),
+    #     )
 
 
 # class ActivityBarHatBrick(SimpleBrick):
@@ -191,14 +203,23 @@ class SubjectsBrick(QuerysetBrick):
     target_ctypes = (Activity, )
     permissions = 'activities'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            context['object'].relations
-                             .filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-                             .prefetch_related('real_object'),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         context['object'].relations
+    #                          .filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
+    #                          .prefetch_related('real_object'),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].relations.filter(
+                type=constants.REL_OBJ_ACTIVITY_SUBJECT,
+            ).prefetch_related('real_object')
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class _RelatedActivitiesBrick(QuerysetBrick):
@@ -269,9 +290,11 @@ class _RelatedActivitiesBrick(QuerysetBrick):
             entity = context['user'].linked_contact
 
         return self._render(self.get_template_context(
-            context,
-            self._get_queryset_for_entity(entity=entity, context=context)
-                .select_related('status', 'type'),
+            context=context,
+            # TODO: in get_template_context()
+            queryset=self._get_queryset_for_entity(
+                entity=entity, context=context,
+            ).select_related('status', 'type'),
         ))
 
 
@@ -359,12 +382,19 @@ class UserCalendarsBrick(QuerysetBrick):
     permissions = 'activities'
     order_by = 'name'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            Calendar.objects.filter(user=context['user']),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Calendar.objects.filter(user=context['user']),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = Calendar.objects.filter(user=context['user'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class FullCalendarBrick(Brick):
@@ -448,12 +478,19 @@ class RelatedCalendarBrick(QuerysetBrick):
     target_ctypes = (Activity, )
     permissions = 'activities'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            context['object'].calendars.filter(user=context['user']),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         context['object'].calendars.filter(user=context['user']),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].calendars.filter(user=context['user'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class CalendarConfigItemsBrick(QuerysetBrick):

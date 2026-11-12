@@ -74,11 +74,18 @@ class ParentTasksBrick(QuerysetBrick):
     target_ctypes = (ProjectTask,)
     permissions = 'projects'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        task = context['object']
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     task = context['object']
+    #
+    #     return self._render(self.get_template_context(context, task.parent_tasks.all()))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].parent_tasks.all()
 
-        return self._render(self.get_template_context(context, task.parent_tasks.all()))
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class ProjectTasksBrick(QuerysetBrick):
@@ -89,11 +96,18 @@ class ProjectTasksBrick(QuerysetBrick):
     target_ctypes = (Project,)
     permissions = 'projects'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        project = context['object']
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     project = context['object']
+    #
+    #     return self._render(self.get_template_context(context, project.get_tasks()))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].get_tasks()
 
-        return self._render(self.get_template_context(context, project.get_tasks()))
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class TaskResourcesBrick(QuerysetBrick):
@@ -105,13 +119,19 @@ class TaskResourcesBrick(QuerysetBrick):
     permissions = 'projects'
     order_by = 'linked_contact__last_name'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        task = context['object']
-        return self._render(self.get_template_context(
-            context,
-            task.get_resources(),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     task = context['object']
+    #     return self._render(self.get_template_context(
+    #         context, task.get_resources(),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].get_resources()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class TaskActivitiesBrick(PaginatedBrick):
@@ -123,8 +143,15 @@ class TaskActivitiesBrick(PaginatedBrick):
     target_ctypes = (ProjectTask,)
     permissions = ['projects', 'activities']
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        task = context['object']
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     task = context['object']
+    #
+    #     return self._render(self.get_template_context(context, task.related_activities))
+    def get_template_context(self, context, objects=None, **extra_kwargs):
+        if objects is None:
+            objects = context['object'].related_activities
 
-        return self._render(self.get_template_context(context, task.related_activities))
+        return super().get_template_context(
+            context=context, objects=objects, **extra_kwargs
+        )

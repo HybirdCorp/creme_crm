@@ -72,13 +72,21 @@ class RecipientsBrick(QuerysetBrick):
     target_ctypes = (MessagingList,)
     permissions = 'sms'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_template_context(
-            context,
-            Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     pk = context['object'].pk
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            # TODO: get_recipients()? related_name()?
+            queryset = Recipient.objects.filter(messaging_list=context['object'].pk)
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class ContactsBrick(_RelatedEntitiesBrick):
@@ -102,10 +110,17 @@ class MessagesBrick(QuerysetBrick):
     page_size = QuerysetBrick.page_size * 3
     # configurable = False
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        sending = context['object']
-        return self._render(self.get_template_context(context, sending.messages.all()))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     sending = context['object']
+    #     return self._render(self.get_template_context(context, sending.messages.all()))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].messages.all()
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 class SendingsBrick(QuerysetBrick):
@@ -117,10 +132,17 @@ class SendingsBrick(QuerysetBrick):
     permissions = 'sms'
     order_by = '-date'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        campaign = context['object']
-        return self._render(self.get_template_context(
-            context,
-            Sending.objects.filter(campaign=campaign),
-        ))
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     campaign = context['object']
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         Sending.objects.filter(campaign=campaign),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = Sending.objects.filter(campaign=context['object'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )

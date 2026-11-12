@@ -37,14 +37,25 @@ class JobResultsBrick(QuerysetBrick):
     def _extra_context(self, job):
         return {}
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     job = context['job']
+    #
+    #     return self._render(self.get_template_context(
+    #         context, self._build_queryset(job),
+    #         **self._extra_context(job)
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         job = context['job']
 
-        return self._render(self.get_template_context(
-            context, self._build_queryset(job),
-            **self._extra_context(job)
-        ))
+        if queryset is None:
+            queryset = self._build_queryset(job)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
+            **self._extra_context(job),
+            **extra_kwargs
+        )
 
 
 class JobErrorsBrick(JobResultsBrick):
