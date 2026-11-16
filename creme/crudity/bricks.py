@@ -17,8 +17,8 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.utils.translation import gettext
+# from django.core.exceptions import PermissionDenied
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
@@ -27,23 +27,25 @@ from .models import History, WaitingAction
 from .utils import is_sandbox_by_user
 
 
-class CrudityQuerysetBrick(QuerysetBrick):
+# class CrudityQuerysetBrick(QuerysetBrick):
+#     permissions = 'crudity'
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__()
+#
+#     # def detailview_display(self, context):
+#     def render(self, context):
+#         if not context['user'].has_perm('crudity'):
+#             raise PermissionDenied(
+#                 gettext(
+#                     'Error: you are not allowed to view this block: {}'
+#                 ).format(self.id)
+#             )
+#
+# class BaseWaitingActionsBrick(CrudityQuerysetBrick):
+class BaseWaitingActionsBrick(QuerysetBrick):
     permissions = 'crudity'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-
-    # def detailview_display(self, context):
-    def render(self, context):
-        if not context['user'].has_perm('crudity'):
-            raise PermissionDenied(
-                gettext(
-                    'Error: you are not allowed to view this block: {}'
-                ).format(self.id)
-            )
-
-
-class BaseWaitingActionsBrick(CrudityQuerysetBrick):
     def __init__(self, backend):
         super().__init__()
         self.backend = backend
@@ -57,47 +59,75 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
 
     def __init__(self, backend):
         super().__init__(backend=backend)
-        self.id = self.generate_id()
-
-    def generate_id(self):
-        return CrudityQuerysetBrick.generate_id(
-            'crudity',
-            f'waiting_actions-{self.backend.get_id()}',
+        # self.id = self.generate_id()
+        self.id = self.generate_id(
+            app_name='crudity',
+            name=f'waiting_actions-{backend.get_id()}',
         )
+
+    # def generate_id(self):
+    #     return CrudityQuerysetBrick.generate_id(
+    #         'crudity',
+    #         f'waiting_actions-{self.backend.get_id()}',
+    #     )
 
     def _iter_dependencies_info(self):
-        yield 'crudity.waitingaction.' + self.backend.get_id()
+        yield f'crudity.waitingaction.{self.backend.get_id()}'
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        # Credentials are OK: brick is not registered in brick registry,
-        # so reloading is necessarily done with the custom view
-        # super().detailview_display(context)
-        super().render(context)
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     # Credentials are OK: brick is not registered in brick registry,
+    #     # so reloading is necessarily done with the custom view
+    #     # super().detailview_display(context)
+    #     # super().render(context)
+    #     backend = self.backend
+    #     ct = ContentType.objects.get_for_model(backend.model)
+    #
+    #     waiting_actions = WaitingAction.objects.filter(
+    #         ct=ct, source=backend.source, subject=backend.subject,
+    #     )
+    #
+    #     if is_sandbox_by_user():
+    #         waiting_actions = waiting_actions.filter(user=context['user'])
+    #
+    #     crud_input = backend.crud_input
+    #
+    #     return self._render(self.get_template_context(
+    #         context=context,
+    #         queryset=waiting_actions,
+    #         waiting_ct=ct,
+    #         backend=backend,
+    #         extra_header_actions=(
+    #             action.render(backend=backend) for action in crud_input.brickheader_actions
+    #         ) if crud_input else (),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         backend = self.backend
         ct = ContentType.objects.get_for_model(backend.model)
-
-        waiting_actions = WaitingAction.objects.filter(
-            ct=ct, source=backend.source, subject=backend.subject,
-        )
-
-        if is_sandbox_by_user():
-            waiting_actions = waiting_actions.filter(user=context['user'])
-
         crud_input = backend.crud_input
 
-        return self._render(self.get_template_context(
-            context,
-            waiting_actions,
+        if queryset is None:
+            queryset = WaitingAction.objects.filter(
+                ct=ct, source=backend.source, subject=backend.subject,
+            )
+
+            if is_sandbox_by_user():
+                queryset = queryset.filter(user=context['user'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             waiting_ct=ct,
             backend=backend,
             extra_header_actions=(
                 action.render(backend=backend) for action in crud_input.brickheader_actions
             ) if crud_input else (),
-        ))
+            **extra_kwargs
+        )
 
 
-class CrudityHistoryBrick(CrudityQuerysetBrick):
+# class CrudityHistoryBrick(CrudityQuerysetBrick):
+class CrudityHistoryBrick(QuerysetBrick):
+    permissions = 'crudity'
     # dependencies  = ()
     verbose_name  = _('History')
     template_name = 'crudity/bricks/history.html'
@@ -108,15 +138,27 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         self.ct = ct
         self.id = self.generate_id('crudity', str(ct.id))
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        # Credentials are OK: brick is not registered in brick registry,
-        # so reloading is necessarily done with the custom view
-        super().render(context)
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     # Credentials are OK: brick is not registered in brick registry,
+    #     # so reloading is necessarily done with the custom view
+    #     # super().render(context)
+    #     ct = self.ct
+    #
+    #     histories = History.objects.filter(entity__entity_type=ct)
+    #     if is_sandbox_by_user():
+    #         histories = histories.filter(user=context['user'])
+    #
+    #     return self._render(
+    #       self.get_template_context(context=context, queryset=histories, ct=ct))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         ct = self.ct
 
-        histories = History.objects.filter(entity__entity_type=ct)
-        if is_sandbox_by_user():
-            histories = histories.filter(user=context['user'])
+        if queryset is None:
+            queryset = History.objects.filter(entity__entity_type=ct)
+            if is_sandbox_by_user():
+                queryset = queryset.filter(user=context['user'])
 
-        return self._render(self.get_template_context(context, histories, ct=ct))
+        return super().get_template_context(
+            context=context, queryset=queryset, ct=ct, **extra_kwargs
+        )
