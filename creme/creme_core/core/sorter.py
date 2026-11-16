@@ -468,7 +468,7 @@ class CustomFieldSorterRegistry(AbstractCellSorter):
         #     fields with type INT store their values in the same table), we
         #     cannot just order with something like 'customfieldinteger__value'
         #     (because it could perform a JOIN with several custom values).
-        #     We use an annotation + SubQuery to retreive the right custom value to use.
+        #     We use an annotation + SubQuery to retrieve the right custom value to use.
         if cfield.field_type in self._cfield_type_ids:
             return AnnotationSortingItem(
                 model=cell.model,

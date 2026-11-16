@@ -18,6 +18,7 @@
 
 from collections import defaultdict
 
+from django.db import models
 from django.urls import reverse
 from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
@@ -363,11 +364,13 @@ class MailsHistoryBrick(QuerysetBrick):
     #     ))
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
-            entityemail_ids = Relation.objects.filter(
-                type__symmetric_type_id__in=self.relation_type_deps,
-                object_entity=context['object'].pk,
-            ).values_list('subject_entity', flat=True).distinct()
-            queryset = EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids)
+            queryset = EntityEmail.objects.filter(is_deleted=False).filter(
+                models.Exists(Relation.objects.filter(
+                    subject_entity_id=context['object'].pk,
+                    type__in=self.relation_type_deps,
+                    object_entity_id=models.OuterRef('pk'),
+                )),
+            )
 
         relation_types = RelationType.objects.filter(id__in=self.relation_type_deps)
 
