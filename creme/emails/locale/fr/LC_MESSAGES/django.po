@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-08 23:03+0200\n"
+"POT-Creation-Date: 2026-11-16 15:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -94,9 +94,6 @@ msgstr ""
 msgid "Information"
 msgstr "Informations"
 
-msgid "Emails history"
-msgstr "Historique des e-mails"
-
 msgid ""
 "Displays the Emails linked to the current entity with a relationship «sent "
 "the email», «received the email» or «related to the email». Allows you to "
@@ -108,8 +105,8 @@ msgstr ""
 "d'envoyer des e-mails.\n"
 "App : E-mails"
 
-msgid "Campaigns emails history"
-msgstr "Historique des e-mails des campagnes"
+msgid "Emailing campaigns"
+msgstr "Campagnes d'envois d'e-mails"
 
 msgid ""
 "Displays the emails (sent from Campaigns) received by the current entity.\n"
@@ -430,9 +427,6 @@ msgstr "Enregistrer la campagne"
 msgid "Emailing campaign"
 msgstr "Campagne d'envois d'e-mails"
 
-msgid "Emailing campaigns"
-msgstr "Campagnes d'envois d'e-mails"
-
 msgctxt "emails"
 msgid "Sent"
 msgstr "Envoyé"
@@ -695,9 +689,9 @@ msgid "Default owner"
 msgstr "Propriétaire par défaut"
 
 msgid ""
-"If no user corresponding to an email address is found (in the fields \"From"
-"\", \"To\", \"CC\" or \"BCC\") to be the owner of the email, this user is "
-"used as default one.\n"
+"If no user corresponding to an email address is found (in the fields "
+"\"From\", \"To\", \"CC\" or \"BCC\") to be the owner of the email, this user "
+"is used as default one.\n"
 "Beware: if *No default user* is selected, emails with no address related to "
 "a user are just dropped."
 msgstr ""
@@ -939,12 +933,12 @@ msgid "Full detailview of the campaign «%(campaign)s»"
 msgstr "Vue détaillée complète de la campagne «%(campaign)s»"
 
 #, python-brace-format
-msgid "{count} Campaign email in the history"
-msgstr "{count} E-mail de campagne dans l'historique"
+msgid "{count} Campaign email"
+msgstr "{count} E-mail de campagne"
 
 #, python-brace-format
-msgid "{count} Campaigns emails in the history"
-msgstr "{count} E-mails de campagne dans l'historique"
+msgid "{count} Campaign emails"
+msgstr "{count} E-mails de campagne"
 
 msgid "No campaign email in the history"
 msgstr "Pas d'e-mail de campagne dans l'historique"
@@ -982,14 +976,6 @@ msgstr "Ajouter des listes de diffusion existantes"
 
 msgid "No related mailing list for the moment"
 msgstr "Aucune liste de diffusion associée pour le moment"
-
-#, python-brace-format
-msgid "{count} Email in the history"
-msgstr "{count} E-mail dans l'historique"
-
-#, python-brace-format
-msgid "{count} Emails in the history"
-msgstr "{count} E-mails dans l'historique"
 
 msgid "Send a new related email"
 msgstr "Envoyer un nouvel e-mail lié"
@@ -1197,8 +1183,8 @@ msgid ""
 "Emails sent to these servers can be synchronized (i.e. transformed as Creme "
 "Email entities).\n"
 "The emails are retrieved and stored in a sandbox. Then users can choose to "
-"transform them as entities (or to drop them) in the view <a href="
-"\"%(sync_url)s\">Synchronization of incoming emails</a>.\n"
+"transform them as entities (or to drop them) in the view <a "
+"href=\"%(sync_url)s\">Synchronization of incoming emails</a>.\n"
 "BEWARE: these mailboxes must be dedicated to the synchronisation, because "
 "emails are deleted once they have been retrieved (the synchronisation "
 "address is generally used as Carbon Copy)."
@@ -1254,8 +1240,8 @@ msgstr ""
 
 #, python-format
 msgid ""
-"You have no email server configured; you can configure them <a href="
-"\"%(config_url)s\">here</a>."
+"You have no email server configured; you can configure them <a "
+"href=\"%(config_url)s\">here</a>."
 msgstr ""
 "Vous n'avez pas de serveur e-mail configuré ; vous pouvez les configurer <a "
 "href=\"%(config_url)s\">ici</a>."
@@ -1470,6 +1456,24 @@ msgstr "Le patron n'existe plus"
 
 msgid "Use template:"
 msgstr "Utilise le patron :"
+
+#, python-brace-format
+#~ msgid "{count} Campaigns emails in the history"
+#~ msgstr "{count} E-mails de campagne dans l'historique"
+
+#, python-brace-format
+#~ msgid "{count} Email in the history"
+#~ msgstr "{count} E-mail dans l'historique"
+
+#, python-brace-format
+#~ msgid "{count} Emails in the history"
+#~ msgstr "{count} E-mails dans l'historique"
+
+#~ msgid "Emails history"
+#~ msgstr "Historique des e-mails"
+
+#~ msgid "Campaigns emails history"
+#~ msgstr "Historique des e-mails des campagnes"
 
 #~ msgid "The following variables are invalid: %(vars)s"
 #~ msgstr "Les variables suivantes sont invalides: %(vars)s"

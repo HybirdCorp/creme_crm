@@ -324,7 +324,8 @@ class MailsBrick(QuerysetBrick):
 
 class MailsHistoryBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('emails', 'mails_history')
-    verbose_name = _('Emails history')
+    # verbose_name = _('Emails history')
+    verbose_name = _('Emails')
     description = _(
         'Displays the Emails linked to the current entity with a relationship '
         '«sent the email», «received the email» or «related to the email». '
@@ -404,7 +405,7 @@ class LwMailPopupBrick(Brick):
 
 class LwMailsHistoryBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('emails', 'lw_mails_history')
-    verbose_name = _('Campaigns emails history')
+    verbose_name = _('Emailing campaigns')
     description = _(
         'Displays the emails (sent from Campaigns) received by the current entity.\n'
         'App: Emails'

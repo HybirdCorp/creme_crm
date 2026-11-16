@@ -1134,8 +1134,10 @@ class EntityEmailOtherViewsTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTest
         self.assertBrickTitleEqual(
             brick_node,
             count=1,
-            title='{count} Email in the history',
-            plural_title='{count} Emails in the history',
+            # title='{count} Email in the history',
+            title='{count} Email',
+            # plural_title='{count} Emails in the history',
+            plural_title='{count} Emails',
         )
 
         # subject_td = brick_node.find('.//td[@class="email-subject"]')
