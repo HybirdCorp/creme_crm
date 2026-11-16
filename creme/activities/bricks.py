@@ -436,14 +436,25 @@ class FullCalendarBrick(Brick):
             ).values_list('pk', flat=True)
         )
 
-    def get_calendar_context(self, context):
-        return {
-            'calendar_sources': self.get_calendar_sources(context),
-            'calendar_settings': self.get_calendar_settings(context),
-            'event_fetch_url': self.get_event_fetch_url(context),
-            'event_update_url': self.get_event_update_url(context),
-            'event_create_url': self.get_event_create_url(context),
-        }
+    # def get_calendar_context(self, context):
+    #     return {
+    #         'calendar_sources': self.get_calendar_sources(context),
+    #         'calendar_settings': self.get_calendar_settings(context),
+    #         'event_fetch_url': self.get_event_fetch_url(context),
+    #         'event_update_url': self.get_event_update_url(context),
+    #         'event_create_url': self.get_event_create_url(context),
+    #     }
+
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context=context,
+            calendar_sources=self.get_calendar_sources(context),
+            calendar_settings=self.get_calendar_settings(context),
+            event_fetch_url=self.get_event_fetch_url(context),
+            event_update_url=self.get_event_update_url(context),
+            event_create_url=self.get_event_create_url(context),
+            **extra_kwargs
+        )
 
 
 class MyActivitiesCalendarBrick(FullCalendarBrick):
@@ -461,12 +472,12 @@ class MyActivitiesCalendarBrick(FullCalendarBrick):
         settings['allow_event_move'] = False
         return settings
 
-    # def home_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            **self.get_calendar_context(context),
-        ))
+    # # def home_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         **self.get_calendar_context(context),
+    #     ))
 
 
 class RelatedCalendarBrick(QuerysetBrick):
