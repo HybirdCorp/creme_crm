@@ -403,6 +403,8 @@
             * SMS :
                 - In 'views.sending', the class attribute 'brick' of the view-classes
                   'Messages' & 'MessagesBrickReloading' has been renamed 'brick_classes'.
+            * Crudity :
+                - Some bricks classes have slightly changed.
             * CTI :
                 - The class attribute 'brick' of the view-classes 'AnswerToACall'
                   & 'CallersBrickReloading' has been renamed 'brick_classes'.
