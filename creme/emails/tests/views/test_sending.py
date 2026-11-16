@@ -640,8 +640,10 @@ class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             history_brick_node,
             count=1,
-            title='{count} Campaign email in the history',
-            plural_title='{count} Campaigns emails in the history',
+            # title='{count} Campaign email in the history',
+            title='{count} Campaign email',
+            # plural_title='{count} Campaigns emails in the history',
+            plural_title='{count} Campaign emails',
         )
         self.assertBrickHasAction(
             history_brick_node,
@@ -1322,8 +1324,10 @@ class EmailSendingOtherViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             brick_node,
             count=2,
-            title='{count} Campaign email in the history',
-            plural_title='{count} Campaigns emails in the history',
+            # title='{count} Campaign email in the history',
+            title='{count} Campaign email',
+            # plural_title='{count} Campaigns emails in the history',
+            plural_title='{count} Campaign emails',
         )
         self.assertBrickHasAction(
             brick_node,
