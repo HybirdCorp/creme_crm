@@ -25,7 +25,8 @@ from urllib.parse import urlencode
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import prefetch_related_objects
-from django.db.models.query_utils import FilteredRelation, Q
+# from django.db.models.query_utils import FilteredRelation, Q
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
@@ -506,14 +507,18 @@ class RelationsObjectsSelectionPopup(generic.base.EntityRelatedMixin,
         # )
         extra_q = ~Q(
             pk__in=[
-                *CremeEntity.objects.annotate(
-                    relations_w_entity=FilteredRelation(
-                        'relations',
-                        condition=Q(relations__object_entity=self.get_related_entity().id),
-                    )
-                ).filter(
-                    relations_w_entity__type=rtype.symmetric_type_id,
-                ).values_list('id', flat=True)
+                # *CremeEntity.objects.annotate(
+                #     relations_w_entity=FilteredRelation(
+                #         'relations',
+                #         condition=Q(relations__object_entity=self.get_related_entity().id),
+                #     )
+                # ).filter(
+                #     relations_w_entity__type=rtype.symmetric_type_id,
+                # ).values_list('id', flat=True)
+                *Relation.objects.filter(
+                    subject_entity=self.get_related_entity().id,
+                    type=rtype.id,
+                ).values_list('object_entity_id', flat=True)
             ],
         )
 

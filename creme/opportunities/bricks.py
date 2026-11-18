@@ -19,7 +19,8 @@
 from datetime import timedelta
 
 from django.apps import apps
-from django.db.models.query_utils import FilteredRelation, Q
+from django.db import models
+# from django.db.models.query_utils import FilteredRelation, Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -51,12 +52,25 @@ Opportunity = get_opportunity_model()
 
 class _RelatedToOpportunity:
     def get_related_queryset(self, *, opportunity, model, rtype_id, exclude_deleted=True):
-        qs = model.objects.annotate(
-            relations_w_opp=FilteredRelation(
-                'relations',
-                condition=Q(relations__object_entity=opportunity.id),
-            ),
-        ).filter(relations_w_opp__type=rtype_id)
+        """Entities of a given model linked to an opportunity by a given RelationType.
+
+        @param opportunity: Opportunity instance.
+        @param model: Class of the wanted remated instances.
+        @param rtype_id: RelationType's ID; instances of 'model' are subjects.
+        @param exclude_deleted: Exclude deleted entities from the returned QuerySet
+        @return: Enities related to the Opportunity.
+        """
+        # qs = model.objects.annotate(
+        #     relations_w_opp=FilteredRelation(
+        #         'relations',
+        #         condition=Q(relations__object_entity=opportunity.id),
+        #     ),
+        # ).filter(relations_w_opp__type=rtype_id)
+        qs = model.objects.filter(models.Exists(Relation.objects.filter(
+            subject_entity_id=models.OuterRef('pk'),
+            type=rtype_id,
+            object_entity_id=opportunity.id,
+        )))
 
         if exclude_deleted:
             qs = qs.exclude(is_deleted=True)
@@ -163,6 +177,11 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
     cells_desc: list[tuple[type[EntityCell], str]] = []
 
     def _get_queryset(self, opportunity, rtype):
+        """Get related instances.
+        @param opportunity: Opportunity with related instances.
+        @param rtype: Relation type (opportunity is the subject)
+        @return: Queryset of related instances.
+        """
         return self.get_related_queryset(
             opportunity=opportunity,
             model=self.dependencies[1],
