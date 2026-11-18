@@ -22,7 +22,8 @@ from functools import partial
 
 from django.apps import apps
 from django.conf import settings
-from django.db.models.query_utils import FilteredRelation, Q
+from django.db import models
+# from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -161,12 +162,19 @@ if apps.is_installed('creme.opportunities'):
             context['opportunities'] = OnePagePaginator(
                 EntityCredentials.filter(
                     user=brick_context['user'],
-                    queryset=Opportunity.objects.annotate(
-                        relations_w_person=FilteredRelation(
-                            'relations',
-                            condition=Q(relations__object_entity=entity.id),
-                        ),
-                    ).filter(is_deleted=False, relations_w_person__type=rtype_id),
+                    # queryset=Opportunity.objects.annotate(
+                    #     relations_w_person=FilteredRelation(
+                    #         'relations',
+                    #         condition=Q(relations__object_entity=entity.id),
+                    #     ),
+                    # ).filter(is_deleted=False, relations_w_person__type=rtype_id),
+                    queryset=Opportunity.objects.exclude(is_deleted=True).filter(
+                        models.Exists(Relation.objects.filter(
+                            subject_entity_id=models.OuterRef('pk'),
+                            type=rtype_id,
+                            object_entity_id=entity.id,
+                        ))
+                    ),
                 ),
                 per_page=self.displayed_opportunities_number,
             ).page(1)
@@ -198,14 +206,21 @@ if apps.is_installed('creme.commercial'):
             context['acts'] = OnePagePaginator(
                 EntityCredentials.filter(
                     user=brick_context['user'],
-                    queryset=Act.objects.annotate(
-                        relations_w_person=FilteredRelation(
-                            'relations',
-                            condition=Q(relations__object_entity=entity.id),
-                        ),
-                    ).filter(
-                        is_deleted=False,
-                        relations_w_person__type=rtype_id,
+                    # queryset=Act.objects.annotate(
+                    #     relations_w_person=FilteredRelation(
+                    #         'relations',
+                    #         condition=Q(relations__object_entity=entity.id),
+                    #     ),
+                    # ).filter(
+                    #     is_deleted=False,
+                    #     relations_w_person__type=rtype_id,
+                    # ),
+                    queryset=Act.objects.exclude(is_deleted=True).filter(
+                        models.Exists(Relation.objects.filter(
+                            subject_entity_id=models.OuterRef('pk'),
+                            type=rtype_id,
+                            object_entity_id=entity.id,
+                        ))
                     ),
                 ),
                 per_page=self.displayed_acts_number,
