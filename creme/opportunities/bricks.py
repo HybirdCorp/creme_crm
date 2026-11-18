@@ -170,30 +170,50 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
             exclude_deleted=self.exclude_deleted,
         )
 
-    # TODO: this method will be useless when the render of Bricks will be like
-    #       widgets or Button (i.e. the class only generates a context, the
-    #       render is done in templates).
-    def _extra_context(self, context) -> dict:
-        return {}
+    # def _extra_context(self, context) -> dict:
+    #     return {}
 
     # def detailview_display(self, context):
-    def render(self, context):
-        entity = context['object']
+    # def render(self, context):
+    #     entity = context['object']
+    #     relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
+    #
+    #     cells = []
+    #     for cell_class, cell_name in self.cells_desc:
+    #         cell = cell_class.build(self.dependencies[1], cell_name)
+    #         if cell is not None and not cell.is_excluded:
+    #             cells.append(cell)
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_queryset(opportunity=entity, rtype=relation_type),
+    #         relation_type=relation_type,
+    #         cells=cells,
+    #         **self._extra_context(context),
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
 
-        cells = []
-        for cell_class, cell_name in self.cells_desc:
-            cell = cell_class.build(self.dependencies[1], cell_name)
-            if cell is not None and not cell.is_excluded:
-                cells.append(cell)
+        related_model = self.dependencies[1]
+        assert isinstance(related_model, type)
 
-        return self._render(self.get_template_context(
-            context,
-            self._get_queryset(opportunity=entity, rtype=relation_type),
+        if queryset is None:
+            queryset = self._get_queryset(
+                opportunity=context['object'], rtype=relation_type,
+            )
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             relation_type=relation_type,
-            cells=cells,
-            **self._extra_context(context),
-        ))
+            cells=[
+                cell
+                for cell_class, cell_name in self.cells_desc
+                if (
+                    cell := cell_class.build(model=related_model, name=cell_name)
+                ) is not None and not cell.is_excluded
+            ],
+            **extra_kwargs
+        )
 
 
 class LinkedContactsBrick(_LinkedStuffBrick):
@@ -216,25 +236,47 @@ class LinkedContactsBrick(_LinkedStuffBrick):
         (EntityCellRegularField, 'mobile'),
     ]
 
-    def _extra_context(self, context):
-        extra = super()._extra_context(context=context)
-        extra['unsuccessful_url'] = ''
+    # def _extra_context(self, context):
+    #     extra = super()._extra_context(context=context)
+    #     extra['unsuccessful_url'] = ''
+    #
+    #     if apps.is_installed('creme.activities'):
+    #         from creme.activities import get_activity_model
+    #
+    #         Activity = get_activity_model()
+    #
+    #         if SettingValue.objects.get_4_key(unsuccessful_key).value:
+    #             self.dependencies = (*self.dependencies, Activity)
+    #
+    #             extra['unsuccessful_url'] = reverse(
+    #                 'opportunities__create_unsuccessful_phone_call',
+    #                 args=(context['object'].id,),
+    #             )
+    #             extra['activity_creation_perm'] = context['user'].has_perm_to_create(Activity)
+    #
+    #     return extra
+
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        tpl_ctxt = super().get_template_context(
+            context=context, queryset=queryset, unsuccessful_url='',
+            **extra_kwargs
+        )
 
         if apps.is_installed('creme.activities'):
             from creme.activities import get_activity_model
 
-            Activity = get_activity_model()
-
             if SettingValue.objects.get_4_key(unsuccessful_key).value:
+                # TODO: in __init__() instead?
+                Activity = get_activity_model()
                 self.dependencies = (*self.dependencies, Activity)
 
-                extra['unsuccessful_url'] = reverse(
+                tpl_ctxt['unsuccessful_url'] = reverse(
                     'opportunities__create_unsuccessful_phone_call',
                     args=(context['object'].id,),
                 )
-                extra['activity_creation_perm'] = context['user'].has_perm_to_create(Activity)
+                tpl_ctxt['activity_creation_perm'] = context['user'].has_perm_to_create(Activity)
 
-        return extra
+        return tpl_ctxt
 
 
 class LinkedProductsBrick(_LinkedStuffBrick):
