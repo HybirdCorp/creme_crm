@@ -166,15 +166,25 @@ class _RelatedRepliesBrick(QuerysetBrick):
     def _get_replies(self, pk):
         raise NotImplementedError
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        pk = context['object'].id
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     pk = context['object'].id
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_replies(pk).filter(is_deleted=False),
+    #         propose_creation=True,
+    #     ))
 
-        return self._render(self.get_template_context(
-            context,
-            self._get_replies(pk).filter(is_deleted=False),
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = self._get_replies(pk=context['object'].id).filter(is_deleted=False)
+
+        return super().get_template_context(
+            context=context, queryset=queryset,
             propose_creation=True,
-        ))
+            **extra_kwargs
+        )
 
 
 class PersonPollRepliesBrick(_RelatedRepliesBrick):
