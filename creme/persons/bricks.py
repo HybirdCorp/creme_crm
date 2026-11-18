@@ -416,23 +416,41 @@ class _LinkedPeopleBrick(QuerysetBrick):
     def _get_people_qs(self, orga):
         raise NotImplementedError
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_people_qs(context['object']).select_related('civility'),
+    #         relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
+    #         add_title=self.creation_label,
+    #         cells=[
+    #             cell
+    #             for cell_class, cell_name in self.cells_desc
+    #             if (
+    #                 cell := cell_class.build(Contact, cell_name)
+    #             ) is not None and not cell.is_excluded
+    #         ],
+    #     ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
             # TODO: better system to know which field(s) to select_related()
             #       when we represent an entity.
-            self._get_people_qs(context['object']).select_related('civility'),
+            queryset = self._get_people_qs(context['object']).select_related('civility')
+
+        return super().get_template_context(
+            context=context,
+            queryset=queryset,
             relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
             add_title=self.creation_label,
             cells=[
                 cell
                 for cell_class, cell_name in self.cells_desc
                 if (
-                    cell := cell_class.build(Contact, cell_name)
+                    cell := cell_class.build(model=Contact, name=cell_name)
                 ) is not None and not cell.is_excluded
             ],
-        ))
+            **extra_kwargs
+        )
 
 
 class ManagersBrick(_LinkedPeopleBrick):
@@ -570,12 +588,15 @@ class _OtherAddressesBrick(QuerysetBrick):
     target_ctypes = (Contact, Organisation)
     permissions = 'persons'
 
-    def get_template_context(self, context, **kwargs):
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = context['object'].other_addresses
+
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
         return super().get_template_context(
-            context,
-            context['object'].other_addresses,
+            context=context,
+            queryset=queryset,
             cells=OrderedDict(
                 (fname, build_cell(name=fname))
                 for fname in _get_address_field_names()
@@ -589,7 +610,6 @@ class _OtherAddressesBrick(QuerysetBrick):
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     # TODO: rename 'other_addresses'
     id = _OtherAddressesBrick.generate_id('persons', 'other_address')
-    dependencies = (Address,)
     verbose_name = _('Other addresses (detailed)')
     description = _(
         'Displays the additional addresses (i.e. not billing & shipping ones).\n'
