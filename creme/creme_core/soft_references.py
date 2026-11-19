@@ -22,10 +22,8 @@ from django.db import models
 
 from creme.creme_core import models as core_models
 from creme.creme_core import workflows
-from creme.creme_core.core.entity_filter import (
-    EF_CREDENTIALS,
-    condition_handler,
-)
+# from creme.creme_core.core.entity_filter import EF_CREDENTIALS
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.soft_reference import SoftReferenceCollector
 
 
@@ -80,14 +78,17 @@ class EFilterConditionCFieldEnumValueRefCollector(SoftReferenceCollector):
     def collect(self, instance):
         assert isinstance(instance, self.model)
 
+        # yield from core_models.EntityFilter.objects.filter(
+        #     filter_type=EF_CREDENTIALS,
+        # ).filter(models.Exists(core_models.EntityFilterCondition.objects.filter(
         yield from core_models.EntityFilter.objects.filter(
-            filter_type=EF_CREDENTIALS,  # TODO: not only system filters?
-        ).filter(models.Exists(core_models.EntityFilterCondition.objects.filter(
-            filter=models.OuterRef('pk'),
-            type=condition_handler.CustomFieldConditionHandler.type_id,
-            name=str(instance.custom_field.uuid),
-            value__values__regex=f'"{instance.uuid}"',
-        )))
+            models.Exists(core_models.EntityFilterCondition.objects.filter(
+                filter=models.OuterRef('pk'),
+                type=condition_handler.CustomFieldConditionHandler.type_id,
+                name=str(instance.custom_field.uuid),
+                value__values__regex=f'"{instance.uuid}"',
+            ))
+        )
 
 
 class EFilterConditionPTypeRefCollector(SoftReferenceCollector):

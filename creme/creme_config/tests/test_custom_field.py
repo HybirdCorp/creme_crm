@@ -2149,11 +2149,11 @@ class CustomFieldEnumValuesTestCase(views_base.BrickTestCaseMixin,
             ],
             check_cycles=False, check_privacy=False,
         )
-        EntityFilter.objects.create(
+        efilter2 = EntityFilter.objects.create(
             id='creme_config-tests_blocked_deletion2',
             name='C developers (regular)',
             entity_type=FakeContact,
-            # filter_type=EF_CREDENTIALS,  NOPE
+            # filter_type=EF_REGULAR,
         ).set_conditions(
             [
                 condition_handler.CustomFieldConditionHandler.build_condition(
@@ -2231,7 +2231,7 @@ class CustomFieldEnumValuesTestCase(views_base.BrickTestCaseMixin,
             label=_(
                 'This «{model}» can not be deleted because of its links with other elements:'
             ).format(model=_('Choice of custom field')),
-            dependencies=[efilter1, efilter3],
+            dependencies=[efilter1, efilter2, efilter3],
         )
 
     def test_delete_enum_value__soft_referenced__workflows(self):

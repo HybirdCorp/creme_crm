@@ -128,11 +128,11 @@ class EntityFilterSoftReferencesTestCase(CremeTestCase):
             ],
             check_cycles=False, check_privacy=False,
         )
-        EntityFilter.objects.create(
+        efilter2 = EntityFilter.objects.create(
             id='creme_config-tests_blocked_deletion2',
             name='C developers (regular)',
             entity_type=FakeContact,
-            # filter_type=EF_CREDENTIALS,  NOPE
+            # filter_type=EF_REGULAR,
         ).set_conditions(
             [
                 condition_handler.CustomFieldConditionHandler.build_condition(
@@ -189,8 +189,8 @@ class EntityFilterSoftReferencesTestCase(CremeTestCase):
             check_cycles=False, check_privacy=False,
         )
 
-        self.assertCountEqual([efilter1, efilter3], collector.collect(eval1))
-        self.assertCountEqual([efilter4],           collector.collect(eval2))
+        self.assertCountEqual([efilter1, efilter2, efilter3], collector.collect(eval1))
+        self.assertCountEqual([efilter4],                     collector.collect(eval2))
 
     def test_property_type(self):
         collector = soft_references.EFilterConditionPTypeRefCollector()
