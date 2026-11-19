@@ -1143,7 +1143,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     @classmethod
     def build_condition(cls, *,
                         custom_field: CustomField,
-                        operator: operators.ConditionOperator | str,
+                        operator: type[operators.ConditionOperator] | str,
                         values: list,
                         user=None,
                         filter_type=EF_REGULAR,
