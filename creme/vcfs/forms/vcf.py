@@ -17,11 +17,14 @@
 ################################################################################
 
 import base64
+import ipaddress
 import logging
+import socket
 from itertools import chain
 # from urllib.request import urlopen => cannot be mocked
 from urllib import request
 from urllib.error import URLError
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -80,6 +83,39 @@ Organisation = persons.get_organisation_model()
 Address = persons.get_address_model()
 
 URL_START = ('http://', 'https://', 'www.')
+
+
+def validate_fetch_url(url):
+    """Reject URLs that could be used for Server-Side Request Forgery.
+
+    Only "http"/"https" targets resolving to a public IP address are accepted.
+    """
+    split = urlsplit(url)
+
+    if split.scheme not in ('http', 'https') or not split.hostname:
+        raise ValidationError(
+            gettext('The referenced image URL is not valid.')
+        )
+
+    try:
+        addresses = socket.getaddrinfo(split.hostname, split.port or None)
+    except OSError as e:
+        raise ValidationError(
+            gettext(
+                'An error occurred when trying to retrieve the referenced image '
+                '[original error: {}].'
+            ).format(e)
+        )
+
+    for family, socktype, proto, canonname, sockaddr in addresses:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if (
+            ip.is_private or ip.is_loopback or ip.is_link_local
+            or ip.is_multicast or ip.is_reserved or ip.is_unspecified
+        ):
+            raise ValidationError(
+                gettext('The referenced image URL is not allowed.')
+            )
 
 HOME_ADDR_PREFIX = 'homeaddr_'
 WORK_ADDR_PREFIX = 'workaddr_'
@@ -528,6 +564,7 @@ class VcfImportForm(CremeModelForm):
 
             if encoded_image.startswith(URL_START):
                 # TODO: only retrieve once (i.e. what if several validation errors) ?
+                validate_fetch_url(encoded_image)
 
                 try:
                     # TODO: smaller timeout than our own web server?
