@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # A bug with the filter operator "is empty" has been fixed;
+      it did not work if there were several fields with the same type.
     # Some fixes were made in CSS.
 
 
