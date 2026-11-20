@@ -29,9 +29,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import (
     BooleanField,
+    Exists,
     ForeignKey,
     ManyToManyField,
     Model,
+    OuterRef,
     Q,
 )
 from django.utils.formats import date_format
@@ -1163,13 +1165,25 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         fname = f'{related_name}__value'
         values = self._values
         resolved_values = self.resolve_operands(values=values, user=user)
+        cfield = self.custom_field
 
-        # TODO: move more code in operator ??
+        # TODO: move more code in operator
+#       if isinstance(operator, operators.IsEmptyOperator):
+#           query = Q(**{f'{related_name}__isnull': resolved_values[0]})
         if isinstance(operator, operators.IsEmptyOperator):
-            query = Q(**{f'{related_name}__isnull': resolved_values[0]})
+            assert not operator.exclude  # TODO: manage?
+
+            query = Q(Exists(cfield.value_class._default_manager.filter(
+                custom_field=cfield, entity_id=OuterRef('pk'),
+            )))
+            if resolved_values[0]:
+                query.negate()
+
+            return query
         else:
-            query = Q(**{f'{related_name}__custom_field': self.custom_field})
+            query = Q(**{f'{related_name}__custom_field': cfield})
             key = operator.key_pattern.format(fname)
+
             value_q = Q()
 
             for value in resolved_values:
@@ -1178,7 +1192,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             query &= value_q
 
         if operator.exclude:
-            query.negate()  # TODO: move this in operator ??
+            query.negate()  # TODO: move this in operator?
 
         return Q(
             pk__in=self._model

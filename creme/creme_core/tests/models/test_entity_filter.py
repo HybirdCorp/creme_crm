@@ -3342,6 +3342,57 @@ class EntityFiltersTestCase(CremeTestCase):
             efilter, FakeContact, self._list_contact_ids('rei', 'shinji'),
         )
 
+    def test_customfield_string_isempty__several_cfields(self):
+        """BugFix: did not work when there are several CustomFields of the same type."""
+        c = self.contacts
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=self.contact_ct, field_type=CustomField.STR,
+        )
+        cfield1 = create_cfield(name='Eva')
+        vclass1 = cfield1.value_class
+        vclass1(custom_field=cfield1, entity=c['rei']).set_value_n_save('Eva-00')
+        vclass1(custom_field=cfield1, entity=c['shinji']).set_value_n_save('Eva-01')
+
+        cfield2 = create_cfield(name='Dog tag')
+        cfield2.value_class(custom_field=cfield2, entity=c['shinji']).set_value_n_save('Bebz')
+
+        self.assertEqual(3, CustomFieldString.objects.count())
+
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter-empty_cfield1',
+            name='Empty dog tag', model=FakeContact,
+            conditions=[
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield2,
+                    operator=operators.IsEmptyOperator,
+                    values=[True],
+                ),
+            ],
+        )
+        filtered_contacts1 = efilter1.filter(FakeContact.objects.all())
+        self.assertIn(c['asuka'], filtered_contacts1)
+        self.assertIn(c['rei'], filtered_contacts1)
+        self.assertNotIn(c['shinji'], filtered_contacts1)
+
+        # ----
+        efilter2 = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter-empty_cfield2',
+            name='Not empty dog tag', model=FakeContact,
+            conditions=[
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=cfield2,
+                    operator=operators.IsEmptyOperator,
+                    values=[False],
+                ),
+            ],
+        )
+        filtered_contacts2 = efilter2.filter(FakeContact.objects.all())
+        self.assertIn(c['shinji'], filtered_contacts2)
+        self.assertNotIn(c['asuka'], filtered_contacts2)
+        self.assertNotIn(c['rei'], filtered_contacts2)
+
     def test_customfield_boolean_isempty(self):
         custom_field = CustomField.objects.create(
             name='Eva ?', content_type=self.contact_ct, field_type=CustomField.BOOL,

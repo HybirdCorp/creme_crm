@@ -1,5 +1,11 @@
 == Version 2.7.15 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # A bug with the filter operator "is empty" has been fixed;
+      it did not work if there were several fields with the same type.
+
+
 == Version 2.7.14 ==
 
   Users side :
