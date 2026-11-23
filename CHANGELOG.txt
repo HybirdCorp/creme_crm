@@ -19,6 +19,9 @@
             - 'EMAIL_TIMEOUT'
           Use the new settings 'MAILERS': https://docs.djangoproject.com/en/6.1/ref/settings/#mailers
           How to migrate: https://docs.djangoproject.com/en/6.1/howto/mailers-migration/#migrating-settings
+      # A new middleware "creme.creme_core.middleware.auth.RoleMiddleware" has been added to the
+        default configuration (see 'settings.MIDDLEWARE'); you shoud add it to your configuration
+        if you have totally overriden this settings variable.
       # The library 'nh3' replaces 'bleach' to sanitize the fields containing HTML forged by users
         (like HTML body of emails). No difference should be noticed at users' level.
       # A new hint has been created to prevent apps to not be populated.
