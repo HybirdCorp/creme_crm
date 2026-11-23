@@ -301,6 +301,8 @@ MIDDLEWARE = [
 
     # After AuthenticationMiddleware:
     'creme.creme_core.middleware.locale.LocaleMiddleware',
+    # NB: after LocaleMiddleware to get a localized error message
+    'creme.creme_core.middleware.auth.RoleMiddleware',
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
     'creme.creme_core.middleware.workflow.WorkflowMiddleware',
