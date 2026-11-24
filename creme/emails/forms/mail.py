@@ -261,9 +261,14 @@ class TemplateSelectionFormStep(core_forms.CremeForm):
         label=pgettext_lazy('emails', 'Template'),
         model=EmailTemplate,
         credentials=EntityCredentials.VIEW,
+        required=False,
+        help_text=_(
+            'If you select a template, it will be used to initialize the mail '
+            'form (next step)'
+        ),
     )
 
-    step_submit_label = _('Select this template')
+    # step_submit_label = _('Select this template')
 
     def save(self):
         pass

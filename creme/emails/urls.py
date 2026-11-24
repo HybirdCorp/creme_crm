@@ -337,19 +337,27 @@ urlpatterns = [
                 name='emails__list_emails',
             ),
         ),
+        # Swappable(
+        #     re_path(
+        #         r'^mail/add/(?P<entity_id>\d+)[/]?$',
+        #         mail.EntityEmailCreation.as_view(),
+        #         name='emails__create_email',
+        #     ),
+        #     check_args=Swappable.INT_ID,
+        # ),
+        # Swappable(
+        #     re_path(
+        #         r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$',
+        #         mail.EntityEmailWizard.as_view(),
+        #         name='emails__create_email_from_template',
+        #     ),
+        #     check_args=Swappable.INT_ID,
+        # ),
         Swappable(
             re_path(
                 r'^mail/add/(?P<entity_id>\d+)[/]?$',
-                mail.EntityEmailCreation.as_view(),
-                name='emails__create_email',
-            ),
-            check_args=Swappable.INT_ID,
-        ),
-        Swappable(
-            re_path(
-                r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$',
                 mail.EntityEmailWizard.as_view(),
-                name='emails__create_email_from_template',
+                name='emails__create_email',
             ),
             check_args=Swappable.INT_ID,
         ),
