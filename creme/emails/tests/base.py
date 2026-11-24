@@ -1,5 +1,5 @@
 # from email.mime.image import MIMEImage
-from functools import partial
+# from functools import partial
 from unittest import skipIf
 
 from django.urls import reverse
@@ -135,58 +135,58 @@ class _EmailsTestCase(CremeTestCase):
             signature=signature,
         )
 
-    def _create_emails(self, user):
-        if persons.contact_model_is_custom():
-            self.fail(
-                'Cannot use _EmailsTestCase._create_emails() with custom Contact model.'
-            )  # pragma: no cover
-
-        if persons.organisation_model_is_custom():
-            self.fail(
-                'Cannot use _EmailsTestCase._create_emails() with custom Organisation model.'
-            )  # pragma: no cover
-
-        create_c = partial(Contact.objects.create, user=user)
-        contacts = [
-            create_c(
-                first_name='Vincent',  last_name='Law', email='vincent.law@immigrates.rmd',
-            ),
-            create_c(
-                first_name='Daedalus', last_name='??',  email='daedalus@research.rmd',
-            ),
-        ]
-
-        create_o = partial(Organisation.objects.create, user=user)
-        orgas = [
-            create_o(name='Venus gate', email='contact@venusgate.jp'),
-            create_o(name='Nerv',       email='contact@nerv.jp'),
-        ]
-
-        url = self._build_create_entitymail_url(contacts[0])
-        self.assertGET200(url)
-
-        response = self.client.post(
-            url,
-            data={
-                'user': user.id,
-                'sender': 're-l.mayer@rpd.rmd',
-
-                'c_recipients': self.formfield_value_multi_creator_entity(
-                    contacts[0],
-                    contacts[1],
-                ),
-                'o_recipients': self.formfield_value_multi_creator_entity(
-                    orgas[0],
-                    orgas[1],
-                ),
-                'subject': 'Under arrest',
-                'body': 'Freeze',
-                'body_html': '<p>Freeze !</p>',
-            },
-        )
-        self.assertNoFormError(response)
-
-        emails = EntityEmail.objects.all()
-        self.assertEqual(4, len(emails))
-
-        return emails
+    # def _create_emails(self, user):
+    #     if persons.contact_model_is_custom():
+    #         self.fail(
+    #             'Cannot use _EmailsTestCase._create_emails() with custom Contact model.'
+    #         )  # pragma: no cover
+    #
+    #     if persons.organisation_model_is_custom():
+    #         self.fail(
+    #             'Cannot use _EmailsTestCase._create_emails() with custom Organisation model.'
+    #         )  # pragma: no cover
+    #
+    #     create_c = partial(Contact.objects.create, user=user)
+    #     contacts = [
+    #         create_c(
+    #             first_name='Vincent',  last_name='Law', email='vincent.law@immigrates.rmd',
+    #         ),
+    #         create_c(
+    #             first_name='Daedalus', last_name='??',  email='daedalus@research.rmd',
+    #         ),
+    #     ]
+    #
+    #     create_o = partial(Organisation.objects.create, user=user)
+    #     orgas = [
+    #         create_o(name='Venus gate', email='contact@venusgate.jp'),
+    #         create_o(name='Nerv',       email='contact@nerv.jp'),
+    #     ]
+    #
+    #     url = self._build_create_entitymail_url(contacts[0])
+    #     self.assertGET200(url)
+    #
+    #     response = self.client.post(
+    #         url,
+    #         data={
+    #             'user': user.id,
+    #             'sender': 're-l.mayer@rpd.rmd',
+    #
+    #             'c_recipients': self.formfield_value_multi_creator_entity(
+    #                 contacts[0],
+    #                 contacts[1],
+    #             ),
+    #             'o_recipients': self.formfield_value_multi_creator_entity(
+    #                 orgas[0],
+    #                 orgas[1],
+    #             ),
+    #             'subject': 'Under arrest',
+    #             'body': 'Freeze',
+    #             'body_html': '<p>Freeze !</p>',
+    #         },
+    #     )
+    #     self.assertNoFormError(response)
+    #
+    #     emails = EntityEmail.objects.all()
+    #     self.assertEqual(4, len(emails))
+    #
+    #     return emails

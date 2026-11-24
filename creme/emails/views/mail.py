@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.exceptions import ValidationError
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
@@ -53,6 +55,13 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
     permissions = ['emails', cperm(EntityEmail)]
     title = _('Sending an email to «{entity}»')
     submit_label = EntityEmail.sending_label
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        warnings.warn(
+            'The class EntityEmailCreation is deprecated',
+            DeprecationWarning
+        )
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -98,8 +107,11 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     def get_form_initial(self, step):
         initial = super().get_form_initial(step=step)
 
-        if step == '1':
-            email_template = self.get_cleaned_data_for_step('0')['template']
+        # if step == '1':
+        if step == '1' and (
+            email_template := self.get_cleaned_data_for_step('0')['template']
+        ):
+            # email_template = self.get_cleaned_data_for_step('0')['template']
             ctx = {
                 var_name: getattr(self.get_related_entity(), var_name, '')
                 for var_name in body_validator.allowed_variables

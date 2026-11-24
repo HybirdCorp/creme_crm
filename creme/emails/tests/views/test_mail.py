@@ -18,6 +18,7 @@ from creme.creme_core.models import (
     CustomField,
     FakeInvoice,
     FieldsConfig,
+    Relation,
     RelationType,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -64,20 +65,1034 @@ class BaseEntityEmailViewsTestCase(_EmailsTestCase):
         )
 
 
+# class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         # cls.original_send_messages = EmailBackend.send_messages
+#         cls.original_send_messages = [EmailBackend.send_messages]
+#
+#     def tearDown(self):
+#         super().tearDown()
+#         # EmailBackend.send_messages = self.original_send_messages
+#         EmailBackend.send_messages = self.original_send_messages[0]
+#
+#     @skipIfCustomContact
+#     def test_from_contact(self):
+#         user = self.login_as_root_and_get()
+#
+#         queue = get_queue()
+#         queue.clear()
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email=recipient,
+#         )
+#         url = self._build_create_entitymail_url(contact)
+#
+#         context = self.assertGET200(url).context
+#         self.assertEqual(
+#             _('Sending an email to «{entity}»').format(entity=contact),
+#             context.get('title'),
+#         )
+#         self.assertEqual(EntityEmail.sending_label, context.get('submit_label'))
+#
+#         with self.assertNoException():
+#             c_recipients = context['form'].fields['c_recipients']
+#
+#         self.assertListEqual([contact.id], c_recipients.initial)
+#
+#         # ---
+#         sender = user.linked_contact.email
+#         body = 'Freeze !'
+#         body_html = '<p>Freeze !</p>'
+#         subject = 'Under arrest'
+#         response2 = self.client.post(
+#             url,
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 'subject':      subject,
+#                 'body':         body,
+#                 'body_html':    body_html,
+#             },
+#         )
+#         self.assertNoFormError(response2)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+#         self.assertEqual(user,             email.user)
+#         self.assertEqual(subject,          email.subject)
+#         self.assertEqual(body,             email.body)
+#         self.assertEqual(body_html,        email.body_html)
+#         self.assertEqual(EntityEmail.Status.SENT, email.status)
+#         self.assertIs(email.synchronised, False)
+#
+#         self.assertHaveRelation(
+#             subject=email, type=REL_SUB_MAIL_SENT, object=user.linked_contact,
+#         )
+#         self.assertHaveRelation(subject=email, type=REL_SUB_MAIL_RECEIVED, object=contact)
+#         self.assertHaveNoRelation(subject=email, type=REL_SUB_RELATED_TO, object=contact)
+#
+#         # ---
+#         response3 = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
+#         self.assertTemplateUsed(response3, 'emails/view_entity_mail.html')
+#
+#         body_brick_node = self.get_brick_node(
+#             self.get_html_tree(response3.content), brick=bricks.EmailHTMLBodyBrick,
+#         )
+#         # iframe_node1 = body_brick_node.find('.//iframe')
+#         iframe_node1 = body_brick_node.find('iframe')
+#         self.assertIsNotNone(iframe_node1)
+#         self.assertEqual(
+#             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+#             # iframe_node1.attrib.get('src'),
+#             iframe_node1.attrs.get('src'),
+#         )
+#
+#         # ---
+#         response4 = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
+#         self.assertTemplateUsed(response4, 'creme_core/generics/detail-popup.html')
+#
+#         popup_brick_node = self.get_brick_node(
+#             self.get_html_tree(response4.content), brick=bricks.MailPopupBrick,
+#         )
+#         # iframe_node2 = popup_brick_node.find('.//iframe')
+#         iframe_node2 = popup_brick_node.find('iframe')
+#         self.assertIsNotNone(iframe_node2)
+#         self.assertEqual(
+#             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+#             # iframe_node2.attrib.get('src'),
+#             iframe_node2.attrs.get('src'),
+#         )
+#
+#         # ---
+#         message = self.get_alone_element(mail.outbox)
+#         self.assertEqual(subject,     message.subject)
+#         self.assertEqual('',          message.body)
+#         self.assertEqual([recipient], message.recipients())
+#         self.assertEqual(sender,      message.from_email)
+#         # TODO: test better
+#         self.assertIn('Message-ID', message.extra_headers)
+#
+#         self.assertBodiesEqual(message, body=body, body_html=body_html)
+#         # self.assertEqual(1, len(message.attachments))
+#         self.assertFalse(message.attachments)
+#
+#         self.assertEqual([], queue.refreshed_jobs)
+#
+#     @skipIfCustomContact
+#     def test_related_entity(self):
+#         "Entity is not used as recipient => linked with RelationType REL_SUB_RELATED_TO."
+#         user = self.login_as_root_and_get()
+#         entity = MailingList.objects.create(user=user, name='ML1')
+#         contact = Contact.objects.create(
+#             user=user, first_name='Vincent', last_name='Law', email='vlaw@immigrates.rmd',
+#         )
+#
+#         sender = user.linked_contact.email
+#         self.assertNoFormError(self.client.post(
+#             self._build_create_entitymail_url(entity),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 'subject':      'Ola',
+#                 'body':         'Freeze!',
+#             },
+#         ))
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=contact.email)
+#         self.assertHaveRelation(
+#            subject=email, type=REL_SUB_MAIL_SENT, object=user.linked_contact,
+#         )
+#         self.assertHaveRelation(subject=email, type=REL_SUB_MAIL_RECEIVED, object=contact)
+#         self.assertHaveRelation(subject=email, type=REL_SUB_RELATED_TO, object=entity)
+#
+#     @skipIfCustomOrganisation
+#     def test_attachments(self):
+#         user = self.login_as_root_and_get()
+#
+#         recipient = 'contact@venusgate.jp'
+#         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
+#         url = self._build_create_entitymail_url(orga)
+#
+#         response = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             o_recipients = response.context['form'].fields['o_recipients']
+#
+#         self.assertEqual([orga.id], o_recipients.initial)
+#
+#         folder = Folder.objects.create(
+#             user=user, title='Test folder', parent_folder=None,
+#             category=FolderCategory.objects.create(name='Test category'),
+#         )
+#
+#         def create_doc(title, content):
+#             tmpfile = NamedTemporaryFile(suffix=".txt")
+#             tmpfile.write(content)
+#             tmpfile.flush()
+#             tmpfile.file.seek(0)
+#
+#             response = self.client.post(
+#                 reverse('documents__create_document'), follow=True,
+#                 data={
+#                     'user':          user.id,
+#                     'title':         title,
+#                     'description':   'Attachment file',
+#                     'filedata':      tmpfile,
+#                     'linked_folder': folder.id,
+#                 },
+#             )
+#             self.assertNoFormError(response)
+#
+#             return self.get_object_or_fail(Document, title=title)
+#
+#         content1 = b"Hey I'm the content"
+#         content2 = b'Another content'
+#         doc1 = create_doc('Doc01', content1)
+#         doc2 = create_doc('Doc02', content2)
+#
+#         sender = 're-l.mayer@rpd.rmd'
+#         signature = EmailSignature.objects.create(
+#             user=user,
+#             name="Re-l's signature",
+#             body='I love you... not',
+#         )
+#         response = self.client.post(
+#             url,
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'o_recipients': self.formfield_value_multi_creator_entity(orga),
+#                 'subject':      'Cryogenisation',
+#                 'body':         'I want to be freezed !',
+#                 'body_html':    '<p>I want to be freezed !</p>',
+#                 'signature':    signature.id,
+#                 'attachments':  self.formfield_value_multi_creator_entity(doc1, doc2),
+#                 'send_me':      True,
+#             },
+#         )
+#         self.assertNoFormError(response)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+#         self.assertEqual(signature, email.signature)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=sender)
+#         self.assertEqual(signature, email.signature)
+#
+#         messages = mail.outbox
+#         self.assertEqual(2, len(messages))
+#         self.assertEqual([sender], messages[0].recipients())
+#
+#         message = messages[1]
+#         self.assertListEqual([recipient], message.recipients())
+#         self.assertListEqual(
+#             [
+#                 (basename(doc1.filedata.name), content1.decode(), 'text/plain'),
+#                 (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
+#             ],
+#             # message.attachments[1:],  # 0 is for bodies
+#             message.attachments,
+#         )
+#
+#     @skipIfCustomContact
+#     def test_required_customfield(self):
+#         user = self.login_as_root_and_get()
+#
+#         create_cf = partial(CustomField.objects.create, content_type=EntityEmail)
+#         cf1 = create_cf(field_type=CustomField.STR, name='Comment')
+#         cf2 = create_cf(
+#             field_type=CustomField.INT, name='Business ID',
+#             # is_required=True,
+#             requirement_mode=CustomField.RequirementMode.REQUIRED,
+#         )
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email=recipient,
+#         )
+#         response = self.assertGET200(self._build_create_entitymail_url(contact))
+#
+#         fields = response.context['form'].fields
+#         self.assertNotIn(f'custom_field-{cf1.id}', fields)
+#
+#         cf2_f = fields.get(f'custom_field-{cf2.id}')
+#         self.assertIsInstance(cf2_f, IntegerField)
+#         self.assertTrue(cf2_f.required)
+#
+#     @skipIfCustomContact
+#     def test_empty__html_body(self):
+#         "HTML body is empty => automatically filled from body."
+#         user = self.login_as_root_and_get()
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email=recipient,
+#         )
+#         url = self._build_create_entitymail_url(contact)
+#         response1 = self.assertGET200(url)
+#         with self.assertNoException():
+#             fields = response1.context['form'].fields
+#             subject_f = fields['subject']
+#             body_f = fields['body']
+#             html_f = fields['body_html']
+#
+#         self.assertTrue(subject_f.required)
+#         self.assertFalse(body_f.required)
+#         self.assertFalse(html_f.required)
+#
+#         sender = user.linked_contact.email
+#         body = 'Fresh & tasty!\nTry it now!'
+#         response2 = self.client.post(
+#             url,
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 'subject':      'New product',
+#                 'body':         body,
+#                 'body_html':    '    ',  # Considered as empty once stripped
+#             },
+#         )
+#         self.assertNoFormError(response2)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+#         self.assertEqual(body, email.body)
+#         self.assertEqual(
+#             '<html><body><code><p>Fresh &amp; tasty!<br>Try it now!</p></code></body></html>',
+#             email.body_html,
+#         )
+#
+#     @skipIfCustomContact
+#     def test_empty__body(self):
+#         "Body is empty => automatically filled from HTML body."
+#         user = self.login_as_root_and_get()
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email=recipient,
+#         )
+#         sender = user.linked_contact.email
+#         response = self.client.post(
+#             self._build_create_entitymail_url(contact),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 'subject':      'New slurm',
+#                 'body':         '    ',  # Considered as empty once stripped
+#                 'body_html': '''
+# <html>
+# <head></head>
+# <body style="margin:0px; padding:0px;">
+# <table width="640" cellpadding="0" cellspacing="0" border="0">
+# <tbody>
+# <tr>
+# <td valign="top" align="center"></td>
+# <td width="320"><p style="text-align: justify;">
+# Taste our <span style="text-decoration:underline;">new recipe</span> which is 72%
+# better &amp; lighter than the previous one.
+# </p></td>
+# <td valign="top" align="center">Visit our <a href="https://slurm.com">site</a> !</td>
+# </body>
+# </html>
+# '''
+#             },
+#         )
+#         self.assertNoFormError(response)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+#         self.assertEqual(
+#             'Taste our new recipe which is 72%\n'
+#             'better & lighter than the previous one.\n'
+#             '\n'
+#             'Visit our site !',
+#             # 'Visit our site (https://slurm.com) !',  TODO ??
+#             email.body,
+#         )
+#
+#     @skipIfCustomContact
+#     def test_empty__bodies(self):
+#         "Both bodies are empty => error."
+#         user = self.login_as_root_and_get()
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email=recipient,
+#         )
+#         response = self.assertPOST200(
+#             self._build_create_entitymail_url(contact),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#
+#                 'subject': 'New slurm',
+#
+#                 'body':      '  ',
+#                 'body_html': '    ',
+#             },
+#         )
+#         self.assertFormError(
+#             self.get_form_or_fail(response),
+#             field=None,
+#             errors=_('Both bodies cannot be empty at the same time.'),
+#         )
+#
+#     @skipIfCustomContact
+#     @skipIfCustomOrganisation
+#     def test_error_invalid_address(self):
+#         "Invalid email address."
+#         user = self.login_as_root_and_get()
+#
+#         create_contact = partial(Contact.objects.create, user=user)
+#         contact01 = create_contact(
+#             first_name='Vincent', last_name='Law',
+#             email='vincent.law@immigrates',  # Invalid
+#         )
+#         contact02 = create_contact(
+#             first_name='Pino', last_name='AutoReiv',
+#             email='pino@autoreivs.rmd',  # OK
+#         )
+#
+#         create_orga = partial(Organisation.objects.create, user=user)
+#         orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
+#         orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
+#
+#         response = self.assertPOST200(
+#             self._build_create_entitymail_url(contact01),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact01, contact02),
+#                 'o_recipients': self.formfield_value_multi_creator_entity(orga01, orga02),
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         form = self.get_form_or_fail(response)
+#         self.assertFormError(
+#             form,
+#             field='c_recipients',
+#             errors=_('The email address for {} is invalid').format(contact01),
+#         )
+#         self.assertFormError(
+#             form,
+#             field='o_recipients',
+#             errors=_('The email address for {} is invalid').format(orga01),
+#         )
+#
+#     @skipIfCustomContact
+#     def test_no_address__contact(self):
+#         "Related contact has no emails address."
+#         user = self.login_as_root_and_get()
+#
+#         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
+#         response = self.assertGET200(self._build_create_entitymail_url(contact))
+#
+#         with self.assertNoException():
+#             c_recipients = response.context['form'].fields['c_recipients']
+#
+#         self.assertIsNone(c_recipients.initial)
+#         self.assertEqual(
+#             _('Beware: the contact «{}» has no email address!').format(contact),
+#             c_recipients.help_text,
+#         )
+#
+#     @skipIfCustomOrganisation
+#     def test_no_address__organisation(self):
+#         "Related organisation has no email address."
+#         user = self.login_as_root_and_get()
+#
+#         orga = Organisation.objects.create(user=user, name='Venus gate')
+#         response = self.assertGET200(self._build_create_entitymail_url(orga))
+#
+#         with self.assertNoException():
+#             o_recipients = response.context['form'].fields['o_recipients']
+#
+#         self.assertIsNone(o_recipients.initial)
+#         self.assertEqual(
+#             _('Beware: the organisation «{}» has no email address!').format(orga),
+#             o_recipients.help_text,
+#         )
+#
+#     @skipIfCustomContact
+#     @skipIfCustomOrganisation
+#     def test_no_link_perm(self):
+#         "Credentials problem."
+#         user = self.login_as_emails_user()
+#         other_user = self.get_root_user()
+#         self.add_credentials(user.role, all='!LINK', own='*')
+#
+#         create_contact = Contact.objects.create
+#         contact01 = create_contact(
+#             user=other_user,
+#             first_name='Vincent',
+#             last_name='Law',
+#             email='vincent.law@immigrates.rmd',
+#         )
+#         contact02 = create_contact(
+#             user=user,
+#             first_name='Pino',
+#             last_name='AutoReiv',
+#             email='pino@autoreivs.rmd',
+#         )
+#
+#         create_orga = Organisation.objects.create
+#         orga01 = create_orga(
+#             user=other_user, name='Venus gate', email='contact@venusgate.jp',
+#         )
+#         orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
+#
+#         self.assertTrue(user.has_perm_to_view(contact01))
+#         self.assertFalse(user.has_perm_to_link(contact01))
+#         self.assertTrue(user.has_perm_to_view(contact02))
+#         self.assertTrue(user.has_perm_to_link(contact02))
+#
+#         def post(contact):
+#             return self.client.post(
+#                 self._build_create_entitymail_url(contact),
+#                 data={
+#                     'user': user.id,
+#                     'sender': user.linked_contact.email,
+#
+#                     'c_recipients': self.formfield_value_multi_creator_entity(
+#                         contact01, contact02,
+#                     ),
+#                     'o_recipients': self.formfield_value_multi_creator_entity(
+#                         orga01, orga02,
+#                     ),
+#                     'subject': 'Under arrest',
+#                     'body': 'Freeze !',
+#                     'body_html': '<p>Freeze !</p>',
+#                 },
+#             )
+#
+#         self.assertEqual(403, post(contact01).status_code)
+#
+#         response2 = post(contact02)
+#         self.assertEqual(200, response2.status_code)
+#
+#         form2 = response2.context['form']
+#         self.assertFormError(
+#             form2,
+#             field='c_recipients',
+#             errors=_('Some entities are not linkable: {}').format(contact01),
+#         )
+#         self.assertFormError(
+#             form2,
+#             field='o_recipients',
+#             errors=_('Some entities are not linkable: {}').format(orga01),
+#         )
+#
+#     def test_no_recipient(self):
+#         user = self.login_as_root_and_get()
+#         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
+#         response = self.assertPOST200(
+#             self._build_create_entitymail_url(c),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 'c_recipients': '[]',
+#                 'o_recipients': '[]',
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         self.assertFormError(
+#             self.get_form_or_fail(response),
+#             field=None,
+#             errors=_('Select at least a Contact or an Organisation'),
+#         )
+#
+#     @skipIfCustomContact
+#     def test_fields_config__contact(self):
+#         "FieldsConfig: Contact.email is hidden."
+#         user = self.login_as_root_and_get()
+#         FieldsConfig.objects.create(
+#             content_type=Contact,
+#             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+#         )
+#
+#         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
+#
+#         url = self._build_create_entitymail_url(c)
+#         response1 = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             recip_field = response1.context['form'].fields['c_recipients']
+#
+#         self.assertIsInstance(recip_field.widget, Label)
+#         self.assertEqual(
+#             _(
+#                 'Beware: the field «Email address» is hidden; '
+#                 'please contact your administrator.'
+#             ),
+#             recip_field.initial,
+#         )
+#
+#         # POST ---
+#         response2 = self.assertPOST200(
+#             url,
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 # Should not be used
+#                 'c_recipients': self.formfield_value_multi_creator_entity(c),
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         self.assertFormError(
+#             self.get_form_or_fail(response2),
+#             field=None,
+#             errors=_('Select at least a Contact or an Organisation'),
+#         )
+#
+#     @skipIfCustomOrganisation
+#     def test_fields_config__organisation(self):
+#         "FieldsConfig: Organisation.email is hidden."
+#         user = self.login_as_root_and_get()
+#         FieldsConfig.objects.create(
+#             content_type=Organisation,
+#             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+#         )
+#
+#         orga = Organisation.objects.create(user=user, name='Venus gate')
+#
+#         url = self._build_create_entitymail_url(orga)
+#         response1 = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             recip_field = response1.context['form'].fields['o_recipients']
+#
+#         self.assertIsInstance(recip_field.widget, Label)
+#         self.assertEqual(
+#             _(
+#                 'Beware: the field «Email address» is hidden; '
+#                 'please contact your administrator.'
+#             ),
+#             recip_field.initial,
+#         )
+#
+#         # POST ---
+#         response2 = self.assertPOST200(
+#             url,
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 # Should not be used
+#                 'o_recipients': self.formfield_value_multi_creator_entity(orga),
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         self.assertFormError(
+#             self.get_form_or_fail(response2),
+#             field=None,
+#             errors=_('Select at least a Contact or an Organisation'),
+#         )
+#
+#     @skipIfCustomContact
+#     def test_sending_error(self):
+#         """Mail sending error."""
+#         user = self.login_as_root_and_get()
+#
+#         queue = get_queue()
+#         queue.clear()
+#
+#         self.send_messages_called = False
+#
+#         def send_messages(this, messages):
+#             self.send_messages_called = True
+#             raise Exception('Sent error')
+#
+#         EmailBackend.send_messages = send_messages
+#
+#         recipient = 'vincent.law@immigrates.rmd'
+#         contact = Contact.objects.create(
+#             user=user, first_name='Vincent', last_name='Law', email=recipient,
+#         )
+#
+#         sender = user.linked_contact.email
+#         response = self.client.post(
+#             self._build_create_entitymail_url(contact),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       sender,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         self.assertNoFormError(response)
+#
+#         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+#         self.assertEqual(EntityEmail.Status.SENDING_ERROR, email.status)
+#
+#         self.assertTrue(queue.refreshed_jobs)
+#
+#     @skipIfCustomContact
+#     @skipIfCustomOrganisation
+#     def test_no_creation_perm(self):
+#         "No creation credentials."
+#         user = self.login_as_emails_user(
+#             creatable_models=(Contact, Organisation)  # No EntityEmail
+#         )
+#         self.add_credentials(user.role, all='*')
+#
+#         contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
+#         self.assertGET403(self._build_create_entitymail_url(contact02))
+#
+#     @skipIfCustomContact
+#     @skipIfCustomOrganisation
+#     def test_empty_email(self):
+#         "Empty email address."
+#         user = self.login_as_root_and_get()
+#
+#         create_contact = partial(Contact.objects.create, user=user)
+#         contact01 = create_contact(first_name='Vincent', last_name='Law', email='')
+#         contact02 = create_contact(
+#             first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd',
+#         )
+#
+#         create_orga = partial(Organisation.objects.create, user=user)
+#         orga01 = create_orga(name='Venus gate', email='')
+#         orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
+#
+#         response = self.assertPOST200(
+#             self._build_create_entitymail_url(contact01),
+#             data={
+#                 'user':         user.id,
+#                 'sender':       user.linked_contact.email,
+#                 'c_recipients': self.formfield_value_multi_creator_entity(contact01, contact02),
+#                 'o_recipients': self.formfield_value_multi_creator_entity(orga01, orga02),
+#                 'subject':      'Under arrest',
+#                 'body':         'Freeze !',
+#                 'body_html':    '<p>Freeze !</p>',
+#             },
+#         )
+#         form = self.get_form_or_fail(response)
+#         msg = _('«%(entity)s» violates the constraints.')
+#         self.assertFormError(
+#             form, field='c_recipients', errors=msg % {'entity': contact01},
+#         )
+#         self.assertFormError(
+#             form, field='o_recipients', errors=msg % {'entity': orga01},
+#         )
+#
+#     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
+#     @skipIfCustomContact
+#     def test_disabled_rtype(self, rtype_id):
+#         user = self.login_as_root_and_get()
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email='vincent.law@immigrates.rmd',
+#         )
+#
+#         rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+#         rtype.enabled = False
+#         rtype.save()
+#
+#         try:
+#             self.assertGET409(self._build_create_entitymail_url(contact))
+#         finally:
+#             rtype.enabled = True
+#             rtype.save()
+#
+#     def test_is_staff(self):
+#         self.login_as_super(is_staff=True)
+#         contact = Contact.objects.create(
+#             user=self.get_root_user(),
+#             first_name='Vincent', last_name='Law',
+#             email='vincent.law@immigrates.rmd',
+#         )
+#
+#         self.assertGET409(self._build_create_entitymail_url(contact))
+#
+# @skipIfCustomContact
+# class EntityEmailCreationFromTemplateTestCase(BaseEntityEmailViewsTestCase):
+#     @staticmethod
+#     def _build_send_from_template_url(entity):
+#         return reverse('emails__create_email_from_template', args=(entity.id,))
+#
+#     @skipIfCustomEmailTemplate
+#     def test_main(self):
+#         user = self.login_as_root_and_get()
+#
+#         body_format      = 'Hi {} {}, nice to meet you !'.format
+#         body_html_format = 'Hi <strong>{} {}</strong>, nice to meet you !'.format
+#
+#         subject = 'I am da subject'
+#         signature = EmailSignature.objects.create(
+#             user=user, name="Re-l's signature", body='I love you... not',
+#         )
+#         template = EmailTemplate.objects.create(
+#             user=user, name='My template', subject=subject,
+#             body=body_format('{{first_name}}', '{{last_name}}'),
+#             body_html=body_html_format('{{first_name}}', '{{last_name}}'),
+#             signature=signature,
+#         )
+#
+#         recipient = 'vincent.law@city.mosk'
+#         first_name = 'Vincent'
+#         last_name = 'Law'
+#         contact = Contact.objects.create(
+#             user=user, first_name=first_name, last_name=last_name, email=recipient,
+#         )
+#
+#         url = self._build_send_from_template_url(contact)
+#         response = self.assertGET200(url)
+#         self.assertTemplateUsed(
+#             response,
+#             'creme_core/generics/blockform/add-wizard-popup.html',
+#         )
+#
+#         context = response.context
+#         title = _('Sending an email to «{entity}»').format(entity=contact)
+#         self.assertEqual(
+#             title,
+#             context.get('title')
+#         )
+#         self.assertEqual(_('Select this template'), context.get('submit_label'))
+#
+#         # ---
+#         step_key = 'entity_email_wizard-current_step'
+#         response = self.client.post(
+#             url,
+#             data={
+#                 step_key: '0',
+#                 '0-template': template.id,
+#             },
+#         )
+#         self.assertNoFormError(response)
+#
+#         context = response.context
+#         self.assertEqual(title, context.get('title'))
+#         self.assertEqual(_('Send the email'), context.get('submit_label'))
+#
+#         with self.assertNoException():
+#             form = context['form']
+#             fields = form.fields
+#             fields['subject']  # NOQA
+#             fields['body']  # NOQA
+#             fields['body_html']  # NOQA
+#             fields['signature']  # NOQA
+#             fields['attachments']  # NOQA
+#
+#         ini_get = form.initial.get
+#         self.assertEqual(subject, ini_get('subject'))
+#         self.assertEqual(
+#             body_format(contact.first_name, contact.last_name),
+#             ini_get('body'),
+#         )
+#         self.assertEqual(
+#             body_html_format(contact.first_name, contact.last_name),
+#             ini_get('body_html'),
+#         )
+#         self.assertEqual(signature.id, ini_get('signature'))
+#         # self.assertEqual(attachments,  ini_get('attachments')) #TODO
+#
+#         response = self.client.post(
+#             url,
+#             data={
+#                 step_key: '1',
+#                 '1-step': 2,
+#                 '1-user': user.id,
+#                 '1-sender': user.linked_contact.email,
+#                 '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+#                 '1-subject': subject,
+#                 '1-body': ini_get('body'),
+#                 '1-body_html': ini_get('body_html'),
+#                 '1-signature': signature.id,
+#             },
+#         )
+#         self.assertNoFormError(response)
+#         email = self.get_object_or_fail(EntityEmail, recipient=recipient)
+#         self.assertEqual(user.linked_contact.email, email.sender)
+#         self.assertEqual(ini_get('body'),           email.body)
+#
+#     def test_regular_user(self):
+#         user = self.login_as_emails_user()
+#         self.add_credentials(user.role, all=['VIEW', 'LINK'])
+#
+#         contact = Contact.objects.create(
+#             user=user, first_name='Vincent', last_name='Law',
+#             email='vincent.law@city.mosk',
+#         )
+#         self.assertGET200(self._build_send_from_template_url(contact))
+#
+#     def test_creation_perms(self):
+#         "Creation permission needed."
+#         user = self.login_as_emails_user(creatable_models=[])
+#         self.add_credentials(user.role, all=['VIEW', 'LINK'])
+#
+#         contact = Contact.objects.create(
+#             user=user, first_name='Vincent', last_name='Law',
+#             email='vincent.law@city.mosk',
+#         )
+#         self.assertGET403(self._build_send_from_template_url(contact))
+#
+#     def test_link_perms(self):
+#         "LINK permission needed."
+#         user = self.login_as_emails_user()
+#         self.add_credentials(user.role, all=['VIEW'])  # 'LINK'
+#
+#         contact = Contact.objects.create(
+#             user=user, first_name='Vincent', last_name='Law',
+#             email='vincent.law@city.mosk',
+#         )
+#         self.assertGET403(self._build_send_from_template_url(contact))
+#
+#     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
+#     def test_disabled_rtype(self, rtype_id):
+#         user = self.login_as_root_and_get()
+#         contact = Contact.objects.create(
+#             user=user,
+#             first_name='Vincent', last_name='Law',
+#             email='vincent.law@immigrates.rmd',
+#         )
+#
+#         rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+#         rtype.enabled = False
+#         rtype.save()
+#
+#         try:
+#             self.assertGET409(self._build_send_from_template_url(contact))
+#         finally:
+#             rtype.enabled = True
+#             rtype.save()
+
+
 class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCase):
+    step_key = 'entity_email_wizard-current_step'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # cls.original_send_messages = EmailBackend.send_messages
         cls.original_send_messages = [EmailBackend.send_messages]
 
     def tearDown(self):
         super().tearDown()
-        # EmailBackend.send_messages = self.original_send_messages
         EmailBackend.send_messages = self.original_send_messages[0]
 
+    @skipIfCustomEmailTemplate
+    def test_from_contact__with_template(self):
+        user = self.login_as_emails_user()
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])
+
+        body_format      = 'Hi {} {}, nice to meet you !'.format
+        body_html_format = 'Hi <strong>{} {}</strong>, nice to meet you !'.format
+
+        subject = 'I am da subject'
+        signature = EmailSignature.objects.create(
+            user=user, name="Re-l's signature", body='I love you... not',
+        )
+        template = EmailTemplate.objects.create(
+            user=user, name='My template', subject=subject,
+            body=body_format('{{first_name}}', '{{last_name}}'),
+            body_html=body_html_format('{{first_name}}', '{{last_name}}'),
+            signature=signature,
+        )
+
+        recipient = 'vincent.law@city.mosk'
+        first_name = 'Vincent'
+        last_name = 'Law'
+        contact = Contact.objects.create(
+            user=user, first_name=first_name, last_name=last_name, email=recipient,
+        )
+
+        url = self._build_create_entitymail_url(contact)
+        response_post1 = self.assertGET200(url)
+        self.assertTemplateUsed(
+            response_post1,
+            'creme_core/generics/blockform/add-wizard-popup.html',
+        )
+
+        context = response_post1.context
+        title = _('Sending an email to «{entity}»').format(entity=contact)
+        self.assertEqual(
+            title,
+            context.get('title')
+        )
+        self.assertEqual(_('Next step'), context.get('submit_label'))
+
+        # ---
+        step_key = self.step_key
+        response_post1 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-template': template.id,
+            },
+        )
+        self.assertNoFormError(response_post1)
+
+        context = response_post1.context
+        self.assertEqual(title, context.get('title'))
+        self.assertEqual(_('Send the email'), context.get('submit_label'))
+
+        with self.assertNoException():
+            form = context['form']
+            fields = form.fields
+            fields['subject']  # NOQA
+            fields['body']  # NOQA
+            fields['body_html']  # NOQA
+            fields['signature']  # NOQA
+            fields['attachments']  # NOQA
+
+        ini_get = form.initial.get
+        self.assertEqual(subject, ini_get('subject'))
+        self.assertEqual(
+            body_format(contact.first_name, contact.last_name),
+            ini_get('body'),
+        )
+        self.assertEqual(
+            body_html_format(contact.first_name, contact.last_name),
+            ini_get('body_html'),
+        )
+        self.assertEqual(signature.id, ini_get('signature'))
+        # self.assertEqual(attachments,  ini_get('attachments')) #TODO
+
+        response_post2 = self.client.post(
+            url,
+            data={
+                step_key: '1',
+                '1-step': 2,
+                '1-user': user.id,
+                '1-sender': user.linked_contact.email,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+                '1-subject': subject,
+                '1-body': ini_get('body'),
+                '1-body_html': ini_get('body_html'),
+                '1-signature': signature.id,
+            },
+        )
+        self.assertNoFormError(response_post2)
+        email = self.get_object_or_fail(EntityEmail, recipient=recipient)
+        self.assertEqual(user.linked_contact.email, email.sender)
+        self.assertEqual(ini_get('body'),           email.body)
+
     @skipIfCustomContact
-    def test_from_contact(self):
+    def test_from_contact__no_template(self):
         user = self.login_as_root_and_get()
 
         queue = get_queue()
@@ -91,15 +1106,19 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         )
         url = self._build_create_entitymail_url(contact)
 
-        context = self.assertGET200(url).context
-        self.assertEqual(
-            _('Sending an email to «{entity}»').format(entity=contact),
-            context.get('title'),
+        # ---
+        step_key = self.step_key
+        response_post1 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                # '0-template': ...,
+            },
         )
-        self.assertEqual(EntityEmail.sending_label, context.get('submit_label'))
+        self.assertNoFormError(response_post1)
 
         with self.assertNoException():
-            c_recipients = context['form'].fields['c_recipients']
+            c_recipients = response_post1.context['form'].fields['c_recipients']
 
         self.assertListEqual([contact.id], c_recipients.initial)
 
@@ -108,18 +1127,24 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
         subject = 'Under arrest'
-        response2 = self.client.post(
+
+        response_post2 = self.client.post(
             url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      subject,
-                'body':         body,
-                'body_html':    body_html,
+                step_key: '1',
+                '1-step': 2,
+
+                '1-user': user.id,
+
+                '1-sender':       sender,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+
+                '1-subject':   subject,
+                '1-body':      body,
+                '1-body_html': body_html,
             },
         )
-        self.assertNoFormError(response2)
+        self.assertNoFormError(response_post2)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(user,             email.user)
@@ -134,38 +1159,6 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         self.assertHaveNoRelation(subject=email, type=REL_SUB_RELATED_TO, object=contact)
 
         # ---
-        response3 = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
-        self.assertTemplateUsed(response3, 'emails/view_entity_mail.html')
-
-        body_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick=bricks.EmailHTMLBodyBrick,
-        )
-        # iframe_node1 = body_brick_node.find('.//iframe')
-        iframe_node1 = body_brick_node.find('iframe')
-        self.assertIsNotNone(iframe_node1)
-        self.assertEqual(
-            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
-            # iframe_node1.attrib.get('src'),
-            iframe_node1.attrs.get('src'),
-        )
-
-        # ---
-        response4 = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
-        self.assertTemplateUsed(response4, 'creme_core/generics/detail-popup.html')
-
-        popup_brick_node = self.get_brick_node(
-            self.get_html_tree(response4.content), brick=bricks.MailPopupBrick,
-        )
-        # iframe_node2 = popup_brick_node.find('.//iframe')
-        iframe_node2 = popup_brick_node.find('iframe')
-        self.assertIsNotNone(iframe_node2)
-        self.assertEqual(
-            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
-            # iframe_node2.attrib.get('src'),
-            iframe_node2.attrs.get('src'),
-        )
-
-        # ---
         message = self.get_alone_element(mail.outbox)
         self.assertEqual(subject,     message.subject)
         self.assertEqual('',          message.body)
@@ -175,14 +1168,13 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         self.assertIn('Message-ID', message.extra_headers)
 
         self.assertBodiesEqual(message, body=body, body_html=body_html)
-        # self.assertEqual(1, len(message.attachments))
         self.assertFalse(message.attachments)
 
         self.assertEqual([], queue.refreshed_jobs)
 
     @skipIfCustomContact
     def test_related_entity(self):
-        "Entity is not used as recipient => linked with RelationType REL_SUB_RELATED_TO."
+        """Entity is not used as recipient => linked with RelationType REL_SUB_RELATED_TO."""
         user = self.login_as_root_and_get()
         entity = MailingList.objects.create(user=user, name='ML1')
         contact = Contact.objects.create(
@@ -190,21 +1182,37 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         )
 
         sender = user.linked_contact.email
+        url = self._build_create_entitymail_url(entity)
+        step_key = self.step_key
+        self.assertNoFormError(self.client.post(url, data={step_key: '0'}))
         self.assertNoFormError(self.client.post(
-            self._build_create_entitymail_url(entity),
+            url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      'Ola',
-                'body':         'Freeze!',
+                step_key: '1',
+                '1-step': 2,
+
+                '1-user': user.id,
+
+                '1-sender':       sender,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+
+                '1-subject': 'Ola',
+                '1-body':    'Freeze!',
             },
         ))
 
-        email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=contact.email)
-        self.assertHaveRelation(subject=email, type=REL_SUB_MAIL_SENT, object=user.linked_contact)
-        self.assertHaveRelation(subject=email, type=REL_SUB_MAIL_RECEIVED, object=contact)
-        self.assertHaveRelation(subject=email, type=REL_SUB_RELATED_TO, object=entity)
+        email = self.get_object_or_fail(
+            EntityEmail, sender=sender, recipient=contact.email,
+        )
+        self.assertHaveRelation(
+            subject=email, type=REL_SUB_MAIL_SENT, object=user.linked_contact,
+        )
+        self.assertHaveRelation(
+            subject=email, type=REL_SUB_MAIL_RECEIVED, object=contact,
+        )
+        self.assertHaveRelation(
+            subject=email, type=REL_SUB_RELATED_TO, object=entity,
+        )
 
     @skipIfCustomOrganisation
     def test_attachments(self):
@@ -213,13 +1221,6 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         recipient = 'contact@venusgate.jp'
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
         url = self._build_create_entitymail_url(orga)
-
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            o_recipients = response.context['form'].fields['o_recipients']
-
-        self.assertEqual([orga.id], o_recipients.initial)
 
         folder = Folder.objects.create(
             user=user, title='Test folder', parent_folder=None,
@@ -232,8 +1233,9 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
             tmpfile.flush()
             tmpfile.file.seek(0)
 
-            response = self.client.post(
-                reverse('documents__create_document'), follow=True,
+            self.assertNoFormError(self.client.post(
+                reverse('documents__create_document'),
+                follow=True,
                 data={
                     'user':          user.id,
                     'title':         title,
@@ -241,8 +1243,7 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
                     'filedata':      tmpfile,
                     'linked_folder': folder.id,
                 },
-            )
-            self.assertNoFormError(response)
+            ))
 
             return self.get_object_or_fail(Document, title=title)
 
@@ -257,21 +1258,36 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
             name="Re-l's signature",
             body='I love you... not',
         )
-        response = self.client.post(
+        step_key = self.step_key
+        response_post1 = self.client.post(url, data={step_key: '0'})
+        self.assertNoFormError(response_post1)
+
+        with self.assertNoException():
+            o_recipients = response_post1.context['form'].fields['o_recipients']
+
+        self.assertEqual([orga.id], o_recipients.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(
             url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'o_recipients': self.formfield_value_multi_creator_entity(orga),
-                'subject':      'Cryogenisation',
-                'body':         'I want to be freezed !',
-                'body_html':    '<p>I want to be freezed !</p>',
-                'signature':    signature.id,
-                'attachments':  self.formfield_value_multi_creator_entity(doc1, doc2),
-                'send_me':      True,
+                step_key: '1',
+                '1-step': 2,
+
+                '1-user':   user.id,
+                '1-sender': sender,
+
+                '1-o_recipients': self.formfield_value_multi_creator_entity(orga),
+                '1-send_me':      True,
+
+                '1-subject':   'Cryogenisation',
+                '1-body':      'I want to be freezed!',
+                '1-body_html': '<p>I want to be freezed!</p>',
+
+                '1-signature':   signature.id,
+                '1-attachments': self.formfield_value_multi_creator_entity(doc1, doc2),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(signature, email.signature)
@@ -290,7 +1306,6 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
                 (basename(doc1.filedata.name), content1.decode(), 'text/plain'),
                 (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
             ],
-            # message.attachments[1:],  # 0 is for bodies
             message.attachments,
         )
 
@@ -312,7 +1327,10 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
             first_name='Vincent', last_name='Law',
             email=recipient,
         )
-        response = self.assertGET200(self._build_create_entitymail_url(contact))
+        response = self.client.post(
+            self._build_create_entitymail_url(contact),
+            data={self.step_key: '0'},
+        )
 
         fields = response.context['form'].fields
         self.assertNotIn(f'custom_field-{cf1.id}', fields)
@@ -323,7 +1341,7 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
 
     @skipIfCustomContact
     def test_empty__html_body(self):
-        "HTML body is empty => automatically filled from body."
+        """HTML body is empty => automatically filled from body."""
         user = self.login_as_root_and_get()
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -333,9 +1351,13 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
             email=recipient,
         )
         url = self._build_create_entitymail_url(contact)
-        response1 = self.assertGET200(url)
+
+        step_key = self.step_key
+        response_post1 = self.client.post(url, data={step_key: '0'})
+        self.assertNoFormError(response_post1)
+
         with self.assertNoException():
-            fields = response1.context['form'].fields
+            fields = response_post1.context['form'].fields
             subject_f = fields['subject']
             body_f = fields['body']
             html_f = fields['body_html']
@@ -344,20 +1366,23 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
         self.assertFalse(body_f.required)
         self.assertFalse(html_f.required)
 
+        # ---
         sender = user.linked_contact.email
         body = 'Fresh & tasty!\nTry it now!'
-        response2 = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      'New product',
-                'body':         body,
-                'body_html':    '    ',  # Considered as empty once stripped
+                step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       sender,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+                '1-subject':      'New product',
+                '1-body':         body,
+                '1-body_html':    '    ',  # Considered as empty once stripped
             },
-        )
-        self.assertNoFormError(response2)
+        ))
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(body, email.body)
@@ -368,7 +1393,7 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
 
     @skipIfCustomContact
     def test_empty__body(self):
-        "Body is empty => automatically filled from HTML body."
+        """Body is empty => automatically filled from HTML body."""
         user = self.login_as_root_and_get()
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -377,16 +1402,24 @@ class EntityEmailCreationTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCa
             first_name='Vincent', last_name='Law',
             email=recipient,
         )
+        step_key = self.step_key
+
+        url = self._build_create_entitymail_url(contact)
+        self.assertNoFormError(self.client.post(url, data={step_key: '0'}))
+
         sender = user.linked_contact.email
-        response = self.client.post(
-            self._build_create_entitymail_url(contact),
+        response_post2 = self.client.post(
+            url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      'New slurm',
-                'body':         '    ',  # Considered as empty once stripped
-                'body_html': '''
+                step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       sender,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+                '1-subject':      'New slurm',
+                '1-body':         '    ',  # Considered as empty once stripped
+                '1-body_html': '''
 <html>
 <head></head>
 <body style="margin:0px; padding:0px;">
@@ -404,7 +1437,7 @@ better &amp; lighter than the previous one.
 '''
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response_post2)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(
@@ -418,7 +1451,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     def test_empty__bodies(self):
-        "Both bodies are empty => error."
+        """Both bodies are empty => error."""
         user = self.login_as_root_and_get()
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -427,21 +1460,26 @@ better &amp; lighter than the previous one.
             first_name='Vincent', last_name='Law',
             email=recipient,
         )
-        response = self.assertPOST200(
-            self._build_create_entitymail_url(contact),
+        url = self._build_create_entitymail_url(contact)
+        self.assertNoFormError(self.client.post(url, data={self.step_key: '0'}))
+        response_post2 = self.assertPOST200(
+            url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
+                self.step_key: '1',
+                '1-step': 2,
 
-                'subject': 'New slurm',
+                '1-user':         user.id,
+                '1-sender':       user.linked_contact.email,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
 
-                'body':      '  ',
-                'body_html': '    ',
+                '1-subject': 'New slurm',
+
+                '1-body':      '  ',
+                '1-body_html': '    ',
             },
         )
         self.assertFormError(
-            self.get_form_or_fail(response),
+            self.get_form_or_fail(response_post2),
             field=None,
             errors=_('Both bodies cannot be empty at the same time.'),
         )
@@ -449,54 +1487,64 @@ better &amp; lighter than the previous one.
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_error_invalid_address(self):
-        "Invalid email address."
+        """Invalid email address."""
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
-        contact01 = create_contact(
+        contact1 = create_contact(
             first_name='Vincent', last_name='Law',
             email='vincent.law@immigrates',  # Invalid
         )
-        contact02 = create_contact(
+        contact2 = create_contact(
             first_name='Pino', last_name='AutoReiv',
             email='pino@autoreivs.rmd',  # OK
         )
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
-        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
+        orga1 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
+        orga2 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
-        response = self.assertPOST200(
-            self._build_create_entitymail_url(contact01),
+        url = self._build_create_entitymail_url(contact1)
+        self.assertNoFormError(self.client.post(url, data={self.step_key: '0'}))
+
+        response_post2 = self.assertPOST200(
+            url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact01, contact02),
-                'o_recipients': self.formfield_value_multi_creator_entity(orga01, orga02),
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       user.linked_contact.email,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact1, contact2),
+                '1-o_recipients': self.formfield_value_multi_creator_entity(orga1, orga2),
+                '1-subject':      'Under arrest',
+                '1-body':         'Freeze!',
+                '1-body_html':    '<p>Freeze!</p>',
             },
         )
-        form = self.get_form_or_fail(response)
+        form = self.get_form_or_fail(response_post2)
         self.assertFormError(
             form,
             field='c_recipients',
-            errors=_('The email address for {} is invalid').format(contact01),
+            errors=_('The email address for {} is invalid').format(contact1),
         )
         self.assertFormError(
             form,
             field='o_recipients',
-            errors=_('The email address for {} is invalid').format(orga01),
+            errors=_('The email address for {} is invalid').format(orga1),
         )
 
     @skipIfCustomContact
     def test_no_address__contact(self):
-        "Related contact has no emails address."
+        """Related contact has no email address."""
         user = self.login_as_root_and_get()
-
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
-        response = self.assertGET200(self._build_create_entitymail_url(contact))
+
+        response = self.client.post(
+            self._build_create_entitymail_url(contact),
+            data={self.step_key: '0'},
+        )
+        self.assertNoFormError(response)
 
         with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
@@ -509,11 +1557,15 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomOrganisation
     def test_no_address__organisation(self):
-        "Related organisation has no email address."
+        """Related organisation has no email address."""
         user = self.login_as_root_and_get()
-
         orga = Organisation.objects.create(user=user, name='Venus gate')
-        response = self.assertGET200(self._build_create_entitymail_url(orga))
+
+        response = self.client.post(
+            self._build_create_entitymail_url(orga),
+            data={self.step_key: '0'},
+        )
+        self.assertNoFormError(response)
 
         with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
@@ -527,19 +1579,19 @@ better &amp; lighter than the previous one.
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_no_link_perm(self):
-        "Credentials problem."
+        """Credentials problem."""
         user = self.login_as_emails_user()
         other_user = self.get_root_user()
         self.add_credentials(user.role, all='!LINK', own='*')
 
         create_contact = Contact.objects.create
-        contact01 = create_contact(
+        contact1 = create_contact(
             user=other_user,
             first_name='Vincent',
             last_name='Law',
             email='vincent.law@immigrates.rmd',
         )
-        contact02 = create_contact(
+        contact2 = create_contact(
             user=user,
             first_name='Pino',
             last_name='AutoReiv',
@@ -547,76 +1599,88 @@ better &amp; lighter than the previous one.
         )
 
         create_orga = Organisation.objects.create
-        orga01 = create_orga(
+        orga1 = create_orga(
             user=other_user, name='Venus gate', email='contact@venusgate.jp',
         )
-        orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
+        orga2 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
 
-        self.assertTrue(user.has_perm_to_view(contact01))
-        self.assertFalse(user.has_perm_to_link(contact01))
-        self.assertTrue(user.has_perm_to_view(contact02))
-        self.assertTrue(user.has_perm_to_link(contact02))
+        self.assertTrue(user.has_perm_to_view(contact1))
+        self.assertFalse(user.has_perm_to_link(contact1))
+        self.assertTrue(user.has_perm_to_view(contact2))
+        self.assertTrue(user.has_perm_to_link(contact2))
 
-        def post(contact):
-            return self.client.post(
-                self._build_create_entitymail_url(contact),
-                data={
-                    'user': user.id,
-                    'sender': user.linked_contact.email,
+        # Related entity ---
+        self.assertPOST403(
+            self._build_create_entitymail_url(contact1), data={self.step_key: '0'},
+        )
 
-                    'c_recipients': self.formfield_value_multi_creator_entity(
-                        contact01, contact02,
-                    ),
-                    'o_recipients': self.formfield_value_multi_creator_entity(
-                        orga01, orga02,
-                    ),
-                    'subject': 'Under arrest',
-                    'body': 'Freeze !',
-                    'body_html': '<p>Freeze !</p>',
-                },
-            )
+        # Recipients ---
+        url2 = self._build_create_entitymail_url(contact2)
+        self.assertNoFormError(self.client.post(url2, data={self.step_key: '0'}))
 
-        self.assertEqual(403, post(contact01).status_code)
+        response2 = self.assertPOST200(
+            url2,
+            data={
+                self.step_key: '1',
+                '1-step': 2,
 
-        response2 = post(contact02)
-        self.assertEqual(200, response2.status_code)
+                '1-user': user.id,
+                '1-sender': user.linked_contact.email,
+
+                '1-c_recipients': self.formfield_value_multi_creator_entity(
+                    contact1, contact2,
+                ),
+                '1-o_recipients': self.formfield_value_multi_creator_entity(
+                    orga1, orga2,
+                ),
+                '1-subject': 'Under arrest',
+                '1-body': 'Freeze!',
+                '1-body_html': '<p>Freeze!</p>',
+            },
+        )
 
         form2 = response2.context['form']
         self.assertFormError(
             form2,
             field='c_recipients',
-            errors=_('Some entities are not linkable: {}').format(contact01),
+            errors=_('Some entities are not linkable: {}').format(contact1),
         )
         self.assertFormError(
             form2,
             field='o_recipients',
-            errors=_('Some entities are not linkable: {}').format(orga01),
+            errors=_('Some entities are not linkable: {}').format(orga1),
         )
 
     def test_no_recipient(self):
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
-        response = self.assertPOST200(
-            self._build_create_entitymail_url(c),
+        url = self._build_create_entitymail_url(c)
+        self.assertNoFormError(self.client.post(url, data={self.step_key: '0'}))
+
+        response_post2 = self.assertPOST200(
+            url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
-                'c_recipients': '[]',
-                'o_recipients': '[]',
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       user.linked_contact.email,
+                '1-c_recipients': '[]',
+                '1-o_recipients': '[]',
+                '1-subject':      'Under arrest',
+                '1-body':         'Freeze!',
+                '1-body_html':    '<p>Freeze!</p>',
             },
         )
         self.assertFormError(
-            self.get_form_or_fail(response),
+            self.get_form_or_fail(response_post2),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomContact
     def test_fields_config__contact(self):
-        "FieldsConfig: Contact.email is hidden."
+        """FieldsConfig: Contact.email is hidden."""
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -626,10 +1690,11 @@ better &amp; lighter than the previous one.
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
 
         url = self._build_create_entitymail_url(c)
-        response1 = self.assertGET200(url)
+        response_post1 = self.client.post(url, data={self.step_key: '0'})
+        self.assertNoFormError(response_post1)
 
         with self.assertNoException():
-            recip_field = response1.context['form'].fields['c_recipients']
+            recip_field = response_post1.context['form'].fields['c_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
@@ -641,27 +1706,32 @@ better &amp; lighter than the previous one.
         )
 
         # POST ---
-        response2 = self.assertPOST200(
+        response_post2 = self.assertPOST200(
             url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':   user.id,
+                '1-sender': user.linked_contact.email,
+
                 # Should not be used
-                'c_recipients': self.formfield_value_multi_creator_entity(c),
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                '1-c_recipients': self.formfield_value_multi_creator_entity(c),
+
+                '1-subject':   'Under arrest',
+                '1-body':      'Freeze!',
+                '1-body_html': '<p>Freeze!</p>',
             },
         )
         self.assertFormError(
-            self.get_form_or_fail(response2),
+            self.get_form_or_fail(response_post2),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomOrganisation
     def test_fields_config__organisation(self):
-        "FieldsConfig: Organisation.email is hidden."
+        """FieldsConfig: Organisation.email is hidden."""
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Organisation,
@@ -671,10 +1741,11 @@ better &amp; lighter than the previous one.
         orga = Organisation.objects.create(user=user, name='Venus gate')
 
         url = self._build_create_entitymail_url(orga)
-        response1 = self.assertGET200(url)
+        response_post1 = self.client.post(url, data={self.step_key: '0'})
+        self.assertNoFormError(response_post1)
 
         with self.assertNoException():
-            recip_field = response1.context['form'].fields['o_recipients']
+            recip_field = response_post1.context['form'].fields['o_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
@@ -686,20 +1757,25 @@ better &amp; lighter than the previous one.
         )
 
         # POST ---
-        response2 = self.assertPOST200(
+        response_post2 = self.assertPOST200(
             url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':   user.id,
+                '1-sender': user.linked_contact.email,
+
                 # Should not be used
-                'o_recipients': self.formfield_value_multi_creator_entity(orga),
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                '1-o_recipients': self.formfield_value_multi_creator_entity(orga),
+
+                '1-subject':   'Under arrest',
+                '1-body':      'Freeze!',
+                '1-body_html': '<p>Freeze!</p>',
             },
         )
         self.assertFormError(
-            self.get_form_or_fail(response2),
+            self.get_form_or_fail(response_post2),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
@@ -725,19 +1801,24 @@ better &amp; lighter than the previous one.
             user=user, first_name='Vincent', last_name='Law', email=recipient,
         )
 
+        url = self._build_create_entitymail_url(contact)
+        self.assertNoFormError(self.client.post(url, data={self.step_key: '0'}))
+
         sender = user.linked_contact.email
-        response = self.client.post(
-            self._build_create_entitymail_url(contact),
+        self.assertNoFormError(self.client.post(
+            url,
             data={
-                'user':         user.id,
-                'sender':       sender,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       sender,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+                '1-subject':      'Under arrest',
+                '1-body':         'Freeze!',
+                '1-body_html':    '<p>Freeze!</p>',
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(EntityEmail.Status.SENDING_ERROR, email.status)
@@ -747,50 +1828,55 @@ better &amp; lighter than the previous one.
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_no_creation_perm(self):
-        "No creation credentials."
+        """No creation credentials."""
         user = self.login_as_emails_user(
             creatable_models=(Contact, Organisation)  # No EntityEmail
         )
         self.add_credentials(user.role, all='*')
 
-        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
-        self.assertGET403(self._build_create_entitymail_url(contact02))
+        contact = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
+        self.assertGET403(self._build_create_entitymail_url(contact))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_empty_email(self):
-        "Empty email address."
+    def test_empty_email_address(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
-        contact01 = create_contact(first_name='Vincent', last_name='Law', email='')
-        contact02 = create_contact(
+        contact1 = create_contact(first_name='Vincent', last_name='Law', email='')
+        contact2 = create_contact(
             first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd',
         )
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga01 = create_orga(name='Venus gate', email='')
-        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
+        orga1 = create_orga(name='Venus gate', email='')
+        orga2 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
-        response = self.assertPOST200(
-            self._build_create_entitymail_url(contact01),
+        url = self._build_create_entitymail_url(contact1)
+        self.assertNoFormError(self.client.post(url, data={self.step_key: '0'}))
+
+        response_post2 = self.assertPOST200(
+            url,
             data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact01, contact02),
-                'o_recipients': self.formfield_value_multi_creator_entity(orga01, orga02),
-                'subject':      'Under arrest',
-                'body':         'Freeze !',
-                'body_html':    '<p>Freeze !</p>',
+                self.step_key: '1',
+                '1-step': 2,
+
+                '1-user':         user.id,
+                '1-sender':       user.linked_contact.email,
+                '1-c_recipients': self.formfield_value_multi_creator_entity(contact1, contact2),
+                '1-o_recipients': self.formfield_value_multi_creator_entity(orga1, orga2),
+                '1-subject':      'Under arrest',
+                '1-body':         'Freeze!',
+                '1-body_html':    '<p>Freeze!</p>',
             },
         )
-        form = self.get_form_or_fail(response)
+        form = self.get_form_or_fail(response_post2)
         msg = _('«%(entity)s» violates the constraints.')
         self.assertFormError(
-            form, field='c_recipients', errors=msg % {'entity': contact01},
+            form, field='c_recipients', errors=msg % {'entity': contact1},
         )
         self.assertFormError(
-            form, field='o_recipients', errors=msg % {'entity': orga01},
+            form, field='o_recipients', errors=msg % {'entity': orga1},
         )
 
     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
@@ -822,170 +1908,6 @@ better &amp; lighter than the previous one.
         )
 
         self.assertGET409(self._build_create_entitymail_url(contact))
-
-
-@skipIfCustomContact
-class EntityEmailCreationFromTemplateTestCase(BaseEntityEmailViewsTestCase):
-    @staticmethod
-    def _build_send_from_template_url(entity):
-        return reverse('emails__create_email_from_template', args=(entity.id,))
-
-    @skipIfCustomEmailTemplate
-    def test_main(self):
-        user = self.login_as_root_and_get()
-
-        body_format      = 'Hi {} {}, nice to meet you !'.format
-        body_html_format = 'Hi <strong>{} {}</strong>, nice to meet you !'.format
-
-        subject = 'I am da subject'
-        signature = EmailSignature.objects.create(
-            user=user, name="Re-l's signature", body='I love you... not',
-        )
-        template = EmailTemplate.objects.create(
-            user=user, name='My template', subject=subject,
-            body=body_format('{{first_name}}', '{{last_name}}'),
-            body_html=body_html_format('{{first_name}}', '{{last_name}}'),
-            signature=signature,
-        )
-
-        recipient = 'vincent.law@city.mosk'
-        first_name = 'Vincent'
-        last_name = 'Law'
-        contact = Contact.objects.create(
-            user=user, first_name=first_name, last_name=last_name, email=recipient,
-        )
-
-        url = self._build_send_from_template_url(contact)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(
-            response,
-            'creme_core/generics/blockform/add-wizard-popup.html',
-        )
-
-        context = response.context
-        title = _('Sending an email to «{entity}»').format(entity=contact)
-        self.assertEqual(
-            title,
-            context.get('title')
-        )
-        self.assertEqual(_('Select this template'), context.get('submit_label'))
-
-        # ---
-        step_key = 'entity_email_wizard-current_step'
-        response = self.client.post(
-            url,
-            data={
-                step_key: '0',
-                '0-template': template.id,
-            },
-        )
-        self.assertNoFormError(response)
-
-        context = response.context
-        self.assertEqual(title, context.get('title'))
-        self.assertEqual(_('Send the email'), context.get('submit_label'))
-
-        with self.assertNoException():
-            form = context['form']
-            fields = form.fields
-            fields['subject']  # NOQA
-            fields['body']  # NOQA
-            fields['body_html']  # NOQA
-            fields['signature']  # NOQA
-            fields['attachments']  # NOQA
-
-        ini_get = form.initial.get
-        self.assertEqual(subject, ini_get('subject'))
-        self.assertEqual(
-            body_format(contact.first_name, contact.last_name),
-            ini_get('body'),
-        )
-        self.assertEqual(
-            body_html_format(contact.first_name, contact.last_name),
-            ini_get('body_html'),
-        )
-        self.assertEqual(signature.id, ini_get('signature'))
-        # self.assertEqual(attachments,  ini_get('attachments')) #TODO
-
-        response = self.client.post(
-            url,
-            data={
-                step_key: '1',
-                '1-step': 2,
-                '1-user': user.id,
-                '1-sender': user.linked_contact.email,
-                '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
-                '1-subject': subject,
-                '1-body': ini_get('body'),
-                '1-body_html': ini_get('body_html'),
-                '1-signature': signature.id,
-            },
-        )
-        self.assertNoFormError(response)
-        email = self.get_object_or_fail(EntityEmail, recipient=recipient)
-        self.assertEqual(user.linked_contact.email, email.sender)
-        self.assertEqual(ini_get('body'),           email.body)
-
-    def test_regular_user(self):
-        user = self.login_as_emails_user()
-        self.add_credentials(user.role, all=['VIEW', 'LINK'])
-
-        contact = Contact.objects.create(
-            user=user, first_name='Vincent', last_name='Law',
-            email='vincent.law@city.mosk',
-        )
-        self.assertGET200(self._build_send_from_template_url(contact))
-
-    def test_creation_perms(self):
-        "Creation permission needed."
-        user = self.login_as_emails_user(creatable_models=[])
-        self.add_credentials(user.role, all=['VIEW', 'LINK'])
-
-        contact = Contact.objects.create(
-            user=user, first_name='Vincent', last_name='Law',
-            email='vincent.law@city.mosk',
-        )
-        self.assertGET403(self._build_send_from_template_url(contact))
-
-    def test_link_perms(self):
-        "LINK permission needed."
-        user = self.login_as_emails_user()
-        self.add_credentials(user.role, all=['VIEW'])  # 'LINK'
-
-        contact = Contact.objects.create(
-            user=user, first_name='Vincent', last_name='Law',
-            email='vincent.law@city.mosk',
-        )
-        self.assertGET403(self._build_send_from_template_url(contact))
-
-    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
-    def test_disabled_rtype(self, rtype_id):
-        user = self.login_as_root_and_get()
-        contact = Contact.objects.create(
-            user=user,
-            first_name='Vincent', last_name='Law',
-            email='vincent.law@immigrates.rmd',
-        )
-
-        rtype = self.get_object_or_fail(RelationType, id=rtype_id)
-        rtype.enabled = False
-        rtype.save()
-
-        try:
-            self.assertGET409(self._build_send_from_template_url(contact))
-        finally:
-            rtype.enabled = True
-            rtype.save()
-
-    def test_is_staff(self):
-        self.login_as_super(is_staff=True)
-        contact = Contact.objects.create(
-            user=self.get_root_user(),
-            first_name='Vincent', last_name='Law',
-            email='vincent.law@immigrates.rmd',
-        )
-
-        self.assertGET409(self._build_send_from_template_url(contact))
 
 
 class EntityEmailLinkingTestCase(BaseEntityEmailViewsTestCase):
@@ -1114,6 +2036,52 @@ class EntityEmailLinkingTestCase(BaseEntityEmailViewsTestCase):
 
 
 class EntityEmailOtherViewsTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTestCase):
+    def test_detailview(self):
+        user = self.login_as_root_and_get()
+        email = EntityEmail.objects.create(
+            user=user,
+            # sender=user.linked_contact.email,
+            body='Freeze!',
+            body_html='<p>Freeze!</p>',
+            subject='Under arrest',
+        )
+
+        response = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
+        self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
+
+        body_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.EmailHTMLBodyBrick,
+        )
+        iframe_node = body_brick_node.find('iframe')
+        self.assertIsNotNone(iframe_node)
+        self.assertEqual(
+            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+            iframe_node.attrs.get('src'),
+        )
+
+    def test_view_popup(self):
+        user = self.login_as_root_and_get()
+        email = EntityEmail.objects.create(
+            user=user,
+            # sender=user.linked_contact.email,
+            body='Freeze!',
+            body_html='<p>Freeze!</p>',
+            subject='Under arrest',
+        )
+
+        response = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
+        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
+
+        popup_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.MailPopupBrick,
+        )
+        iframe_node2 = popup_brick_node.find('iframe')
+        self.assertIsNotNone(iframe_node2)
+        self.assertEqual(
+            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+            iframe_node2.attrs.get('src'),
+        )
+
     def test_related_mails_brick(self):
         user = self.login_as_root_and_get()
 
@@ -1123,19 +2091,26 @@ class EntityEmailOtherViewsTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTest
             email='vincent.law@immigrates.rmd',
         )
 
-        subject = 'Under arrest'
-        self.assertNoFormError(self.client.post(
-            self._build_create_entitymail_url(contact),
-            data={
-                'user':         user.id,
-                'sender':       user.linked_contact.email,
-                'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      subject,
-                'body':         'Freeze !',
-                # 'body_html':    '<p>Freeze !</p>',
-            },
-        ))
-        email = self.get_object_or_fail(EntityEmail, subject=subject)
+        # subject = 'Under arrest'
+        # self.assertNoFormError(self.client.post(
+        #     self._build_create_entitymail_url(contact),
+        #     data={
+        #         'user':         user.id,
+        #         'sender':       user.linked_contact.email,
+        #         'c_recipients': self.formfield_value_multi_creator_entity(contact),
+        #         'subject':      subject,
+        #         'body':         'Freeze !',
+        #         # 'body_html':    '<p>Freeze !</p>',
+        #     },
+        # ))
+        # email = self.get_object_or_fail(EntityEmail, subject=subject)
+        email = self._create_email(user=user)
+        Relation.objects.create(
+            subject_entity=email,
+            type_id=REL_SUB_MAIL_RECEIVED,
+            object_entity=contact,
+            user=user,
+        )
 
         response = self.assertGET200(contact.get_absolute_url())
         brick_node = self.get_brick_node(
@@ -1157,7 +2132,19 @@ class EntityEmailOtherViewsTestCase(BrickTestCaseMixin, BaseEntityEmailViewsTest
 
     def test_listview(self):
         user = self.login_as_root_and_get()
-        self._create_emails(user=user)
+        # self._create_emails(user=user)
+
+        for i in range(1, 5):
+            EntityEmail.objects.create(
+                user=user,
+                sender=user.linked_contact.email,
+                recipient='vincent.law@immigrates.rmd',
+                subject=f'Under arrest #{i}',
+                body=f'Freeze!#{i}',
+                status=EntityEmail.Status.NOT_SENT,
+                body_html='<p id="{i}">Freeze!</p>',
+                signature=None,
+            )
 
         response = self.assertGET200(reverse('emails__list_emails'))
 

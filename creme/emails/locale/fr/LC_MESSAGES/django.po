@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 15:35+0100\n"
+"POT-Creation-Date: 2026-11-25 17:33+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -274,8 +274,12 @@ msgctxt "emails"
 msgid "Template"
 msgstr "Patron d'e-mail"
 
-msgid "Select this template"
-msgstr "Sélectionner ce patron"
+msgid ""
+"If you select a template, it will be used to initialize the mail form (next "
+"step)"
+msgstr ""
+"Si vous sélectionnez un patron, il sera utilisé pour initialiser le "
+"formulaire d'e-mail (prochaine étape)"
 
 msgid "Filters"
 msgstr "Filtres"
@@ -977,11 +981,8 @@ msgstr "Ajouter des listes de diffusion existantes"
 msgid "No related mailing list for the moment"
 msgstr "Aucune liste de diffusion associée pour le moment"
 
-msgid "Send a new related email"
-msgstr "Envoyer un nouvel e-mail lié"
-
-msgid "Send an email (with a template)"
-msgstr "Envoyer un e-mail (avec un patron)"
+msgid "Send an email"
+msgstr "Envoyer un e-mail"
 
 msgid "Link to emails"
 msgstr "Lier à des e-mails"
@@ -1456,6 +1457,15 @@ msgstr "Le patron n'existe plus"
 
 msgid "Use template:"
 msgstr "Utilise le patron :"
+
+#~ msgid "Send a new related email"
+#~ msgstr "Envoyer un nouvel e-mail lié"
+
+#~ msgid "Select this template"
+#~ msgstr "Sélectionner ce patron"
+
+#~ msgid "Send an email (with a template)"
+#~ msgstr "Envoyer un e-mail (avec un patron)"
 
 #, python-brace-format
 #~ msgid "{count} Campaigns emails in the history"
