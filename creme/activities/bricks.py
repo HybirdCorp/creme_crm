@@ -74,7 +74,7 @@ class ActivitySubTypesBrick(GenericModelBrick):
                         .annotate(subtypes_count=Count('activitysubtype')),
             total_count=ActivitySubType.objects.count(),
         ))
-    # TODO
+    # TODO (remove GenericModelBrick.render() before)
     # def get_template_context(self, context, queryset=None, **extra_kwargs):
     #     if queryset is None:
     #         queryset = ActivityType.objects.order_by('order', 'id').annotate(

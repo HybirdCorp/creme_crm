@@ -184,6 +184,7 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
 
         self.errors = [error] if error else None
 
+    # TODO: override get_template_context() instead
     def _get_chart_context(self, context, chart, data, **kwargs):
         return self.get_template_context(
             context,

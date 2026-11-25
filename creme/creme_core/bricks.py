@@ -19,6 +19,7 @@
 import logging
 # import warnings
 from collections import defaultdict
+from typing import override
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -116,6 +117,7 @@ class ButtonsBrick(Brick):
         self.dependencies = [*deps]
         self.relation_type_deps = [*rtype_deps]
 
+    @override
     def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
         request = context['request']
@@ -150,6 +152,7 @@ class PropertiesBrick(QuerysetBrick):
     #     return self._render(self.get_template_context(
     #         context, entity.properties.select_related('type'),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             queryset = context['object'].properties.select_related('type')
@@ -211,6 +214,7 @@ class RelationsBrick(QuerysetBrick):
         for rtype_id in self._included_rtype_ids:
             yield 'creme_core.relation.' + rtype_id
 
+    @override
     # def detailview_display(self, context):
     def render(self, context):
         entity = context['object']
@@ -284,6 +288,7 @@ class CustomFieldsBrick(Brick):
     dependencies = (CustomField,)
     template_name = 'creme_core/bricks/custom-fields.html'
 
+    @override
     def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
 
@@ -396,6 +401,7 @@ class HistoryBrick(QuerysetBrick):
     #     self._populate_explainers(extended_hlines, user)
     #
     #     return self._render(btc)
+    @override
     def render(self, context):
         user = context['user']
         entity = context.get('object')
@@ -469,6 +475,7 @@ class ImprintsBrick(QuerysetBrick):
     #         if context['user'].is_superuser else
     #         Imprint.objects.none()
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             user = context['user']
@@ -500,16 +507,30 @@ class TrashBrick(QuerysetBrick):
     # permissions = None  # NB: the template uses credentials
     configurable = False  # TODO: allows on home page ?
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        btc = self.get_template_context(
-            context,
-            CremeEntity.objects.filter(is_deleted=True),
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     btc = self.get_template_context(
+    #         context,
+    #         CremeEntity.objects.filter(is_deleted=True),
+    #         display_header_button=settings.ENTITIES_DELETION_ALLOWED,
+    #     )
+    #     CremeEntity.populate_real_entities(btc['page'].object_list)
+    #
+    #     return self._render(btc)
+    @override
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = CremeEntity.objects.filter(is_deleted=True)
+
+        btc = super().get_template_context(
+            context=context,
+            queryset=queryset,
             display_header_button=settings.ENTITIES_DELETION_ALLOWED,
+            **extra_kwargs
         )
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
-        return self._render(btc)
+        return btc
 
 
 class RecentEntitiesBrick(QuerysetBrick):
@@ -524,12 +545,12 @@ class RecentEntitiesBrick(QuerysetBrick):
     # def render(self, context):
     #     return self._render(self.get_template_context(
     #         context,
-    #         # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
     #         LastViewedEntity.objects.filter(
     #             user=context['user'],
     #             entity__is_deleted=False,
     #         ).prefetch_related('real_entity'),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
@@ -563,6 +584,7 @@ class PinnedEntitiesBrick(QuerysetBrick):
     #             user=context['user'],
     #         ).prefetch_related('real_entity'),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             queryset = PinnedEntity.objects.filter(
@@ -596,6 +618,7 @@ class StatisticsBrick(Brick):
             if not item.perm or has_perm(item.perm)
         ]
 
+    @override
     def get_template_context(self, context, **extra_kwargs):
         return super().get_template_context(
             context,
@@ -630,6 +653,7 @@ class JobsBrick(QuerysetBrick):
     #         NOT_PERIODIC=JobType.NOT_PERIODIC,
     #         PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             queryset = self._jobs_qs(context)
@@ -661,16 +685,39 @@ class NotificationsBrick(QuerysetBrick):
     configurable = False
     page_size = 50
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     user = context['user']
+    #     btc = self.get_template_context(
+    #         context,
+    #         Notification.objects.filter(
+    #             user=user, discarded=None, output=notification.OUTPUT_WEB,
+    #         ).order_by('-id').select_related('channel'),
+    #     )
+    #
+    #     for notif in btc['page'].object_list:
+    #         content = notif.content
+    #         notif.content_subject = content.get_subject(user=user)
+    #         notif.content_body = (
+    #             content.get_html_body(user=user) or content.get_body(user=user)
+    #         )
+    #
+    #     return self._render(btc)
+    @override
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         user = context['user']
-        btc = self.get_template_context(
-            context,
-            Notification.objects.filter(
+
+        if queryset is None:
+            queryset = Notification.objects.filter(
                 user=user, discarded=None, output=notification.OUTPUT_WEB,
-            ).order_by('-id').select_related('channel'),
+            ).order_by('-id').select_related('channel')
+
+        btc = super().get_template_context(
+            context=context, queryset=queryset,
+            **extra_kwargs
         )
 
+        # TODO: templatetag instead?
         for notif in btc['page'].object_list:
             content = notif.content
             notif.content_subject = content.get_subject(user=user)
@@ -678,7 +725,7 @@ class NotificationsBrick(QuerysetBrick):
                 content.get_html_body(user=user) or content.get_body(user=user)
             )
 
-        return self._render(btc)
+        return btc
 
 
 # def __getattr__(name):

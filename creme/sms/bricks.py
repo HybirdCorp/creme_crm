@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.utils.translation import gettext_lazy as _
 
 from creme import sms
@@ -34,15 +36,24 @@ class _RelatedEntitiesBrick(QuerysetBrick):
     def _get_queryset(self, entity):
         raise NotImplementedError
 
-    def _update_context(self, context):
-        pass
+    # def _update_context(self, context):
+    #     pass
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        btc = self.get_template_context(context, self._get_queryset(context['object']))
-        self._update_context(btc)
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     btc = self.get_template_context(context, self._get_queryset(context['object']))
+    #     self._update_context(btc)
+    #
+    #     return self._render(btc)
+    @override
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = self._get_queryset(context['object'])
 
-        return self._render(btc)
+        return super().get_template_context(
+            context=context, queryset=queryset,
+            **extra_kwargs
+        )
 
 
 class MessagingListsBrick(_RelatedEntitiesBrick):
