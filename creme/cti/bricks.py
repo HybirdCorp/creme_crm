@@ -43,7 +43,7 @@ class CallersBrick(PaginatedBrick):
     id = PaginatedBrick.generate_id('cti', 'callers')
     verbose_name = _('Potential callers')
     template_name = 'cti/bricks/callers.html'
-    configurable = False
+    # configurable = False
     page_size = 128
 
     caller_models: Collection[type[CremeEntity]] = (
