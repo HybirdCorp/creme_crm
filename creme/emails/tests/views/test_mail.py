@@ -958,7 +958,7 @@ class EntityEmailCreationFromTemplateTestCase(BaseEntityEmailViewsTestCase):
         )
         self.assertGET403(self._build_send_from_template_url(contact))
 
-    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
+    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
     def test_disabled_rtype(self, rtype_id):
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(
