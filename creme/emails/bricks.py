@@ -92,10 +92,9 @@ class TemplateHTMLBodyBrick(_HTMLBodyBrick):
 class SendingHTMLBodyBrick(_HTMLBodyBrick):
     id = _HTMLBodyBrick.generate_id('emails', 'sending_html_body')
     dependencies = (EmailSending,)
-    permissions = 'emails'
-    configurable = False
-    # TODO: remove when the bricks is no more globally registered
-    target_ctypes = (EmailSending,)  # Security purpose
+    # permissions = 'emails'
+    # configurable = False
+    # target_ctypes = (EmailSending,)
 
     def _get_body_url(self, instance):
         return reverse('emails__sending_body', args=(instance.id,))
@@ -298,9 +297,8 @@ class SendingBrick(Brick):
     dependencies = (EmailSending,)
     permissions = 'emails'
     template_name = 'emails/bricks/sending.html'
-    configurable = False
-    # TODO: remove when the bricks is no more globally registered
-    target_ctypes = (EmailSending,)  # Security purpose
+    # configurable = False
+    # target_ctypes = (EmailSending,)
 
 
 class MailsBrick(QuerysetBrick):
@@ -311,9 +309,8 @@ class MailsBrick(QuerysetBrick):
     order_by = 'id'
     page_size = QuerysetBrick.page_size * 3
     template_name = 'emails/bricks/lw-mails.html'
-    configurable = False
-    # TODO: remove when the bricks is no more globally registered
-    target_ctypes = (EmailSending,)  # Security purpose
+    # configurable = False
+    # target_ctypes = (EmailSending,)
 
     # def detailview_display(self, context):
     def render(self, context):

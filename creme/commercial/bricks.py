@@ -237,10 +237,10 @@ class AssetsMatrixBrick(Brick):
     # id = SimpleBrick.generate_id('commercial', 'assets_matrix')
     id = Brick.generate_id('commercial', 'assets_matrix')
     verbose_name = _('Assets / Segments matrix')
-    # dependencies  = (CommercialAsset,) #useless (custom reload view....)
+    # dependencies  = (CommercialAsset,)
     template_name = 'commercial/bricks/assets-matrix.html'
-    configurable = False
-    permissions = 'commercial'
+    # configurable = False
+    # permissions = 'commercial'
 
     def get_template_context(self, context, **extra_kwargs):
         # NB: credentials are OK : we are sure to use the custom reload view
@@ -262,10 +262,10 @@ class CharmsMatrixBrick(Brick):
     # id = SimpleBrick.generate_id('commercial', 'charms_matrix')
     id = Brick.generate_id('commercial', 'charms_matrix')
     verbose_name = _('Charms / Segments matrix')
-    # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
+    # dependencies = (MarketSegmentCharm,)
     template_name = 'commercial/bricks/charms-matrix.html'
-    configurable = False
-    permissions = 'commercial'
+    # configurable = False
+    # permissions = 'commercial'
 
     def get_template_context(self, context, **extra_kwargs):
         # NB: credentials are OK : we are sure to use the custom reload view
@@ -287,10 +287,10 @@ class AssetsCharmsMatrixBrick(Brick):
     # id = SimpleBrick.generate_id('commercial', 'assets_charms_matrix')
     id = Brick.generate_id('commercial', 'assets_charms_matrix')
     verbose_name = _('Assets / Charms matrix')
-    # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
+    # dependencies = (CommercialAsset, MarketSegmentCharm,)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
-    configurable = False
-    permissions = 'commercial'
+    # configurable = False
+    # permissions = 'commercial'
 
     def get_template_context(self, context, **extra_kwargs):
         return super().get_template_context(

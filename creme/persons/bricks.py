@@ -653,7 +653,7 @@ class ManagedOrganisationsBrick(PaginatedBrick):
     dependencies = (Organisation,)
     verbose_name = 'Managed organisations'
     template_name = 'persons/bricks/managed-organisations.html'
-    configurable = False
+    # configurable = False
 
     # # def detailview_display(self, context):
     # def render(self, context):
