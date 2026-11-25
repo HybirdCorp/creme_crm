@@ -970,6 +970,17 @@ better &amp; lighter than the previous one.
         )
         self.assertGET403(self._build_send_from_template_url(contact))
 
+    @skipIfCustomContact
+    def test_create_from_template__staff_user(self):
+        self.login_as_super(is_staff=True)
+        contact = Contact.objects.create(
+            user=self.get_root_user(),
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        self.assertGET409(self._build_send_from_template_url(contact))
+
     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
     @skipIfCustomContact
     def test_create_from_template_disabled_rtype(self, rtype_id):
