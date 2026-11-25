@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,6 +76,12 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     ]
     title = _('Sending an email to «{entity}»')
     submit_label = _('Send the email')
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        if user.is_staff:
+            raise ConflictError(gettext('Staff users cannot send email'))
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
