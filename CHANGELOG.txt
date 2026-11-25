@@ -9,6 +9,7 @@
         * Emails :
             - Several issues in the view to send email from a template have been fixed :
                 - Staff users are not allowed to use it anymore.
+                - The view is disabled when the relation-type "related to the email" is disabled.
 
 
 == Version 2.8.7 ==
