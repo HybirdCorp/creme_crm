@@ -5,6 +5,10 @@
     # A bug with the filter operator "is empty" has been fixed;
       it did not work if there were several fields with the same type.
     # Some fixes were made in CSS.
+    # Apps :
+        * Emails :
+            - Several issues in the view to send email from a template have been fixed :
+                - Staff users are not allowed to use it anymore.
 
 
 == Version 2.8.7 ==
