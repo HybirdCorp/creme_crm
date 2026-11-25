@@ -981,7 +981,7 @@ better &amp; lighter than the previous one.
 
         self.assertGET409(self._build_send_from_template_url(contact))
 
-    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
+    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
     @skipIfCustomContact
     def test_create_from_template_disabled_rtype(self, rtype_id):
         user = self.login_as_root_and_get()
