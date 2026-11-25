@@ -977,6 +977,16 @@ class EntityEmailCreationFromTemplateTestCase(BaseEntityEmailViewsTestCase):
             rtype.enabled = True
             rtype.save()
 
+    def test_is_staff(self):
+        self.login_as_super(is_staff=True)
+        contact = Contact.objects.create(
+            user=self.get_root_user(),
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        self.assertGET409(self._build_send_from_template_url(contact))
+
 
 class EntityEmailLinkingTestCase(BaseEntityEmailViewsTestCase):
     @staticmethod
