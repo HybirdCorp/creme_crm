@@ -29,12 +29,10 @@ class _AssistantsBrick(QuerysetBrick):
     permissions = 'assistants'
 
     def _get_queryset_for_detailview(self, entity, context):
-        """OVERRIDE ME"""
-        pass
+        raise NotImplementedError
 
     def _get_queryset_for_home(self, context):
-        """OVERRIDE ME"""
-        pass
+        raise NotImplementedError
 
     # def detailview_display(self, context):
     #     entity = context['object']
@@ -42,8 +40,6 @@ class _AssistantsBrick(QuerysetBrick):
     #         context, self._get_queryset_for_detailview(entity, context),
     #     )
     #
-    #     # NB: optimisation; it avoids the retrieving of the entity during
-    #     #     template rendering.
     #     for assistant in btc['page'].object_list:
     #         assistant.real_entity = entity
     #
@@ -54,24 +50,44 @@ class _AssistantsBrick(QuerysetBrick):
     #         context,
     #         self._get_queryset_for_home(context).prefetch_related('real_entity'),
     #     ))
-    def render(self, context):
+    # def render(self, context):
+    #     entity = context.get('object')
+    #     if entity is None:  # HOME/MY_PAGE
+    #         btc = self.get_template_context(
+    #             context,
+    #             self._get_queryset_for_home(context).prefetch_related('real_entity'),
+    #         )
+    #     else:  # DETAIL
+    #         btc = self.get_template_context(
+    #             context, self._get_queryset_for_detailview(entity, context),
+    #         )
+    #
+    #         for assistant in btc['page'].object_list:
+    #             assistant.real_entity = entity
+    #
+    #     return self._render(btc)
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         entity = context.get('object')
-        if entity is None:  # HOME/MY_PAGE
-            btc = self.get_template_context(
-                context,
-                self._get_queryset_for_home(context).prefetch_related('real_entity'),
-            )
-        else:  # DETAIL
-            btc = self.get_template_context(
-                context, self._get_queryset_for_detailview(entity, context),
+
+        if queryset is None:
+            queryset = (
+                self._get_queryset_for_home(context).prefetch_related('real_entity')
+                if entity is None else
+                self._get_queryset_for_detailview(entity, context)
             )
 
+        btc = super().get_template_context(
+            context=context, queryset=queryset,
+            **extra_kwargs
+        )
+
+        if entity is not None:
             # NB: optimisation; it avoids the retrieving of the entity during
             #     template rendering.
             for assistant in btc['page'].object_list:
                 assistant.real_entity = entity
 
-        return self._render(btc)
+        return btc
 
 
 class TodosBrick(_AssistantsBrick):

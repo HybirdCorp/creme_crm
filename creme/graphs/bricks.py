@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from typing import override
 
 from django.utils.functional import partition
 from django.utils.translation import gettext
@@ -221,14 +222,35 @@ class RootNodesBrick(core_bricks.QuerysetBrick):
     permissions = 'graphs'
     order_by = 'entity__header_filter_search_field'
 
-    # def detailview_display(self, context):
-    def render(self, context):
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     graph = context['object']
+    #     btc = self.get_template_context(
+    #         context,
+    #         graph.roots.prefetch_related(
+    #             'real_entity', 'relation_types', 'relation_types__symmetric_type',
+    #         ),
+    #     )
+    #
+    #     for root_node in btc['page'].object_list:
+    #         root_node.disabled_rtypes_list, root_node.rtypes_list = partition(
+    #             (lambda rtype: rtype.enabled),
+    #             root_node.relation_types.all()
+    #         )
+    #
+    #     return self._render(btc)
+    @override
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         graph = context['object']
-        btc = self.get_template_context(
-            context,
-            graph.roots.prefetch_related(
+
+        if queryset is None:
+            queryset = graph.roots.prefetch_related(
                 'real_entity', 'relation_types', 'relation_types__symmetric_type',
-            ),
+            )
+
+        btc = super().get_template_context(
+            context=context, queryset=queryset,
+            **extra_kwargs,
         )
 
         for root_node in btc['page'].object_list:
@@ -237,7 +259,7 @@ class RootNodesBrick(core_bricks.QuerysetBrick):
                 root_node.relation_types.all()
             )
 
-        return self._render(btc)
+        return btc
 
 
 class OrbitalRelationTypesBrick(core_bricks.QuerysetBrick):
@@ -260,6 +282,7 @@ class OrbitalRelationTypesBrick(core_bricks.QuerysetBrick):
     #         context,
     #         graph.orbital_relation_types.select_related('symmetric_type'),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             queryset = context['object'].orbital_relation_types.select_related('symmetric_type')
@@ -281,6 +304,7 @@ class GraphInstanceBrick(RelationsChartBrickMixin, core_bricks.InstanceBrick):
         self.graph = graph = instance_brick_config_item.real_entity
         self.verbose_name = gettext('Relationship graph — {graph}').format(graph=graph)
 
+    @override
     def get_template_context(self, context, **extra_kwargs):
         return super().get_template_context(
             context,

@@ -177,11 +177,13 @@ class RoleUsersBrick(bricks.QuerysetBrick):
     dependencies = [get_user_model()]
     template_name = 'creme_core/bricks/role/users.html'
 
-    def render(self, context):
-        return self._render(self.get_template_context(
-            context,
-            get_user_model().objects.filter(roles=context['object']),
-        ))
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
+        if queryset is None:
+            queryset = self.dependencies[0].objects.filter(roles=context['object'])
+
+        return super().get_template_context(
+            context=context, queryset=queryset, **extra_kwargs
+        )
 
 
 # TODO: manage "super-user" too?

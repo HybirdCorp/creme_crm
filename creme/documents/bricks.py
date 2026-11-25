@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import override
+
 from django.db.models import Q, prefetch_related_objects
 from django.utils.translation import gettext_lazy as _
 
@@ -73,6 +75,7 @@ class FolderDocsBrick(QuerysetBrick):
     #         Document.objects.filter(**q_dict),
     #         q_filter=QSerializer().dumps(Q(**q_dict)),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         folder_id = context['object'].id
         q_dict = {'linked_folder': folder_id}
@@ -106,6 +109,7 @@ class ChildFoldersBrick(QuerysetBrick):
     #         context,
     #         Folder.objects.filter(parent_folder=folder),
     #     ))
+    @override
     def get_template_context(self, context, queryset=None, **extra_kwargs):
         if queryset is None:
             queryset = Folder.objects.filter(parent_folder=context['object'])
@@ -129,16 +133,38 @@ class LinkedDocsBrick(QuerysetBrick):
     template_name = 'documents/bricks/linked-docs.html'
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
-    # def detailview_display(self, context):
-    def render(self, context):
-        entity = context['object']
+    # # def detailview_display(self, context):
+    # def render(self, context):
+    #     entity = context['object']
+    #     rtype = RelationType.objects.get(id=self.relation_type_deps[0])
+    #     btc = self.get_template_context(
+    #         context,
+    #         Relation.objects
+    #                 .filter(subject_entity=entity.id, type=rtype)
+    #                 .prefetch_related('real_object'),
+    #         relation_type=rtype,
+    #     )
+    #
+    #     prefetch_related_objects(
+    #         [rel.real_object for rel in btc['page'].object_list],
+    #         'linked_folder',
+    #     )
+    #
+    #     return self._render(btc)
+    @override
+    def get_template_context(self, context, queryset=None, **extra_kwargs):
         rtype = RelationType.objects.get(id=self.relation_type_deps[0])
-        btc = self.get_template_context(
-            context,
-            Relation.objects
-                    .filter(subject_entity=entity.id, type=rtype)
-                    .prefetch_related('real_object'),
+
+        if queryset is None:
+            entity = context['object']
+            queryset = Relation.objects.filter(
+                subject_entity=entity.id, type=rtype
+            ).prefetch_related('real_object')
+
+        btc = super().get_template_context(
+            context=context, queryset=queryset,
             relation_type=rtype,
+            **extra_kwargs
         )
 
         # TODO: assert only Documents?
@@ -148,4 +174,4 @@ class LinkedDocsBrick(QuerysetBrick):
             'linked_folder',
         )
 
-        return self._render(btc)
+        return btc
