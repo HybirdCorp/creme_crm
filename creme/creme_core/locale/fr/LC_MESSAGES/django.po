@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 10:47+0100\n"
+"POT-Creation-Date: 2026-11-27 09:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3892,8 +3892,12 @@ msgid "Modified on"
 msgstr "Modifié le"
 
 msgctxt "creme_core-role"
-msgid "Deactivated on"
-msgstr "Désactivé le"
+msgid "Deactivated"
+msgstr "Désactivé"
+
+#, python-format
+msgid "On %(date)s"
+msgstr "Le %(date)s"
 
 msgid "Allowed applications"
 msgstr "Applications autorisées"
@@ -4054,10 +4058,6 @@ msgstr "Modifié le"
 
 msgid "Disabling"
 msgstr "Désactivation"
-
-#, python-format
-msgid "On %(date)s"
-msgstr "Le %(date)s"
 
 msgid "Trigger"
 msgstr "Déclenchement"
@@ -5306,6 +5306,10 @@ msgstr "Sujet : {subject}"
 
 msgid "Body:"
 msgstr "Corps :"
+
+#~ msgctxt "creme_core-role"
+#~ msgid "Deactivated on"
+#~ msgstr "Désactivé le"
 
 #~ msgid "This entity is used by some conditions of filter."
 #~ msgstr "Cette fiche est utilisée par des conditions de filtre."

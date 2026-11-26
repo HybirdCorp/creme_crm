@@ -118,6 +118,7 @@ class UserRole(models.Model):
     deactivated_on = models.DateTimeField(
         _('Deactivated on'), null=True, default=None, editable=False,
     )
+    deactivation_reason = models.TextField(editable=False).set_tags(viewable=False)
 
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(

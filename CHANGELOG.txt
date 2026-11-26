@@ -52,6 +52,7 @@
                   You can now create customised notification channels, which are
                   the only ones which can be used by this new action.
                 - When you disable a Workflow, a reason must now be given.
+            - When you disable a UserRole, a reason must now be given.
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.
@@ -361,6 +362,7 @@
                 - The enum 'forms.widgets.BricksConfigWidget.zones' has been renamed 'Zone'.
                   So the attribute 'forms.fields.BricksConfigField.zones' has been renamed 'Zone'.
                 - In 'views' :
+                    - The class-view 'user_role.RoleDeactivation' is now a form view.
                     - The class-view 'workflow.WorkflowEnabling' has been reworked & can only be
                       used to enable a 'WorkFlow' (a view 'WorkflowDisabling' has been added).
                     - In these class-views, some protected methods have been removed :

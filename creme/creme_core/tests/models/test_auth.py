@@ -154,6 +154,7 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertEqual(_('Regular user'), role.name)
         self.assertFalse(role.admin_4_apps)
         self.assertIsNone(role.deactivated_on)
+        self.assertEqual('', role.deactivation_reason)
 
         allowed_apps = role.allowed_apps
         self.assertIn('creme_core', allowed_apps)
@@ -225,7 +226,8 @@ class UserRoleTestCase(BaseAuthTestCase):
 
     def test_delete(self):
         role = self._create_role(
-            'Coder', ['creme_core'],
+            'Coder',
+            allowed_apps=['creme_core'],
             set_creds=[
                 SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
                 SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
@@ -238,7 +240,7 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertFalse(SetCredentials.objects.filter(role=role.id))
 
     def test_delete__error(self):
-        "Can not delete a role linked to a user."
+        """Can not delete a role linked to a user."""
         user = self.create_user()
         role = self._create_role(
             'Coder', ['creme_core'], users=[user],  # 'persons'

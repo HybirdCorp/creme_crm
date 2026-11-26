@@ -20,8 +20,12 @@
     </div>
     {% if object.deactivated_on %}
     <div class="brick-kv-item">
-        <div class="brick-kv-key">{% translate 'Deactivated on' context 'creme_core-role' %}</div>
-        <div class="brick-kv-value">{% print_field object=object field='deactivated_on' %}</div>
+        <div class="brick-kv-key">{% translate 'Deactivated' context 'creme_core-role' %}</div>
+        <div class="brick-kv-value">
+{#            {% print_field object=object field='deactivated_on' %} #}
+            {% blocktranslate with date=object.deactivated_on %}On {{date}}{% endblocktranslate %}
+            <br>{{object.deactivation_reason|linebreaksbr}}
+        </div>
     </div>
     {% endif %}
     <div class="brick-kv-item">

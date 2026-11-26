@@ -21,7 +21,9 @@
     {% brick_table_column title=_('Export credentials')         status='nowrap' class='role-export-creds' %}
     {% brick_table_column title=_('Special permissions')        status='nowrap' class='role-special-perms' %}
     {% brick_table_column title=_('Entities credentials')       status='nowrap' class='role-creds' %}
-    {% brick_table_column title=_('Actions') status='action' colspan=4 %}
+{#    {% brick_table_column title=_('Actions') status='action' colspan=4 %} #}
+    {% brick_table_column title=_('Activation') class='role-activation' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -56,11 +58,25 @@
             </ul>
             {% brick_action id='edit' url='creme_config__add_credentials_to_role'|url:role.id icon='add' label=_('New credentials') display='both' enabled=admin_perm %}
         </td>
+{% comment %}
         <td {% brick_table_data_status action %}>
           {% if role.deactivated_on %}
             {% brick_table_action id='update' url='creme_config__activate_role'|url:role.id   label=_('Activate')   display='text' enabled=admin_perm %}
           {% elif role.id != user.role_id %}
             {% brick_table_action id='update' url='creme_config__deactivate_role'|url:role.id label=_('Deactivate') display='text' enabled=admin_perm %}
+          {% endif %}
+        </td>
+{% endcomment %}
+        <td class="role-activation">
+          {% if role.deactivated_on %}
+            <div class="deactivated-reason">
+                {% blocktranslate with date=role.deactivated_on context 'creme_config-role' %}Deactivated on {{date}}{% endblocktranslate %}<br>
+                {% blocktranslate with reason=role.deactivation_reason|linebreaksbr %}Reason: {{reason}}{% endblocktranslate %}
+                {% brick_table_action id='edit' url='creme_config__edit_role_deactivation_reason'|url:role.id label=_('Edit the reason') display='text' enabled=admin_perm %}
+            </div>
+            {% brick_table_action id='update' url='creme_config__activate_role'|url:role.id   label=_('Activate')   display='text' enabled=admin_perm %}
+          {% elif role.id != user.role_id %}
+            {% brick_table_action id='edit' url='creme_config__deactivate_role'|url:role.id label=_('Deactivate') display='text' enabled=admin_perm %}
           {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
