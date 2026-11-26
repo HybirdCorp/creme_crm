@@ -163,6 +163,11 @@ role_patterns = [
         name='creme_config__deactivate_role',
     ),
     re_path(
+        r'^edit_reason/(?P<role_id>\d+)[/]?$',
+        user_role.RoleDeactivationReasonEdition.as_view(),
+        name='creme_config__edit_role_deactivation_reason',
+    ),
+    re_path(
         r'^clone/(?P<role_id>\d+)[/]?$',
         user_role.RoleCloning.as_view(),
         name='creme_config__clone_role',

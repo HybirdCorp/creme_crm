@@ -17,14 +17,17 @@
 ################################################################################
 
 from collections import OrderedDict
+from typing import override
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext
+from django.utils.translation import ngettext, pgettext
 
 import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_core.apps import (
@@ -34,12 +37,14 @@ from creme.creme_core.apps import (
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.auth.special import special_perm_registry
+from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.core import deletion
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     condition_handler,
     entity_filter_registries,
 )
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import (
     CremeModelForm,
@@ -57,6 +62,7 @@ from creme.creme_core.models import (
     EntityFilter,
     Job,
     MenuConfigItem,
+    Notification,
     SearchConfigItem,
     SetCredentials,
     UserRole,
@@ -65,6 +71,8 @@ from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.model import update_model_instance
 from creme.creme_core.utils.unicode_collation import collator
+
+from ..notification import RoleSwitchContent
 
 
 def filtered_entity_ctypes(app_labels):
@@ -140,6 +148,7 @@ class CredentialsGeneralStep(CremeModelForm):
         for fname, perm in self.PERM_FIELDS.items():
             fields[fname].initial = bool(value & perm)
 
+    @override
     def clean(self, *args, **kwargs):
         cdata = super().clean(*args, **kwargs)
 
@@ -154,6 +163,7 @@ class CredentialsGeneralStep(CremeModelForm):
     def _get_allowed_apps(self):
         return self.instance.role.allowed_apps
 
+    @override
     def save(self, *args, **kwargs):
         get_data = self.cleaned_data.get
         self.instance.set_value(
@@ -256,6 +266,7 @@ class CredentialsFilterStep(CremeModelForm):
                 initial=_('No filter, no condition.'),
             )
 
+    @override
     def clean(self):
         cdata = super().clean()
 
@@ -281,6 +292,7 @@ class CredentialsFilterStep(CremeModelForm):
     def _handler_fieldname(self, handler_cls):
         return handler_cls.__name__.lower().replace('handler', '')
 
+    @override
     def save(self, *args, **kwargs):
         instance = self.instance
         conditions = self.get_cleaned_conditions()
@@ -329,6 +341,82 @@ class CredentialsFilterStep(CremeModelForm):
         return instance
 
 
+class UserRoleDeactivationForm(CremeModelForm):
+    reason = forms.CharField(label=_('Reason'), widget=forms.Textarea)
+
+    class Meta:
+        model = UserRole
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._users_to_update = users_to_update = []
+        blocking_users = []
+        for user in get_user_model().objects.filter(role=self.instance):
+            second_role = user.roles.filter(
+                deactivated_on=None,
+            ).exclude(id=user.role_id).first()
+
+            if second_role is None:
+                blocking_users.append(user)
+            else:
+                user.role = second_role  # See bulk_update() below
+                users_to_update.append(user)
+
+        if blocking_users:
+            count = len(blocking_users)
+            raise ConflictError(
+                ngettext(
+                    "This role cannot be deactivated because it is used by {count} "
+                    "user without secondary active role to switch on: {users}.",
+                    "This role cannot be deactivated because it is used by {count} "
+                    "users without secondary active role to switch on: {users}.",
+                    number=count,
+                ).format(
+                    count=count,
+                    users=', '.join(f'«{b_user}»' for b_user in blocking_users),
+                ),
+            )
+
+    @override
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.deactivated_on = now()
+        instance.deactivation_reason = self.cleaned_data['reason']
+
+        super().save(*args, **kwargs)
+
+        users_to_update = self._users_to_update
+        if users_to_update:
+            Notification.objects.send(
+                users=users_to_update,
+                channel=UUID_CHANNEL_ADMIN,
+                content=RoleSwitchContent(),
+            )
+            type(users_to_update[0]).objects.bulk_update(users_to_update, fields=['role'])
+
+        return instance
+
+
+class UserRoleDeactivationReasonForm(CremeModelForm):
+    reason = forms.CharField(label=_('Reason'), widget=forms.Textarea)
+
+    class Meta:
+        model = UserRole
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['reason'].initial = self.instance.deactivation_reason
+
+    @override
+    def save(self, *args, **kwargs):
+        self.instance.deactivation_reason = self.cleaned_data['reason']
+
+        return super().save(*args, **kwargs)
+
+
 class UserRoleCloningForm(CremeModelForm):
     class Meta:
         model = UserRole
@@ -370,6 +458,7 @@ class UserRoleCloningForm(CremeModelForm):
                 required=False,
             )
 
+    @override
     def save(self, *args, **kwargs) -> UserRole:
         cdata = self.cleaned_data
         instance: UserRole = self.instance
@@ -466,6 +555,7 @@ class UserRoleDeletionForm(CremeModelForm):
         role_to_delete = self.role_to_delete
         return CremeUser.objects.filter(Q(role=role_to_delete) | Q(roles=role_to_delete))
 
+    @override
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.instance_to_delete = self.role_to_delete
@@ -503,6 +593,7 @@ class _UserRoleWizardFormStep(CremeModelForm):
             key=lambda t: sort_key(t[1])
         )
 
+    @override
     def save(self, commit=False, *args, **kwargs):
         return super().save(*args, **kwargs) if commit else self.instance
 
@@ -523,6 +614,7 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
         )
         allowed_apps_f.initial = self.instance.allowed_apps
 
+    @override
     def clean(self):
         cdata = super().clean()
 
@@ -559,6 +651,7 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
         )
         admin_4_apps_f.initial = self.instance.admin_4_apps
 
+    @override
     def clean(self):
         cdata = super().clean()
 
@@ -567,6 +660,7 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
 
         return cdata
 
+    @override
     def save(self, commit=True, *args, **kwargs):
         return super().save(commit=commit, *args, **kwargs)
 
@@ -585,6 +679,7 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
             self.instance.allowed_apps,
         )
 
+    @override
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
 
@@ -610,6 +705,7 @@ class UserRoleListableCTypesStep(_UserRoleWizardFormStep):
             self.instance.allowed_apps,
         )
 
+    @override
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
 
@@ -639,6 +735,7 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
             self.instance.allowed_apps,
         )
 
+    @override
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
 
@@ -671,6 +768,7 @@ class UserRoleSpecialPermissionsStep(_UserRoleWizardFormStep):
         )
         perms_f.initial = [*self.instance.special_permissions]
 
+    @override
     def clean(self):
         cdata = super().clean()
 
@@ -718,6 +816,7 @@ class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
     def _get_allowed_apps(self):
         return self.role.allowed_apps
 
+    @override
     def save(self, commit=False, *args, **kwargs):
         self.instance.role = self.role
         return super().save(commit=commit, *args, **kwargs)

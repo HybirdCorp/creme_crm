@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 13:37+0200\n"
+"POT-Creation-Date: 2026-11-27 10:18+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -907,6 +907,23 @@ msgstr ""
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
 
+msgid "Reason"
+msgstr "Raison"
+
+#, python-brace-format
+msgid ""
+"This role cannot be deactivated because it is used by {count} user without "
+"secondary active role to switch on: {users}."
+msgid_plural ""
+"This role cannot be deactivated because it is used by {count} users without "
+"secondary active role to switch on: {users}."
+msgstr[0] ""
+"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
+"utilisateur sans rôle secondaire activé sur lequel basculer : {users}"
+msgstr[1] ""
+"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
+"utilisateurs sans rôle secondaire activé sur lequel basculer : {users}"
+
 #, python-brace-format
 msgid "Copy of «{role}»"
 msgstr "Copie de «{role}»"
@@ -1020,9 +1037,6 @@ msgstr "Conditions de «{source}»"
 
 msgid "Type of action"
 msgstr "Type d'action"
-
-msgid "Reason"
-msgstr "Raison"
 
 msgid "The file is too large (maximum size: {} bytes)"
 msgstr "Le fichier est trop gros (taille maximum : {} octets)"
@@ -2111,6 +2125,9 @@ msgstr "Droits d'export"
 msgid "Entities credentials"
 msgstr "Droits des fiches"
 
+msgid "Activation"
+msgstr "Activation"
+
 #, python-brace-format
 msgid "{count} applications"
 msgstr "{count} applications"
@@ -2153,6 +2170,15 @@ msgstr ""
 
 msgid "New credentials"
 msgstr "Nouveaux droits"
+
+#, python-format
+msgctxt "creme_config-role"
+msgid "Deactivated on %(date)s"
+msgstr "Désactivé le %(date)s"
+
+#, python-format
+msgid "Reason: %(reason)s"
+msgstr "Raison : %(reason)s"
 
 msgid "Activate"
 msgstr "Activer"
@@ -3104,22 +3130,19 @@ msgstr "Ajouter les droits"
 msgid "Edit credentials for «{role}»"
 msgstr "Modifier les droits de «{role}»"
 
+#, python-brace-format
+msgid "Deactivate «{object}»"
+msgstr "Désactiver «{object}»"
+
 msgid "You can't deactivate the role of the current user."
 msgstr "Vous ne pouvez pas désactiver le rôle de l'utilisateur courant."
 
 #, python-brace-format
-msgid ""
-"This role cannot be deactivated because it is used by {count} user without "
-"secondary active role to switch on: {users}."
-msgid_plural ""
-"This role cannot be deactivated because it is used by {count} users without "
-"secondary active role to switch on: {users}."
-msgstr[0] ""
-"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
-"utilisateur sans rôle secondaire activé sur lequel basculer : {users}"
-msgstr[1] ""
-"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
-"utilisateurs sans rôle secondaire activé sur lequel basculer : {users}"
+msgid "Edit the reason for «{object}»"
+msgstr "Modifier la raison pour «{object}»"
+
+msgid "This role is not deactivated."
+msgstr "Ce rôle n'est pas désactivé."
 
 #, python-brace-format
 msgid "Clone the role «{object}»"

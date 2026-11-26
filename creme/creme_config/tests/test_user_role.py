@@ -68,7 +68,7 @@ class BaseUserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         return self.login_as_standard(special_permissions=[role_config_perm])
 
     def login_without_role_perm(self):
-        return self.login_as_standard(allowed_apps=('creme_config',))
+        return self.login_as_standard(allowed_apps=['creme_core', 'creme_config'])
 
 
 class UserRolePortalTestCase(BaseUserRoleTestCase):
@@ -2320,45 +2320,193 @@ class UserRoleDeletionTestCase(BaseUserRoleTestCase):
         self.assertDoesNotExist(dcom)
 
 
-class UserRoleEnablingTestCase(BaseUserRoleTestCase):
+# class UserRoleEnablingTestCase(BaseUserRoleTestCase):
+#     @staticmethod
+#     def _build_activation_url(role_id, activation=True):
+#         return reverse(
+#             'creme_config__activate_role' if activation else 'creme_config__deactivate_role',
+#             args=(role_id,),
+#         )
+#
+#     def test_activation__role_not_used(self):
+#         self.login_with_role_perm()
+#
+#         other_role = self.create_role(name='Deprecated')
+#         self.assertIsNone(other_role.deactivated_on)
+#
+#         # ---
+#         build_url = self._build_activation_url
+#         deactivation_url = build_url(other_role.id, activation=False)
+#         self.assertGET405(deactivation_url)
+#         self.assertPOST200(deactivation_url)
+#         self.assertDatetimesAlmostEqual(self.refresh(other_role).deactivated_on, now())
+#
+#         # ---
+#         activation_url = build_url(other_role.id, activation=True)
+#         self.assertGET405(activation_url)
+#         self.assertPOST200(activation_url)
+#         self.assertIsNone(self.refresh(other_role).deactivated_on)
+#
+#     def test_activation__forbidden(self):
+#         "No role special perm => error."
+#         self.login_without_role_perm()
+#         other_role = self.create_role(name='Deprecated')
+#         self.assertPOST403(self._build_activation_url(other_role.id, activation=False))
+#         self.assertPOST403(self._build_activation_url(other_role.id, activation=True))
+#
+#     def test_deactivation__current_role(self):
+#         "Current role => error."
+#         user = self.login_with_role_perm()
+#         response = self.client.post(
+#             self._build_activation_url(user.role_id, activation=False),
+#             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+#         )
+#         self.assertContains(
+#             response=response,
+#             status_code=409,
+#             text=_("You can't deactivate the role of the current user."),
+#         )
+#
+#     def test_deactivation__role_used__no_other_active_role(self):
+#         self.login_as_root()
+#
+#         role = self.create_role(name='Deprecated')
+#         user1 = self.create_user(index=0, role=role)
+#         deactivation_url = self._build_activation_url(role.id, activation=False)
+#
+#         # ---
+#         response1 = self.client.post(
+#             deactivation_url,
+#             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+#         )
+#         self.assertContains(
+#             response=response1,
+#             status_code=409,
+#             text=ngettext(
+#                 "This role cannot be deactivated because it is used by {count} "
+#                 "user without secondary active role to switch on: {users}.",
+#                 "This role cannot be deactivated because it is used by {count} "
+#                 "users without secondary active role to switch on: {users}.",
+#                 number=1,
+#             ).format(count=1, users=f'«{user1}»'),
+#         )
+#
+#         # ---
+#         second_role = self.create_role(name='Already deactivated', deactivated_on=now())
+#         user2 = self.create_user(index=1, role=role, roles=[role, second_role])
+#
+#         response2 = self.client.post(
+#             deactivation_url,
+#             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+#         )
+#         self.assertContains(
+#             response=response2,
+#             status_code=409,
+#             text=ngettext(
+#                 "This role cannot be deactivated because it is used by {count} "
+#                 "user without secondary active role to switch on: {users}.",
+#                 "This role cannot be deactivated because it is used by {count} "
+#                 "users without secondary active role to switch on: {users}.",
+#                 number=2,
+#             ).format(count=2, users=f'«{user1}», «{user2}»'),
+#         )
+#
+#     def test_deactivation__role_used__other_active_role(self):
+#         self.login_as_root()
+#
+#         main_role = self.create_role(name='Deprecated')
+#         second_role = self.create_role(name='Second')
+#         third_role = self.create_role(name='Third')
+#         user = self.create_user(role=main_role, roles=[main_role, second_role, third_role])
+#
+#         self.assertPOST200(self._build_activation_url(main_role.id, activation=False))
+#         self.assertDatetimesAlmostEqual(self.refresh(main_role).deactivated_on, now())
+#         self.assertEqual(second_role, self.refresh(user).role)
+#
+#         admin_chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_ADMIN)
+#         notif = self.get_object_or_fail(
+#             Notification, user=user, channel=admin_chan,
+#         )
+#         self.assertEqual(RoleSwitchContent.id, notif.content_id)
+#         self.assertDictEqual({}, notif.content_data)
+#
+#         content = notif.content
+#         self.assertEqual(_('Role switch'), content.get_subject(user=user))
+#         body = _(
+#             'Your role has been switched to another role because it has been disabled.'
+#         )
+#         self.assertEqual(body, content.get_body(user=user))
+#         self.assertEqual(body, content.get_html_body(user=user))
+class UserRoleActivationTestCase(BaseUserRoleTestCase):
     @staticmethod
-    def _build_activation_url(role_id, activation=True):
-        return reverse(
-            'creme_config__activate_role' if activation else 'creme_config__deactivate_role',
-            args=(role_id,),
+    def _build_activation_url(role_id):
+        return reverse('creme_config__activate_role', args=(role_id,))
+
+    def test_role_not_used(self):
+        self.login_with_role_perm()
+
+        other_role = self.create_role(
+            name='Deprecated',
+            deactivated_on=now(),
+            deactivation_reason='Nobody uses it',
         )
 
-    def test_activation__role_not_used(self):
+        activation_url = self._build_activation_url(other_role.id)
+        self.assertGET405(activation_url)
+
+        self.assertPOST200(activation_url)
+        other_role = self.refresh(other_role)
+        self.assertIsNone(other_role.deactivated_on)
+        self.assertEqual('', other_role.deactivation_reason)
+
+    def test_forbidden(self):
+        """No role special perm => error."""
+        self.login_without_role_perm()
+        other_role = self.create_role(name='Deprecated')
+        self.assertPOST403(self._build_activation_url(other_role.id))
+
+
+class UserRoleDeactivationTestCase(BaseUserRoleTestCase):
+    @staticmethod
+    def _build_deactivation_url(role_id):
+        return reverse('creme_config__deactivate_role', args=(role_id,))
+
+    def test_role_not_used(self):
         self.login_with_role_perm()
 
         other_role = self.create_role(name='Deprecated')
         self.assertIsNone(other_role.deactivated_on)
 
-        # ---
-        build_url = self._build_activation_url
-        deactivation_url = build_url(other_role.id, activation=False)
-        self.assertGET405(deactivation_url)
-        self.assertPOST200(deactivation_url)
-        self.assertDatetimesAlmostEqual(self.refresh(other_role).deactivated_on, now())
+        deactivation_url = self._build_deactivation_url(other_role.id)
+        response1 = self.assertGET200(deactivation_url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
+        self.assertEqual(
+            _('Deactivate «{object}»').format(object=other_role),
+            response1.context.get('title'),
+        )
+
+        with self.assertNoException():
+            form_fields = response1.context['form'].fields
+            reason_f = form_fields['reason']
+        self.assertEqual(_('Reason'), reason_f.label)
+        self.assertTrue(reason_f.required)
+        self.assertEqual(1, len(form_fields))
 
         # ---
-        activation_url = build_url(other_role.id, activation=True)
-        self.assertGET405(activation_url)
-        self.assertPOST200(activation_url)
-        self.assertIsNone(self.refresh(other_role).deactivated_on)
+        reason = 'No more useful'
+        self.assertNoFormError(
+            self.client.post(deactivation_url, data={'reason': reason}),
+        )
 
-    def test_activation__forbidden(self):
-        "No role special perm => error."
-        self.login_without_role_perm()
-        other_role = self.create_role(name='Deprecated')
-        self.assertPOST403(self._build_activation_url(other_role.id, activation=False))
-        self.assertPOST403(self._build_activation_url(other_role.id, activation=True))
+        other_role = self.refresh(other_role)
+        self.assertDatetimesAlmostEqual(other_role.deactivated_on, now())
+        self.assertEqual(reason, other_role.deactivation_reason)
 
-    def test_deactivation__current_role(self):
-        "Current role => error."
+    def test_current_role(self):
+        """Current role => error."""
         user = self.login_with_role_perm()
         response = self.client.post(
-            self._build_activation_url(user.role_id, activation=False),
+            self._build_deactivation_url(user.role_id),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         self.assertContains(
@@ -2367,20 +2515,16 @@ class UserRoleEnablingTestCase(BaseUserRoleTestCase):
             text=_("You can't deactivate the role of the current user."),
         )
 
-    def test_deactivation__role_used__no_other_active_role(self):
+    def test_role_used__no_other_active_role(self):
         self.login_as_root()
 
         role = self.create_role(name='Deprecated')
         user1 = self.create_user(index=0, role=role)
-        deactivation_url = self._build_activation_url(role.id, activation=False)
+        deactivation_url = self._build_deactivation_url(role.id)
 
         # ---
-        response1 = self.client.post(
-            deactivation_url,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-        )
         self.assertContains(
-            response=response1,
+            response=self.client.get(deactivation_url),
             status_code=409,
             text=ngettext(
                 "This role cannot be deactivated because it is used by {count} "
@@ -2395,12 +2539,8 @@ class UserRoleEnablingTestCase(BaseUserRoleTestCase):
         second_role = self.create_role(name='Already deactivated', deactivated_on=now())
         user2 = self.create_user(index=1, role=role, roles=[role, second_role])
 
-        response2 = self.client.post(
-            deactivation_url,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-        )
         self.assertContains(
-            response=response2,
+            response=self.client.post(deactivation_url),
             status_code=409,
             text=ngettext(
                 "This role cannot be deactivated because it is used by {count} "
@@ -2411,19 +2551,29 @@ class UserRoleEnablingTestCase(BaseUserRoleTestCase):
             ).format(count=2, users=f'«{user1}», «{user2}»'),
         )
 
-    def test_deactivation__role_used__other_active_role(self):
+    def test_role_used__other_active_role(self):
         self.login_as_root()
 
         main_role = self.create_role(name='Deprecated')
         second_role = self.create_role(name='Second')
         third_role = self.create_role(name='Third')
-        user = self.create_user(role=main_role, roles=[main_role, second_role, third_role])
+        user = self.create_user(
+            role=main_role, roles=[main_role, second_role, third_role],
+        )
 
-        self.assertPOST200(self._build_activation_url(main_role.id, activation=False))
-        self.assertDatetimesAlmostEqual(self.refresh(main_role).deactivated_on, now())
+        reason = 'Bye bye'
+        self.assertNoFormError(self.client.post(
+            self._build_deactivation_url(main_role.id),
+            data={'reason': reason},
+        ))
+        main_role = self.refresh(main_role)
+        self.assertDatetimesAlmostEqual(main_role.deactivated_on, now())
+        self.assertEqual(reason, main_role.deactivation_reason)
         self.assertEqual(second_role, self.refresh(user).role)
 
-        admin_chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_ADMIN)
+        admin_chan = self.get_object_or_fail(
+            NotificationChannel, uuid=UUID_CHANNEL_ADMIN,
+        )
         notif = self.get_object_or_fail(
             Notification, user=user, channel=admin_chan,
         )
@@ -2437,6 +2587,68 @@ class UserRoleEnablingTestCase(BaseUserRoleTestCase):
         )
         self.assertEqual(body, content.get_body(user=user))
         self.assertEqual(body, content.get_html_body(user=user))
+
+    def test_forbidden(self):
+        """No role special perm => error."""
+        self.login_without_role_perm()
+        other_role = self.create_role(name='Deprecated')
+        self.assertPOST403(self._build_deactivation_url(other_role.id))
+
+
+class UserRoleDeactivationReasonEditionTestCase(BaseUserRoleTestCase):
+    @staticmethod
+    def _build_reason_edition_url(role):
+        return reverse('creme_config__edit_role_deactivation_reason', args=(role.id,))
+
+    def test_role_deactivated(self):
+        self.login_with_role_perm()
+
+        other_role = self.create_role(
+            name='Deprecated',
+            deactivated_on=now(),
+            deactivation_reason='Nobody uses it',
+        )
+
+        url = self._build_reason_edition_url(other_role)
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
+        self.assertEqual(
+            _('Edit the reason for «{object}»').format(object=other_role),
+            response1.context.get('title'),
+        )
+
+        with self.assertNoException():
+            form_fields = response1.context['form'].fields
+            reason_f = form_fields['reason']
+        self.assertEqual(_('Reason'), reason_f.label)
+        self.assertTrue(reason_f.required)
+        self.assertEqual(other_role.deactivation_reason, reason_f.initial)
+        self.assertEqual(1, len(form_fields))
+
+        # ---
+        reason = 'No more useful'
+        self.assertNoFormError(
+            self.client.post(url, data={'reason': reason}),
+        )
+        self.assertEqual(reason, self.refresh(other_role).deactivation_reason)
+
+    def test_role_activated(self):
+        self.login_as_root()
+
+        role = self.create_role(
+            name='Still active',  # deactivated_on=now(),
+        )
+        self.assertGET409(self._build_reason_edition_url(role))
+
+    def test_forbidden(self):
+        """No role special perm => error."""
+        self.login_without_role_perm()
+        other_role = self.create_role(
+            name='Deprecated',
+            deactivated_on=now(),
+            deactivation_reason='Nobody uses it',
+        )
+        self.assertPOST403(self._build_reason_edition_url(other_role))
 
 
 class UserRoleCloningTestCase(BaseUserRoleTestCase):

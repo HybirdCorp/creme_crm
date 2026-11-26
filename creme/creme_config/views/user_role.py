@@ -18,22 +18,21 @@
 
 import logging
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.timezone import now
+# from django.utils.timezone import now
+# from django.utils.translation import ngettext
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
-from creme.creme_core.constants import UUID_CHANNEL_ADMIN
+# from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import (
+from creme.creme_core.models import (  # Notification,
     DeletionCommand,
     Job,
-    Notification,
     SetCredentials,
     UserRole,
 )
@@ -43,7 +42,7 @@ from creme.creme_core.views import generic
 from ..auth import role_config_perm
 from ..bricks import UserRolesBrick
 from ..forms import user_role as role_forms
-from ..notification import RoleSwitchContent
+# from ..notification import RoleSwitchContent
 from .base import ConfigPortal
 
 logger = logging.getLogger(__name__)
@@ -186,63 +185,93 @@ class CredentialsDeletion(generic.CheckedView):
         return HttpResponse()
 
 
-class RoleDeactivation(generic.CheckedView):
-    role_id_url_kwarg = 'role_id'
+# class RoleDeactivation(generic.CheckedView):
+#     role_id_url_kwarg = 'role_id'
+#     permissions = role_config_perm.as_perm
+#
+#     def post(self, request, **kwargs):
+#         role_id = int(self.kwargs[self.role_id_url_kwarg])
+#
+#         if role_id == request.user.role_id:
+#             raise ConflictError(gettext("You can't deactivate the role of the current user."))
+#
+#         with atomic():
+#             role_to_deactivate = get_object_or_404(
+#                 UserRole.objects.select_for_update(), id=role_id,
+#             )
+#
+#             blocking_users = []
+#             users_to_update = []
+#             for user in get_user_model().objects.filter(role=role_to_deactivate):
+#                 second_role = user.roles.filter(
+#                     deactivated_on=None,
+#                 ).exclude(id=user.role_id).first()
+#
+#                 if second_role is None:
+#                     blocking_users.append(user)
+#                 else:
+#                     user.role = second_role  # See bulk_update() below
+#                     users_to_update.append(user)
+#
+#             if blocking_users:
+#                 count = len(blocking_users)
+#                 return HttpResponse(
+#                     ngettext(
+#                         "This role cannot be deactivated because it is used by {count} "
+#                         "user without secondary active role to switch on: {users}.",
+#                         "This role cannot be deactivated because it is used by {count} "
+#                         "users without secondary active role to switch on: {users}.",
+#                         number=count,
+#                     ).format(
+#                         count=count,
+#                         users=', '.join(f'«{b_user}»' for b_user in blocking_users),
+#                     ),
+#                     status=409,
+#                 )
+#
+#             if role_to_deactivate.deactivated_on is None:
+#                 role_to_deactivate.deactivated_on = now()
+#                 role_to_deactivate.save()
+#
+#             if users_to_update:
+#                 Notification.objects.send(
+#                     users=users_to_update,
+#                     channel=UUID_CHANNEL_ADMIN,
+#                     content=RoleSwitchContent(),
+#                 )
+#                 get_user_model().objects.bulk_update(users_to_update, fields=['role'])
+#
+#         return HttpResponse()
+class RoleDeactivation(generic.CremeModelEditionPopup):
+    model = UserRole
+    pk_url_kwarg = 'role_id'
+    form_class = role_forms.UserRoleDeactivationForm
     permissions = role_config_perm.as_perm
+    title = _('Deactivate «{object}»')
 
-    def post(self, request, **kwargs):
-        role_id = int(self.kwargs[self.role_id_url_kwarg])
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
 
-        if role_id == request.user.role_id:
-            raise ConflictError(gettext("You can't deactivate the role of the current user."))
-
-        with atomic():
-            role_to_deactivate = get_object_or_404(
-                UserRole.objects.select_for_update(), id=role_id,
+        if instance.id == user.role_id:
+            raise ConflictError(
+                gettext("You can't deactivate the role of the current user.")
             )
 
-            blocking_users = []
-            users_to_update = []
-            for user in get_user_model().objects.filter(role=role_to_deactivate):
-                second_role = user.roles.filter(
-                    deactivated_on=None,
-                ).exclude(id=user.role_id).first()
 
-                if second_role is None:
-                    blocking_users.append(user)
-                else:
-                    user.role = second_role  # See bulk_update() below
-                    users_to_update.append(user)
+class RoleDeactivationReasonEdition(generic.CremeModelEditionPopup):
+    model = UserRole
+    pk_url_kwarg = 'role_id'
+    form_class = role_forms.UserRoleDeactivationReasonForm
+    permissions = role_config_perm.as_perm
+    title = _('Edit the reason for «{object}»')
 
-            if blocking_users:
-                count = len(blocking_users)
-                return HttpResponse(
-                    ngettext(
-                        "This role cannot be deactivated because it is used by {count} "
-                        "user without secondary active role to switch on: {users}.",
-                        "This role cannot be deactivated because it is used by {count} "
-                        "users without secondary active role to switch on: {users}.",
-                        number=count,
-                    ).format(
-                        count=count,
-                        users=', '.join(f'«{b_user}»' for b_user in blocking_users),
-                    ),
-                    status=409,
-                )
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
 
-            if role_to_deactivate.deactivated_on is None:
-                role_to_deactivate.deactivated_on = now()
-                role_to_deactivate.save()
-
-            if users_to_update:
-                Notification.objects.send(
-                    users=users_to_update,
-                    channel=UUID_CHANNEL_ADMIN,
-                    content=RoleSwitchContent(),
-                )
-                get_user_model().objects.bulk_update(users_to_update, fields=['role'])
-
-        return HttpResponse()
+        if not instance.deactivated_on:
+            raise ConflictError(
+                gettext('This role is not deactivated.')
+            )
 
 
 class RoleActivation(generic.CheckedView):
@@ -259,6 +288,7 @@ class RoleActivation(generic.CheckedView):
 
             if role_to_activate.deactivated_on:
                 role_to_activate.deactivated_on = None
+                role_to_activate.deactivation_reason = ''
                 role_to_activate.save()
 
         return HttpResponse()
