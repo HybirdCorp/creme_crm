@@ -2830,6 +2830,50 @@ class ImportingTestCase(TransferBaseTestCase):
             ).format(subfilter=ef_id1, id=ef_id2),
         )
 
+    def test_entityfilters__with_soft_errors(self):
+        """EntityFilters with "soft" errors are dsiabled."""
+        self.login_as_super(is_staff=True)
+        efilter_id = 'creme_core.fakecontact'
+
+        efilters_data = [
+            {
+                'id':         'creme_config-test_import_entityfilters_errors1',
+                'name':       'Spikes',
+                'ctype':      efilter_id,
+                'conditions': [
+                    {
+                        'type':  RegularFieldConditionHandler.type_id,
+                        'name':  'first_name',
+                        'value': {'operator': operators.EQUALS, 'values': ['Spike']},
+                    }, {
+                        'type': RegularFieldConditionHandler.type_id,
+                        'name':  'last_name',
+                        'value': {'operator': operators.STARTSWITH, 'values': ['Spi']},
+                    }, {
+                        'type': RegularFieldConditionHandler.type_id,
+                        'name':  'sector',
+                        'value': {'operator': operators.EQUALS, 'values': [str(uuid4())]},
+                    },
+                ],
+            },
+        ]
+
+        data = {
+            'version': self.VERSION,
+            'entity_filters': efilters_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-27-11-2026.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        efilter_data = efilters_data[0]
+        ef = self.get_object_or_fail(EntityFilter, id=efilter_data['id'])
+        self.assertEqual(efilter_data['name'], ef.name)
+        self.assertEqual(2, ef.conditions.count())
+
     def test_customforms(self):
         self.login_as_super(is_staff=True)
 
