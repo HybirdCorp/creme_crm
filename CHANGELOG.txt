@@ -396,6 +396,7 @@
                 - In 'signals', the variable 'STATUSES_REPLACEMENTS' & the function 'handle_replace_statuses()'
                   have been removed.
             * Opportunities :
+                - The class 'bricks._RelatedToOpportunity' has been renamed '_RelatedToOpportunityMixin'.
                 - The method 'bricks._LinkedStuffBrick._extra_context()' has been removed;
                   override the method 'get_template_context()' instead in your child classes.
             * Commercial :

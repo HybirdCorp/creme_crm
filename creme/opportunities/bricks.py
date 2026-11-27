@@ -50,7 +50,8 @@ Service = products.get_service_model()
 Opportunity = get_opportunity_model()
 
 
-class _RelatedToOpportunity:
+# class _RelatedToOpportunity:
+class _RelatedToOpportunityMixin:
     def get_related_queryset(self, *, opportunity, model, rtype_id, exclude_deleted=True):
         """Entities of a given model linked to an opportunity by a given RelationType.
 
@@ -82,7 +83,8 @@ class _RelatedToOpportunity:
         return qs
 
 
-class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
+# class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
+class ContactsSummary(_RelatedToOpportunityMixin, persons_bricks.CardSummary):
     dependencies = [Contact]
     # TODO: what if RelationType.enable == False?
     relation_type_deps = []
@@ -106,7 +108,8 @@ class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
         return context
 
 
-class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCardHatBrick):
+# class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCardHatBrick):
+class OpportunityCardHatBrick(_RelatedToOpportunityMixin, persons_bricks._PersonsCardHatBrick):
     id = persons_bricks._PersonsCardHatBrick._generate_hat_id('opportunities', 'opportunity_card')
     verbose_name = _('Card header block')
     dependencies = [
@@ -163,7 +166,8 @@ class OpportunityBrick(EntityBrick):
         return self.verbose_name
 
 
-class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
+# class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
+class _LinkedStuffBrick(_RelatedToOpportunityMixin, QuerysetBrick):
     # id = SET ME
     # verbose_name = SET ME
     dependencies: BrickDependencies = (Relation,)  # NB: needs a second model
