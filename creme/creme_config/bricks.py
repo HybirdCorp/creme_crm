@@ -136,7 +136,7 @@ class SettingsBrick(QuerysetBrick):
     dependencies = (core_models.SettingValue,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/setting-values.html'
-    configurable = False
+    # configurable = False # Not useful indeed (static brick)
     order_by = 'id'
 
     setting_key_registry = setting_key.setting_key_registry
@@ -180,7 +180,7 @@ class WorldSettingsBrick(Brick):
     verbose_name = _('Instance settings')
     dependencies = (WorldSettings,)
     template_name = 'creme_config/bricks/world-settings.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     def get_template_context(self, context, **extra_kwargs):
         return super().get_template_context(
@@ -194,7 +194,7 @@ class _ConfigAdminBrick(QuerysetBrick):
     page_size = _PAGE_SIZE
     # The portals can be viewed by all users => reloading can be done by all users too.
     # permission = ''
-    configurable = False
+    configurable = False  # Not useful indeed (static bricks)
 
 
 class CustomEntitiesBrick(_ConfigAdminBrick):
@@ -352,7 +352,7 @@ class FieldsConfigsBrick(PaginatedBrick):
     dependencies = (core_models.FieldsConfig,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/fields-configs.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     fields_config_registry = fields_config_registry
 
@@ -400,7 +400,7 @@ class CustomFieldsBrick(Brick):
     verbose_name = 'Configuration of custom fields'
     dependencies = (core_models.CustomField,)
     template_name = 'creme_config/bricks/custom-fields.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     def get_template_context(self, context, **extra_kwargs):
         # NB: we wrap the ContentType instances instead of store extra data in
@@ -484,7 +484,7 @@ class CustomFormsBrick(PaginatedBrick):
     dependencies = (core_models.CustomFormConfigItem,)
     template_name = 'creme_config/bricks/custom-forms.html'
     page_size = _PAGE_SIZE
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     registry = customform_descriptor_registry
 
@@ -672,7 +672,7 @@ class WorkflowsBrick(PaginatedBrick):
     dependencies = (core_models.Workflow,)
     template_name = 'creme_config/bricks/workflows.html'
     page_size = _PAGE_SIZE
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     # def detailview_display(self, context):
     def render(self, context):
@@ -809,7 +809,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
     # '-1' because there is always the line for default config on each page
     page_size = _PAGE_SIZE - 1
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     brick_registry = brick_registry
 
@@ -1053,7 +1053,7 @@ class CustomBricksConfigBrick(PaginatedBrick):
     page_size = _PAGE_SIZE
     # The portals can be viewed by all users => reloading can be done by all users too.
     # permission = ''
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     # def detailview_display(self, context):
     def render(self, context):
@@ -1096,7 +1096,7 @@ class MenuBrick(_ConfigAdminBrick):
     verbose_name = _('Menu configuration')
     dependencies = (core_models.MenuConfigItem,)
     template_name = 'creme_config/bricks/menu-config.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     menu_registry = menu_registry
 
@@ -1176,7 +1176,7 @@ class NotificationChannelsBrick(_ConfigAdminBrick):
     verbose_name = 'Notification channels configuration'
     dependencies = (core_models.NotificationChannel,)
     template_name = 'creme_config/bricks/notification-channels.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     notification_registry = notification_registry
 
@@ -1237,7 +1237,7 @@ class ButtonMenuBrick(Brick):
     verbose_name = 'Button menu configuration'
     dependencies = (core_models.ButtonMenuItem,)
     template_name = 'creme_config/bricks/button-menu.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     button_registry = button_registry
 
@@ -1322,7 +1322,7 @@ class SearchConfigBrick(PaginatedBrick):
     template_name = 'creme_config/bricks/search-config.html'
     order_by = 'content_type'
     page_size = _PAGE_SIZE * 2  # Only one brick
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     # def detailview_display(self, context):
     def render(self, context):
@@ -1486,7 +1486,7 @@ class EntityFiltersBrick(PaginatedBrick):
     dependencies = (core_models.EntityFilter,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/entity-filters.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     filter_type = EF_REGULAR
     # TODO: EntityFilter.get_popup_edit_absolute_url() ??
@@ -1574,7 +1574,7 @@ class HeaderFiltersBrick(PaginatedBrick):
     dependencies = (core_models.HeaderFilter,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/header-filters.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     # def detailview_display(self, context):
     def render(self, context):

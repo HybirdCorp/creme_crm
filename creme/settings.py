@@ -727,8 +727,8 @@ CREME_CORE_WSETTINGS_MODEL = 'creme_core.WorldSettings'
 # Maximum size of the image file corresponding to the icon if the menu when you
 # customize it. When a user upload a custom icon, the file is resized if it's
 # bigger than these values.
-# Notice that the themes set a width in the <img> tag (currently 30px), so what
-# ever the maximum width/height you configure, the display will be correct.
+# Notice that the themes set a width in the <img> tag (currently 30px), so
+# whatever the maximum width/height you configure, the display will be correct.
 # But smaller values ensure better performance (notice that the custom image is
 # embedded in the HTML code)
 MENU_ICON_MAX_WIDTH = MENU_ICON_MAX_HEIGHT = 36
