@@ -119,7 +119,7 @@ class SegmentsBrick(QuerysetBrick):
     dependencies = (MarketSegment,)
     order_by = 'name'
     template_name = 'commercial/bricks/segments.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
     # NB: used by the view <creme_core.views.bricks.BricksReloading>
     permissions = 'commercial'
 

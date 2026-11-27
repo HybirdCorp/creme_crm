@@ -635,7 +635,7 @@ class JobsBrick(QuerysetBrick):
     verbose_name = _('Jobs')
     dependencies = (Job,)
     template_name = 'creme_core/bricks/jobs-all.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
     page_size = 50
     # permission = None
 
@@ -682,8 +682,8 @@ class NotificationsBrick(QuerysetBrick):
     verbose_name = _('Notifications')
     dependencies = (Notification,)
     template_name = 'creme_core/bricks/notifications.html'
-    configurable = False
-    page_size = 50
+    # configurable = False  # Not useful indeed (static brick)
+    page_size = 50  # TODO: settings?
 
     # # def detailview_display(self, context):
     # def render(self, context):

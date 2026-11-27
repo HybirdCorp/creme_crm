@@ -123,7 +123,7 @@ class DummyListBrick(PaginatedBrick):
     dependencies = ()
     permissions = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
 
     # def detailview_display(self, context):
     def render(self, context):

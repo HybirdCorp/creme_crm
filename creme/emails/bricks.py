@@ -481,7 +481,7 @@ class EmailsToSyncBrick(QuerysetBrick):
     dependencies = (EmailToSync,)
     order_by = 'id'
     template_name = 'emails/bricks/emails-to-sync.html'
-    configurable = False
+    # configurable = False  # Not useful indeed (static brick)
     permissions = 'emails'
     page_size = 50
 
