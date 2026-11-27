@@ -52,7 +52,8 @@
                   You can now create customised notification channels, which are
                   the only ones which can be used by this new action.
                 - When you disable a Workflow, a reason must now be given.
-            - When you disable a UserRole, a reason must now be given.
+            - When you disable a UserRole, a reason must now be given; and if a role gets
+              a filter with errors, it cannot be re-activated anymore.
         * Products :
             - A new field has been added to the models Product & Service: default_discount.
               It's used by the app 'billing' when adding lines from Products or Services.

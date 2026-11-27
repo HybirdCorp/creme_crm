@@ -5360,7 +5360,7 @@ class PropertyConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler2._exclude, True)
 
     def test_get_q(self):
-        "get_q() not empty."
+        """get_q() not empty."""
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.create
