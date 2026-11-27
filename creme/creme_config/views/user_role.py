@@ -287,6 +287,15 @@ class RoleActivation(generic.CheckedView):
             )
 
             if role_to_activate.deactivated_on:
+                for creds in role_to_activate.credentials.exclude(efilter=None):
+                    if [*creds.efilter.errors]:
+                        raise ConflictError(
+                            gettext(
+                                'You cannot re-activate this role because its '
+                                'filter «{}» contains errors.'
+                            ).format(creds.efilter)
+                        )
+
                 role_to_activate.deactivated_on = None
                 role_to_activate.deactivation_reason = ''
                 role_to_activate.save()

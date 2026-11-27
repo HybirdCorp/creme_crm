@@ -2465,6 +2465,53 @@ class UserRoleActivationTestCase(BaseUserRoleTestCase):
         other_role = self.create_role(name='Deprecated')
         self.assertPOST403(self._build_activation_url(other_role.id))
 
+    def test_role_with_filter_errors(self):
+        self.login_as_root()
+
+        role = self.create_role(
+            name='I have errors',
+            deactivated_on=now(),
+            deactivation_reason='Issue with some filters',
+        )
+
+        cond = condition_handler.RegularFieldConditionHandler.build_condition(
+            model=FakeContact,
+            operator=operators.ISTARTSWITH,
+            field_name='last_name', values=['Agency of'],
+            filter_type=EF_CREDENTIALS,
+        )
+
+        efilter = EntityFilter.objects.create(
+            id='creme_config-test_role_activation',
+            name='Agencies',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [cond],
+            check_cycles=False,   # There cannot be a cycle without sub-filter.
+            check_privacy=False,  # No sense here.
+        )
+        self.assertFalse([*self.refresh(efilter).errors])
+
+        SetCredentials.objects.create(
+            role=role,
+            set_type=SetCredentials.ESET_FILTER,
+            value=EntityCredentials.VIEW,
+            ctype=FakeContact,
+            efilter=efilter,
+        )
+
+        EntityFilterCondition.objects.filter(id=cond.id).update(value=[])
+        self.assertTrue([*self.refresh(efilter).errors])
+        self.assertContains(
+            self.client.post(self._build_activation_url(role.id)),
+            text=_(
+                'You cannot re-activate this role because its filter «{}» contains errors.'
+            ).format(efilter.name),
+            status_code=409,
+            html=True,
+        )
+
 
 class UserRoleDeactivationTestCase(BaseUserRoleTestCase):
     @staticmethod

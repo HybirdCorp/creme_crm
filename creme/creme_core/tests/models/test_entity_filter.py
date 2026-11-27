@@ -351,7 +351,7 @@ class EntityFilterManagerTestCase(CremeTestCase):
             )
 
     def test_smart_update_or_create__again__content_type_change(self):
-        "CT changes -> error (is_custom=False)."
+        """CT changes -> error (is_custom=False)."""
         create_efilter = EntityFilter.objects.smart_update_or_create
         pk = 'test-filter'
         create_efilter(
@@ -378,7 +378,7 @@ class EntityFilterManagerTestCase(CremeTestCase):
             )
 
     def test_smart_update_or_create__again__content_type_change__custom(self):
-        "CT changes -> error (is_custom=True)."
+        """CT changes -> error (is_custom=True)."""
         create_efilter = EntityFilter.objects.smart_update_or_create
         pk = 'test-filter'
         create_efilter(
